@@ -824,3 +824,23 @@ Attempts:
   Tests: `tests/test_etsy_write_guard_hook.sh` (39). Mutation: old hook fails both input-type
   cases; removing any rule fails a named assertion.
 If recurs: add the command as a case in the test file first, then fix the rule it hits.
+
+## ISSUE-080 — Apify monthly free credit exhausted, blog-gen loses its trend source
+🟡 OPEN (2026-09-12)
+Pattern: `fetch_reddit_trends.py` printed `HTTP Error 403: Forbidden` for all 4 subreddits and
+wrote 0 posts. Looks exactly like ISSUE-014 (Reddit blocking scrapes) but is not: the 403 comes
+from `api.apify.com`, not reddit.com. Body: `{"type":"platform-feature-disabled","message":
+"Monthly usage hard limit exceeded"}`. Account `iambrew2` is FREE tier, $5/mo credit, sitting at
+$5.039. Same wall will hit `fetch_reddit_comments.py`, and any other Apify caller, until the
+monthly reset.
+Attempts:
+- 2026-09-12: diagnosed. `/v2/users/me` and the actor both resolve fine, so the token is NOT
+  rotated. Only the run call 403s. Did NOT raise the plan (costs money, needs Brew).
+  Recovered the last good KD pull (2026-09-05, 37 threads) from git `790aa313` and re-ranked
+  topics off it instead. 20 of those threads were still inside the 14-day freshness window and
+  only 2 had ever been comment-mined, so the batch shipped on real reader signal, not WebSearch.
+If recurs: check `/v2/users/me/limits` -> `current.monthlyUsageUsd` against `plan.maxMonthlyUsageUsd`
+BEFORE blaming the actor or the token. A 403 with all subreddits failing identically and an instant
+return is a billing wall; a hang is ISSUE-075. Recovery: `git log --diff-filter=AM -- data/reddit-trends-<site>.json`,
+`git show <sha>:data/reddit-trends-<site>.json`, filter to created >= today-14d. Worth making the
+script fall back to the last pull by itself and label it, instead of writing an empty file.
