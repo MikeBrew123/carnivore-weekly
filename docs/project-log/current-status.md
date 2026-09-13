@@ -459,3 +459,25 @@ sent 2026-09-09 with the PDF attached (Resend `e5407c27`).
 **Still open:** `carnivoreweekly.com/api/*` is not routed to the worker, so the report viewer
 page is broken for anyone sent a link. Em dashes in report copy. Dormant `deficit` on
 maintenance customers.
+
+## 2026-09-13 — abandoned-checkout recording live, sending held
+
+Worker version `014737f4-d239-4adf-8ffe-7f156eea838c` deployed to
+`carnivore-report-api-production`. Pages deploy green on `77066d56`; production serves
+`index-DZ5-YNsj.js`. `calculator-guard` green on main, both `Paid-report recovery and resume
+email` (85 assertions) and `Abandoned-checkout recovery` (62 assertions) passing.
+
+**State: `CW_ABANDON_RECOVERY_ENABLED = OFF`.** Not in `[env.production].vars`, not a Cloudflare
+secret. Abandonments are now recorded; nothing is sent. Do not flip this without Brew.
+
+What is live: Stripe endpoint `we_1TcR3zEVDfkpGz8w3IvnMqcE` subscribed to
+`checkout.session.expired` alongside the existing `checkout.session.completed` and
+`charge.refunded`, and the worker records every expiry into `stripe_webhook_events` with the
+assessment id on it. The recovery link (`?payment=resume&session_id=`) is shipped and works,
+restoring saved answers onto Step 3 with the offer intact and claiming no payment.
+
+Backlog, recorded not fixed: `/report.html` and `carnivoreweekly.com/api/*` still 404 (a broken
+public viewer nicety, buyers get the PDF by email); recovery email copy review and activation;
+`calculator2-demo/index.html` loading the production GA4 id so local dev sessions write to the
+live property; the synthetic verification row `evt_1UFFL2EVDfkpGz8wNre6XZsv` in
+`stripe_webhook_events` to exclude from real abandonment counts.

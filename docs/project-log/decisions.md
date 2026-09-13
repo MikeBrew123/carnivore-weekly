@@ -1805,3 +1805,43 @@ dated annotation was added above the table instead.
 
 The two write scripts were single use, run from a temp file in `etsy/` and deleted. Nothing else in
 the repo changed.
+
+## 2026-09-13: abandoned-checkout recording ships, recovery sending stays off
+
+Brew approved the abandoned-checkout work **as infrastructure only**. Recording is live in
+production; sending is not, and the drafted Sarah copy is retained for a later review rather
+than activated. `CW_ABANDON_RECOVERY_ENABLED` is unset in `[env.production].vars` and is not a
+Cloudflare secret, which is the OFF state. No recovery email was sent and no historical
+abandoner was contacted.
+
+**Why record before sending.** Stripe emits `checkout.session.expired` once, roughly 24h after
+an unpaid checkout, and its own Sessions then age out of reach. That is exactly why the
+2026-07-09 play could not be repeated months later. Recording from today forward builds a
+durable abandoner set in our own database while the decision about contacting anyone stays
+open. Two real `checkout.session.expired` events already existed in the Stripe account
+(`evt_1UEY9j...`, `evt_1UEY9i...`) with nowhere to go, which is the loss this closes.
+
+**Stripe endpoint `we_1TcR3zEVDfkpGz8w3IvnMqcE`** (the CW calculator worker) went from
+`checkout.session.completed, charge.refunded` to those two plus `checkout.session.expired`.
+The update call replaces the whole list, so the complete list was read first, every existing
+event preserved, and the result read back. The two KetoDial endpoints
+(`we_1TdfXYEVDfkpGz8wQZLCYXDG`, `we_1TcvljEVDfkpGz8wNEOaNpcM`) were read and left byte-identical.
+
+**Verification created no charge.** A live Checkout Session was created against a synthetic
+assessment id that does not exist in `cw_assessment_sessions`, then expired through Stripe's
+own expire endpoint. A Checkout Session is an intent, not a charge: `payment_intent` came back
+null and `payment_status` `unpaid`. The real event reached the deployed worker, was recorded
+once, and a Stripe resend of the same event id was refused by the duplicate path. This left one
+synthetic row in `stripe_webhook_events` (`evt_1UFFL2EVDfkpGz8wNre6XZsv`, session_id
+`00000000-0000-4000-8000-000000000913`). It is harmless and will never produce an email, but it
+should be excluded from any future count of real abandonments, or deleted on Brew's word.
+
+**Cost paid for the local check, recorded rather than hidden.** `calculator2-demo/index.html`
+loads the PRODUCTION GA4 id `G-NR4JVKW2JV`, so the localhost session used to prove the recovery
+link fired two real events into the property at 15:22 UTC: `calculator_free_results` +1 and
+`calculator_step1_viewed` +1. No `calculator_offer_impression`, no `calculator_bridge_cta_click`,
+no `calculator_payment_modal_opened`, no `begin_checkout`: the bridge card never crossed its 50%
+visibility threshold because the page was never scrolled that far. The bridge cohort is
+untouched; two top-of-funnel counters are one higher than they should be. That any local dev
+session silently writes to the production property is a trap worth closing, and is filed as
+backlog, not fixed here.
