@@ -135,7 +135,7 @@ for i, diet in enumerate(diets):
               <li>Quitting at week 2. Give your body a full 30 days to adapt.</li>
               <li>Only buying grain-fed. Choose grass-fed when you can.</li>
               <li>Overcooking organs. Liver tastes best medium-rare.</li>
-              <li>Forgetting water. Drink half your body weight in oz daily.</li>
+              <li>Forcing water to a number. Drink when you're thirsty.</li>
             </ul>
           </div>
         </div>'''
