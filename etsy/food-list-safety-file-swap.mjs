@@ -28,8 +28,8 @@ import { getEtsyToken, etsyHeaders } from './token.mjs';
 const SHOP = 63916912;
 const LISTING = 4464217665;
 const SWAPS = [
-  { pdf: 'products/pdfs/diet-food-list-landscape-a4.pdf',     name: 'diet-food-list-landscape-a4.pdf',     oldFileId: 1469947956323, rank: 3 },
-  { pdf: 'products/pdfs/diet-food-list-landscape-letter.pdf', name: 'diet-food-list-landscape-letter.pdf', oldFileId: 1468776778536, rank: 4 },
+  { pdf: 'products/pdfs/diet-food-list-landscape-a4.pdf',     name: 'diet-food-list-landscape-a4.pdf',     oldFileId: 1515698232963, rank: 3 },
+  { pdf: 'products/pdfs/diet-food-list-landscape-letter.pdf', name: 'diet-food-list-landscape-letter.pdf', oldFileId: 1515698234347, rank: 4 },
 ];
 
 const mode = process.argv.includes('--remove-old') ? 'remove'
