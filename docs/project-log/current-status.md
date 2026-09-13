@@ -1,6 +1,14 @@
 # Current Status
 
-**Last Updated:** 2026-09-13 (Resend integration sprint CLOSED; KD weekly restored, report-email authz fixed, dashboard metrics reconciled)
+**Last Updated:** 2026-09-13 (Resend sprint CLOSED; abandoned-checkout recovery SENDING re-disabled for the bridge window)
+
+**2026-09-13 · Abandoned-checkout recovery: RECORDING ON, SENDING OFF.** Worker `dac87512`, main `790de892`. `CW_ABANDON_RECOVERY_ENABLED = "false"` in `[env.production].vars`.
+
+- **Sending is OFF.** Gated by the `!== 'true'` check in `sendAbandonRecoveryIfOwed`, which returns `skipped:'recovery-disabled'` before any database lookup and before the marker check. Confirmed in the deployed bindings.
+- **Recording is ON and untouched.** `checkout.session.expired` handler, the `stripe_webhook_events` row, `ABANDON_RECOVERY_EPOCH_MS`, the recovery code and its 83-assertion suite all have zero diff. The only change was one value in `wrangler.toml`.
+- **Nothing was ever sent on this path.** Verified two ways before flipping: 0 `cw-abandon-email:` markers in `stripe_webhook_events` (the 2 `cw-resume` markers are a different, legitimate path), and 0 emails matching the abandon subject across 1,500 Resend sends back to 2026-08-17. Also 0 `checkout.session.expired` rows recorded, so no reader had abandoned a checkout since recovery went live that morning. No customer-visible change.
+- **Why off:** the recovery link returns the reader to the ordinary Step 3 offer with no recovery-source attribution, so a recovery send would land those conversions inside the active bridge-offer cohort and contaminate it. **Re-enable only once recovery traffic can be attributed separately.**
+
 
 **2026-09-13 · Resend integration sprint is COMPLETE.** Main `eaa0a7c8`. Observability sprint, not a migration: no contacts, drips, sender domains, unsubscribe behaviour or email copy were moved or rewritten.
 
@@ -13,7 +21,7 @@
 | Dashboard email metrics | **Corrected and reconciled** (`bc67750b`). Was rendering CW 194.4% and KD 100.9% delivery. Attempts = `delivered + bounced` over distinct `resend_id`; reproduces Resend's native `sent` EXACTLY at 7d (459) and 30d (1,622). |
 | Fixture traffic | **Excluded consistently** from attempts, delivered, bounced, complained, opens and clicks, reusing `subscriber_hygiene.is_undeliverable_fixture` (the same rule the live send paths use). |
 
-**Health baseline at close (fixture-clean).** CW 7d 99.41% delivery / 0.59% bounce; CW 30d 99.10% / 0.90%. KD 7d 97.39% / 2.61%; KD 30d 98.23% / 1.77%. **Zero spam complaints across 1,596 deliveries, all time.**
+**Health baseline at close (fixture-clean).** CW 7d 99.41% delivery / 0.59% bounce; CW 30d 99.10% / 0.90%. KD 7d 97.39% / 2.61%; KD 30d 98.23% / 1.77%. **Zero spam complaints across 1,596 deliveries in the measured 30-day window** (2026-08-15 to 2026-09-13).
 
 **P0 fixed in-sprint: paid report disclosure** (`520d8d01`, worker `a19e5933`). `handleEmailReport` mailed a paid report to any address in the request body with no owner check and no payment check. Now gated on report row + `payment_status='completed'` + address match, and delivery goes to the STORED address, never the supplied one. Smoke-tested live against a synthetic UNPAID fixture session so no send was possible.
 
