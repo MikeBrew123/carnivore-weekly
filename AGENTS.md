@@ -28,11 +28,10 @@ edit cap and guard, and the CI safety suites are the enforced behaviour. If a do
 tells you to do something one of those refuses, the document is the thing that is
 wrong. Report it; do not work around the control.
 
-This file is being shortened to a pointer. Until that lands it still carries some
-detail that exists nowhere else: chiefly the Resend sending infrastructure block,
-whose proposed destination is `docs/guides/email.md` (not yet moved, pending Brew).
-Do not add new rules here. New rules go to `CLAUDE.md`, or to the skill or agent file
-that the work actually loads.
+This file is being shortened to a pointer. The email operational detail it used to
+carry now lives in [`docs/guides/email.md`](docs/guides/email.md). Do not add new
+rules here. New rules go to `CLAUDE.md`, or to the guide, skill or agent file that the
+work actually loads.
 
 **Writer agents are invoked, not read.** See "Agents" below and Step 2 of the blog
 pipeline: the persona is loaded by the Agent tool from `.claude/agents/`, never by
@@ -300,55 +299,20 @@ Manual edits allowed when instructed, but:
 
 ---
 
-## Email & Newsletter — All In-House via Resend
+## Email and newsletter
 
-**Beehiiv:** DEPRECATED. Do not use. All email is in-house now.
-**MailerLite:** DEPRECATED (2026-05-26). Do not use.
+**All email is in-house via Resend. Beehiiv and MailerLite are DEPRECATED and purged.**
 
-### Sending Infrastructure
-- **Platform:** Resend (all email — drip, newsletter, transactional)
-- **Domain:** `carnivoreweekly.com` (verified, DKIM/SPF/DMARC live)
-- **From addresses:**
-  - CW newsletter: `newsletter@carnivoreweekly.com`
-  - KD newsletter: `ketodial@carnivoreweekly.com`
-  - KD coach: `coach@carnivoreweekly.com`
-- **Reply-to:** the site's own catch-all, never a personal inbox.
-  - CW: `newsletter@carnivoreweekly.com`
-  - KD: `ketodial@carnivoreweekly.com` (inbound catch-all → daily digest)
-  - **NEVER `iambrew@gmail.com`.** Subscriber replies go to a catch-all that the
-    `writer-inbox-daily-check` task sweeps, so nothing anyone says goes unseen.
-- **API key:** `secrets/api-keys.json` → `resend.key`
+The operational detail that used to live here (addresses, endpoints, tables, drip and
+newsletter procedures, quota handling) now lives in one place:
+**[`docs/guides/email.md`](docs/guides/email.md)**. Read it before any email work.
 
-### Drip Sequence (30-Day Carnivore Starter)
-- **Script:** `scripts/send_drip.py` — runs daily via `daily-publish.yml` GitHub Action
-- **Templates:** `data/drip-emails/` — 11 emails: day-1 through day-7 daily, then day-10, 14, 21, 28
-- **Subscribers table:** `drip_subscribers` (Supabase) — tracks `current_day`, `last_sent_at`, `completed`
-- **Flow:** signup → Supabase insert → daily cron advances to next scheduled day → after day 28 graduates to `newsletter_subscribers`
-- **Unsubscribe:** `/api/v1/unsubscribe` on Cloudflare Worker
+Two rules are repeated here because getting them wrong reaches a subscriber:
 
-### Newsletter (Weekly)
-- **Generate:** `scripts/generate_newsletter.py` → `newsletters/{date}.html`
-- **Content:** `data/newsletter_content.json` (subject line, sections by writer)
-- **Send:** `scripts/send_newsletter.py --site cw` (or `--site kd`)
-- **Subscribers table:** `newsletter_subscribers` (Supabase) — `site` field = `cw` or `kd`
-- **KetoDial:** `scripts/send_newsletter.py --site kd`
-
-### Open/Click Tracking
-- **Webhook:** Resend → `https://carnivore-report-api.iambrew.workers.dev/webhook/resend`
-- **Events tracked:** sent, delivered, opened, clicked, bounced, complained
-- **Storage:** `drip_events` table (Supabase) — `email`, `resend_id`, `event_type`, `subject`, `metadata`
-- **Signing secret:** `secrets/api-keys.json` → `resend.webhook_signing_secret`
-- **Query opens:** `SELECT * FROM drip_events WHERE event_type = 'opened' ORDER BY created_at DESC`
-
-### Signup Endpoint
-- **Route:** `/api/v1/subscribe` on Cloudflare Worker → inserts to `drip_subscribers` (Supabase)
-- **Also:** `/api/v1/subscribe/newsletter` → inserts to `newsletter_subscribers`
-
-### NEVER
-- Use Beehiiv for anything (deprecated)
-- Use MailerLite for anything (deprecated)
-- Rich-text paste into any email editor (strips styling)
-- Send newsletters without `--test` first
+- **Subscriber replies go to the site catch-all, never a personal inbox.**
+  CW `newsletter@carnivoreweekly.com`, KD `ketodial@carnivoreweekly.com`.
+  Never `iambrew@gmail.com`.
+- **Never send a newsletter without `--test` first.**
 
 ---
 
