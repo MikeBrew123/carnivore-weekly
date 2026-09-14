@@ -2029,3 +2029,74 @@ so no reader had abandoned a checkout in the roughly seven hours the feature was
 Nothing was ever delivered on this path, so there is no customer-visible change and
 nothing to reconcile. Had a single marker existed the instruction was to stop and
 report rather than change state.
+
+---
+
+## 2026-09-14 — Calorie guidance is three states, and two meals is a stated default
+
+**Decision (Brew's sprint direction, implemented PR #72, merged `24c88a26`, deployed worker
+version `3064906e-7a65-4081-a147-81be97f58bf4`).**
+
+The $29 report priced calories from body size, activity and goal alone. Medical context
+reached the electrolyte and protein sections and never reached this one, so a 62-year-old
+on insulin and metoprolol got the same 20% deficit as a healthy 51-year-old, and that
+deficit sized every portion on her calendar and every quantity on her shopping list.
+
+**The rejected answer was "medical context detected, suppress the number."** That turns a
+paid report into a disclaimer. Customers pay for recommendations. So guidance grades the
+claim rather than switching it off:
+
+| State | Trigger | Customer receives |
+|---|---|---|
+| `normal` | no relevant medical context | the target as calculated, stated plainly |
+| `qualified` | declared medication, cardiac/renal/hepatic/BP condition, or glucose-lowering drug | a real usable number: maintenance. The **deficit** is removed |
+| `suppressed` | declared kidney disease | no figure in copy, AI prompt, goal horizon, or meal engine |
+
+**Qualified removes the deficit rather than relabelling it.** This was the safety reviewer's
+central objection to the first design and it was accepted. Leaving a 20% cut in place and
+calling it "approximate" is a copy change wearing a safety fix's name, and the cut would
+still have sized the food underneath. That is the same cosmetic-safety pattern this codebase
+already shipped once with protein (see 2026-09-08). `tests/calorie-guidance` GROUP C asserts
+the medicated reader's calendar is not the healthy reader's calendar with softer text on it.
+
+**Symptoms alone do not qualify, and neither does an unrelated condition.** `medical-context.js`
+is explicit that the number axis and the claim axis must not share a trigger. A reader who
+reports bloating, or hypothyroidism, keeps an ordinary recommendation. The softening they do
+need already reaches them through `restrictConditionClaims`.
+
+**`calculateMacros` was not touched**, so `tests/macro_parity` still locks the client bundle
+and the worker to identical numbers. The adjustment lives at the paid-report layer, because
+the free calculator legitimately runs before a single health question is asked.
+
+**Consequence accepted deliberately:** a qualified buyer now sees a HIGHER number in the paid
+report than the one that sold it. Sarah's copy says so in the first sentence rather than
+leaving them to notice. The offer bullet on Step 3 still names the deficit figure; that gap
+is filed as `carnivore-weekly-gfkh` and was not fixed here because the purchase UI was frozen.
+
+**Meal frequency.** `mealsPerDay` has never been on the questionnaire, so the generator
+defaulted to 2 silently while the Lion food guide told the same reader their diet is
+"typically one meal per day (OMAD)" with a 500-1500 g single meal. The report argued with
+itself and the half that reached production was the half encouraging one meal a day, with no
+medication gate on it. Decision: **do not add a questionnaire field merely because dormant
+code exists.** Two meals is now a stated template with the assumption named, and OMAD copy
+requires an explicit supported declaration that production does not supply. Removal was
+chosen over gating on `glucoseLowering` because the contradiction was universal, not
+diabetes-specific, and fasting risk is not confined to that drug class.
+
+**Two existing assertions were replaced, not deleted**, both in `renal-meal-plan-suppression`
+GROUP F. They pinned that a healthy Lion reader "still gets the original amount" of
+500-1500 g. That was correct about the renal fix and wrong about the product. Reasoning is
+recorded inline at the assertions.
+
+**The suite is mutation-tested.** GROUP F strips the guards from a copy of the worker,
+rebuilds the renal persona's meal plan, and asserts the unsafe plan DOES build. If that ever
+passes quietly, the guard was already gone and the rest of the file was measuring nothing.
+
+**Production verification.** Two live probes, both refused before any Stripe call with
+`charged:false`: `UNDER_18_NOT_SUPPORTED`, and `CALORIE_TARGET_SUPPRESSED` (estimated
+maintenance 825 against a 1200 floor). The post-payment path is unverified and needs one real
+purchase: there is no zero-cost path by design, since TEST999/TEST95 were retired 2026-08-05
+and the deepest live coupon is 50% off. Tracked as `carnivore-weekly-n5jc`.
+
+All customer-facing copy written by Sarah (`sarah-health-coach`) and verified by her against
+`assertNoDeterministicOutcomes`, `assertNoAdvocacy` and `findUnfoundedClearance`.
