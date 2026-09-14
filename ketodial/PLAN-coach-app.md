@@ -474,7 +474,7 @@ create table metrics (
 | Database | Supabase PostgreSQL | RLS for security |
 | Payments | Stripe | Subscriptions, webhooks |
 | AI | Claude API | Coaching responses |
-| Email | Beehiiv or Resend | Check-in reminders, notifications |
+| Email | Resend | Check-in reminders, notifications |
 | Hosting | Vercel or Cloudflare Pages | |
 | Domain | coach.ketodial.com | Subdomain of existing site |
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Point-in-time backup of the newsletter/drip subscriber lists.
 
-The list is not on Beehiiv and never was — `handleBeehiivSubscribe` in
-api/calculator-api.js is a stale name for a pure Supabase writer. The real list
-is two Postgres tables reached over PostgREST:
+The list has only ever lived in Supabase — `handleSubscribe` in
+api/calculator-api.js is a pure Supabase writer. The real list is two Postgres
+tables reached over PostgREST:
 
   newsletter_subscribers  the weekly list (cw + kd), with status/bounce columns
   drip_subscribers        the 30-day onboarding sequence, graduates into the above

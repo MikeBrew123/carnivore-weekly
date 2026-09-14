@@ -150,6 +150,20 @@ Executing the Jul 4-7 revenue sprint (`Brew-Vault/00-Core/Fable-Sprint-2026-07.m
 
 ---
 
+## MANUAL EDITS LOG
+
+Edits made directly to a generated output file rather than through its template.
+Each entry names the template that was fixed alongside it, so the next
+regeneration produces no surprise diff.
+
+- **2026-09-14 — `public/index.html:1844` and `index.html:1825`.** One JS comment,
+  `// Newsletter form handling — Beehiiv via Cloudflare Worker` -> `Supabase via
+  Cloudflare Worker`. The form has posted to a Supabase-backed Worker since the
+  Beehiiv purge; the comment was the last thing in the codebase still claiming
+  otherwise. `templates/index_template.html` was fixed in the same commit, so the
+  Sunday refresh will regenerate these two files identically. Comment only, no
+  markup or behaviour touched.
+
 ## Outstanding TODOs
 
 - **Etsy content series** — Sarah's bridal Etsy series: posts 1-2 shipped (May 19, May 30), posts 3-4 not yet written.
