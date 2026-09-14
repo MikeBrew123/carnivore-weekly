@@ -2,6 +2,14 @@
 
 **Last Updated:** 2026-09-14 (paid-report calorie guidance shipped and deployed; one real purchase still owed, bead `carnivore-weekly-n5jc`)
 
+**2026-09-14 · The KD weekly newsletter no longer double-sends to subscribers who are mid-drip. MERGED `63aa3123` (PR #73).** The suppression guard in `send_newsletter.get_subscribers()` was gated on `site == "cw"` and KetoDial fell through it. Verified on live production data before shipping: **42 of the 75 active KD newsletter subscribers were mid-drip** and in line to receive the 2026-09-16 weekly on top of that morning's drip email.
+
+The change is the branch condition and nothing else. KD sends CW's identical query, so it inherits proven behaviour rather than a second implementation. Production-verified against live Supabase on the merged main code, read-only with the send path blocked: **KD 72 to 30 recipients (42 suppressed); CW 105 to 105, 101 suppressed, byte-identical.** Newsletter copy, drip cadence and CW behaviour were all untouched.
+
+New suite `tests/test_newsletter_drip_suppression.py`, 12 assertions, mutation-tested three ways (reverting to cw-only, dropping cw, and site-scoping the query each turned named assertions red). 142 assertions green across the five related send-path suites; `validate_before_commit.py` 0 critical.
+
+**The 2026-09-16 KD weekly is safe to run unattended.** Its only sender is `.github/workflows/weekly-update.yml` (cron Sun + Wed 00:00 UTC) calling `scripts/weekly_newsletter.py --site both`, which shells out to `send_newsletter.py`; `get_subscribers()` is the single chokepoint and it now holds. Suppression is temporary: the KD drip is live (KD_DRIP_ENABLED true, 510 KD drip events in 14 days, 23 graduated), so suppressed subscribers rejoin the weekly at day 28. Reasoning in `decisions.md` under the same date.
+
 **2026-09-14 · The $29 report now grades its calorie recommendation instead of switching it off. MERGED `24c88a26` (PR #72) + `08bfbad0`, DEPLOYED as worker version `3064906e-7a65-4081-a147-81be97f58bf4`.** Full reasoning in `docs/project-log/decisions.md` under the same date.
 
 Calorie guidance is three states derived in `api/medical-context.js`: `normal` (no relevant medical context, target as calculated, and most customers are here), `qualified` (declared medication or cardiac/renal/hepatic/BP condition or glucose-lowering drug, keeps a real usable number at maintenance with the **deficit removed structurally**, not relabelled), `suppressed` (declared kidney disease, no figure in copy, AI prompt, goal horizon or meal engine). Reported symptoms alone, and conditions unrelated to calorie safety, deliberately stay `normal`.

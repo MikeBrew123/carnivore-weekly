@@ -2144,3 +2144,37 @@ after the revert that the same request returns a real `cs_live` checkout at $29.
 
 Test data was removed afterwards (2 report rows, 3 session rows, 0 remaining, real data
 intact at 10 reports / 19 sessions). No subscriber, newsletter or drip rows were touched.
+
+## 2026-09-14 — The weekly newsletter drip guard covers both sites, not just CW
+
+`send_newsletter.get_subscribers()` has always dropped anyone still inside the
+30-day drip, so the weekly does not stack on top of a drip email. The branch was
+written `if site == "cw"`, and KetoDial fell straight through it. On 2026-09-14,
+42 of the 75 active KD newsletter subscribers were mid-drip and in line to
+receive the 2026-09-16 weekly on top of that morning's drip send.
+
+Fixed in 63aa3123 (PR #73) by widening the condition to `("cw", "kd")` and
+nothing else. KD sends CW's identical query object, so KD inherits behaviour that
+has run in production for months rather than a second implementation. CW is
+byte-identical: 105 recipients and 101 suppressed before and after.
+
+**The drip lookup is deliberately NOT site-scoped.** Both sequences mail from
+carnivoreweekly.com, so being mid-drip anywhere holds the weekly back. This is an
+intentional exception to the "every query against a site-scoped table filters by
+site" rule in CLAUDE.md, and it fails in the safe direction. Today it makes no
+difference for KD — all 42 suppressed addresses are in the KD drip — but a future
+cross-signup should not get two emails in one morning.
+
+`kd_coach` has no drip sequence and is not suppressed.
+
+Suppression is temporary, which is what makes it safe: `send_drip.py` marks
+`completed=true` at day 28 and inserts the subscriber into that site's weekly
+list. Verified the KD drip is actually running before shipping (KD_DRIP_ENABLED
+is true, 510 KD drip events in the last 14 days, 23 KD subscribers graduated), so
+nobody is parked in suppression forever.
+
+**Entry points.** `get_subscribers()` is the single chokepoint for the KD weekly.
+The only production sender is `.github/workflows/weekly-update.yml` (cron Sunday
+and Wednesday 00:00 UTC) -> `scripts/weekly_newsletter.py --site both` ->
+subprocess -> `scripts/send_newsletter.py --site kd`. No edge function, worker or
+scheduled task mails the weekly list.
