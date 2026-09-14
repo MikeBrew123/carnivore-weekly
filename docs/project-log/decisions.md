@@ -2222,3 +2222,44 @@ Separately, three P0 beads in this class (`pe80`, `45hg`, `16sm`) were verified
 fixed and closed the same day. They had been remediated on 2026-09-12 but never
 closed; `16sm`'s fix lives in the `ketodial/public` submodule, which is why it did
 not show up in the parent repo's history and looked outstanding.
+
+## 2026-09-14 — Electrolyte sweep tier 2, and the scope method that fixed the count
+
+Tier 2 merged `91963912` (PR #76). 20 replacements by Sarah across 17 pages. Full
+business record in Banana Stand Media: `07 Governance/Safety Decisions.md` and
+`01 Carnivore Weekly/Decision Log.md`.
+
+**The tier-1 triage undercounted and the reason generalises.** It classified by
+splitting content into sentences. Markdown bullet lists have no sentence boundary,
+so a dose living in a bullet was invisible to it. Raw-source rescan: 44 pages
+carrying 91 figures, not the 16 the tier-1 baseline records. **Any future content
+audit on this repo should scan raw source, not sentences.**
+
+Counting mg figures still overstates the class about seven to one. By mineral:
+potassium 1 page, magnesium 17, sodium ~35 (nearly all salt-to-taste).
+
+**Caught before publication.** `2026-09-17-cravings-spike-week-before-period` held
+the last universal 2,600 mg potassium target on the site. `status=ready`, 404 live,
+publish date 2026-09-17. Three siblings in the set are also queued and unpublished.
+Fixed at source before any reader saw them.
+
+**Sarah found a gap the scan missed.** `2026-01-07-fasting-protocols` instructed
+readers to "Supplement electrolytes (sodium, potassium, magnesium)" during a 48-hour
+fast, bare, no dose and no gate, while the same page correctly refused to publish a
+potassium dose further down.
+
+**Enumerated and cleared:** 30 blog pages exist on disk outside `blog_posts.json`
+and were never covered by any JSON-based scan. All 30 checked for prescriptive
+potassium and magnesium dosing. Zero hits.
+
+**Kept on purpose.** Sodium salt-to-taste across ~35 pages, and
+`2026-04-11-diy-electrolytes-vs-lmnt-dr-hampton`, which scans as an offender and is
+a potassium overdose warning whose figures are protective.
+
+**`drp9` stays open on one question:** sodium dosing inside extended-fasting
+protocols (3 pages) prescribes milligrams taken with no food, which is arguably a
+dose rather than seasoning. Needs Brew. Bead filed.
+
+Preservation: zero title/meta/canonical/h1 changes on all 13 live pages.
+`adaptation-timeline` (1,280 impressions, 42 clicks, position 6.39) moved +23 words.
+Plan: `docs/project-log/electrolyte-blog-tier2-plan-2026-09-14.md`. Read 2026-10-12.
