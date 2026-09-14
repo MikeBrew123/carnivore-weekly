@@ -1,6 +1,20 @@
 # Current Status
 
-**Last Updated:** 2026-09-13 (Resend sprint CLOSED; abandoned-checkout recovery SENDING re-disabled for the bridge window)
+**Last Updated:** 2026-09-14 (Day 5 first-send read complete, bead `carnivore-weekly-u05p`; sample too thin, re-read 2026-09-21)
+
+**2026-09-14 · Day 5 first-send read is DONE, and the answer is "not enough data yet". Bead `carnivore-weekly-u05p` is discharged as a read; day 5 stays FROZEN.** Read-only, nothing changed: no send, no deploy, no config, no flag, no question activated or deactivated. Full report: `docs/project-log/day5-first-send-read-2026-09-14.md`.
+
+**Headline: the new day 5 has been delivered to exactly 5 people, once, on 2026-09-13.** 5 delivered, 3 opened (60%), 2 clicked (40%), 2 banded answers recorded, both via `answered_via='one_tap'`, zero page answers. All rates are unique-recipient by distinct `resend_id`. Confirmed live: CW `goal_target` is `active=true`, KD is still `false`, and the new subject "How long will this take? One tap and I'll show you." first appears 2026-09-13 17:22 UTC. No CW drip run on 09-12; the 09-14 run had not fired at read time.
+
+**Segmentation vs copy verdict: SAMPLE TOO THIN, and specifically the skip path was never exercised.** There are **zero `drip_events` rows with `event_type='skipped'`, all-time**. That is correct behaviour, not a broken instrument: all five recipients carry `goal='lose'` with weight and sex present, so the eligibility rule had nothing to log. They are one self-selected 09-07/09-08 intake batch, not a cross-section. The segmentation exposure is still real at list level (22 of 101 active subscribers are explicit maintain or gain, 21.8%, down from the 37/125 = 29% measured 09-12 partly because the active base shrank 125 to 101; total projected skip rate 27/101 = 26.7%), it just did not reach day 5 this run. Any claim that the 29% "is showing up in practice" would be manufactured from zero decisions.
+
+**Band distribution is 2 responses: band 2 "15 to 30 lb" once, band 3 "30 to 50 lb" once.** Bands 1, 4, 5 and **6 have zero.** The sixth band ("I don't have a specific number yet") has not been chosen, which at n=2 carries no information at all. The click-to-record path is clean end to end: both clicked URLs carry an `a=` option id that resolves to exactly the band later written, both rows carry a real `subscriber_id`, two clicks and two answers with zero loss.
+
+**Against the frozen baseline (173 delivered, 48.6% open, 5.8% unique click, 1.7% check-in click):** open 60% vs 48.6%, unique click 40% vs 5.8%, check-in click 40% vs 1.7%, zero bounces and zero complaints. At n=5 the 95% Wilson intervals are enormous. Open CI 23.1-88.2% contains the baseline, so it is **not distinguishable**. Click CI 11.8-76.9% sits above 5.8%, so it is nominally a lift, but it turns on two people tapping. Encouraging, not a result.
+
+**Re-read 2026-09-21.** 27 active CW subscribers sit below day 5 (3 at day 4, 4 at day 3, 11 at day 1, 9 at day 0), so the cohort clears day 5 around 09-19/09-20, giving roughly **25 cumulative deliveries and about 7 real skip rows**. That makes the segmentation question answerable. It does NOT make the copy question answerable: at n=25 a 40% click still spans roughly 23-59%, and matching the baseline's precision needs ~150 deliveries, which is months out at current intake. Do not force the copy verdict.
+
+**Day 4, KD day 5 copy and the ninth symptom option remain BLOCKED on Brew's call, not on this read.** This read found no defect and produced no verdict. Releasing them on "the read is done" would be wrong; releasing them on "the read found nothing broken" is a judgment call for Brew.
 
 **2026-09-13 · Abandoned-checkout recovery: RECORDING ON, SENDING OFF.** Worker `dac87512`, main `790de892`. `CW_ABANDON_RECOVERY_ENABLED = "false"` in `[env.production].vars`.
 
@@ -8,7 +22,6 @@
 - **Recording is ON and untouched.** `checkout.session.expired` handler, the `stripe_webhook_events` row, `ABANDON_RECOVERY_EPOCH_MS`, the recovery code and its 83-assertion suite all have zero diff. The only change was one value in `wrangler.toml`.
 - **Nothing was ever sent on this path.** Verified two ways before flipping: 0 `cw-abandon-email:` markers in `stripe_webhook_events` (the 2 `cw-resume` markers are a different, legitimate path), and 0 emails matching the abandon subject across 1,500 Resend sends back to 2026-08-17. Also 0 `checkout.session.expired` rows recorded, so no reader had abandoned a checkout since recovery went live that morning. No customer-visible change.
 - **Why off:** the recovery link returns the reader to the ordinary Step 3 offer with no recovery-source attribution, so a recovery send would land those conversions inside the active bridge-offer cohort and contaminate it. **Re-enable only once recovery traffic can be attributed separately.**
-
 
 **2026-09-13 · Resend integration sprint is COMPLETE.** Main `eaa0a7c8`. Observability sprint, not a migration: no contacts, drips, sender domains, unsubscribe behaviour or email copy were moved or rewritten.
 
