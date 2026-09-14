@@ -1,5 +1,45 @@
 # AGENTS.md — Carnivore Weekly
 
+## What this file is (Brew, 2026-09-14)
+
+**This is a repository agent entry point, not a second master rulebook.**
+
+**This file does not override repository operating instructions.** Nothing here
+grants permission that the repository's own instructions, hooks or validators do not
+already grant.
+
+**`CLAUDE.md` is the current interim instruction source.** It is where repository
+operating instructions live today. It is not yet a settled canonical rulebook: a
+2026-09-14 governance audit found stale facts in it and found policy, procedure and
+current state mixed together in one file. Treat it as the best available source, not
+as automatically correct.
+
+**Brew's explicit current decisions are the highest authority** and outrank both this
+file and `CLAUDE.md`.
+
+**Report material conflicts. Do not silently pick one.** If this file and `CLAUDE.md`,
+a skill, an agent file or a scheduled task disagree on anything that changes what gets
+published, sent, spent or deployed, say so in your run report or to Brew. Do not
+resolve it by following whichever version you happen to be reading.
+
+**Never bypass a mechanically enforced control because prose disagrees with it.**
+Hooks, the pre-commit and pre-push checks, `validate_before_commit.py` gates, the Etsy
+edit cap and guard, and the CI safety suites are the enforced behaviour. If a document
+tells you to do something one of those refuses, the document is the thing that is
+wrong. Report it; do not work around the control.
+
+This file is being shortened to a pointer. Until that lands it still carries some
+detail that exists nowhere else: chiefly the Resend sending infrastructure block,
+whose proposed destination is `docs/guides/email.md` (not yet moved, pending Brew).
+Do not add new rules here. New rules go to `CLAUDE.md`, or to the skill or agent file
+that the work actually loads.
+
+**Writer agents are invoked, not read.** See "Agents" below and Step 2 of the blog
+pipeline: the persona is loaded by the Agent tool from `.claude/agents/`, never by
+opening a file and imitating the voice.
+
+---
+
 ## Error Protocol
 
 **Error log:** [`docs/project-log/recurring-issues.md`](docs/project-log/recurring-issues.md)
@@ -115,7 +155,22 @@ ORDER BY created_at DESC LIMIT 5;
 ```
 
 ### Step 2 — Write Content
-- Read the writer's agent file from `agents/{writer}.md`
+- **Invoke the writer agent. Do not read a persona file and write in their voice yourself.**
+  Use the Agent tool with the `subagent_type` below. The harness resolves it from
+  `.claude/agents/`, which is the only live definition:
+  - `sarah` → `subagent_type: "sarah-health-coach"` (`.claude/agents/sarah.md`)
+  - `marcus` → `subagent_type: "marcus-performance-coach"` (`.claude/agents/marcus.md`)
+  - `chloe` → `subagent_type: "chloe-community-manager"` (`.claude/agents/chloe.md`)
+
+  The short slugs (`sarah`, `marcus`, `chloe`) are the Supabase and `author`-field
+  identifiers. The `name:` frontmatter inside the agent file is what the Agent tool
+  resolves. They are not interchangeable.
+
+  Subagents resolve from the **session directory**. If you get "Agent type not found",
+  you are in the wrong directory: `cd /Users/mbrew/Developer/carnivore-weekly` and retry.
+  Never fall back to a general-purpose agent.
+
+  `agents/{writer}.md` (no dot prefix) is the **retired 2026-06 copy**. Do not load it.
 - Write article body as clean HTML: `<h2>`, `<p>`, `<ul>`, `<strong>`, `<blockquote>` only
 - NO page-level tags (`<html>`, `<head>`, `<body>`), NO Jinja2 variables
 - Target: 1,000-1,500 words (7,000-10,000 characters)
@@ -183,9 +238,18 @@ Process ONE AT A TIME through Steps 1-3. Then run Steps 4-7 once after all conte
 
 ## Weekly Content Workflow
 
-- **Cadence:** CW 9 posts/week (3 per writer) + KD 6 posts/week, published one/day by GitHub Action
-- **How:** AUTOMATED — Codex scheduled tasks generate content unattended: `weekly-blog-content-generation` (CW, Sun+Wed 4:33am) and `kd-blog-content-generation` (KD, Tue+Fri 4:33am). The blog-queue watchdog opens a GH issue if queues drain.
-- **Manual fallback / mid-week top-up:** Paste `scripts/weekly_content_prompt.md` into Codex. New posts get dates after last queued date.
+- **Cadence:** CW 9 posts/week (3 per writer). **KD 2 posts/week, landing Tuesday and
+  Friday. Approved by Brew 2026-08-09 and capped deliberately.** ketodial.com is a
+  dropped-and-re-registered domain that Google has algorithmically shelved; on an
+  untrusted fresh domain more pages reinforce the scaled-content pattern instead of
+  earning crawl demand. **Do NOT raise the KD batch size, compress the spacing, or add
+  a catch-up run.** If you think the cadence should change, escalate to Brew.
+- **How:** AUTOMATED. Scheduled tasks (registered under
+  `~/.claude/scheduled-tasks/`, outside this repo) generate content unattended:
+  `weekly-blog-content-generation` (CW, Sun+Wed 4:30am) and `kd-blog-content-generation`
+  (KD, **Saturday** 4:33am, generating for the coming Tue+Fri slots). The blog-queue
+  watchdog opens a GH issue if queues drain.
+- **Manual fallback / mid-week top-up:** When a scheduled run is missed or the queue needs topping up between runs, follow `scripts/weekly_content_prompt.md` as the procedure for the session doing the work. New posts get dates after the last queued date.
 - **Status values:** `draft` (not ready) → `ready` (waiting for publish_date) → `published` (live)
 - **Daily publish:** GitHub Action at 9 AM EST runs `scripts/daily_publish.py` — publishes all posts where `status=ready AND publish_date<=today`
 - **ALWAYS run BOTH** `generate_blog_pages.py` AND `generate.py --type pages` before commit. First generates blog pages, second regenerates homepage bento.
@@ -248,7 +312,11 @@ Manual edits allowed when instructed, but:
   - CW newsletter: `newsletter@carnivoreweekly.com`
   - KD newsletter: `ketodial@carnivoreweekly.com`
   - KD coach: `coach@carnivoreweekly.com`
-- **Reply-to:** `iambrew@gmail.com`
+- **Reply-to:** the site's own catch-all, never a personal inbox.
+  - CW: `newsletter@carnivoreweekly.com`
+  - KD: `ketodial@carnivoreweekly.com` (inbound catch-all → daily digest)
+  - **NEVER `iambrew@gmail.com`.** Subscriber replies go to a catch-all that the
+    `writer-inbox-daily-check` task sweeps, so nothing anyone says goes unseen.
 - **API key:** `secrets/api-keys.json` → `resend.key`
 
 ### Drip Sequence (30-Day Carnivore Starter)
@@ -292,14 +360,21 @@ CW and KD share ONE Supabase project (`kwtdpvnjewtahuxjyltn`). This is intention
 
 **The separation rules (a shared project is NOT shared data):**
 - Site-scoped tables carry a `site` column (`cw`/`kd`): `blog_posts`, `newsletter_subscribers`, `coach_members`, `content_signals`. **Every query, send, or export against these MUST filter by site.** Never SELECT/UPDATE across both sites unless the task is explicitly cross-site.
-- `drip_subscribers` / `drip_events` are **CW-only** (the 30-day Carnivore Starter). If KD ever gets a drip, add a `site` column first — don't reuse the CW rows.
+- `drip_subscribers` / `drip_events` are **site-scoped, not CW-only.** KD has a live drip.
+  `drip_subscribers` has a `site` column and its unique key is `(email, site)`. Every
+  query, send or export filters by site unless the task is explicitly cross-site.
+  The KD drip is gated by the `KD_DRIP_ENABLED` repo variable and runs daily from
+  `daily-publish.yml` alongside CW.
 - Coach tables (`coach_*`) are the KD Coach app. Don't join them into CW reporting except via `coach_members.site`.
 - Any NEW table holding per-site data gets a `site` column from day one, and scripts touching it take a `--site` flag (same convention as `send_newsletter.py --site cw|kd`).
 - Shared-on-purpose (no site filter needed): `writers`, `writer_content`, `writer_memory_log`, `agent_memories`.
 
 ### MCP Access
 
-- **Supabase MCP** is configured. Main session executes directly: `mcp__supabase__execute_sql({ query: "SQL" })`
+- **Supabase MCP** is configured. Main session executes directly with the canonical
+  server: `mcp__eb179240-a327-4553-8a6a-04f57f7ea545__execute_sql`.
+  The `supabase` plugin server (`mcp__supabase__*`) is **NOT** the canonical one. Do not use it.
+  Project is `kwtdpvnjewtahuxjyltn`.
 - **Leo** (`leo-database-architect`) designs SQL, schema, migrations — but CANNOT execute MCP tools
 - **Workflow:** Leo prepares SQL → main session executes via MCP
 - **Stripe MCP** is available for payments, products, refunds — use directly, don't send user to dashboard
