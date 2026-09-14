@@ -1,6 +1,17 @@
 # Current Status
 
-**Last Updated:** 2026-09-14 (Day 5 first-send read complete, bead `carnivore-weekly-u05p`; sample too thin, re-read 2026-09-21)
+**Last Updated:** 2026-09-14 (paid-report calorie guidance shipped and deployed; one real purchase still owed, bead `carnivore-weekly-n5jc`)
+
+**2026-09-14 · The $29 report now grades its calorie recommendation instead of switching it off. MERGED `24c88a26` (PR #72) + `08bfbad0`, DEPLOYED as worker version `3064906e-7a65-4081-a147-81be97f58bf4`.** Full reasoning in `docs/project-log/decisions.md` under the same date.
+
+Calorie guidance is three states derived in `api/medical-context.js`: `normal` (no relevant medical context, target as calculated, and most customers are here), `qualified` (declared medication or cardiac/renal/hepatic/BP condition or glucose-lowering drug, keeps a real usable number at maintenance with the **deficit removed structurally**, not relabelled), `suppressed` (declared kidney disease, no figure in copy, AI prompt, goal horizon or meal engine). Reported symptoms alone, and conditions unrelated to calorie safety, deliberately stay `normal`.
+
+Meal frequency: two meals a day is now a **stated** template with the assumption named in Report #3, rather than a silent `|| 2` fallback. The Lion food guide no longer tells an undeclared reader their diet is "typically one meal per day (OMAD)" with a 500-1500 g meal; that copy now needs an explicit supported declaration production does not supply. Beads `carnivore-weekly-x8se` and `carnivore-weekly-3tui` closed; `mz80` and `i9cp` narrowed to their remaining scope.
+
+16 suites green including report-safety, report-integrity (10,093), renal suppression, kd-report-safety, deploy-tripwire and macro parity. New suite `tests/calorie-guidance.test.mjs`, 63 assertions, and its GROUP F **mutation-tests itself** by stripping the guards from a copy of the worker and asserting the unsafe plan then builds.
+
+**STILL OWED: one real $29 production purchase (`carnivore-weekly-n5jc`), and it needs Brew's card.** There is no zero-cost path by design (TEST999/TEST95 retired 2026-08-05; deepest live coupon is 50% off). Verified live without a charge, both refused before any Stripe call with `charged:false`: `UNDER_18_NOT_SUPPORTED`, and `CALORIE_TARGET_SUPPRESSED` (estimated maintenance 825 against the 1200 floor). The post-payment path (webhook to generate to email to download) remains unproven on the current worker.
+
 
 **2026-09-14 · Day 5 first-send read is DONE, and the answer is "not enough data yet". Bead `carnivore-weekly-u05p` is discharged as a read; day 5 stays FROZEN.** Read-only, nothing changed: no send, no deploy, no config, no flag, no question activated or deactivated. Full report: `docs/project-log/day5-first-send-read-2026-09-14.md`.
 
