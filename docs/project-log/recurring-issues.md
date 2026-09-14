@@ -863,3 +863,19 @@ Attempts:
   rg --pre count as runs. Perl failure = every mention counts. HTTP rules 1-7 untouched.
   Tests: 88. Mutation: 7 breakages plus the pre-fix hook each fail named assertions.
 If recurs: add the command as a case in the test file, then decide read vs write by whether it can run the file.
+
+## ISSUE-083 — Bead ID grepped from CLI output hit the wrong issue, overwriting a P0
+🟢 FIXED (2026-09-14)
+Pattern: a shell pipeline derived a new bead's id by grepping `bd list` human-formatted
+output. It resolved to `carnivore-weekly-drp9` (the live P0 electrolyte defect-class bead)
+instead of the just-created P1, and `bd update --description` replaced drp9's 2005-char
+description. The write reported success, so nothing surfaced the mistake.
+Attempts:
+- 2026-09-14: recovered from `.beads/beads.db` -> `events`, where the `updated` row stores
+  the whole prior issue as JSON in `old_value`. Restored and verified byte-for-byte (2005
+  chars, status open, priority 0). Re-resolved real ids via a direct sqlite title lookup.
+Prevention rule: NEVER derive a mutable bead id by grepping human-formatted CLI output. Use
+structured output or an exact database/API lookup, echo the resolved id AND title, and
+verify both immediately before every update.
+If recurs: `SELECT old_value FROM events WHERE issue_id=? AND event_type='updated' ORDER BY
+created_at DESC LIMIT 1` holds the full pre-edit JSON.
