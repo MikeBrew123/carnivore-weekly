@@ -171,3 +171,19 @@ Beads filed (carnivore-weekly): 5ggf (cycle), + writeback, #calc anchor, distrib
 - **Decision queue:** all 86 decisions are decided, none pending. Nothing posted — the two genuinely due are both inside the 30-day no-duplicate window: `633a006a` (coach send, asked 09-03, answered "more info needed" 09-04) and `94a6dc88` (Starter Kit, "keep, revisit Sep 1", decided 08-11 — becomes postable 09-10). Both surfaced in the briefing instead.
 - **Handbook/task drift:** the task file cites memory file `project_nas-artifacts-site.md`; it does not exist in the memory directory. Deck access details had to be recovered from `~/.claude/scheduled-tasks/nas-artifacts-sync/SKILL.md`.
 - **Command deck (Step 6):** **LAN 192.168.8.170 is down** (curl 000, ssh "host is down"); published over the Tailscale address 100.117.74.5 instead, per the nas-artifacts-sync fallback. scoreboard.html published for 2026-09-07; briefing.html rewritten. Biggest week-over-week change: Stripe 30d $67.50 → $96.50 on today's $29 full-price sale, against Etsy's third straight fall to $124.18. No decision posted. Both pages verified 200, `/api/decisions` returns JSON.
+
+## 2026-09-14 — Weekly Ops Review
+
+**Revenue.** Stripe 30d: 4 charges / $101.50. **7d: 3 x $29 = $87 (09-07, 09-12, 09-13), all full price, zero coupon redemptions** — against a stated base rate of 1 calculator sale/month, this is the best week on record. Checkout 7d: 14 sessions started / 6 complete raw, but 8 are QA (prodgate+, deploy-smoke, qa+kdrelease, 3x iambrew $0); real organic is 4 started / 3 paid. Etsy 90d: $115.86 CAD, 19 receipts, 24 units; by month Jun 4 / Jul 10 / Aug 4 / **Sep 1** — declining. Ads gate stays shut (needs >=2% conv 30d AND >=$300/90d). Tracked bundle **4532542805 (Keto Starter Kit): 0 units in 90d, 8 lifetime views** — the Aug-1 keep/kill decision is overdue.
+
+**List + drip.** drip_subscribers active CW 101 (+38/7d, ~5.4/day vs 2+/day target), KD 38 (+16/7d). drip_events 7d: CW 347 delivered, 0.57% bounce; KD 119 delivered, 5.56% bounce. **Zero `complained` events on either site.** KD's bounce rate is 2 bad addresses (one permanent, one MailboxFull hitting the 3-consecutive rule) on a 119 denominator, both now suppressed — small-sample noise, not a deliverability problem. Still **zero `skipped` events all-time**, consistent with the 09-14 day-5 read.
+
+**Search.** GSC 14d (08-29..09-11) CW site 17,078 imp / 511 clicks. Calculator cluster 486 imp / 53 clicks; "carnivore macro calculator" pos 9.7, but the Saladino/animal-based terms carry the clicks at pos 3.1-3.6. **KD (https://ketodial.com/): 1 impression, 0 clicks, 1 page in 14 days** — ISSUE-068 suppression is unchanged.
+
+**Queues.** Pin queue **0 of 207 unposted**, file untouched since 09-06; the task self-disables when empty, so KD pinning has silently stopped. KD blog **0 ready** (last publish 09-11); CW blog 10 ready through 09-22.
+
+**Crons.** Heartbeat and scoreboard truth pass did not fire today (both last wrote 09-07) — Mac sleep gap, expected. Scoreboard truth pass run manually: "Scoreboard appended for 2026-09-14. Errors: none".
+
+**GH issues.** #61 (CW drip) and #62 (KD drip), both from 09-12, **closed as self-resolved** with diagnosis: `dynamic_send_cap()` returned the MIN_SEND_CAP floor of 50 instead of ~114 because its Supabase query failed into a bare `except`, during the same blip that 504'd the KD drip. Drip recovered on its own 09-13 (CW 41, KD 23). Separately found: the daily-publish GSC indexing step has failed auth on **every** run since at least 09-07, hidden by `continue-on-error`.
+
+**Filed.** ISSUE-043 set 🟡 RECURRING with a dated 2026-09-12 attempt. 4 beads: GA4 secret base64 mismatch in daily-publish; drip cap fail-safe; pin queue drained; KD blog queue empty. No new ISSUE-NNN (all four map to existing entries or are queue depth, not defects).
