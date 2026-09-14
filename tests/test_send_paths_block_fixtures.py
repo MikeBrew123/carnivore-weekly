@@ -85,7 +85,8 @@ def test_newsletter_blocks_fixtures_from_the_audience():
             {"email": "lisa@test.ketodial.com"},
             {"email": "x@example.com"},
         ],
-        # kd takes the early return, so the drip suppression query never runs
+        # kd now runs drip suppression too; no drip rows here, so it is a no-op.
+        # The suppression rule itself is covered by test_newsletter_drip_suppression.py.
     }
     rec = Recorder(rows)
     original = send_newsletter.requests.get

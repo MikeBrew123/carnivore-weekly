@@ -116,12 +116,17 @@ def get_subscribers(secrets, site):
     if blocked:
         print(f"Blocked {len(blocked)} test fixture address(es) from the live send")
 
-    # CW only: suppress anyone still working through the 30-day drip. The signup
+    # CW and KD: suppress anyone still working through the 30-day drip. The signup
     # endpoint adds calculator/homepage signups to BOTH lists immediately, but the
     # weekly newsletter must not stack on top of drip emails — send_drip.py
     # graduates them (completed=true) at day 28, after which they receive the
-    # weekly automatically.
-    if site == "cw":
+    # weekly automatically. KD joined this rule 2026-09-14; before that 42 of 75
+    # active KD subscribers were getting the weekly on top of a drip email.
+    #
+    # The drip lookup is deliberately NOT filtered by site: both sequences mail
+    # from carnivoreweekly.com, so being mid-drip anywhere is enough to hold the
+    # weekly back. kd_coach has no drip and is not suppressed.
+    if site in ("cw", "kd"):
         drip_resp = requests.get(
             f"{url}/rest/v1/drip_subscribers",
             headers={
