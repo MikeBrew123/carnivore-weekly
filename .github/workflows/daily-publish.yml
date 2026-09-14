@@ -185,6 +185,122 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
+      # =====================================================================
+      # --- TEMPORARY, added 2026-09-14. Review on or after 2026-09-21. -------
+      # Runs the ten pre-push gates against this run's generated content, before
+      # anything is committed or pushed. Report-only: nothing here blocks
+      # publishing, and every later step is independent of it.
+      # Seven daily runs are meant to measure how often the gates fire on real
+      # content. Promoting any gate to blocking is a separate, deliberate
+      # change: there is no automatic switch, by design.
+      # To remove the experiment, delete this step. Nothing else depends on it.
+      # ----------------------------------------------------------------------
+      - name: "Validation gates (REPORT ONLY, does not block publishing)"
+        id: gates
+        continue-on-error: true
+        run: |
+          set +e
+          python3 scripts/validate_before_commit.py 2>&1 | tee "$RUNNER_TEMP/gates.txt"
+          STATUS=${PIPESTATUS[0]}
+          set -e
+
+          # Gate 10's checker can fail to import. The validator downgrades that to
+          # a warning, so it can hide inside an otherwise ordinary status 2.
+          SWEETS_DOWN=no
+          if grep -qF "Sweet-treat guardrail could not be loaded" "$RUNNER_TEMP/gates.txt"; then
+            SWEETS_DOWN=yes
+          fi
+
+          case "$STATUS" in
+            0) VERDICT="PASS (no findings)" ;;
+            2) VERDICT="PASS with warnings (no critical findings)" ;;
+            1) VERDICT="REPORT-ONLY FAILURE (critical findings)" ;;
+            *) VERDICT="REPORT-ONLY EXECUTION FAILURE (validator did not run normally)" ;;
+          esac
+
+          gates_found() {
+            local entry n text desc found=0
+            for entry in \
+              "1|Future date in filename|future-dated blog filename" \
+              "2|missing <!DOCTYPE html>|blog HTML fragment, missing doctype" \
+              "3|Sitemap regression|sitemap URL count below baseline" \
+              "4|RSS regression|RSS item count below baseline" \
+              "5|Main page missing|a main page is missing" \
+              "6|Empty-slug HTML file|empty-slug HTML file" \
+              "7|Unrendered Jinja2|raw Jinja2 in blog HTML, pipeline bypassed" \
+              "8|No date prefix|blog HTML without a date prefix (warning by design)" \
+              "9|Made-to-order|Etsy script sets when_made=made_to_order" \
+              "10|promotes sweet treats|CW sweet-treat brand rule"
+            do
+              IFS='|' read -r n text desc <<<"$entry"
+              if grep -qF "$text" "$RUNNER_TEMP/gates.txt"; then
+                echo "- Gate ${n}: ${desc}"
+                found=1
+              fi
+            done
+            [ "$found" = 0 ] && echo "- none"
+            return 0
+          }
+
+          {
+            echo "## Validation gates: report-only observation"
+            echo
+            [ "$SWEETS_DOWN" = yes ] && echo "> **Gate 10 checker unavailable.** \`cw_sweet_guard\` failed to load, so CW sweet-treat content was NOT checked on this run. This is independent of the verdict below."
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Date (UTC) | $(date -u +'%Y-%m-%d %H:%M') |"
+            echo "| Run | [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) attempt ${GITHUB_RUN_ATTEMPT} |"
+            echo "| Commit | \`${GITHUB_SHA}\` |"
+            echo "| Verdict | **${VERDICT}** |"
+            echo "| Validator exit status | \`${STATUS}\` |"
+            echo "| Findings | $(grep -E '^Summary:' "$RUNNER_TEMP/gates.txt" | tail -1 || echo 'unavailable') |"
+            echo "| Gate 10 checker | $([ "$SWEETS_DOWN" = yes ] && echo 'UNAVAILABLE' || echo 'available') |"
+            echo
+            echo "### Gates that produced findings"
+            echo
+            gates_found
+            if [ "$STATUS" = 1 ]; then
+              echo
+              echo "### Critical findings"
+              echo
+              echo '```'
+              awk '/^CRITICAL/{c=1;next} /^WARNING/{c=0} c' "$RUNNER_TEMP/gates.txt" | head -60
+              echo '```'
+            fi
+            if [ "$STATUS" != 0 ] && [ "$STATUS" != 1 ] && [ "$STATUS" != 2 ]; then
+              echo "### Validator output (execution failure)"
+              echo
+              echo '```'
+              tail -40 "$RUNNER_TEMP/gates.txt"
+              echo '```'
+            fi
+            echo
+            echo "### Publishing continued"
+            echo
+            echo "Report-only observation period: the gates did not block this run, and every"
+            echo "commit, push and deployment step after this one ran as it otherwise would."
+            echo "Review on or after **2026-09-21**."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
+          echo "verdict=${VERDICT}" >> "$GITHUB_OUTPUT"
+          echo "sweets_checker_down=${SWEETS_DOWN}" >> "$GITHUB_OUTPUT"
+
+          if [ "$SWEETS_DOWN" = yes ]; then
+            echo "::warning title=Gate 10 checker unavailable::cw_sweet_guard failed to load. CW sweet-treat content was not checked on this run."
+          fi
+
+          # Warn and record a failed outcome only for criticals and for a validator
+          # that did not run normally. Status 2 is warnings-only and stays quiet:
+          # the repo carries standing warnings this workflow never touches, and a
+          # daily annotation for them would bury the signal.
+          case "$STATUS" in
+            0|2) : ;;
+            1)   echo "::warning title=Validation gates: critical findings::Exit 1. Publishing continued (report-only). See the job summary."; exit 1 ;;
+            *)   echo "::warning title=Validation gates did not run::Unexpected exit ${STATUS}. Treated as a failure, not a pass. See the job summary."; exit "$STATUS" ;;
+          esac
+
       - name: Deploy KD to ketodial repo
         if: steps.publish_kd.outputs.has_changes == 'true'
         env:
