@@ -211,3 +211,6 @@ calculator2-demo/.step4-store-stub-*
 .beads/issues.jsonl
 .beads/interactions.jsonl
 .beads/events.jsonl
+
+# Claude Code local settings backups (kept on disk, never committed)
+.claude/backups/
