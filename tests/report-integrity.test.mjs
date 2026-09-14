@@ -900,12 +900,20 @@ for (const p of PERSONAS) {
     JSON.stringify(err?.validation?.conflictingMotivations));
 
   // And it still generates when the reader has chosen.
+  //
+  // The macros are attached the way handleReportInit attaches them, because as of
+  // 2026-09-14 generateFullMealPlan refuses to build without a usable calorie, protein
+  // and fat target instead of quietly substituting 2000/150/130. This fixture used to
+  // rely on that substitution, so it was testing a path production cannot take.
   let ok = null;
   try {
-    ok = await generateAllReports(buildReportData({
+    const resolvedForm = mk('gain', ['weightloss'], { primaryGoalConfirmed: true });
+    const resolvedData = buildReportData({
       id: 'resolved', email: 'x@example.com', first_name: 'T', last_name: 'T',
-      diet_type: 'Carnivore', form_data: mk('gain', ['weightloss'], { primaryGoalConfirmed: true }),
-    }), 'sk-fixture-not-a-real-key');
+      diet_type: 'Carnivore', form_data: resolvedForm,
+    });
+    resolvedData.macros = calculateMacros(resolvedForm);
+    ok = await generateAllReports(resolvedData, 'sk-fixture-not-a-real-key');
   } catch (e) { ok = e; }
   check('-', 'J', 'a resolved contradiction still generates',
     ok && !(ok instanceof Error) && !!ok[3],

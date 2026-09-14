@@ -346,22 +346,49 @@ const renalProteinTarget = renalData.macros.protein_grams;
   }
   check('F', 'no replacement amount was invented in its place',
     !/\d/.test(r2.split('\n').filter(l => /One meal|One large meal/.test(l)).join(' ')), '');
-  check('F', 'the amount decision is routed to a clinician instead',
-    /renal dietitian/i.test(r2) && /doctor/i.test(r2), '');
+  // SUPERSEDED 2026-09-14. This used to assert that the renal Lion reader gets the
+  // "ask your doctor or a renal dietitian how much to eat" bullet IN PLACE OF the
+  // 500-1500 g one. That routing is no longer reached on the default path, because the
+  // whole OMAD pattern now requires an explicit declaration of one meal a day and the
+  // questionnaire does not collect one. The referral is not lost: Report #3 and #4 are
+  // still the renal notices, which GROUP A asserts. What replaced it here is a neutral
+  // meal-pattern line that states no amount at all, which is a stronger result for this
+  // suite than a referral bullet, so the assertion is rewritten rather than deleted.
+  check('F', 'the renal Lion reader is given no amount and no OMAD framing',
+    !/500-1500/.test(r2) && !/OMAD/.test(r2) && !/one meal per day/i.test(r2), '');
 
   // Still a report, not a hole where one was.
   check('F', 'Report #2 still renders its heading and eating pattern',
     /^## Report #2:/m.test(r2) && /Daily Eating Pattern/.test(r2), r2.slice(0, 120));
-  check('F', 'the bullets that carry no intake guidance are untouched',
-    /- \*\*Meal timing:\*\* Whenever hungry/.test(r2) && /- \*\*Seasoning:\*\* Salt only/.test(r2), '');
+  check('F', 'the bullet that carries no intake guidance is untouched',
+    /- \*\*Seasoning:\*\* Salt only/.test(r2), '');
   check('F', 'the section is not degraded to a stub',
     r2.length > 800, `length ${r2.length}`);
 
-  // The healthy Lion reader is the control, and the else branch (every other
-  // protocol) lists combinations rather than amounts, so it cannot be affected.
-  check('F', 'a healthy Lion reader still gets the original amount',
-    /- \*\*One large meal:\*\* 500-1500g/.test(h2),
-    'the fix reached readers it was not for');
+  // SUPERSEDED 2026-09-14, and this is the assertion that changed meaning most.
+  //
+  // It used to be the control proving the renal fix had not over-reached: a HEALTHY
+  // Lion reader still got "500-1500g". That was correct about the renal fix and wrong
+  // about the product. Nobody is asked how often they eat, so telling a Lion reader
+  // their diet is "typically one meal per day (OMAD)" was never a personalization, and
+  // it reached readers on insulin and sulfonylureas with no medication gate on it at
+  // all. Report #3 then handed the same reader a two-meal calendar.
+  //
+  // The new rule: OMAD copy requires an explicit supported mealsPerDay === 1. Nothing
+  // in production supplies one, so no production reader sees it. The control is now
+  // that the healthy Lion reader gets the neutral pattern and no amount either.
+  check('F', 'a healthy Lion reader gets no unprompted OMAD encouragement',
+    !/OMAD/.test(h2) && !/one meal per day/i.test(h2) && !/500-1500/.test(h2),
+    'unprompted one-meal-a-day guidance is still reaching a reader who never asked for it');
+  check('F', 'the healthy Lion reader still gets a stated meal pattern',
+    /Daily Eating Pattern/.test(h2) && /divided into two meals/.test(h2), h2.slice(0, 200));
+
+  // And the branch is not dead: an explicit declaration still reaches it.
+  const { reports: lionDeclared } = await build({ ...LION_HEALTHY, mealsPerDay: 1 });
+  const d2 = String(lionDeclared[2] || '');
+  check('F', 'an explicitly declared one-meal reader still gets the OMAD pattern',
+    /- \*\*One large meal:\*\* 500-1500g/.test(d2) && /You told us you eat once a day/.test(d2),
+    'the gate is not a gate, it is a deletion');
   const secondLion = await build(LION_HEALTHY);
   check('F', 'the healthy Lion food guide is byte-for-byte stable',
     String(secondLion.reports[2] || '') === h2, 'the healthy Lion guide changed between builds');

@@ -219,6 +219,7 @@ function matchesAny(haystack, terms) {
  *   renal: boolean,
  *   restrictElectrolyteTargets: boolean,
  *   restrictProteinTarget: boolean,
+ *   calorieGuidance: 'normal'|'qualified'|'suppressed',
  *   excludedFoodTerms: string[],
  *   hasAnyMedicalContext: boolean
  * }}
@@ -273,6 +274,40 @@ export function deriveMedicalContext(data = {}) {
   // software is not entitled to make.
   const restrictProteinTarget = renal;
 
+  // CALORIE GUIDANCE — a three-state value, not a boolean.
+  //
+  // The mistake this replaces is treating "is there medical context?" as a switch
+  // between a full recommendation and silence. Customers pay $29 for a number. Most
+  // of them should get one. So this grades the CLAIM, not just the presence of risk:
+  //
+  //   normal      say it plainly. "Start around 2,050 calories a day."
+  //   qualified   say the SAME number, with the deficit framing removed. The estimate
+  //               is still useful to a reader on a blood-pressure tablet; treating it
+  //               as a target to push hard against is what is not.
+  //   suppressed  print no calorie figure at all, anywhere, and let nothing downstream
+  //               size itself from one.
+  //
+  // Deliberately NOT triggered by symptoms alone. A reader who reported bloating keeps
+  // every ordinary macro — see the restrictConditionClaims comment below, which is the
+  // same guardrail written for prose.
+  //
+  // `suppressed` reuses the renal decision rather than inventing a second clinical
+  // rule. For that reader this report already states no protein target, builds no meal
+  // calendar and issues no grocery list. A lone calorie figure would be the only intake
+  // prescription left standing in a report that has otherwise stopped, printed beside a
+  // paragraph explaining why we will not size their food. That is the contradiction the
+  // protein suppression was written to end, one unit over.
+  // NOT triggered by hasDeclaredConditions. That flag belongs to the claim axis below
+  // (restrictConditionClaims), and this file is explicit that the two axes must not
+  // share a trigger: one decides whether we may print a NUMBER, the other whether the
+  // live sections may assert an OUTCOME. Hypothyroidism has nothing to do with
+  // calorie-deficit safety, and the softening that reader does need already reaches
+  // them through assertNoConditionClaimFrames.
+  const calorieGuidance =
+    restrictProteinTarget ? 'suppressed'
+    : (restrictElectrolyteTargets || glucoseLowering) ? 'qualified'
+    : 'normal';
+
   // Foods withheld from the generated plan for a medical reason. These are removals,
   // not swaps to a "safer" food, and this list must never grow a quantity: the choice
   // is between including an item and not including it.
@@ -319,11 +354,89 @@ export function deriveMedicalContext(data = {}) {
     renal,
     restrictElectrolyteTargets,
     restrictProteinTarget,
+    calorieGuidance,
     excludedFoodTerms,
     hasAnyMedicalContext: hasDeclaredConditions || hasDeclaredMedications || hasDeclaredSymptoms
   };
 }
 
+
+/**
+ * Turn a medically-blind macro set into the one this reader is allowed to receive.
+ *
+ * PURE, AND DERIVED AT EVERY CONSUMPTION POINT ON PURPOSE. It is deliberately not a
+ * stamp applied once and carried on the data object: a stamp can be forgotten by the
+ * next caller, and the whole class of defect this safety layer exists to stop is
+ * "computed the medical context, then built the output from something else". Every
+ * consumer calls this with the context it already has, and they cannot disagree.
+ *
+ * calculateMacros() is left alone. It is locked to the client bundle by
+ * tests/macro_parity, and the client legitimately cannot know any of this: the free
+ * calculator runs before a single medical question is asked. So the adjustment lives
+ * here, at the paid-report layer, where the answers actually exist.
+ *
+ *   normal      the target as calculated. Most customers. They paid for a number and
+ *               they get one, stated plainly.
+ *
+ *   qualified   the DEFICIT is removed, not relabelled. This is the correction that
+ *               matters: leaving a 20% cut in place and calling it "approximate" is a
+ *               copy change wearing a safety fix's name, and the cut would still have
+ *               sized every portion and every grocery quantity underneath. A reader on
+ *               insulin or a sulfonylurea has a dose set around how they eat now, and
+ *               an unsupervised deficit is a hypoglycemia risk that softer wording does
+ *               not touch. They still get a real, usable intake figure: maintenance.
+ *               Nothing is invented and nothing is made up smaller. If they want a
+ *               deficit, that is a decision to make with the person who prescribes.
+ *
+ *   suppressed  no figure at all, and nothing downstream may size itself from one.
+ *
+ * Protein is untouched: calculateMacros sets it from body weight, not from the calorie
+ * total, so it does not move when the deficit does. Fat and carbs are scaled by the
+ * same ratio rather than recomputed, so whichever split the engine chose for this
+ * reader's diet survives intact. No second formula is introduced anywhere.
+ *
+ * Idempotent: re-applying to an already-neutralized set is a no-op.
+ *
+ * @param {object} macros - the return value of calculateMacros()
+ * @param {object} ctx - a context from deriveMedicalContext()
+ * @returns {object} a new macro object. Never mutates its input.
+ */
+export function applyCalorieGuidance(macros = {}, ctx = {}) {
+  const calorieGuidance = ctx.calorieGuidance || 'normal';
+
+  if (calorieGuidance === 'suppressed') {
+    return {
+      ...macros,
+      calorieGuidance,
+      calories: null,
+      fat_grams: null,
+      carbs_grams: null,
+      deficitNeutralized: false,
+    };
+  }
+
+  const calories = Number(macros.calories);
+  const tdee = Number(macros.tdee);
+  const deficitStands = Number.isFinite(calories) && Number.isFinite(tdee) && tdee > calories;
+
+  if (calorieGuidance !== 'qualified' || !deficitStands) {
+    return { ...macros, calorieGuidance, deficitNeutralized: false };
+  }
+
+  const maintenance = Math.round(tdee);
+  const ratio = maintenance / calories;
+  const scale = g => (Number.isFinite(Number(g)) ? Math.round(Number(g) * ratio) : g);
+
+  return {
+    ...macros,
+    calorieGuidance,
+    calories: maintenance,
+    fat_grams: scale(macros.fat_grams),
+    carbs_grams: scale(macros.carbs_grams),
+    effectiveDeficitPct: 0,
+    deficitNeutralized: true,
+  };
+}
 /**
  * Append the medically excluded food terms to whatever the reader already told us
  * not to feed them, so the existing `shouldFilterOutFood()` path does the removal.

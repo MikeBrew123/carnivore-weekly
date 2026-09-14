@@ -20,7 +20,8 @@
     "test:renal-suppression": "node tests/renal-meal-plan-suppression.test.mjs",
     "test:paid-resume": "node tests/paid-resume-email.test.mjs",
     "test:ordered-lists": "node tests/ordered-list-continuity.test.mjs",
-    "test:resume-late-return": "node tests/resume-late-return.mjs"
+    "test:resume-late-return": "node tests/resume-late-return.mjs",
+    "test:calorie-guidance": "node tests/calorie-guidance.test.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",

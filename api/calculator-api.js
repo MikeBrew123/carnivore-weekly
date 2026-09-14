@@ -53,6 +53,7 @@ import {
   buildSymptomDisclosure,
   assertNoConditionClaimFrames,
   assertNoUnfoundedClearance,
+  applyCalorieGuidance,
 } from './medical-context.js';
 import { resolveGoal, detectGoalConflict } from './goal-semantics.js';
 
@@ -2618,6 +2619,118 @@ function assertRenderedPlanIsComplete(mealPlan, renderedDayNumbers) {
  * The headings match the templates these replace, so the report keeps 13 sections in
  * the same order. Nothing is renumbered.
  */
+/**
+ * MEAL FREQUENCY IS A TEMPLATE, NOT A PERSONALIZATION.
+ *
+ * The questionnaire has never asked how many times a day the reader eats. The plan
+ * generator defaulted to 2 and said nothing, so every buyer received a two-meal
+ * calendar presented as if it had been chosen for them. Brew, 2026-09-14: state the
+ * assumption plainly rather than either faking the personalization or bolting another
+ * question onto a questionnaire people already abandon.
+ *
+ * `hasExplicitMealFrequency` is the gate that makes the 1-meal and 3-meal branches
+ * honest. They are real code paths and the test suite exercises them, but nothing in
+ * production supplies the input, so nothing in production may render copy that claims
+ * the reader chose a frequency. A default is not a declaration.
+ */
+const MEAL_PLAN_DEFAULT_MEALS_PER_DAY = 2;
+const SUPPORTED_MEALS_PER_DAY = [1, 2, 3];
+
+function hasExplicitMealFrequency(data) {
+  return SUPPORTED_MEALS_PER_DAY.includes(Number((data || {}).mealsPerDay));
+}
+
+function resolveMealsPerDay(data) {
+  return hasExplicitMealFrequency(data)
+    ? Number(data.mealsPerDay)
+    : MEAL_PLAN_DEFAULT_MEALS_PER_DAY;
+}
+
+/**
+ * Copy by Sarah (sarah-health-coach), 2026-09-14, used verbatim. Printed at the top of
+ * Report #3 whenever the frequency was defaulted rather than declared.
+ */
+const MEAL_FREQUENCY_TEMPLATE_NOTE =
+  '**How this calendar is laid out.** The 30 days below are built around two meals a ' +
+  'day. We did not ask you how often you eat, so this is a structure, not a ' +
+  'recommendation: if you normally eat three times or once, split or combine the meals ' +
+  'as they are written and the day still adds up the same. Two meals is simply an easy ' +
+  'way to lay out a day\'s food on paper, not a claim that it is the right number for you.';
+
+/**
+ * Shown only to a reader who reported insulin, a sulfonylurea or another
+ * glucose-lowering medication. It replaces nothing: the plan and its numbers are
+ * unchanged. It exists because the failure mode here is the reader deciding on their
+ * own to stretch to one meal a day, on a dose that was set around eating more often.
+ *
+ * Copy by Sarah (sarah-health-coach), 2026-09-14, used verbatim.
+ */
+const MEAL_TIMING_GLUCOSE_MEDICATION_NOTE =
+  // "That is not a reason you cannot eat this way" is deliberate, and Sarah flagged it
+  // as a near-miss on the unfounded-clearance pattern (which requires the literal
+  // "no reason"). It stays because the next sentence hands the decision to the
+  // prescriber rather than granting clearance. If that regex is ever widened, this is
+  // an intentional keep, not an oversight.
+  '**Before you stretch the gap between meals.** You reported insulin or another ' +
+  'glucose-lowering medication, and doses of those are set around the way you ' +
+  'currently eat. Going from two meals to one, or holding a long fasting window, ' +
+  'changes the timing that dose was matched to, and can take your blood sugar lower ' +
+  'than anyone intended, especially with insulin or a sulfonylurea. That is not a ' +
+  'reason you cannot eat this way. It is a reason to talk to whoever prescribes it ' +
+  'first, so they can tell you what to watch and whether anything on their side needs ' +
+  'to change.';
+
+/**
+ * Replaces the Lion-diet "one meal per day (OMAD)" pattern. See the call site for why
+ * the OMAD text is not merely gated but removed from the default path.
+ *
+ * Copy by Sarah (sarah-health-coach), 2026-09-14, used verbatim.
+ */
+/**
+ * What the reader is told about their calorie figure, per calorieGuidance.
+ *
+ * QUALIFIED is the one that protects the product. The temptation with a medicated
+ * reader is to print nothing and call it safe, which is how a $29 report becomes a
+ * disclaimer. They still get their number. What they do not get is a deficit, and the
+ * copy says why in terms they can act on.
+ *
+ * Copy by Sarah (sarah-health-coach), 2026-09-14, used verbatim.
+ */
+const CALORIE_QUALIFIED_NOTE = (calories) =>
+  '**About your calorie figure.** This number, about ' + calories + ' a day, is higher ' +
+  'than the one the free calculator showed you, and that is deliberate: we took the ' +
+  'weight-loss deficit out because you told us about a medication or a health ' +
+  'condition, and an unsupervised calorie cut is the part of a diet change that ' +
+  'interacts with medication. Nothing has been taken away from you here. Losing weight ' +
+  'is still very much on the table, and the person who prescribes or manages your ' +
+  'medication is the right one to set the size of the deficit and the pace, because ' +
+  'they can watch your labs, your blood pressure and your dosing while you do it. In ' +
+  'the meantime, treat ' + calories + ' as a starting reference point rather than a ' +
+  'deficit to push hard against: eat to roughly that level, move slowly, and pay ' +
+  'attention to how you actually feel over the first couple of weeks rather than how ' +
+  'fast the scale moves. Tell whoever manages your medication that you are changing ' +
+  'how you eat, because a change in intake can matter to them even when the number ' +
+  'itself is only a starting estimate.';
+
+const CALORIE_SUPPRESSED_NOTE =
+  '**About your calorie figure.** You reported kidney disease, so this report does not ' +
+  'set a daily calorie target for you either. With reduced kidney function, how much you ' +
+  'eat and how much protein you eat are tied together: eating too little pushes your body ' +
+  'to break down its own protein, which is the opposite of what most renal plans are ' +
+  'trying to achieve. Where that balance sits depends on your stage, your labs and ' +
+  'whether you are being treated, which is a renal dietitian\'s call and not something a ' +
+  'questionnaire can work out. Everything else in this report still applies, and the most ' +
+  'useful thing you can do with it is take it to your appointment and ask two questions: ' +
+  'how many calories a day should I be eating, and how much protein should that include? ' +
+  'Bring their answers back to the food lists, the recipes and the tracking pages in ' +
+  'here, and the rest of this report is built to work from your numbers rather than ' +
+  'general ones.';
+
+const NEUTRAL_MEAL_PATTERN_LINE =
+  '**Meal pattern:** the daily food in this plan is divided into two meals, mostly so ' +
+  'the amounts are easy to read and shop for. When you eat them, and whether you ' +
+  'spread the same food across more sittings or fewer, is up to you.';
+
 const RENAL_MEAL_CALENDAR_NOTICE =
   'Because of what you told us about your kidneys, this report does not set a protein ' +
   'target for you, so we are not printing a meal calendar with portion amounts. The ' +
@@ -2650,7 +2763,15 @@ function suppressedSection(templateName, expectedNumber, notice) {
 }
 
 function buildSuppressedMealCalendarSection() {
-  return suppressedSection('mealCalendar', 3, RENAL_MEAL_CALENDAR_NOTICE);
+  // The calorie note rides with the protein one. A reader who is told we will not size
+  // their protein, and is then told nothing at all about calories, is left to assume the
+  // calorie silence is an oversight. Saying why both are withheld, in one place, is what
+  // makes this a referral rather than a gap.
+  return suppressedSection(
+    'mealCalendar',
+    3,
+    `${RENAL_MEAL_CALENDAR_NOTICE}\n\n${CALORIE_SUPPRESSED_NOTE}`
+  );
 }
 
 function buildSuppressedGroceryListSection() {
@@ -2676,10 +2797,28 @@ function generateFullMealPlan(data) {
   // plan. Choosing a protein intake for reduced kidney function is a clinical
   // decision, and api/medical-context.js is authoritative that the software stops
   // rather than inventing a second number.
-  if (deriveMedicalContext(data).restrictProteinTarget) {
+  const mealPlanContext = deriveMedicalContext(data);
+  if (mealPlanContext.restrictProteinTarget) {
     throw new Error(
       'generateFullMealPlan: refusing to build a protein-anchored meal plan for a ' +
       'reader whose protein target is withheld. Use the suppression notice instead.'
+    );
+  }
+
+  // THE SAME BOUNDARY, FOR THE CALORIE TARGET. Portions are anchored to protein, but
+  // the per-meal calorie budget below sizes the cooking fat and caps the meat, so a
+  // suppressed calorie figure that reaches this function comes back out as food in
+  // exactly the way the protein one did.
+  //
+  // The `|| 2000` on the next lines is the specific hazard: a null or withheld target
+  // does not stop the plan, it silently substitutes a 2,000 kcal day that nobody
+  // calculated and nobody reviewed, which is worse than either printing the real number
+  // or printing none. Refusing here means a future caller that forgets the gate is a
+  // build failure, not a quiet invention.
+  if (mealPlanContext.calorieGuidance === 'suppressed' || data.macros?.targetSuppressed) {
+    throw new Error(
+      'generateFullMealPlan: refusing to size a meal plan from a suppressed calorie ' +
+      'target. Use the suppression notice instead.'
     );
   }
 
@@ -2771,10 +2910,25 @@ function generateFullMealPlan(data) {
   if (rotationProteins.length === 0) rotationProteins.push(...availableProteins);
 
   // Get macro targets for portion calculations
-  const dailyCalories = data.macros?.calories || 2000;
-  const dailyProtein = data.macros?.protein_grams || 150; // grams
-  const dailyFat = data.macros?.fat_grams || 130; // grams
-  const mealsPerDay = data.mealsPerDay || 2; // Default to 2 meals (common for carnivore)
+  // The macro set this reader is allowed to be fed from, not the raw calculated one.
+  // For a qualified reader the deficit has already been taken out, so the portions and
+  // the grocery quantities derived from them are maintenance-sized. That is the whole
+  // point: a deficit that still sizes the food is not a qualified recommendation, it is
+  // the same recommendation with softer wording on top.
+  const effectiveMacros = applyCalorieGuidance(data.macros || {}, mealPlanContext);
+
+  // No `|| 2000` fallback. A missing or withheld target must stop the build, not
+  // silently become a 2,000 kcal day that nobody calculated and nobody reviewed.
+  const dailyCalories = Number(effectiveMacros.calories);
+  const dailyProtein = Number(effectiveMacros.protein_grams);
+  const dailyFat = Number(effectiveMacros.fat_grams);
+  if (!Number.isFinite(dailyCalories) || !Number.isFinite(dailyProtein) || !Number.isFinite(dailyFat)) {
+    throw new Error(
+      'generateFullMealPlan: refusing to size a meal plan without a usable calorie, ' +
+      'protein and fat target. Use the suppression notice instead.'
+    );
+  }
+  const mealsPerDay = resolveMealsPerDay(data); // 2 unless the reader explicitly declared otherwise
   const calPerMeal = Math.round(dailyCalories / mealsPerDay);
 
   console.log(`[generateFullMealPlan] Daily macros: ${dailyProtein}g protein, ${dailyFat}g fat, ${mealsPerDay} meals/day`);
@@ -4303,7 +4457,7 @@ OUTPUT FORMAT:
 
 CONTENT REQUIREMENTS:
 - Mission Brief (1-2 sentences): Why this protocol fits their situation
-- Daily Targets: Specific macros, calories, and approach
+- Daily Targets: macros, calories and approach, EXACTLY as supplied in MACRO TARGETS above. If a target there says WITHHELD, state no figure for it and say the decision belongs with their doctor or renal dietitian. Never estimate, infer or reconstruct a withheld number
 - Why This Protocol: Evidence that this works for their goal
 - First Action Step: What to do TODAY (must respect diet protocol AND food preferences below)
 - 30-Day Timeline: what people COMMONLY REPORT week by week. Individual responses
@@ -4465,7 +4619,7 @@ function getTemplateContent(templateName, dietOrData) {
       const cookingFatExamples = isPescatarian
         ? 'butter, olive oil'
         : 'butter, tallow';
-      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n{{mealPlanMedicalNote}}\n\n## A Note Before You Start\nFair warning: this calendar is repetitive. Somewhere around week two you may look at it and think, this again? Yes. On purpose. Deciding what to eat all day is exhausting, and a short, predictable grocery list is one less thing to think about. Boring, here, is a feature.\n\nIt's a starting framework, not a rulebook. An anchor, not a ceiling. Especially in the first week or two, your appetite may not line up with the portions listed. Some days you'll want less. Some days you'll be genuinely hungry, and on those days, eat. Nobody gets a prize for going to bed hungry because a calendar said so.\n\nNotice your hunger before meals, your fullness after, whether you feel satisfied, and how your energy holds. If you consistently need more or less than the plan lists, that's what tells you how to adjust it.\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** {{proteinPrecisionClaim}} Fat may vary ±20-30% based on protein choices, and ${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n{{mealCalendarWeeks}}\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
+      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n{{mealPlanMedicalNote}}\n\n{{mealFrequencyNote}}\n\n## A Note Before You Start\nFair warning: this calendar is repetitive. Somewhere around week two you may look at it and think, this again? Yes. On purpose. Deciding what to eat all day is exhausting, and a short, predictable grocery list is one less thing to think about. Boring, here, is a feature.\n\nIt's a starting framework, not a rulebook. An anchor, not a ceiling. Especially in the first week or two, your appetite may not line up with the portions listed. Some days you'll want less. Some days you'll be genuinely hungry, and on those days, eat. Nobody gets a prize for going to bed hungry because a calendar said so.\n\nNotice your hunger before meals, your fullness after, whether you feel satisfied, and how your energy holds. If you consistently need more or less than the plan lists, that's what tells you how to adjust it.\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** {{proteinPrecisionClaim}} Fat may vary ±20-30% based on protein choices, and ${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n{{mealCalendarWeeks}}\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
     })(),
 
     // Report #4: Weekly Shopping Lists
@@ -4821,12 +4975,37 @@ function replacePlaceholders(template, data) {
     : 'Your protein targets are precisely calculated.');
   result = result.replace(/\{\{mealPlanMedicalNote\}\}/g, () => buildMealPlanMedicalNote(medicalContext));
 
+  // MEAL FREQUENCY DISCLOSURE. Printed whenever the two-meal structure was a default
+  // rather than the reader's declaration, which today is every production report. The
+  // glucose-medication paragraph is appended, never substituted: the plan and its
+  // numbers are unchanged for that reader, and the point is who needs to know before
+  // they decide on their own to eat less often.
+  result = result.replace(/\{\{mealFrequencyNote\}\}/g, () => {
+    const parts = [];
+    if (!hasExplicitMealFrequency(data)) parts.push(MEAL_FREQUENCY_TEMPLATE_NOTE);
+    // The calorie note lives HERE, in Report #3, because Report #3 is where the calorie
+    // decision actually becomes visible: no template prints the figure, but every
+    // portion on the calendar is sized from it. Explaining the number beside the food it
+    // produced is the only place the explanation means anything.
+    // Only 'qualified' is handled here. A 'suppressed' reader never reaches this
+    // template at all: their Report #3 is replaced wholesale by the renal notice, which
+    // is where CALORIE_SUPPRESSED_NOTE is attached instead. Pushing it here as well
+    // would be dead code that looks like coverage.
+    if (medicalContext.calorieGuidance === 'qualified') {
+      const shown = applyCalorieGuidance(data.macros, medicalContext).calories;
+      if (Number.isFinite(Number(shown))) parts.push(CALORIE_QUALIFIED_NOTE(`${Number(shown).toLocaleString('en-US')} calories`));
+    }
+    if (medicalContext.glucoseLowering) parts.push(MEAL_TIMING_GLUCOSE_MEDICATION_NOTE);
+    return parts.join('\n\n');
+  });
+
   // Macro information (both macros.calories and calories formats)
   if (data.macros) {
-    const calories = data.macros.calories || 2000;
-    const protein = data.macros.protein_grams || 130;
-    const fat = data.macros.fat_grams || 150;
-    const carbs = data.macros.carbs_grams || 20;
+    const effective = applyCalorieGuidance(data.macros, medicalContext);
+    const calories = effective.calories;
+    const protein = effective.protein_grams;
+    const fat = effective.fat_grams;
+    const carbs = effective.carbs_grams;
 
     // SUPPRESSION, NOT SUBSTITUTION. A reader who declared kidney disease gets no
     // protein figure anywhere a template can print one. `proteinDisplay` is a phrase,
@@ -4836,16 +5015,33 @@ function replacePlaceholders(template, data) {
       ? 'not set by this report, ask your doctor or renal dietitian'
       : protein;
 
-    result = result.replace(/\{\{macros\.calories\}\}/g, calories);
+    // THREE STATES, NOT TWO. See deriveCalorieGuidance in api/medical-context.js.
+    //
+    // suppressed: no figure anywhere a template can print one. Fat and carbs go with
+    // it, because both are derived FROM the calorie total - printing "150 g fat" beside
+    // "we are not setting a calorie target" hands the reader the same arithmetic back
+    // and invites them to reconstruct the number we withheld.
+    //
+    // qualified: the SAME number. Nothing is reduced, nothing is hidden. Only the claim
+    // around it changes, and that is rendered by {{calorieGuidanceNote}}, not here. A
+    // reader on a blood-pressure tablet paid for an estimate and still gets one.
+    const calorieSuppressed = medicalContext.calorieGuidance === 'suppressed';
+    const calorieDisplay = calorieSuppressed
+      ? 'not set by this report, ask your doctor or renal dietitian'
+      : calories;
+    const fatDisplay = calorieSuppressed ? 'not set by this report' : fat;
+    const carbsDisplay = calorieSuppressed ? 'not set by this report' : carbs;
+
+    result = result.replace(/\{\{macros\.calories\}\}/g, calorieDisplay);
     result = result.replace(/\{\{macros\.protein\}\}/g, proteinDisplay);
-    result = result.replace(/\{\{macros\.fat\}\}/g, fat);
-    result = result.replace(/\{\{macros\.carbs\}\}/g, carbs);
+    result = result.replace(/\{\{macros\.fat\}\}/g, fatDisplay);
+    result = result.replace(/\{\{macros\.carbs\}\}/g, carbsDisplay);
 
     // Also support non-nested format
-    result = result.replace(/\{\{calories\}\}/g, calories);
+    result = result.replace(/\{\{calories\}\}/g, calorieDisplay);
     result = result.replace(/\{\{protein\}\}/g, proteinDisplay);
-    result = result.replace(/\{\{fat\}\}/g, fat);
-    result = result.replace(/\{\{carbs\}\}/g, carbs);
+    result = result.replace(/\{\{fat\}\}/g, fatDisplay);
+    result = result.replace(/\{\{carbs\}\}/g, carbsDisplay);
   }
 
   // Dairy tolerance
@@ -4911,7 +5107,7 @@ function replacePlaceholders(template, data) {
 
   // Flatten the meal plan for template replacement
   // Handle dynamic meal structure (1, 2, or 3 meals per day)
-  const mealsPerDay = data.mealsPerDay || 2;
+  const mealsPerDay = resolveMealsPerDay(data);
 
   // Build one table per week, with as many meal columns as the plan actually has.
   // Until 2026-09-08 this rendered a fixed Breakfast/Lunch/Dinner table for everyone
@@ -5317,11 +5513,29 @@ function generateDynamicFoodGuide(dietType, data) {
     // below lists food combinations without quantities.
     //
     // Copy by Sarah (sarah-health-coach), 2026-09-09, used verbatim.
-    const oneMealBullet = deriveMedicalContext(data).restrictProteinTarget
-      ? '- **One meal:** Because of what you told us about your kidneys, we are not ' +
-        'stating an amount here. Ask your doctor or a renal dietitian how much to eat.'
-      : `- **One large meal:** 500-1500g ${proteinSamples[0]?.name || 'beef'} + salt`;
-    mealPatterns = `## Daily Eating Pattern\n\nLion Diet is typically **one meal per day (OMAD)**.\n\n${oneMealBullet}\n- **Meal timing:** Whenever hungry\n- **Seasoning:** Salt only`;
+    // OMAD IS NOT A DEFAULT. Until 2026-09-14 every Lion reader was told their diet is
+    // "typically one meal per day (OMAD)" with a single 500-1500 g meal, purely because
+    // they picked Lion. Nobody had asked how often they eat: mealsPerDay is not on the
+    // questionnaire, so generateFullMealPlan defaulted to 2 and Report #3 handed the
+    // same reader a two-meal calendar. The report argued with itself, and the half that
+    // was reachable in production was the half encouraging one meal a day.
+    //
+    // Prolonged gaps between meals are not a neutral suggestion for someone on insulin
+    // or a sulfonylurea, and this text reached them with no medication gate at all: the
+    // only condition on it was the renal one. Rather than add a second gate to copy
+    // that no reader asked for, the OMAD pattern now requires an explicit, supported
+    // declaration of one meal a day. Nothing in production supplies one, so in
+    // production this branch does not run and the neutral line below is what ships.
+    const omadDeclared = hasExplicitMealFrequency(data) && resolveMealsPerDay(data) === 1;
+    if (omadDeclared) {
+      const oneMealBullet = deriveMedicalContext(data).restrictProteinTarget
+        ? '- **One meal:** Because of what you told us about your kidneys, we are not ' +
+          'stating an amount here. Ask your doctor or a renal dietitian how much to eat.'
+        : `- **One large meal:** 500-1500g ${proteinSamples[0]?.name || 'beef'} + salt`;
+      mealPatterns = `## Daily Eating Pattern\n\nYou told us you eat once a day.\n\n${oneMealBullet}\n- **Meal timing:** Whenever hungry\n- **Seasoning:** Salt only`;
+    } else {
+      mealPatterns = `## Daily Eating Pattern\n\n${NEUTRAL_MEAL_PATTERN_LINE}\n\n- **Seasoning:** Salt only`;
+    }
   } else {
     mealPatterns = `## Daily Eating Patterns\n\n- **Option 1:** ${proteinSamples[0]?.name || 'Protein'} + ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 2:** ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 3:** ${proteinSamples[2]?.name || 'Protein'} + ${proteinSamples[0]?.name || 'Protein'} + ${fatSample}`;
   }
@@ -5417,8 +5631,20 @@ function buildProfile(data) {
 
   // Macro calculations (if provided from calculator)
   if (data.macros) {
+    const profileContext = deriveMedicalContext(data);
+    const profileMacros = applyCalorieGuidance(data.macros, profileContext);
     profile.push(`\nMACRO TARGETS:`);
-    profile.push(`- Calories: ${data.macros.calories}`);
+    // The model cannot print a number it was never given. Same rule as protein below:
+    // a withheld calorie target is absent from the prompt entirely, not softened in it,
+    // so the live-written sections have nothing to quote and nothing to "adjust".
+    if (profileContext.calorieGuidance === 'suppressed') {
+      profile.push(`- Calories: WITHHELD - this reader declared kidney disease. State no calorie target of any kind. See rule 9.`);
+    } else {
+      profile.push(`- Calories: ${profileMacros.calories}`);
+    }
+    if (profileMacros.deficitNeutralized) {
+      profile.push(`- IMPORTANT: the calorie figure above is this reader's MAINTENANCE level, not a weight-loss deficit. They reported a medication or a heart/kidney/blood-pressure condition, so no deficit has been applied. Do NOT describe it as a deficit, a cut, or a weight-loss target, and do NOT suggest eating below it.`);
+    }
     // The model cannot print a number it was never given. A reader who declared kidney
     // disease gets no protein figure in the prompt at all — not a reduced one — so the
     // live-written sections have nothing to quote and nothing to "adjust". The prompt
@@ -5428,7 +5654,9 @@ function buildProfile(data) {
     } else {
       profile.push(`- Protein: ${data.macros.protein_grams}g`);
     }
-    profile.push(`- Fat: ${data.macros.fat_grams}g`);
+    if (profileContext.calorieGuidance !== 'suppressed') {
+      profile.push(`- Fat: ${profileMacros.fat_grams}g`);
+    }
     // calculateMacros() does not return activityLevel/goal; these come off the form.
     // They previously rendered the literal string "undefined" into every prompt.
     if (data.lifestyle || data.activityLevel) profile.push(`- Activity Level: ${data.activityLevel || data.lifestyle}`);
@@ -7205,7 +7433,29 @@ async function computeGoalHorizon(env, subscriberId, optionOrder) {
     };
   }
 
-  const macros = calculateMacros(formData);
+  // A withheld calorie target cannot produce a weight-loss horizon: the horizon IS the
+  // deficit, restated as a date. Reaching this with a suppressed target would print the
+  // suppressed recommendation back to the reader in weeks instead of calories.
+  //
+  // HONEST SCOPE NOTE (2026-09-14): today this gate is inert, and it is kept anyway.
+  // The `formData` assembled above comes from calculator_sessions_v2, which holds the
+  // FREE calculator's answers and carries no conditions or medications column at all;
+  // health context is collected after purchase, into cw_assessment_sessions. So
+  // deriveMedicalContext sees an empty blob here and always returns 'normal'.
+  //
+  // This is not coverage and must not be counted as coverage. It is a fail-safe that
+  // becomes real the moment health fields reach this object, which is exactly the
+  // "gap between what reaches the model and what reaches the gate" that
+  // api/medical-context.js was written about. The underlying gap - the drip horizon
+  // cannot know about a reader's medication - is tracked separately.
+  if (deriveMedicalContext(formData).calorieGuidance === 'suppressed') {
+    return { ...base, ...suppressed('calorie_guidance_suppressed'), has_calculator_context: true };
+  }
+
+  // Same adjustment the report uses. For a qualified reader the deficit is zero, so the
+  // guard below suppresses the horizon rather than quoting a timeline built on a cut we
+  // deliberately removed. A horizon IS the deficit, restated as a date.
+  const macros = applyCalorieGuidance(calculateMacros(formData), deriveMedicalContext(formData));
   const dailyDeficit = Math.round(macros.tdee - macros.calories);
   if (!Number.isFinite(dailyDeficit) || dailyDeficit <= 0) {
     return { ...base, ...suppressed('no_effective_deficit'), has_calculator_context: true };
