@@ -2178,3 +2178,47 @@ The only production sender is `.github/workflows/weekly-update.yml` (cron Sunday
 and Wednesday 00:00 UTC) -> `scripts/weekly_newsletter.py --site both` ->
 subprocess -> `scripts/send_newsletter.py --site kd`. No edge function, worker or
 scheduled task mails the weekly list.
+
+## 2026-09-14 — CW blog electrolyte sweep: triage first, then tier 1 only
+
+Bead `drp9` claimed "~27 unscanned CW blog pages" in the electrolyte defect class.
+Scanned properly: 266 sentences across the blog carry an mg or g figure, but only
+**37 sentences across 24 pages** are electrolyte dosing. The rest are food facts
+("beef has 300-400 mg potassium per 4 oz", "fresh meat has 10-30 mg vitamin C per
+lb"), which are not the defect and were left alone. Counting mg figures overstates
+this problem by roughly seven to one.
+
+**Shipped in 981604a2 (PR #75): the four pages printing the universal 2,600 mg /
+3,400 mg potassium target** — the identical figures already removed from CW drip
+day-10, KD drip day-2 and the KetoDial keto flu guide. Nine replacements written
+by Sarah, live-verified after deploy.
+
+**Two of those four had already been half-fixed, in exactly the way the rule warns
+about.** The number stayed and a caveat was appended after it. `2026-06-10-
+carnivore-morning-routine` printed a potassium target and then said "We do not
+publish bulk potassium chloride dosing" two sentences later. A caveat after the
+number is not a gate, and the presence of one is not evidence a page is clean.
+Whoever takes the remaining pages should expect to find the same pattern.
+
+**Why only tier 1.** Safety and the position-≤15 preservation rule did not conflict
+here, by luck: the four pages carrying the potassium targets are the four
+least-trafficked in the affected set (4, 13 and 29 impressions plus one with no GSC
+data, two clicks between them). The remaining pages carry magnesium or sodium
+dosing rather than universal potassium targets, and include genuine ranking assets
+— `2026-02-08-adaptation-timeline` at 1,358 impressions and position 6.5 is the
+most valuable page in the group. Sweeping those in behind a safety fix would have
+meant rewriting a page-one winner with no preservation plan, which the content
+rules forbid for good reason. They get their own pass.
+
+Baseline for the whole set, recorded before any edit:
+`docs/project-log/electrolyte-blog-baseline-2026-09-14.md`. **Read date 2026-10-12.**
+
+Three pages already handle this correctly and are the model to copy:
+`2026-04-27-carnivore-sleep-week-two-electrolytes`, `2026-05-17-carnivore-
+electrolyte-problem`, `2026-09-09-potassium-on-carnivore`. Each explicitly declines
+to print a potassium target and explains why rather than quietly omitting it.
+
+Separately, three P0 beads in this class (`pe80`, `45hg`, `16sm`) were verified
+fixed and closed the same day. They had been remediated on 2026-09-12 but never
+closed; `16sm`'s fix lives in the `ketodial/public` submodule, which is why it did
+not show up in the parent repo's history and looked outstanding.

@@ -2,6 +2,18 @@
 
 **Last Updated:** 2026-09-14 (paid-report calorie guidance shipped and deployed; one real purchase still owed, bead `carnivore-weekly-n5jc`)
 
+**2026-09-14 · Electrolyte defect class: four P0s down to one. Three verified-fixed beads closed, and the four CW blog pages carrying the universal potassium target are repaired and live. MERGED `981604a2` (PR #75).**
+
+`pe80` (CW drip day-10), `45hg` (KD drip day-2) and `16sm` (the KetoDial keto flu guide) were all remediated on 2026-09-12 but never closed. Verified each before closing rather than trusting the commit messages: zero mg figures in all three, and the live keto flu page was fetched and confirmed serving the repaired copy with the warning ahead of the helpful section. `16sm`'s fix lives in the `ketodial/public` submodule, which is why it never appeared in the parent repo's history and looked outstanding.
+
+Then triaged the remaining scope properly. 266 sentences across the CW blog carry an mg or g figure, but **only 37 across 24 pages are electrolyte dosing**; the rest are food facts and were left alone. Counting mg figures overstates this problem about seven to one.
+
+Shipped the four pages printing the **universal 2,600 mg / 3,400 mg potassium target**, the same figures already removed from three other places: `2026-02-08-strength-gains`, `2026-02-08-weightlifting-muscle-building`, `2026-01-14-carnivore-supplements`, `2026-06-10-carnivore-morning-routine`. Nine replacements by Sarah, suppressed never substituted, warning before the helpful content on each. Live-verified after deploy: zero stale targets on all four.
+
+**Worth knowing: two of those four had already been half-fixed the wrong way.** The number stayed and a caveat was appended after it. The morning routine page printed a potassium target and then said "We do not publish bulk potassium chloride dosing" two sentences later. A caveat after the number is not a gate, and its presence is not evidence a page is clean.
+
+Bead `drp9` stays open for ~10 pages carrying magnesium or sodium dosing rather than potassium targets. Those include real ranking assets (`2026-02-08-adaptation-timeline`, 1,358 impressions at position 6.5) and get their own pass with their own preservation plan. Baseline for the whole set in `docs/project-log/electrolyte-blog-baseline-2026-09-14.md`, **read date 2026-10-12**.
+
 **2026-09-14 · The KD weekly newsletter no longer double-sends to subscribers who are mid-drip. MERGED `63aa3123` (PR #73).** The suppression guard in `send_newsletter.get_subscribers()` was gated on `site == "cw"` and KetoDial fell through it. Verified on live production data before shipping: **42 of the 75 active KD newsletter subscribers were mid-drip** and in line to receive the 2026-09-16 weekly on top of that morning's drip email.
 
 The change is the branch condition and nothing else. KD sends CW's identical query, so it inherits proven behaviour rather than a second implementation. Production-verified against live Supabase on the merged main code, read-only with the send path blocked: **KD 72 to 30 recipients (42 suppressed); CW 105 to 105, 101 suppressed, byte-identical.** Newsletter copy, drip cadence and CW behaviour were all untouched.
