@@ -2100,3 +2100,47 @@ and the deepest live coupon is 50% off. Tracked as `carnivore-weekly-n5jc`.
 
 All customer-facing copy written by Sarah (`sarah-health-coach`) and verified by her against
 `assertNoDeterministicOutcomes`, `assertNoAdvocacy` and `findUnfoundedClearance`.
+
+### 2026-09-14 (same day) — Production verification of the above, by two $0 runs
+
+Brew authorized a live 100%-off Stripe coupon (`CLAUDEVERIFY100`, capped at 2) so the
+post-payment path could be proven without a card charge. It is deleted. The mapping that
+enabled it was reverted in `18037e6a`, and `origin/main` is now byte-identical to the
+deployed worker `fa9b1071`.
+
+**Run 1, renal.** Browser-driven end to end: calculator, offer, payment modal, coupon
+applied ($29.00 → $0.00), success page, health profile, generation. "Chronic kidney
+disease, stage 3" was typed into Other Conditions, which is the real free-text path since
+there is no kidney checkbox, and it reached the classifier. Reports #3 and #4 came back as
+the referral notices, **zero gram quantities in the whole 55,139-character document**, no
+OMAD, no 500-1500 g, all 13 sections present, one session row, no duplicate.
+
+**Run 2, medication (lisinopril + Lantus insulin), mobile viewport.** The printed calorie
+figure was **1,767, which is maintenance**. The free calculator shows 1,502 for the same
+body inputs. That single number is the proof that the deficit is removed rather than
+relabelled, and it holds in production. The two-meal disclosure, the free-calculator
+explanation and the glucose meal-timing caution were all present, and the 30-day calendar
+and grocery list were still delivered, so qualification did not cost the customer the
+product. No horizontal overflow on a 375px viewport.
+
+**What this deliberately does NOT prove.** The free-coupon path bypasses Stripe Checkout
+and the `checkout.session.completed` webhook, so webhook handling, "no duplicate charge"
+and the report **email** are still unverified on the current worker. Only a real card
+purchase closes that. Tracked as `carnivore-weekly-n5jc`.
+
+**Two defects fell out of the gap, both on the free path, neither live today:**
+
+- `carnivore-weekly-c47q` (P1): `max_redemptions` is not enforced. Stripe reported
+  `times_redeemed: 0` after both runs, because the free branch validates the coupon and
+  then bypasses Stripe instead of redeeming it. A mapped 100%-off coupon would therefore
+  grant unlimited free reports whatever cap was set on it. The cap looks like a control
+  and is not one.
+- `carnivore-weekly-rg1j` (P2): no resume email is sent on that path, while the success
+  page unconditionally tells the buyer one was. Confirmed against Resend: zero sends to the
+  address, and the newest send on the account predated the checkout by 90 minutes.
+
+Neither is exposed now: no 100%-off coupon exists and no 100% mapping remains. Verified
+after the revert that the same request returns a real `cs_live` checkout at $29.
+
+Test data was removed afterwards (2 report rows, 3 session rows, 0 remaining, real data
+intact at 10 reports / 19 sessions). No subscriber, newsletter or drip rows were touched.
