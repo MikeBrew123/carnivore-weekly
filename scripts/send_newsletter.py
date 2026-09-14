@@ -2,8 +2,10 @@
 """
 Send styled HTML newsletters via Resend Broadcasts.
 
-Pulls subscriber emails from Beehiiv API, sends the fully-styled HTML
-newsletter through Resend so all inline CSS and table layouts are preserved.
+Pulls subscriber emails from Supabase (`newsletter_subscribers`, scoped to the
+site) and sends the fully-styled HTML newsletter through Resend so all inline
+CSS and table layouts are preserved. Resend is the only sender: Beehiiv and
+MailerLite were purged in 2026 and nothing here talks to them.
 
 Usage:
     python3 scripts/send_newsletter.py                    # CW, latest newsletter
