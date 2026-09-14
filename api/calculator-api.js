@@ -473,6 +473,12 @@ function checkRateLimit(sessionToken, limit = 10) {
 const stripeCouponMap = {
   // TEST999/TEST95 removed 2026-08-05 (Brew's Jul 17 retire-test-coupons decision;
   // their Stripe coupons DjCf14wH/ZnZXGHka no longer exist in live mode)
+  // TEMPORARY, 2026-09-14. Release verification for PR #72 (three-state calorie
+  // guidance). Live Stripe coupon, 100% off, max_redemptions=2, created and deleted in
+  // the same session. Brew authorized it explicitly so the post-payment path could be
+  // proven without a real charge, since TEST999/TEST95 were retired 2026-08-05.
+  // REMOVE THIS LINE AND REDEPLOY as soon as the two runs are verified.
+  'CLAUDEVERIFY100': 'CLAUDEVERIFY100',
   'WELCOME10': 'kFK8x4SZ',    // 10% off once ($26.10)
   'WELCOME5': 'WELCOME5',     // $5 off once ($24) — drip Day 3 welcome offer
   'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
