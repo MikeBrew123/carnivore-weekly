@@ -69,7 +69,44 @@ const INTAKE = /\b(?:take|add|supplement|consume|aim for|target|targets|hit|drin
 const TARGETY = /\b(?:daily|per day|a day|each day|every day|per hour|an hour|hourly|per meal|every meal|before bed|pre-?(?:run|wod|race|workout)|post-?(?:run|wod|race|workout)|throughout)\b/i;
 
 // cues that mark a figure as describing food composition
-const COMPOSITION = /\b(?:per\s*(?:100\s*(?:g|grams?)|serving|oz|ounce|lb|pound|cup|tablespoon|tbsp)|contains?|gives? you|provides?|has about|is about|roughly|worth of|in a\b|of cooked|content)\b/i;
+const COMPOSITION = /\b(?:per\s*(?:100\s*(?:g|grams?)|serving|oz|ounce|lb|pound|cup|tablespoon|tbsp|packet|scoop|stick|capsule)|contains?|gives? you|provides?|has about|is about|roughly|worth of|in a\b|of cooked|content)\b/i;
+
+// A product LABEL PANEL is a disclosure, not a recommendation. Sarah's Batch 2A
+// ruling: the panels are what let a reader tell a sodium-only product from a
+// potassium-containing one before she buys, which is the decision that routes her
+// to a pharmacist. Signature: a per-unit header and/or "(from <ingredient>)"
+// source attributions. Safe ONLY while the page supplies no daily total to divide
+// by, which PACKET_COUNT and the DOSE classifier enforce separately.
+const LABEL_PANEL = /\bper\s*(?:packet|scoop|stick|serving|capsule)\b|\bscoop\)|\bpacket\)|\(from\s+[a-z][^)]{2,90}\)/i;
+
+// A regulatory CEILING imposed by someone else. "The FDA limits OTC potassium to
+// 99 mg per dose" is the opposite of an instruction: it argues that bulk powder
+// sits outside the rules that make pills safe.
+// A CAUTIONARY NARRATIVE describes harm that happened, not a preparation to copy.
+// Brew required the overdose story be preserved ("he accidentally put 8 teaspoons of
+// potassium in a quart of bone broth instead of 1/8 teaspoon"), and it is the single
+// most persuasive anti-DIY content on the page. A guard that strips it would be
+// deleting the warning and keeping nothing.
+const CAUTIONARY = /\b(?:accident(?:al|ally)?|by mistake|instead of|overdose|poisoning|hospital|911|emergency room|ER\b|nearly died|thought he was having|toxic|went wrong|mixed up|misread)\b/i;
+
+// THE 99 mg CLAIM. Corrected 2026-09-14 after Brew checked it against NIH ODS.
+// Most potassium DIETARY SUPPLEMENTS provide no more than 99 mg per serving because
+// manufacturers VOLUNTARILY settled there. FDA has NOT ruled that supplements above
+// 99 mg need a warning. FDA's warning requirement is narrower: certain oral potassium
+// DRUG products above 99 mg per tablet. Calling 99 mg an "FDA cap" borrows a
+// regulator's authority for a number that is an industry convention, and it invites
+// the reader to treat a label amount as a personal allowance. This guard flags the
+// false framing while leaving the accurate explanation legal.
+const FALSE_REGULATORY_CAP = new RegExp(
+  '(?:fda|regulator[s]?|law|legally)[^.]{0,70}(?:limits?|caps?|restricts?|allows?|permits?)[^.]{0,70}99\\s*mg'
+  + '|99\\s*mg[^.]{0,50}(?:cap|ceiling|legal limit|maximum|max\\b)'
+  + '|(?:capped|limited|restricted)\\s*(?:at|to)\\s*99\\s*mg'
+  + '|(?:the\\s*)?99\\s*mg\\s*(?:limit|cap)\\b'
+  + '|what a regulator will allow',
+  'i',
+);
+
+const REGULATORY = /\b(?:FDA|regulator|regulators|capped at|caps? (?:them|it|these)|limits?\b[^.]{0,30}\bto\b|legal limit|over-the-counter[^.]{0,30}(?:capped|limited))/i;
 // physiological LOSS, not intake (sweat rates). Allowed: it argues against dosing.
 const LOSS = /\b(?:loss|lose[sn]?|losing|excrete[sd]?|sweat(?:ing|s)? (?:out|rate)|through sweat|runs anywhere)\b/i;
 
@@ -84,7 +121,7 @@ function classify(text) {
   for (const s of sentences(text)) {
     if (!near.test(s)) continue;
     let kind;
-    if (COMPOSITION.test(s) || LOSS.test(s)) kind = 'food-or-loss';
+    if (COMPOSITION.test(s) || LOSS.test(s) || LABEL_PANEL.test(s) || REGULATORY.test(s)) kind = 'food-or-loss';
     else if (INTAKE.test(s) || TARGETY.test(s)) kind = 'DOSE';
     else kind = 'ambiguous';
     out.push({ sentence: s.trim().replace(/\s+/g, ' '), kind });
@@ -103,7 +140,28 @@ const SALT_EVERY_MEAL = /\bsalt (?:every meal|everything|all your food)\b|\b(?:1
 const PER_HOUR_MINERAL = new RegExp(`(?:${QTY})[^.]{0,40}?(?:sodium|potassium|magnesium)[^.]{0,40}?\\bper hour\\b|\\bper hour\\b[^.]{0,60}?(?:${QTY})[^.]{0,30}?(?:sodium|potassium|magnesium)`, 'i');
 
 // potassium / salt-substitute self-dosing
-const POTASSIUM_SELF_DOSE = new RegExp(`(?:${INTAKE.source})[^.]{0,60}?(?:potassium (?:chloride|supplement|pill)|lite\\s?salt|no\\s?salt|salt substitute)|(?:potassium (?:chloride|supplement)|lite\\s?salt)[^.]{0,40}?(?:${QTY})`, 'i');
+const POTASSIUM_SELF_DOSE = new RegExp(`(?:${INTAKE.source})[^.]{0,60}?(?:potassium (?:chloride|citrate|supplement|pill|powder)|lite\\s?salt|no\\s?salt|salt substitute)|(?:potassium (?:chloride|citrate|supplement|powder)|lite\\s?salt)[^.]{0,40}?(?:${QTY})`, 'i');
+
+// A DIY electrolyte RECIPE: two or more dosed mineral components combined into a
+// preparation. Added for Batch 2A, where the article reproduced a reader's mix
+// ("a 400 mg magnesium glycinate cap, a 200 mg potassium citrate cap, 1/2 tsp salt")
+// and then totalled it into a daily intake. Neither the recipe nor the total may
+// be published, and a "safer" recipe is not an acceptable replacement.
+// A label PANEL is a product disclosure and must survive (Sarah's ruling, Batch 2A):
+// it is what lets a reader tell a sodium-only product from a potassium-containing one
+// before she buys. A RECIPE is an assembly instruction. The difference is a
+// PREPARATION cue, so the multi-component branch requires one rather than firing on
+// any two mineral figures in sequence.
+const PREP = '(?:dissolve|mix|stir|combine|dump|scoop|shake|brew|recipe|capsules?|caps?\\b|in (?:a glass|water|a quart|a litre|a liter|your bottle))';
+const DIY_RECIPE = new RegExp(
+  `${PREP}[^.]{0,110}?(?:${QTY})[^.]{0,50}?(?:potassium|magnesium|cream of tartar)`
+  + `|(?:${QTY})[^.]{0,50}?(?:potassium|magnesium)[^.]{0,60}?${PREP}`
+  + `|cream of tartar`,
+  'i',
+);
+
+// A product label amount converted into a consumption count.
+const PACKET_COUNT = /\b(?:one|two|three|1|2|3)\s*(?:-|to)?\s*(?:one|two|three|1|2|3)?\s*packets?\s*(?:a|per)\s*day|\bpackets?\s*(?:a|per)\s*day|\bscoops?\s*(?:a|per)\s*day/i;
 
 function stripHtml(h) {
   return h
@@ -127,6 +185,54 @@ const MUST_FLAG = [
   ['per-hour prescription', 'Electrolyte targets per hour in the heat: 500-700mg sodium, 150-300mg potassium.'],
   ['pre-workout loading', 'Pre-WOD electrolyte drink, target 500-1000mg sodium 30 minutes before training.'],
   ['supplement imperative', 'Supplement 300-400 mg magnesium glycinate if you have cramps.'],
+];
+
+// Batch 2A defect classes: a published DIY recipe, and a label amount turned into a count.
+const MUST_FLAG_RECIPE = [
+  ['DIY two-component mix', 'I dump a 400 mg magnesium glycinate cap, a 200 mg potassium citrate cap and 1/2 tsp Celtic sea salt in water.'],
+  ['DIY brew instruction', 'Dissolve 1/4 tsp of potassium chloride and a magnesium supplement in a litre of water.'],
+  ['cream of tartar brew', 'Add salt, cream of tartar and magnesium to your bottle.'],
+];
+const MUST_FLAG_COUNT = [
+  ['packets per day', 'Most people do well on two packets a day.'],
+  ['scoops per day', 'That works out to about one scoop per day.'],
+];
+// MUST FLAG: 99 mg framed as a regulatory ceiling. Every one of these was live on
+// carnivoreweekly.com on 2026-09-14.
+const MUST_FLAG_FALSE_CAP = [
+  ['FDA limits supplements', 'The FDA limits over-the-counter potassium supplements to 99 mg per dose.'],
+  ['pills are capped at', 'Over-the-counter potassium pills are capped at 99 mg each.'],
+  ['the 99 mg limit', "The 99 mg limit is what's safe to hand a stranger with no test results."],
+  ['regulator will allow', 'That is 25 times what a regulator will allow a company to put in a pill.'],
+  ['99 mg maximum', 'Supplements have a 99 mg maximum for a reason.'],
+];
+// MUST NOT FLAG: the accurate explanation stays legal.
+const MUST_NOT_FLAG_TRUE_99 = [
+  ['voluntary industry serving size',
+   'Most potassium supplements give you no more than 99 mg per serving. That is a serving size the supplement industry settled on for itself, not a limit the FDA sets on supplements.'],
+  ['narrow, accurate regulatory history',
+   'The actual FDA rule is narrower than people assume: it covers certain oral potassium drug products above 99 mg per tablet, not the tub of powder in your cupboard.'],
+  ['explicit not-a-target framing',
+   "So don't read 99 mg as your number. It isn't a target, it isn't a ceiling that makes anything safe, and it isn't evidence that a bigger spoonful is fine."],
+];
+
+const MUST_NOT_FLAG_CAUTIONARY = [
+  ['the overdose story must survive',
+   'A man accidentally put 8 teaspoons of potassium in a quart of bone broth instead of 1/8 teaspoon.'],
+  ['hospital outcome must survive',
+   'Within three hours he thought he was having a stroke and called 911.'],
+];
+const MUST_FLAG_DESPITE_LABEL = [
+  ['recipe that mentions a scoop is still a recipe',
+   'Dump a 200 mg potassium citrate capsule into your bottle and shake.'],
+  ['daily total is still a dose even beside a panel',
+   'That works out to 3,000 mg of sodium a day.'],
+];
+const MUST_NOT_FLAG_LABEL = [
+  ['accurate supplement serving size', 'Most potassium supplements provide no more than 99 mg per serving.'],
+  ['panel with source attributions', 'Re-Lyte (per scoop): 810 mg sodium (from Redmond Real Salt), 400 mg potassium.'],
+  ['bare label panel', 'LMNT per packet: 1,000 mg sodium, 200 mg potassium, 60 mg magnesium.'],
+  ['label comparison', 'Re-Lyte lists 810 mg sodium and 400 mg potassium, so it carries more potassium than LMNT.'],
 ];
 
 const MUST_NOT_FLAG = [
@@ -154,6 +260,34 @@ for (const [label, text] of MUST_NOT_FLAG) {
     `wrongly classified as DOSE: ${text}`,
   );
 }
+for (const [label, text] of MUST_FLAG_RECIPE) {
+  check(`fixture MUST flag recipe: ${label}`, DIY_RECIPE.test(text), `not detected: ${text}`);
+}
+for (const [label, text] of MUST_FLAG_COUNT) {
+  check(`fixture MUST flag count: ${label}`, PACKET_COUNT.test(text), `not detected: ${text}`);
+}
+for (const [label, text] of MUST_NOT_FLAG_LABEL) {
+  check(`fixture label panel stays legal: ${label}`,
+    !hits(DIY_RECIPE, text) && !PACKET_COUNT.test(text)
+    && !classify(text).some((g) => g.kind === 'DOSE'), `wrongly flagged: ${text}`);
+}
+for (const [label, text] of MUST_FLAG_FALSE_CAP) {
+  check(`fixture MUST flag false 99 mg cap: ${label}`, FALSE_REGULATORY_CAP.test(text), `not detected: ${text}`);
+}
+for (const [label, text] of MUST_NOT_FLAG_TRUE_99) {
+  check(`fixture accurate 99 mg explanation stays legal: ${label}`,
+    !FALSE_REGULATORY_CAP.test(text) && !classify(text).some((g) => g.kind === 'DOSE'),
+    `wrongly flagged: ${text}`);
+}
+for (const [label, text] of MUST_NOT_FLAG_CAUTIONARY) {
+  check(`fixture cautionary narrative survives: ${label}`,
+    !hits(DIY_RECIPE, text) && !hits(POTASSIUM_SELF_DOSE, text), `wrongly flagged: ${text}`);
+}
+for (const [label, text] of MUST_FLAG_DESPITE_LABEL) {
+  check(`fixture still flagged despite label context: ${label}`,
+    hits(DIY_RECIPE, text) || classify(text).some((g) => g.kind === 'DOSE'),
+    `missed: ${text}`);
+}
 
 // ---------------------------------------------------------------------------
 // the repaired pages — asserted against SOURCE and RENDERED output
@@ -164,7 +298,21 @@ const GUARDED = [
   '2026-01-19-crossfit-high-intensity',
   '2026-02-08-endurance-running-marathon',
   '2026-05-15-carnivore-cardio-heat-training',
+  // Batch 2A
+  '2026-04-11-diy-electrolytes-vs-lmnt-dr-hampton',
+  '2026-05-18-carnivore-cheat-reentry-protocol',
 ];
+
+/** True if `rx` matches in a sentence that is not a label panel or a regulatory limit. */
+function hits(rx, text) {
+  return hitSentences(rx, text).length > 0;
+}
+/** The offending sentences, so failure details point at the real one. */
+function hitSentences(rx, text) {
+  return sentences(text).filter(
+    (s) => rx.test(s) && !LABEL_PANEL.test(s) && !REGULATORY.test(s) && !CAUTIONARY.test(s),
+  );
+}
 
 function assertClean(label, text) {
   const doses = classify(text).filter((d) => d.kind === 'DOSE');
@@ -176,8 +324,14 @@ function assertClean(label, text) {
     (text.match(SALT_EVERY_MEAL) || [''])[0].slice(0, 150));
   check(`${label}: no per-hour mineral prescription`, !PER_HOUR_MINERAL.test(text),
     (text.match(PER_HOUR_MINERAL) || [''])[0].slice(0, 150));
-  check(`${label}: no potassium or salt-substitute self-dosing`, !POTASSIUM_SELF_DOSE.test(text),
-    (text.match(POTASSIUM_SELF_DOSE) || [''])[0].slice(0, 150));
+  check(`${label}: no potassium or salt-substitute self-dosing`, !hits(POTASSIUM_SELF_DOSE, text),
+    (hitSentences(POTASSIUM_SELF_DOSE, text)[0] || '').slice(0, 180));
+  check(`${label}: no published DIY electrolyte recipe`, !hits(DIY_RECIPE, text),
+    (hitSentences(DIY_RECIPE, text)[0] || '').slice(0, 180));
+  check(`${label}: no label amount converted to a packet or scoop count`, !PACKET_COUNT.test(text),
+    (text.match(PACKET_COUNT) || [''])[0].slice(0, 150));
+  check(`${label}: 99 mg not presented as a regulatory ceiling`, !FALSE_REGULATORY_CAP.test(text),
+    (text.match(FALSE_REGULATORY_CAP) || [''])[0].slice(0, 180));
 }
 
 // SOURCE
@@ -221,5 +375,6 @@ if (total) {
   process.exit(1);
 }
 console.log('electrolyte-self-dosing: all checks passed '
-  + `(${MUST_FLAG.length} positive fixtures, ${MUST_NOT_FLAG.length} negative fixtures, `
+  + `(${MUST_FLAG.length + MUST_FLAG_RECIPE.length + MUST_FLAG_COUNT.length + MUST_FLAG_FALSE_CAP.length} positive fixtures, `
+  + `${MUST_NOT_FLAG.length + MUST_NOT_FLAG_LABEL.length + MUST_NOT_FLAG_CAUTIONARY.length + MUST_NOT_FLAG_TRUE_99.length} negative fixtures, `
   + `${GUARDED.length} pages × source + rendered)`);
