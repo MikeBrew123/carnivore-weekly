@@ -69,6 +69,44 @@ PROMO_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # no 0/O/1/I/L lookalik
 # Per-site promo copy. "real" may claim the 48h window because Stripe enforces
 # it on minted codes; "fallback" must NEVER claim expiry.
 # CW copy by Sarah (2026-07-19). KD copy by Sarah/Chloe (2026-07-20).
+# Blocks shown INSTEAD of the discount offer to subscribers who have already
+# bought. Found 2026-09-15: days 7 and 28 were pitching 50% off the Protocol to
+# people who had already paid full price for it, and it had already happened to
+# at least one real customer. Copy by Sarah (CW day 7/28, KD day 7), Chloe voice
+# on KD day 28 to match that email's signature.
+BUYER_BLOCK = {
+    "cw": {
+        7: '<p style="margin:0 0 16px 0">You already have the Complete Carnivore Protocol, so the part most people are still deciding about this week is settled for you. My one suggestion: open it to week one, pull that shopping list, and do a single grocery run against it instead of reading the whole thing end to end. The plan works best one week at a time, and week one is the only week you need right now.</p>',
+        28: '<p style="margin:0 0 16px 0">You finished the month and you already have the Complete Carnivore Protocol, so month two doesn\'t need to be invented from scratch. Go back to your plan and run it again with what you know now: the meals you actually looked forward to move to the front, the ones you only tolerated come out, and the shopping list gets shorter every time you repeat it. Most of the drift I see in month two is a decision problem rather than a discipline problem, and you already own the fix for that. Keep the plan on the fridge for another four weeks and let it do the deciding.</p>',
+    },
+    "kd": {
+        7: '<p style="margin:0 0 16px 0">You\'ve already got your report, which means you\'re past the guessing that most of week one gets spent on. Use it narrowly this week: pick the next few days of meals, build one shopping list from them, and leave the rest of the report alone until you need it. A report you cook from beats a report you read once, every time.</p>',
+        28: '<p style="margin:0 0 16px 0">Twenty-eight days done, and you\'re walking into month two with your own numbers already in hand instead of somebody\'s generic plan. Here\'s what I\'d do: open your report again and read it as a graduate this time, because the parts that felt like homework in week one tend to look obvious now. Rebuild one week of meals from the ones you know you\'ll actually eat, and let that week repeat. You\'ve already done the hardest month, and you\'ve still got the plan that got you through it.</p>',
+    },
+}
+
+# Inbox preview text. Only the KD emails name the offer in their preheader, so
+# only they need a buyer variant; the CW preheaders never mention it.
+BUYER_PREHEADER = {
+    "cw": {},
+    "kd": {
+        7: "Your week-1 recap, and what to do with the report you have",
+        28: "You finished the month. Here is what month two looks like.",
+    },
+}
+
+# Subject lines that promise the offer. A clean body is not enough: the subject
+# is the most visible part, and "50% off your 30-day plan" in a buyer's inbox is
+# the whole problem even if the email inside behaves. Days not listed keep their
+# normal subject. PLACEHOLDER WORDING - Sarah to confirm before the next day-7.
+BUYER_SUBJECT = {
+    "cw": {7: "One week in. Here is what to do with the plan you have."},
+    "kd": {7: "One week of keto. Here is what to do next."},
+}
+
+BUYER_SWAP = ("<!--BUYER_SWAP_START-->", "<!--BUYER_SWAP_END-->")
+BUYER_PRE = ("<!--BUYER_PRE_START-->", "<!--BUYER_PRE_END-->")
+
 PROMO_COPY = {
     "cw": {
         7: {
@@ -160,11 +198,80 @@ def mint_promo_code(stripe_key, day, email):
     return None
 
 
-def apply_promo(html, day, email, stripe_key):
+def fetch_buyer_emails(secrets):
+    """Lowercased emails that have completed a purchase.
+
+    Returns None if the lookup fails, which apply_promo treats as "cannot tell"
+    and therefore suppresses the offer. Do not turn this into an empty set on
+    error: an empty set reads as "nobody has bought" and re-creates the bug.
+    """
+    try:
+        rows = supabase_query(secrets, "cw_assessment_sessions", {
+            "select": "email", "payment_status": "eq.completed"})
+        emails = {r["email"].strip().lower() for r in rows if r.get("email")}
+        print(f"  buyers on file: {len(emails)} (offer suppressed for these)")
+        return emails
+    except Exception as e:
+        print(f"  ⚠️  buyer lookup FAILED ({e}) — offers will be suppressed this run")
+        return None
+
+
+def strip_markers(html):
+    """Remove the buyer-swap markers, leaving the normal offer in place."""
+    for a, b in (BUYER_SWAP, BUYER_PRE):
+        html = html.replace(a, "").replace(b, "")
+    return html
+
+
+def swap_for_buyer(html, day, site):
+    """Replace the whole offer block, and the preheader where it names the
+    offer, with copy written for someone who has already bought.
+
+    The block is replaced wholesale rather than just blanking {$promo_code},
+    because the discount is woven through the surrounding copy: the pitch
+    paragraph, the code box, a CTA button reading "Get Your 30-Day Plan for
+    $14.50", and the urgency line are four separate elements. Substituting only
+    the placeholder would leave a buyer looking at "$29 -> $14.50" with a blank
+    where the code used to be, which is worse than the bug we are fixing.
+    """
+    start, end = BUYER_SWAP
+    block = BUYER_BLOCK.get(site, {}).get(day)
+    if block and start in html and end in html:
+        i, j = html.index(start), html.index(end) + len(end)
+        html = html[:i] + block + html[j:]
+
+    pre = BUYER_PREHEADER.get(site, {}).get(day)
+    ps, pe = BUYER_PRE
+    if pre and ps in html and pe in html:
+        i, j = html.index(ps), html.index(pe) + len(pe)
+        html = html[:i] + pre + html[j:]
+
+    return strip_markers(html)
+
+
+def apply_promo(html, day, email, stripe_key, buyers=None):
     """Merge the per-subscriber promo code and matching urgency copy into
-    day-7/day-28 emails. Any other day passes through untouched."""
+    day-7/day-28 emails. Any other day passes through untouched.
+
+    `buyers` is a set of lowercased emails that have already purchased. They get
+    the buyer block instead of the offer, and NO code is minted for them: a
+    minted code is a real Stripe object, and burning one on someone who already
+    owns the product is pure waste.
+
+    FAIL CLOSED on purchase status, deliberately, and unlike the send-level
+    eligibility checks above which fail open. Those decide whether a subscriber
+    gets an email at all, so silence is the costly error. Here the email goes
+    out either way and only the offer varies, so the costly error is showing a
+    half-price code to someone who paid full price. If we cannot tell, we
+    suppress the offer. `buyers=None` means the lookup failed, not "no buyers".
+    """
     if day not in PROMO_DAYS:
-        return html
+        return strip_markers(html)
+    if buyers is None or email.strip().lower() in buyers:
+        if buyers is None:
+            print("  ⚠️  buyer lookup unavailable — suppressing the offer (fail closed)")
+        return swap_for_buyer(html, day, SITE)
+    html = strip_markers(html)
     code = mint_promo_code(stripe_key, day, email) if stripe_key else None
     variant = "real" if code else "fallback"
     if not code:
@@ -548,7 +655,7 @@ def preview_all(resend_key, to):
     print(f"📬 Preview: sending {len(days)} {CFG['name']} drip emails to {to}\n")
     for day in days:
         subject, html = load_drip_email(day)
-        html = apply_promo(html, day, to, stripe_key="")  # fallback path, no minting
+        html = apply_promo(html, day, to, stripe_key="", buyers=set())  # preview: render the OFFER variant
         ok, detail = send_email(resend_key, to, f"[PREVIEW d{day}] {subject}",
                                 personalize(html, to), log=False)
         print(f"  {'✅' if ok else '❌'} day {day}: {subject}" + ("" if ok else f" — {str(detail)[:80]}"))
@@ -642,6 +749,9 @@ def main():
     skipped_ineligible = 0
     graduated = 0
     quota_refused = 0
+    # Fetched once per run, not per subscriber: it is the same answer for
+    # everyone and a per-send query would be 200+ round trips for one set.
+    buyers = fetch_buyer_emails(secrets)
     for sub in pending:
         next_day = sub["current_day"] + 1
         # 48h buffer before day-1 (Brew, 2026-08-30): KD signup triggers an
@@ -709,8 +819,16 @@ def main():
                 print(f"  ⏭️  {sub['email']} — day {next_day} skipped ({skip_reason}), advanced without sending")
                 continue
 
+        # Decided before the dry-run print on purpose: a dry run that shows the
+        # discount subject to someone who will actually receive the buyer
+        # variant is worse than no dry run at all.
+        is_buyer = next_day in PROMO_DAYS and (
+            buyers is None or sub["email"].strip().lower() in buyers)
+        subject_out = BUYER_SUBJECT.get(SITE, {}).get(next_day, subject) if is_buyer else subject
+
         if args.dry_run:
-            print(f"  Would send day {next_day} to {sub['email']}: {subject}")
+            mark = "  [BUYER: offer suppressed]" if is_buyer else ""
+            print(f"  Would send day {next_day} to {sub['email']}: {subject_out}{mark}")
             continue
 
         # Dedup: skip if already sent today (prevents double-sends from re-runs)
@@ -724,9 +842,9 @@ def main():
             {"name": "sequence", "value": CFG["sequence"]},
         ]
         stripe_key = (secrets.get("stripe") or {}).get("secret_key_live", "")
-        html_merged = apply_promo(html, next_day, sub["email"], stripe_key)
+        html_merged = apply_promo(html, next_day, sub["email"], stripe_key, buyers)
         ok, detail = send_email(
-            resend_key, sub["email"], subject,
+            resend_key, sub["email"], subject_out,
             personalize(html_merged, sub["email"], sub.get("checkin_token")),
             tags=tags,
         )
