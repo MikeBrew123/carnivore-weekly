@@ -2263,3 +2263,33 @@ dose rather than seasoning. Needs Brew. Bead filed.
 Preservation: zero title/meta/canonical/h1 changes on all 13 live pages.
 `adaptation-timeline` (1,280 impressions, 42 clicks, position 6.39) moved +23 words.
 Plan: `docs/project-log/electrolyte-blog-tier2-plan-2026-09-14.md`. Read 2026-10-12.
+
+## 2026-09-14 — Fasting sodium removed; drp9 closed; regression guard added
+
+Merged `292f752a` (PR #77). Brew's call: sodium prescribed in milligrams during an
+extended fast is a dose taken with no food, not salt-to-taste seasoning. Eight
+replacements by Sarah across the three fasting pages. "Non-negotiable" went with
+the number it was attached to. Suppressed, not substituted.
+
+The distinction that made this safe to do without damaging the product: salting to
+taste is self-limiting and solves the problem readers actually have, so it stayed
+on ~35 pages. A scheduled milligram target on an empty stomach points the wrong way
+for anyone on a sodium restriction, so it went.
+
+**`drp9` is closed.** Three passes, 24 pages, 37 replacements. Verified by
+`scripts/check_electrolyte_dosing.py`: 357 documents scanned, PASS. Live pages
+re-fetched after deploy. Preserved content spot-checked and intact.
+
+**New control: `scripts/check_electrolyte_dosing.py`.** This defect was found by
+hand in six separate places in eight days, my scans undercounted twice, and Sarah
+caught dosing my scan had missed three times in one day. Manual sweeping is not a
+reliable instrument for this class.
+
+Writing the guard exposed a flaw worth remembering: the first version let a refusal
+about one mineral clear a different mineral's dose sitting beside it, which is how
+one sodium figure survived a manual sweep earlier the same day. **The guard now
+accepts a refusal only when it appears BEFORE the figure**, matching the standing
+rule that a caveat after a number is not a gate. The editorial rule is now enforced
+mechanically instead of by vigilance.
+
+Read date for all three tiers: **2026-10-12**.
