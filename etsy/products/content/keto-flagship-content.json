@@ -1,0 +1,1558 @@
+{
+  "product_title": "30-Day Keto Meal Plan & Food Guide",
+  "version": "1.0",
+  "created": "2026-09-15",
+  "site": "cw",
+  "brand": "Carnivore Weekly",
+  "page_size": [
+    "US Letter",
+    "A4"
+  ],
+  "page_count": 23,
+  "safety_rules_applied": [
+    "No calorie targets anywhere. Portion language only.",
+    "No mineral, electrolyte or supplement dosing. No mg, no tsp, no supplement names.",
+    "No symptom-to-self-treatment routing. Symptoms route to a clinician.",
+    "Salt to taste and food sources are used; numbers and supplements are not.",
+    "Plain not-medical-advice line on the cover, in the body, and in the listing.",
+    "No sweeteners or sugar substitutes recommended (Carnivore Weekly brand rule)."
+  ],
+  "cover": {
+    "title": "30-Day Keto Meal Plan & Food Guide",
+    "subtitle": "A Month of Meals, Four Grocery Lists, and a Food List You Can Actually Use",
+    "intro": "Thirty days of breakfasts, lunches and dinners that use real food, reuse your leftovers, and do not ask you to count a single thing. Print it, stick it on the fridge, and let it do the deciding for a while.",
+    "brand_line": "carnivoreweekly.com",
+    "disclaimer": "This guide is general food information, not medical advice. Talk to your doctor before changing the way you eat, especially if you take medication or have a kidney or heart condition."
+  },
+  "pages": [
+    {
+      "id": "start-here",
+      "page": 1,
+      "heading": "Start Here (Yes, Actually Here)",
+      "subheading": "Five minutes of reading now saves you a month of second-guessing",
+      "body": [
+        "Welcome. You are holding a month of decisions that are already made. That is the whole point of this guide. Most people do not quit keto because the food is bad. They quit because it is 5:30 on a Wednesday, the fridge is full of ingredients that do not add up to a meal, and the drive-through is right there.",
+        "So here is how to use this. Print the four grocery lists and the food list first, because those are the pages you will touch every week. Put the current week's menu somewhere you will see it, which for most of us means the fridge door. Shop once on the weekend. Then, for the next seven days, stop making decisions and just read the row for today.",
+        "You do not have to start on a Monday. You do not have to start on day one. If week two looks more like your life, start there."
+      ],
+      "bullets": [
+        "Print it single-sided if you want to tear out the grocery lists and take them to the store.",
+        "Set your printer to Fit to Page. The pages are built for US Letter and A4 both.",
+        "Cross things out. Write in the margins. This is a working document, not a keepsake.",
+        "Repeat any meal you liked. Nothing in here breaks if you eat the same dinner twice."
+      ],
+      "sections": [
+        {
+          "title": "How much do I eat?",
+          "body": [
+            "Here is the entire system: a palm-sized piece of protein at each meal, a fist or two of vegetables, and enough fat to make it taste like something you want to eat. Eat until you are comfortably full, then stop. If you are ravenous an hour later, you almost certainly went light on the protein, so put more on the plate next time.",
+            "You will not find a calorie number anywhere in this guide, and that is on purpose. One number cannot be right for a 52-year-old on her feet all day and a 68-year-old managing a heart condition at the same time. Your appetite already knows more about you than a printed number does. We would rather teach you to read it."
+          ]
+        },
+        {
+          "title": "Do I have to count carbs?",
+          "body": [
+            "Not to follow this plan. Most keto guides hand you a daily carb number to hit. This one hands you a menu and a food list instead, and if you stick to them, the carbs sort themselves out. If you already count and you like counting, carry on. If counting is the thing that made you quit last time, you are free."
+          ]
+        },
+        {
+          "title": "One thing to do before day one",
+          "body": [
+            "If you take medication for diabetes, blood pressure, or your heart, or if you have a kidney condition, talk to your doctor or pharmacist before you start. Cutting carbs can change how some medicines act in your body, sometimes within days. Your prescriber may want to watch something or adjust something. It is a short, boring conversation and it is the single most useful thing on this page."
+          ]
+        }
+      ],
+      "footer_note": "General food information, not medical advice."
+    },
+    {
+      "id": "eat",
+      "page": 2,
+      "heading": "EAT: The Yes List",
+      "subheading": "If it is on this page, put it in the cart and stop thinking about it",
+      "body": [
+        "These are the foods the whole plan is built on. Meat, fish, eggs, real fats, cheese, and anything green that grows above the ground. You will notice it reads like a normal shopping trip from 1965, because it more or less is.",
+        "A note on the phrase you will see everywhere: net carbs means total carbohydrate minus fiber, because fiber does not get digested the way starch and sugar do. It is the number most keto plans go by. You do not have to track it to follow this one."
+      ],
+      "table": {
+        "caption": "Eat freely",
+        "columns": [
+          "Food group",
+          "What to buy",
+          "Worth knowing"
+        ],
+        "rows": [
+          [
+            "Meat",
+            "Beef, pork, lamb, chicken, turkey, veal, venison, ground anything, ribs, roasts, bacon, sausage",
+            "Plain meat carries no carbohydrate to speak of. Fattier cuts are usually the cheaper ones and they keep you full longer, which is a rare piece of good news."
+          ],
+          [
+            "Fish and seafood",
+            "Salmon, tuna, sardines, mackerel, cod, halibut, trout, shrimp, crab, lobster",
+            "Fin fish and shrimp are essentially carb free. Oysters, mussels, clams and scallops do carry a few grams, so they sit closer to the vegetable end of things."
+          ],
+          [
+            "Eggs",
+            "Whole eggs, any way you like them",
+            "About half a gram of carbohydrate each. The yolk is where most of the nutrition lives, so please stop throwing it away."
+          ],
+          [
+            "Fats and oils",
+            "Butter, ghee, beef tallow, lard, olive oil, avocado oil, coconut oil",
+            "No carbohydrate. Fat is also the reason a plate of broccoli tastes like dinner instead of a punishment."
+          ],
+          [
+            "Firm cheeses",
+            "Cheddar, parmesan, swiss, gouda, mozzarella, brie, blue, cream cheese",
+            "Very low carbohydrate per ounce. The firmer and older the cheese, the less it carries. Fresh soft cheeses carry more."
+          ],
+          [
+            "Cream",
+            "Heavy cream, sour cream, creme fraiche",
+            "Low per spoonful, which is why cream is in and milk is not. See the Limit page for milk."
+          ],
+          [
+            "Leafy greens",
+            "Spinach, romaine, arugula, kale, chard, butter lettuce, cabbage, bok choy, collards",
+            "The cheapest way to make a plate look like a meal. Cabbage in particular is durable, cheap and cooks in butter beautifully."
+          ],
+          [
+            "Above-ground vegetables",
+            "Broccoli, cauliflower, zucchini, asparagus, green beans, Brussels sprouts, mushrooms, celery, cucumber, bell pepper, radish, olives",
+            "Low carbohydrate and high volume. Roast them in the fat left in the pan from the meat and you have made a side dish with no extra dishes."
+          ],
+          [
+            "Avocado",
+            "Fresh avocados, guacamole with no added sugar",
+            "Most of an avocado's carbohydrate is fiber, which is why it lands on this page instead of the next one."
+          ],
+          [
+            "Flavour",
+            "Salt, black pepper, garlic, ginger, mustard, vinegar, lemon and lime juice, fresh and dried herbs, hot sauce, horseradish",
+            "Salt your food to taste, the way you always have. Flavour is not a cheat, it is the reason you will still be doing this on day 28."
+          ],
+          [
+            "Drinks",
+            "Water, coffee, tea, sparkling water, broth",
+            "Coffee with cream is fine. It is the flavoured syrups that do the damage, not the coffee."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "limit",
+      "page": 3,
+      "heading": "LIMIT: The Slow Lane",
+      "subheading": "Not forbidden, just easy to overdo without noticing",
+      "body": [
+        "This page is where most plans get preachy, so we will not. Nothing here is poison. These are foods that carry real carbohydrate, or that are so easy to keep eating that the portion runs away from you. Treat them as a flavour or a small side, not the bulk of the plate.",
+        "If a food on this page keeps showing up in bigger and bigger amounts, that is worth noticing. It usually happens quietly, somewhere around day twelve."
+      ],
+      "table": {
+        "caption": "Small amounts, eyes open",
+        "columns": [
+          "Food",
+          "Why it is here",
+          "How it usually works in real life"
+        ],
+        "rows": [
+          [
+            "Nuts and seeds",
+            "The carbohydrate adds up quickly and almost nobody eats just a few",
+            "Macadamias and pecans carry the least. Almonds and walnuts sit in the middle. Cashews and pistachios carry the most by a wide margin. Put a small handful in a dish, then put the bag away."
+          ],
+          [
+            "Berries",
+            "Real sugar, but the least of any fruit",
+            "Raspberries and blackberries carry the most fiber for their sugar, strawberries come next, blueberries carry more. A few on yogurt, not a bowl."
+          ],
+          [
+            "Tomatoes, onions, carrots, peas, winter squash",
+            "More carbohydrate than leafy greens by a good stretch",
+            "A slice of tomato on a burger is nothing. A cup of onion in a skillet is not nothing. Use them as seasoning and the problem disappears."
+          ],
+          [
+            "Milk and softer dairy",
+            "Milk carries a lot of milk sugar. Flavoured yogurt carries more",
+            "Plain full-fat Greek yogurt is the one that works. Cottage cheese and ricotta sit in the middle. Cream replaces milk in coffee without any drama."
+          ],
+          [
+            "Alcohol",
+            "Some drinks carry carbohydrate and all of them shift your priorities",
+            "Dry wine and plain spirits with soda water carry the least. Beer and mixers carry the most. Fair warning from most people who do this: your tolerance drops, so go slower than you used to."
+          ],
+          [
+            "Packaged keto bars, chips and wraps",
+            "The front of the box is marketing, not a rule",
+            "Turn it over and read the ingredients. Plenty of people find these stall them. Real food does not need a label to explain itself."
+          ],
+          [
+            "Cured meats with added sugar",
+            "Sugar hides in the cure on a lot of bacon, sausage, deli meat and jerky",
+            "Read the ingredient list for sugar, dextrose and maltodextrin, and skip the honey-glazed ones. Plenty of brands leave the sugar out entirely."
+          ],
+          [
+            "Bottled dressings and sauces",
+            "Most carry added sugar, some carry a surprising amount",
+            "Oil and vinegar takes ten seconds and costs less. If you buy bottled, buy the one with the shortest ingredient list."
+          ],
+          [
+            "Coffee shop drinks",
+            "The coffee is fine, the syrup is the issue",
+            "Black coffee, an americano with cream, or plain tea. Skip the flavoured syrups and the whipped topping."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "avoid",
+      "page": 4,
+      "heading": "AVOID: The Nope List",
+      "subheading": "And, more usefully, where these things hide",
+      "body": [
+        "Everything on this page is worth avoiding on keto. The obvious ones you already know. The useful column is the third one, because bread does not usually announce itself. It turns up as breading, as a thickener, as the filler in the meatloaf, as the glaze on the ham.",
+        "You do not need to become suspicious of your own kitchen. You just need to know the usual hiding spots so the surprise stops being a surprise."
+      ],
+      "table": {
+        "caption": "Leave these out",
+        "columns": [
+          "Category",
+          "The usual suspects",
+          "Where it hides"
+        ],
+        "rows": [
+          [
+            "Grains and flour",
+            "Bread, rolls, bagels, pasta, rice, oats, cereal, crackers, tortillas, couscous, breading, batter",
+            "Meatloaf, crab cakes, gravy, thickened soups, anything described as crispy or crusted, most restaurant fish"
+          ],
+          [
+            "Starchy vegetables",
+            "Potatoes, sweet potatoes, corn, parsnips, peas, plantain",
+            "Stews, hash, chowders, casseroles, nearly every default restaurant side"
+          ],
+          [
+            "Beans and legumes",
+            "Black beans, pinto, chickpeas, lentils, hummus, refried beans, baked beans",
+            "Chili, Mexican plates, salad bars, soups, vegetarian dishes that look safe"
+          ],
+          [
+            "Sugar in all its outfits",
+            "Table sugar, brown sugar, honey, agave, maple syrup, molasses, corn syrup, fruit juice concentrate",
+            "Marinades, cured meats, barbecue rubs, salad dressing, jarred pasta sauce, breakfast sausage"
+          ],
+          [
+            "Most fruit",
+            "Bananas, apples, grapes, oranges, mango, pineapple, dried fruit of any kind, fruit juice",
+            "Smoothies, fruit salad, chicken salad with grapes, glazes, dried cranberries in a green salad"
+          ],
+          [
+            "Sugary drinks",
+            "Soda, fruit juice, sweet tea, lemonade, sports drinks, flavoured lattes, beer, cocktail mixers",
+            "The one you drink without thinking about it, usually in the car"
+          ],
+          [
+            "Bottled sauces with added sugar",
+            "Ketchup, barbecue sauce, teriyaki, sweet chilli, honey mustard, hoisin, most marinades, most dressings",
+            "Restaurant wings, stir fries, glazed meats, the sauce the server forgot to mention"
+          ],
+          [
+            "Low fat and light products",
+            "Low fat yogurt, light dressing, reduced fat peanut butter, fat free anything",
+            "When the fat comes out, starch or sugar usually goes in to fix the taste. Read the label and you will see it."
+          ],
+          [
+            "Breaded and battered",
+            "Fried chicken, fish and chips, onion rings, breaded cutlets, tempura, most frozen appetizers",
+            "The freezer aisle, every pub menu, and the kids' leftovers you finish standing up"
+          ]
+        ]
+      },
+      "note": "One thing that is not on this page: margarine and seed oil spreads. They carry no meaningful carbohydrate, so they do not belong on an avoid list. We cook with butter, tallow and olive oil because they taste better and behave better in a hot pan. Your kitchen, your call."
+    },
+    {
+      "id": "week-1a",
+      "page": 5,
+      "heading": "Week One: Keep It Boring On Purpose",
+      "subheading": "Days 1 to 4",
+      "body": [
+        "Week one is deliberately dull. You are learning a new default, and new defaults need repetition, not variety. There are five ingredients doing most of the work here: eggs, ground beef, a whole chicken, bacon and a bag of greens.",
+        "Roast the chicken on day one. It becomes lunch on day two and soup on day four, which is the kind of math that makes a week cheap. Cook double the ground beef on day two and lunch on day three is already done.",
+        "Portions, as a reminder: a palm of protein, a fist or two of vegetables, and fat to taste. Eat to comfortable fullness and stop there."
+      ],
+      "table": {
+        "caption": "Days 1 to 4",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 1",
+            "Eggs scrambled in butter, two slices of bacon",
+            "Tuna salad with mayo and celery, spooned into romaine leaves",
+            "Roast chicken with broccoli roasted in the pan drippings"
+          ],
+          [
+            "Day 2",
+            "Eggs fried in the bacon fat, half an avocado, salt to taste",
+            "Roast chicken over romaine with olive oil and vinegar",
+            "Ground beef and cabbage skillet in butter. Cook double."
+          ],
+          [
+            "Day 3",
+            "Cheese omelet with a handful of spinach wilted in",
+            "Leftover beef and cabbage skillet, reheated in a pan",
+            "Pork chops seared in butter, green beans on the side"
+          ],
+          [
+            "Day 4",
+            "Bacon, two fried eggs, a slice of tomato",
+            "Snack plate: cheddar, olives, hard salami, cucumber spears",
+            "Chicken soup from the carcass, with shredded chicken and celery"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "week-1b",
+      "page": 6,
+      "heading": "Week One, Continued",
+      "subheading": "Days 5 to 7",
+      "table": {
+        "caption": "Days 5 to 7",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 5",
+            "Coffee with cream, two hard-boiled eggs",
+            "Leftover chicken soup",
+            "Burgers with no bun, cheddar on top, big side salad"
+          ],
+          [
+            "Day 6",
+            "Eggs scrambled with crumbled leftover burger and cheese",
+            "Egg salad with celery in lettuce cups",
+            "Salmon fillet with asparagus, both finished in butter"
+          ],
+          [
+            "Day 7",
+            "Omelet with mushrooms and cheddar",
+            "Leftover salmon flaked over greens",
+            "Beef chuck stew with celery, mushrooms and broth. Make a big pot."
+          ]
+        ]
+      },
+      "sections": [
+        {
+          "title": "Notes for the week",
+          "bullets": [
+            "That stew on day seven is not an accident. It is Monday's lunch.",
+            "The bacon fat from day one lives in a jar by the stove now. It is the best free ingredient in the kitchen.",
+            "Frozen salmon is cheaper than fresh and, once it is cooked in butter, nobody at your table can tell.",
+            "If you are not hungry at breakfast, do not force it. Coffee with cream and a couple of eggs later is a perfectly good morning.",
+            "Days two through five are where people most often feel flat. Read The First Two Weeks, Honestly before you get there, not after."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "week-2a",
+      "page": 7,
+      "heading": "Week Two: The Week Most People Quit",
+      "subheading": "Days 8 to 11",
+      "body": [
+        "Nobody quits keto on day two. They quit somewhere around day ten, when the novelty has worn off, the scale has stopped doing anything dramatic, and cooking feels like a chore again. That is normal, it is common, and it passes.",
+        "So week two leans hard on prep. Bake a tray of egg muffins on Sunday and four breakfasts are handled before the week starts. Everything else is built to make twice what you need.",
+        "Nothing here is complicated. If a meal looks fussy, swap it for one from week one that you liked."
+      ],
+      "table": {
+        "caption": "Days 8 to 11",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 8",
+            "Two egg muffins (eggs, cheese, chopped bacon, spinach, baked in a muffin tin)",
+            "Leftover beef stew",
+            "Chicken thighs roasted skin-side up until crisp, cauliflower mash with butter"
+          ],
+          [
+            "Day 9",
+            "Two egg muffins, coffee with cream",
+            "Leftover chicken thigh over spinach with olive oil",
+            "Taco skillet: ground beef with cumin, chili powder and garlic, over shredded lettuce with cheddar and sour cream"
+          ],
+          [
+            "Day 10",
+            "Sausage patties with spinach sauteed in the pan after",
+            "Leftover taco meat over greens",
+            "Shrimp in garlic butter with cauliflower rice"
+          ],
+          [
+            "Day 11",
+            "Two egg muffins and half an avocado",
+            "Snack plate: cheese, olives, salami, cucumber, a few macadamias",
+            "Meatballs (beef, parmesan, egg) in marinara with no added sugar, over zucchini noodles"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "week-2b",
+      "page": 8,
+      "heading": "Week Two, Continued",
+      "subheading": "Days 12 to 14",
+      "table": {
+        "caption": "Days 12 to 14",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 12",
+            "Eggs scrambled with cheddar, bacon on the side",
+            "Leftover meatballs, reheated in the sauce",
+            "Pork chops with green beans in butter"
+          ],
+          [
+            "Day 13",
+            "Cottage cheese with cucumber and cracked black pepper, or eggs any way you like",
+            "Tuna salad in lettuce cups",
+            "Roast chicken with Brussels sprouts roasted in the drippings"
+          ],
+          [
+            "Day 14",
+            "Omelet with leftover chicken and cheddar",
+            "Chef salad: romaine, chicken, hard-boiled egg, cheese, oil and vinegar",
+            "Steak with mushrooms in butter and a side salad"
+          ]
+        ]
+      },
+      "sections": [
+        {
+          "title": "Notes for the week",
+          "bullets": [
+            "Day fourteen is a steak night on purpose. You are two weeks in. That is worth a decent cut of beef.",
+            "Egg muffins keep about five days in the fridge and freeze well if you wrap them one at a time.",
+            "Cauliflower mash: steam it soft, drain it properly, then blend with butter and a spoon of cream cheese. Draining is the whole trick.",
+            "Read the marinara label. Plenty of jars carry added sugar and plenty do not, and they sit on the same shelf at the same price.",
+            "If the scale has not moved since day five, that is ordinary and it is not a verdict. Week one is mostly water weight leaving, and the line goes flat before it goes anywhere else."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "week-3a",
+      "page": 9,
+      "heading": "Week Three: You Get Your Personality Back",
+      "subheading": "Days 15 to 18",
+      "body": [
+        "Most people report that the fog lifts somewhere in here. Energy comes back, cooking stops feeling like homework, and you start having opinions about dinner again. Good. Week three has more variety in it, and your first restaurant meal.",
+        "The chili on day fifteen is the workhorse. Make a full pot and it covers two lunches without you thinking about it once.",
+        "Day eighteen you go out. That is not a lapse in the plan, it is part of the plan. Learning to order confidently is a skill you will use for years, and doing it once while you still have a menu page to lean on makes the tenth time easy."
+      ],
+      "table": {
+        "caption": "Days 15 to 18",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 15",
+            "Bacon, eggs, half an avocado",
+            "Leftover steak sliced thin over greens",
+            "Chili with no beans: ground beef, tomato, chili spices, topped with cheddar and sour cream"
+          ],
+          [
+            "Day 16",
+            "Egg muffins, second batch, or eggs any way",
+            "Leftover chili",
+            "Baked salmon with asparagus and lemon butter"
+          ],
+          [
+            "Day 17",
+            "Plain full-fat Greek yogurt with a few raspberries",
+            "Leftover chili or leftover salmon over greens",
+            "Egg roll in a bowl: ground pork, bagged coleslaw mix, soy sauce or coconut aminos, sesame oil"
+          ],
+          [
+            "Day 18",
+            "Eggs scrambled with mushrooms and cheese",
+            "Snack plate lunch",
+            "Restaurant night. Steakhouse or grill: steak, a green vegetable, side salad with oil and vinegar. See the eating out page."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "week-3b",
+      "page": 10,
+      "heading": "Week Three, Continued",
+      "subheading": "Days 19 to 21",
+      "table": {
+        "caption": "Days 19 to 21",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 19",
+            "Coffee with cream and two hard-boiled eggs",
+            "Snack plate: cheese, salami, olives, cucumber",
+            "Sheet pan sausage with bell peppers and a little onion"
+          ],
+          [
+            "Day 20",
+            "Sausage patties and fried eggs",
+            "Leftover sheet pan sausage and peppers",
+            "Chicken thighs with a crushed pork rind and parmesan crust, roasted broccoli"
+          ],
+          [
+            "Day 21",
+            "Omelet with spinach and feta",
+            "Tuna salad on cucumber slices",
+            "Pot roast: beef chuck, broth, celery, mushrooms, cooked low and slow. Make it big."
+          ]
+        ]
+      },
+      "sections": [
+        {
+          "title": "Notes for the week",
+          "bullets": [
+            "The pork rind crust sounds strange and then you make it once. Crush them fine, mix with parmesan, press onto the chicken.",
+            "One sheet pan, one skillet and one pot are doing almost all the work this week. That is intentional. Fewer dishes, longer adherence.",
+            "The pot roast on day twenty-one carries you into two lunches next week.",
+            "If you have not opened the swaps page yet, this is the week it becomes useful. You are ready to cook with a bit of imagination."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "week-4a",
+      "page": 11,
+      "heading": "Week Four: Making It Yours",
+      "subheading": "Days 22 to 25",
+      "body": [
+        "The last stretch. By now you know which meals you would eat again and which ones you tolerated for the sake of the plan. Week four leans on your favourites on purpose, because the version of this you keep doing after day thirty is the version built out of meals you actually like.",
+        "Pay attention this week to what you reach for when you are tired. That meal, whatever it is, is the one to keep stocked forever."
+      ],
+      "table": {
+        "caption": "Days 22 to 25",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 22",
+            "Eggs and bacon",
+            "Leftover pot roast",
+            "Burgers with no bun, cheddar and bacon, coleslaw on the side"
+          ],
+          [
+            "Day 23",
+            "Egg muffins, or eggs with half an avocado",
+            "Leftover pot roast over greens",
+            "Shrimp with cauliflower rice in garlic butter"
+          ],
+          [
+            "Day 24",
+            "Greek yogurt with a few blackberries, or eggs any way",
+            "Chef salad with leftover chicken or ham, egg and cheese",
+            "Pork chops, green beans, a spoon of grainy mustard on the side"
+          ],
+          [
+            "Day 25",
+            "Bacon, eggs, a slice of tomato",
+            "Leftover pork chop sliced over spinach",
+            "Taco skillet again, beef or turkey, your call. Repeat night."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "week-4b",
+      "page": 12,
+      "heading": "Week Four, and the Finish Line",
+      "subheading": "Days 26 to 30",
+      "table": {
+        "caption": "Days 26 to 30",
+        "columns": [
+          "Day",
+          "Breakfast",
+          "Lunch",
+          "Dinner"
+        ],
+        "rows": [
+          [
+            "Day 26",
+            "Coffee with cream, two hard-boiled eggs",
+            "Leftover taco skillet",
+            "Restaurant night. Mexican: fajita plate with no tortillas, no rice, no beans, extra guacamole."
+          ],
+          [
+            "Day 27",
+            "Omelet with cheddar and mushrooms",
+            "Snack plate lunch",
+            "Roast chicken with Brussels sprouts in butter"
+          ],
+          [
+            "Day 28",
+            "Eggs scrambled with leftover chicken",
+            "Chicken over romaine with olive oil and vinegar",
+            "Salmon with asparagus"
+          ],
+          [
+            "Day 29",
+            "Your favourite breakfast of the last four weeks. Write down which one it was.",
+            "Leftovers, cook's choice",
+            "Meatballs in marinara over zucchini noodles"
+          ],
+          [
+            "Day 30",
+            "Bacon and eggs, because it is day thirty",
+            "Big chef salad",
+            "Steak, mushrooms in butter, side salad. Then turn to the last page."
+          ]
+        ]
+      },
+      "sections": [
+        {
+          "title": "What happens on day 31",
+          "body": [
+            "Nothing dramatic. You go back to week one and run it again, swapping in the meals you liked best from weeks two, three and four. That is the whole long-term plan, and it is why the tracker asks you to note how you felt rather than what you weighed.",
+            "Four weeks is long enough to learn a rhythm. It is not long enough to be finished. Be kind about that."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "grocery-week-1",
+      "page": 13,
+      "heading": "Grocery List, Week One",
+      "subheading": "The list that does the thinking",
+      "body": [
+        "This list covers days 1 through 7 exactly, for one person. Double the meat, eggs and dairy for two. If you already have something, cross it off rather than buying a second one, because the jar of mustard in your fridge is fine."
+      ],
+      "table": {
+        "caption": "Days 1 to 7",
+        "columns": [
+          "Section",
+          "Buy"
+        ],
+        "rows": [
+          [
+            "Meat and fish",
+            "1 whole chicken, around 4 lb. 2 lb ground beef. 4 pork chops. 2 lb beef chuck for stew. 1 lb salmon fillet, frozen is fine. 1 pack bacon. 2 cans tuna. Hard salami for the snack plate."
+          ],
+          [
+            "Eggs and dairy",
+            "2 dozen eggs. 1 lb butter. Heavy cream. Block of sharp cheddar. Cream cheese. Sour cream."
+          ],
+          [
+            "Produce",
+            "2 heads romaine. Baby spinach. 2 crowns broccoli. 1 green cabbage. 1 lb green beans. 1 bunch asparagus. 1 bunch celery. 8 oz mushrooms. 2 cucumbers. 3 avocados. 1 tomato. 1 lemon. 1 head garlic."
+          ],
+          [
+            "Pantry",
+            "Olive oil. Apple cider vinegar. Mayonnaise, check for no added sugar. Olives. Salt and black pepper. Your usual dried herbs. Chicken or beef broth, read the label."
+          ]
+        ]
+      },
+      "note": "Budget note: the whole chicken is the cheapest meat on this list per meal, and it produces three separate dinners once you count the broth. If money is tight this week, buy two chickens and skip the salmon."
+    },
+    {
+      "id": "grocery-week-2",
+      "page": 14,
+      "heading": "Grocery List, Week Two",
+      "subheading": "Days 8 to 14",
+      "body": [
+        "Same rules. One person, double the protein for two. Check what is left from last week before you shop, because there is usually more butter and cheese in the fridge than you remember."
+      ],
+      "table": {
+        "caption": "Days 8 to 14",
+        "columns": [
+          "Section",
+          "Buy"
+        ],
+        "rows": [
+          [
+            "Meat and fish",
+            "2 lb bone-in chicken thighs. 1 whole chicken. 3 lb ground beef. 1 lb frozen raw shrimp. 4 pork chops. 1 lb breakfast sausage. 1 steak of your choosing for day 14. 1 pack bacon. 2 cans tuna."
+          ],
+          [
+            "Eggs and dairy",
+            "2 dozen eggs. Butter. Heavy cream. Cheddar. Parmesan. Sour cream. Cottage cheese, optional, for day 13."
+          ],
+          [
+            "Produce",
+            "2 heads cauliflower, or 2 bags riced cauliflower. Spinach. Romaine. 3 zucchini or a bag of zucchini noodles. 1 lb Brussels sprouts. Green beans. 2 cucumbers. Mushrooms. 1 avocado. Garlic. 1 lemon."
+          ],
+          [
+            "Pantry",
+            "Marinara with no added sugar, read the label. Salsa, same. Cumin, chili powder, garlic powder, paprika, oregano. Olives. Mayonnaise. Olive oil. Small bag of macadamias or pecans."
+          ]
+        ]
+      },
+      "note": "Prep note: the egg muffins for days 8, 9, 11 and 16 come out of this list. Twelve eggs, a cup of grated cheddar, chopped cooked bacon and a handful of spinach, baked in a greased muffin tin at 350F for about 20 minutes."
+    },
+    {
+      "id": "grocery-week-3",
+      "page": 15,
+      "heading": "Grocery List, Week Three",
+      "subheading": "Days 15 to 21",
+      "body": [
+        "Day 18 is a restaurant night, so there is nothing to buy for that dinner. The rest is one person, doubled for two as usual."
+      ],
+      "table": {
+        "caption": "Days 15 to 21",
+        "columns": [
+          "Section",
+          "Buy"
+        ],
+        "rows": [
+          [
+            "Meat and fish",
+            "3 lb ground beef for the chili. 1 lb ground pork. 2 lb chicken thighs. 1 lb salmon. 1 lb smoked or Italian sausage. 1 lb breakfast sausage. 1 pack bacon. 3 lb beef chuck for the pot roast. 2 cans tuna."
+          ],
+          [
+            "Eggs and dairy",
+            "2 dozen eggs. Butter. Heavy cream. Cheddar. Parmesan. Feta. Sour cream. Plain full-fat Greek yogurt."
+          ],
+          [
+            "Produce",
+            "1 bag coleslaw mix. 3 bell peppers. 1 onion. Asparagus. 1 crown broccoli. Spinach. Romaine. Mushrooms. 2 cucumbers. 1 avocado. 1 lemon. Garlic. Small container of raspberries."
+          ],
+          [
+            "Pantry",
+            "Canned diced tomatoes. Tomato paste. Chili powder and cumin, if you are out. Soy sauce or coconut aminos. Toasted sesame oil. Pork rinds, plain, for the crust. Broth. Olive oil."
+          ]
+        ]
+      },
+      "note": "The pot roast on day 21 is the most expensive thing on this list and the best value on it. Chuck is a cheap cut that turns into something excellent if you leave it alone for long enough, and it feeds you into next week."
+    },
+    {
+      "id": "grocery-week-4",
+      "page": 16,
+      "heading": "Grocery List, Week Four",
+      "subheading": "Days 22 to 30, nine days",
+      "body": [
+        "This list runs nine days rather than seven, because the plan finishes on day 30. Day 26 is a restaurant night with nothing to buy. You will already have most of the spices."
+      ],
+      "table": {
+        "caption": "Days 22 to 30",
+        "columns": [
+          "Section",
+          "Buy"
+        ],
+        "rows": [
+          [
+            "Meat and fish",
+            "2 lb ground beef for burgers. 1 lb ground beef or pork for meatballs. 1 lb frozen shrimp. 4 pork chops. 1 whole chicken. 1 lb salmon. 1 steak for day 30. 1 pack bacon. Sliced deli ham or turkey with no added sugar. 1 lb breakfast sausage."
+          ],
+          [
+            "Eggs and dairy",
+            "3 dozen eggs. Butter. Heavy cream. Cheddar. Parmesan. Sour cream. Plain full-fat Greek yogurt."
+          ],
+          [
+            "Produce",
+            "2 heads cauliflower or 2 bags riced. Green beans. 1 lb Brussels sprouts. Asparagus. 2 zucchini. Romaine. Spinach. 1 bag coleslaw mix. Mushrooms. 2 cucumbers. 2 avocados. 1 tomato. 1 lemon. Garlic. Small container of blackberries."
+          ],
+          [
+            "Pantry",
+            "Marinara with no added sugar. Broth. Grainy mustard. Olives. Mayonnaise. Olive oil. Taco spices, if you ran out."
+          ]
+        ]
+      },
+      "note": "If something on any of these four lists is not your thing, cross it off and repeat a meal you already liked. The plan is a suggestion, not a contract. Nobody is marking this."
+    },
+    {
+      "id": "sunday-hour",
+      "page": 17,
+      "heading": "The Sunday Hour",
+      "subheading": "Sixty minutes that make Wednesday possible",
+      "body": [
+        "You do not have to do this. Plenty of people cook every night and do fine. But if you have ever come home tired and eaten cheese standing up at the counter because nothing was ready, this hour is for you.",
+        "Everything below overlaps. The oven works while the skillet works while the kettle boils. Set a timer, put something on the radio, and be finished before the hour is."
+      ],
+      "table": {
+        "caption": "A real timeline",
+        "columns": [
+          "Clock",
+          "Do this"
+        ],
+        "rows": [
+          [
+            "0:00",
+            "Oven to 400F. Chicken thighs or a whole chicken on a sheet pan, salted, straight in."
+          ],
+          [
+            "0:05",
+            "Big skillet on medium-high. Brown 2 lb of ground beef with salt and pepper only. Season half of it later, when you know what it is becoming."
+          ],
+          [
+            "0:15",
+            "Eggs on the back burner for hard-boiling, or the egg muffin tin onto the second oven rack."
+          ],
+          [
+            "0:25",
+            "Wash and thoroughly dry the greens. Chop celery and cucumbers. Into containers they go."
+          ],
+          [
+            "0:35",
+            "Pull the ground beef and portion it. Shred the chicken once it is cool enough to handle."
+          ],
+          [
+            "0:45",
+            "Broccoli or Brussels sprouts onto the hot sheet pan, straight into the fat the meat left behind. Back in the oven."
+          ],
+          [
+            "0:55",
+            "Wipe down. Label everything with the date. Put this week's menu page on the fridge."
+          ]
+        ]
+      },
+      "bullets": [
+        "Label with the date, not the contents. You will recognize chili. You will not remember whether it is from Tuesday.",
+        "Dry the greens properly. Wet greens turn to slime in three days and dry greens last a week.",
+        "Cook once, eat twice is the entire philosophy of this plan. Every dinner that makes leftovers is buying you a lunch.",
+        "If an hour is too much, do twenty minutes: brown the beef, boil the eggs, wash the greens. That alone changes the week."
+      ]
+    },
+    {
+      "id": "freezer",
+      "page": 18,
+      "heading": "What Freezes, and What Sulks",
+      "subheading": "Learn this once and stop wasting food",
+      "body": [
+        "A freezer full of the wrong things is just a cold cupboard of disappointment. Here is what actually survives, based on how these foods behave, not on wishful thinking."
+      ],
+      "table": {
+        "caption": "Freezer reality check",
+        "columns": [
+          "Freezes well",
+          "Sulks in the freezer"
+        ],
+        "rows": [
+          [
+            "Raw meat, portioned flat in bags so it thaws fast",
+            "Leafy greens and cucumbers. They come out as slime, every time."
+          ],
+          [
+            "Cooked ground beef and taco meat",
+            "Anything bound with mayonnaise. Tuna salad, egg salad and creamy coleslaw all split."
+          ],
+          [
+            "Chili, stew, soup and pot roast in its own juices",
+            "Sour cream and cream cheese on their own. They go grainy. Fine stirred into a hot dish later."
+          ],
+          [
+            "Meatballs, frozen in their sauce",
+            "Cottage cheese. It never comes back."
+          ],
+          [
+            "Shredded chicken with a splash of broth over it",
+            "Whole or sliced avocado. Mashed with lemon juice it survives. Sliced, it does not."
+          ],
+          [
+            "Bacon, cooked and drained, then reheated in a dry pan",
+            "Anything fried or crusted. The coating goes soft and sad."
+          ],
+          [
+            "Butter, for months, with no drama at all",
+            "Cauliflower rice. It freezes but turns watery. Fine stirred into soup, poor as a side."
+          ],
+          [
+            "Hard cheese, grated. Crumbly after, so use it for cooking",
+            "Hard-boiled eggs in the shell. The whites turn rubbery."
+          ],
+          [
+            "Broth, in jars, with an inch of headspace so the glass survives",
+            "Heavy cream. It separates. Good for cooking afterwards, wrong for coffee."
+          ],
+          [
+            "Egg muffins, wrapped one at a time",
+            "Salad dressing made with oil. It goes cloudy and splits."
+          ]
+        ]
+      },
+      "note": "Two containers of frozen chili are the reason you will not order a pizza on a bad Thursday. That is the entire argument for this page."
+    },
+    {
+      "id": "first-two-weeks",
+      "page": 19,
+      "heading": "The First Two Weeks, Honestly",
+      "subheading": "What people report, why it happens, and what we will not tell you to do about it",
+      "body": [
+        "Some people feel good from day one. Plenty of others feel distinctly off somewhere in the first week. Tired, headachy, foggy, short-tempered, sleeping badly, making more trips to the bathroom than usual. It is common enough that it has a nickname, the keto flu, and it is the single biggest reason people abandon a plan in the first two weeks.",
+        "Here is the plain version of why. When you cut carbohydrate, your body works through its stored glycogen, and glycogen holds onto a lot of water. As that water leaves, minerals leave with it. At the same time your body is switching over to running on fat, and that changeover is not instant. None of this is dangerous for most healthy people and most of it settles within a week or two.",
+        "What makes the first two weeks easier, for most people, is unremarkable. Eat the meals. Do not skip meals to speed things up, which is the most common mistake people make in week one. Salt your food to taste, the way you always have. Keep broth, meat, eggs, leafy greens and avocado in the rotation, because those are real food and this plan is already full of them. Go easy on hard workouts for the first week. Sleep, if your body will let you.",
+        "None of that is a treatment for anything, and it is not meant to be. If you feel genuinely unwell rather than just flat, or anything worries you, that is a conversation for your doctor, not something to work out from a diet guide."
+      ],
+      "sections": [
+        {
+          "title": "What you will not find in this guide: a mineral protocol",
+          "body": [
+            "Most keto guides will give you exact amounts of salt, magnesium and potassium to take every day. Same numbers, every reader, no questions asked. We are not going to do that, and we want to be straight with you about why.",
+            "The right amount of any of those depends on your kidney function, your blood pressure and your medications. A printed page does not know a single one of those things about you. If you take a blood pressure pill, a water pill, or anything for your heart or kidneys, a mineral instruction from a stranger can genuinely cause harm, and the people most likely to follow it exactly are the people it is most likely to hurt.",
+            "So: salt your food to taste, eat the meals in this plan, and if you are feeling unwell, that is a conversation for your doctor or your pharmacist rather than a guess from a download. Your pharmacist is free, is usually standing right there, and will talk to you today."
+          ]
+        }
+      ],
+      "footer_note": "General food information, not medical advice."
+    },
+    {
+      "id": "when-to-call",
+      "page": 20,
+      "heading": "When to Stop Reading and Get Help",
+      "subheading": "Plus the weight question, answered honestly",
+      "body": [
+        "Feeling a bit flat in week one is ordinary. The things on this list are not that, and no diet guide should be your first stop for any of them."
+      ],
+      "sections": [
+        {
+          "title": "Emergency Signs: Stop and Get Help Now",
+          "body": [
+            "These are not week one wobbles and they are not something to sleep on. If any of them happen, stop and get emergency help straight away. Dial 911 in the US and Canada, or 999 or 112 in the UK and Ireland. Do not wait until morning, do not wait for an office to open, and do not try to work it out with food.",
+            "If you are not sure whether it counts, act as though it does. Emergency staff would far rather see you and send you home again."
+          ],
+          "bullets": [
+            "Chest pain or pressure.",
+            "A heart that races, pounds or flutters and does not settle.",
+            "Fainting, or feeling like you are about to.",
+            "Shortness of breath.",
+            "Confusion, or someone telling you that you are not making sense.",
+            "Vomiting that will not stop, or any inability to keep fluids down.",
+            "Any symptom that frightens you, including ones not on this list."
+          ]
+        },
+        {
+          "title": "The one conversation worth having first",
+          "body": [
+            "If you take medication for diabetes, blood pressure or a heart condition, or you have a kidney condition, speak to your prescriber before day one. Cutting carbohydrate can change how some of those medicines act in your body, occasionally within days. Your doctor may want to check something, adjust something, or simply see you sooner. That is a normal appointment, not a difficult one, and it is far better done in advance than worked out on day nine."
+          ]
+        },
+        {
+          "title": "About the scale",
+          "body": [
+            "The first week usually shows a drop that feels wonderful and is largely water. Then the line goes flat, often for a week or more, and that flat stretch is where most people decide the whole thing has failed. It has not. It is the most ordinary shape there is.",
+            "Weigh once a week at the same time of day if you weigh at all, or skip it entirely and go by how your clothes fit and how you feel at four in the afternoon. The tracker on this guide's tracker page asks you to record how you felt for exactly that reason. Thirty days is a short window, and mood is a faster signal than mass."
+          ]
+        }
+      ],
+      "footer_note": "General food information, not medical advice. Talk to your doctor before changing your diet, especially if you take medication or have a kidney or heart condition."
+    },
+    {
+      "id": "swaps",
+      "page": 21,
+      "heading": "Same Dinner, Different Bottom Half",
+      "subheading": "You are not giving up meals, you are changing what sits under them",
+      "body": [
+        "Almost every meal you already love is fine. The meat is fine, the sauce is usually fine, the vegetables are fine. It is the starch underneath that has to go, and every one of those has a stand-in that does the job.",
+        "Nobody needs all of these. Pick the three that match the meals you cook most and ignore the rest."
+      ],
+      "table": {
+        "caption": "Straight swaps",
+        "columns": [
+          "Instead of",
+          "Use",
+          "Honest note"
+        ],
+        "rows": [
+          [
+            "Rice",
+            "Cauliflower rice, fresh or from a frozen bag",
+            "Squeeze the water out after cooking or it goes soggy. The frozen bags are cheaper than the fresh heads."
+          ],
+          [
+            "Pasta",
+            "Zucchini noodles, shredded cabbage, hearts of palm noodles",
+            "Spaghetti squash works too, but it carries more carbohydrate than the others, so keep the portion modest."
+          ],
+          [
+            "Mashed potato",
+            "Cauliflower mash with butter and a spoon of cream cheese",
+            "Drain it properly. That single step is the difference between mash and soup."
+          ],
+          [
+            "Bread and buns",
+            "A large lettuce leaf, a grilled portobello cap, half a bell pepper, or a knife and fork",
+            "The knife and fork option is undefeated and costs nothing."
+          ],
+          [
+            "Tortillas",
+            "A crisped round of cheese, a big lettuce leaf, a thin egg crepe",
+            "Crisp the cheese in a dry pan until the bubbling stops, then drape it over a spoon while it cools."
+          ],
+          [
+            "Chips and crackers",
+            "Pork rinds, cheese crisps, sliced radish, cucumber rounds",
+            "Radish is the surprise here. Salted and cold, it does most of what a chip does."
+          ],
+          [
+            "Croutons",
+            "Crumbled bacon, shaved parmesan, toasted pumpkin seeds",
+            "Pumpkin seeds carry some carbohydrate, so scatter rather than pour."
+          ],
+          [
+            "Flour or cornstarch to thicken",
+            "A spoon of cream cheese, cream reduced in the pan, pureed cauliflower",
+            "Cream cheese is the fastest and it never lumps."
+          ],
+          [
+            "Breadcrumbs",
+            "Crushed pork rinds, grated parmesan, ground almonds",
+            "Pork rinds crisp better than almonds and cost less."
+          ],
+          [
+            "Milk",
+            "Heavy cream, cut with a little water if it is too rich",
+            "Unsweetened almond or coconut milk works in cooking. Check the label, because the sweetened versions sit right beside them."
+          ],
+          [
+            "Ketchup and barbecue sauce",
+            "Mustard, mayonnaise, hot sauce, horseradish, chimichurri, herb butter",
+            "Herb butter on a steak makes you forget sauce exists."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eating-out",
+      "page": 22,
+      "heading": "Restaurants Are Not the Enemy",
+      "subheading": "One sentence, said plainly, handles almost every menu",
+      "body": [
+        "The sentence is this: could I get that without the bun, and swap the fries for a side salad? Say it without apology and nobody blinks. Kitchens do this a hundred times a week. Nobody is studying your plate as closely as you think they are.",
+        "Look for the words grilled, roasted, seared, baked and steamed. Be careful with breaded, crusted, crispy, glazed, teriyaki and sweet chilli. That is most of the skill."
+      ],
+      "table": {
+        "caption": "What to order, by restaurant",
+        "columns": [
+          "Where",
+          "Order this",
+          "Leave"
+        ],
+        "rows": [
+          [
+            "Steakhouse",
+            "Steak, a green vegetable, side salad with oil and vinegar, extra butter",
+            "The bread basket, the potato, the onion strings"
+          ],
+          [
+            "Breakfast diner",
+            "Eggs any way, bacon or sausage, extra eggs or tomato in place of the sides, coffee with cream",
+            "Toast, hash browns, pancakes, juice"
+          ],
+          [
+            "Burger place",
+            "Burger with no bun, in a lettuce wrap or on a plate, side salad",
+            "Bun, fries, shake, ketchup by the gallon"
+          ],
+          [
+            "Mexican",
+            "Fajitas with no tortillas, carne asada, carnitas, extra guacamole, sour cream",
+            "Tortillas, rice, beans, chips, the sweet marinades"
+          ],
+          [
+            "Italian",
+            "Grilled chicken or fish, antipasto without the bread, spinach sauteed in garlic",
+            "Pasta, bread, breaded cutlets, sauces you have not asked about"
+          ],
+          [
+            "Chinese or Thai",
+            "Stir-fried or steamed meat and vegetables, sauce on the side",
+            "Rice, noodles, anything battered, most of the bottled sauces"
+          ],
+          [
+            "Sandwich shop",
+            "Ask for the sandwich made as a salad or a bowl. Most places do it without comment",
+            "Bread, wrap, chips, the sugary dressing"
+          ],
+          [
+            "Coffee shop",
+            "Black coffee, americano with cream, plain tea",
+            "Flavoured syrups, blended drinks, the pastry case"
+          ],
+          [
+            "Potluck or buffet",
+            "Meat, cheese, deviled eggs, salad before the dressing pools at the bottom",
+            "The pasta salad, the rolls, the casserole with the crunchy topping"
+          ]
+        ]
+      },
+      "bullets": [
+        "Look at the menu in the parking lot. Deciding before you are hungry and surrounded by bread is most of the battle.",
+        "Eat something small before a party. Arriving starving at a table of crackers is a plan with one outcome.",
+        "If you are asked why, try: I feel better eating this way. That is a complete sentence and it ends the conversation kindly."
+      ]
+    },
+    {
+      "id": "tracker",
+      "page": 23,
+      "heading": "Thirty Little Boxes",
+      "subheading": "No calories, no macros, no math. Just did you, and how did it go",
+      "body": [
+        "Tick the boxes, rate the day out of five, and write one word. That is the whole tracker. The one-word column is the useful one, because in three weeks you will be able to look back and see the shape of it, and the shape is almost always better than your memory of it.",
+        "Missing a day is not failure. Missing a day and writing it down is data. Prints as two columns of fifteen days."
+      ],
+      "table": {
+        "caption": "Day 1 to Day 30",
+        "layout": "two-column-15",
+        "columns": [
+          "Day",
+          "Ate as planned",
+          "Water",
+          "Moved",
+          "Slept OK",
+          "Felt 1-5",
+          "One word"
+        ],
+        "rows": [
+          [
+            "1",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "2",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "3",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "4",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "5",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "6",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "7",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "8",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "9",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "10",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "11",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "12",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "13",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "14",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "15",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "16",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "17",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "18",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "19",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "20",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "21",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "22",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "23",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "24",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "25",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "26",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "27",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "28",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "29",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "30",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "note": "Optional, once a week only, same day and same time: write down how your clothes fit rather than a number. If weighing helps you, weigh. If weighing ruins your morning, do not."
+    },
+    {
+      "id": "mistakes",
+      "page": 24,
+      "heading": "Where This Usually Goes Sideways",
+      "subheading": "Twelve things worth knowing before they happen to you",
+      "body": [
+        "None of these are moral failings. They are just the potholes on this particular road, and they are in roughly the same place for everybody."
+      ],
+      "bullets": [
+        "Going light on protein all day, then being ravenous at nine at night. A palm-sized portion at every meal fixes most evening raids on the fridge.",
+        "Treating cheese and nuts as a meal. They are a supporting cast with an excellent agent. Neither one is dinner.",
+        "Trusting the front of the package. Keto friendly is a marketing phrase, not a rule. Turn it over and read the ingredients.",
+        "Forgetting the sauce. Barbecue, teriyaki, glazes and most bottled dressings carry added sugar, and they are on food that otherwise looks perfect.",
+        "Dropping vegetables entirely, then being bored senseless by day nine. Boredom ends more attempts than hunger does.",
+        "Weighing every morning and letting one number set the tone of the day. Once a week, same time, or not at all.",
+        "Quitting on day ten or eleven. That is precisely when most people quit and precisely when it usually turns. Knowing that in advance is half the fix.",
+        "Walking into a restaurant with no plan, so the bread basket makes it for you. Read the menu in the parking lot.",
+        "Drinking the carbohydrate. Juice, sweet coffee, beer and mixers slip past because they do not feel like eating.",
+        "Changing five things at once. New food, new gym, new supplement, new sleep schedule. When something works, you will have no idea which thing it was.",
+        "Doing it in complete secrecy. Tell one person. It roughly doubles the odds you finish the month.",
+        "Skipping the conversation with your doctor when you take medication. It is the cheapest and fastest step in the entire plan, and the one people put off longest."
+      ]
+    },
+    {
+      "id": "faq",
+      "page": 25,
+      "heading": "The Questions You Were Going to Email Us",
+      "subheading": "Short answers, no hedging",
+      "table": {
+        "caption": "Frequently asked",
+        "columns": [
+          "Question",
+          "Short answer"
+        ],
+        "rows": [
+          [
+            "Do I have to count carbs?",
+            "Not to follow this. Stick to the food lists and the menu and it takes care of itself. If you already count and enjoy it, carry on."
+          ],
+          [
+            "What if I do not like one of the meals?",
+            "Cross it out and repeat one you liked. Nothing breaks. The grocery list is the only thing to adjust."
+          ],
+          [
+            "Can I eat the same breakfast for thirty days?",
+            "Yes, and a great many people do. A boring breakfast is a feature, not a failure of imagination."
+          ],
+          [
+            "Coffee?",
+            "Yes. Black, or with cream. It is the flavoured syrups that cause the trouble, not the coffee."
+          ],
+          [
+            "Alcohol?",
+            "Dry wine and plain spirits with soda water carry the least carbohydrate. Beer and mixers carry the most. Most people find their tolerance drops, so go slower than you used to."
+          ],
+          [
+            "Fruit?",
+            "Most of it sits on the limit or avoid pages. Raspberries and blackberries are the workable ones, in small amounts."
+          ],
+          [
+            "Will I be hungry?",
+            "Usually less so, after the first several days. If you are hungry, the answer is more protein at the next meal, not less food."
+          ],
+          [
+            "Do I need to test ketones?",
+            "No. The strips cost money and tell you less than how you feel, how you sleep and how your clothes fit."
+          ],
+          [
+            "Can I cook this for a family who is not doing keto?",
+            "Easily. Cook the meat and the vegetable for everyone, then add rice, potatoes or bread to their plates only. Nobody needs a separate dinner."
+          ],
+          [
+            "What about sugar substitutes?",
+            "You will not find any in this plan. Carnivore Weekly does not recommend them, because swapping tends to keep the craving loop running rather than quieting it. Our answer to a craving is protein, fat, salt and time."
+          ],
+          [
+            "What if I fall off on day twelve?",
+            "Day thirteen exists. Pick it back up at the next meal, not next Monday. The next meal is always the shortest distance back."
+          ],
+          [
+            "Is this safe for me?",
+            "That one is genuinely for your doctor, especially if you take medication or have a kidney or heart condition. This guide is food information, not medical advice."
+          ],
+          [
+            "Can I print it more than once?",
+            "Yes. Print it as often as you like for your own use."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "thank-you",
+      "page": 26,
+      "heading": "Well, Look at You",
+      "subheading": "Thirty days is a real thing to have done",
+      "body": [
+        "Thank you for buying this. Genuinely. Small shops like ours live on people deciding to trust an unfamiliar name, and you did that, so the least we can do is make the next thirty days easier than the last thirty.",
+        "Here is what we would do if we were you. Go back to week one and run it again, but replace the meals you merely tolerated with the ones you actually looked forward to. Keep the grocery list you used most and throw out the other three. That is the long game, and it is far less dramatic than the internet makes it sound.",
+        "If you want more, there is a pile of free material on our site: food lists, a portion calculator, and a weekly email that is mostly plain talk about what is working for people and what is not. No pressure at all. It is there if it helps, and the plan in your hands works perfectly well on its own."
+      ],
+      "bullets": [
+        "carnivoreweekly.com for the free food lists and guides",
+        "The weekly email, if you like your health information without the shouting",
+        "Questions about this guide, or a file that will not open: message us through Etsy and a real person will answer"
+      ],
+      "closing": "One last thing, and then we will leave you alone. The version of this you keep doing is worth more than the perfect version you abandon in March. Build the easy one.",
+      "footer_note": "This guide is general food information, not medical advice. Talk to your doctor before changing the way you eat, especially if you take medication or have a kidney or heart condition."
+    }
+  ],
+  "listing": {
+    "title": "30-Day Keto Meal Plan & Food Guide | Grocery Lists, Eat Limit Avoid Charts (PDF)",
+    "description": "A 30 day keto meal plan and food guide for anyone tired of standing in front of the fridge at 5:30 with no idea what dinner is. Inside you get a full month of low carb breakfasts, lunches and dinners, four grocery lists that match the plan exactly, and a plain keto food list showing what to eat, what to limit and what to avoid. It was written for beginners, printed large enough to read from across the kitchen, and there is not one calorie count in the whole thing.\n\nThe menu is built around leftovers on purpose, because cooking from scratch twice on a Tuesday is how good intentions die. Roast a chicken on Sunday and it turns up again as Monday's lunch and Wednesday's soup. Brown a double batch of ground beef and you have bought yourself a day off.\n\nWHAT IS INSIDE (23 pages)\n- Start Here: how to use it, how much to eat, what the first week tends to feel like\n- Keto food list across three pages: Eat, Limit, and Avoid, with where the hidden carbs actually hide\n- The full 30 day menu: breakfast, lunch and dinner for every single day, grouped into four weeks\n- Four matching grocery lists, sorted the way a shop is laid out\n- The Sunday Hour: a real sixty minute prep timeline, with the clock times\n- What freezes and what sulks in the freezer, so you stop wasting food\n- The first two weeks, honestly, including what most guides get wrong about it\n- Swaps for rice, pasta, bread, chips and thickeners that genuinely work\n- What to order at nine kinds of restaurant, and what to leave\n- A simple 30 day tracker with no math in it\n- Common mistakes, and a straight answer FAQ\n\nHONEST EXPECTATIONS\nThis is a meal plan and a food guide, not a recipe book. The meals are simple assembly and basic cooking, described clearly, with no page-long method to follow. If you can roast a chicken and fry an egg, you can cook every dinner in here.\n\nThere are no calorie targets, no macro math and no supplement instructions anywhere in this guide, and that is a deliberate decision rather than an oversight. One number cannot be right for every reader, and a printed page knows nothing about your medications or your kidneys. You get portion guidance instead: a palm of protein, a fist of vegetables, eat to comfortable fullness, stop.\n\nFORMAT\n23 page PDF, formatted for US Letter and A4. Print the whole thing or just the pages you need. Print it as often as you like for your own use.\n\nBecause this is a digital file that downloads straight away, all sales are final and refunds are not possible. If your file will not open or something looks wrong, message me and I will fix it.\n\nThis guide is general food information, not medical advice. Talk to your doctor before changing the way you eat, especially if you take medication or have a kidney or heart condition.",
+    "tags": [
+      "keto meal plan",
+      "keto food list",
+      "keto grocery list",
+      "keto for beginners",
+      "low carb meal prep",
+      "low carb menu plan",
+      "beginner low carb",
+      "low carb food chart",
+      "30 day diet plan",
+      "printable planner",
+      "eat limit avoid",
+      "weekly menu template",
+      "simple dinner ideas"
+    ],
+    "materials": [
+      "digital PDF file",
+      "US Letter printable",
+      "A4 printable",
+      "23 page guide",
+      "meal planner",
+      "grocery list",
+      "food list chart"
+    ],
+    "category_suggestion": "354 Paper & Party Supplies > Paper > Calendars & Planners",
+    "attributes": {
+      "diet": "Keto",
+      "format": "Eat / Limit / Avoid"
+    },
+    "notes_for_seller": [
+      "Title is 3 pipe segments, no Instant Download, no calorie number, no price.",
+      "Price per standing canon: this is a bundle-grade product, not a chart. Confirm with Brew before listing.",
+      "Public-facing listing changes need Brew's approval and a Live Changes Log row before any API call.",
+      "Page count reconciled to the built PDF on 2026-09-15: 23 pages (cover + 22). Weeks render one per page, not two.",
+      "Etsy rejects titles with more than one '&' (400 too_many_invalid_characters). Second ampersand replaced with the exact 'Eat Limit Avoid' attribute phrase on 2026-09-15."
+    ]
+  }
+}

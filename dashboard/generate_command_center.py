@@ -124,7 +124,7 @@ NOW_STR = datetime.now().strftime('%Y-%m-%d %H:%M')
 # (see memory feedback-plus-addressing-not-junk).
 TEST_EMAIL_MARKERS = ('iambrew@gmail.com', 'iambrew+', '@test.ketodial.com', '@example.com',
                       'mbrew@telus.net', 'shoptest@', 'qa+hermes@', 'm@e.com',
-                      'brew+calctest@')
+                      'brew+calctest@', 'mctestface', '@test123.com', '@test.com')
 
 # Our own sending addresses. Mail FROM these is our own send looping back
 # through the inbound catch-all (e.g. newsletter to a subscriber address on
@@ -138,8 +138,20 @@ OWN_SENDER_MARKERS = ('newsletter@carnivoreweekly.com', 'ketodial@carnivoreweekl
 CALC_TEST_FILTER = ('or=(email.is.null,and(email.neq.iambrew@gmail.com,'
                     'email.not.ilike.iambrew%2B*,email.not.ilike.*@test.ketodial.com,'
                     'email.not.ilike.*@example.com))')
-SUBSCRIBER_TEST_FILTER = ('email=neq.iambrew@gmail.com&email=not.ilike.iambrew%2B*'
-                          '&email=not.ilike.*@test.ketodial.com&email=not.ilike.*@example.com')
+def _test_email_filter():
+    """PostgREST clauses excluding every TEST_EMAIL_MARKERS address.
+
+    Generated from the marker tuple so the SQL-side filter and the Python-side
+    is_test_email() can never drift apart — that drift is what let a test
+    signup show up as a real name in the coach waitlist count (2026-09-14).
+    """
+    return '&'.join(
+        'email=not.ilike.*{}*'.format(m.replace('%', '%25').replace('+', '%2B'))
+        for m in TEST_EMAIL_MARKERS
+    )
+
+
+SUBSCRIBER_TEST_FILTER = _test_email_filter()
 TEST_TEXT_MARKERS = ('please ignore', 'this is only a test', 'test feedback')
 
 
@@ -647,11 +659,14 @@ def fetch_funnels():
         }
 
     # Coach (KD Coach app + waitlist)
+    # Test/internal signups land in these tables too — filter them out or the
+    # waitlist reads as real demand that nobody actually signed up for.
+    tf = SUBSCRIBER_TEST_FILTER
     out['coach'] = {
-        'waitlist_total': supa_count('coach_waitlist', ''),
-        'waitlist_7d': supa_count('coach_waitlist', f'created_at=gte.{d7}'),
-        'members_active': supa_count('coach_members', 'status=eq.active'),
-        'members_total': supa_count('coach_members', ''),
+        'waitlist_total': supa_count('coach_waitlist', tf),
+        'waitlist_7d': supa_count('coach_waitlist', f'created_at=gte.{d7}&{tf}'),
+        'members_active': supa_count('coach_members', f'status=eq.active&{tf}'),
+        'members_total': supa_count('coach_members', tf),
     }
     return out
 

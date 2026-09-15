@@ -211,7 +211,9 @@ async function fetchGA4() {
 
 // --------------- Test / internal account filtering ---------------
 const EXCLUDED_EMAILS = ['iambrew@gmail.com', 'mbrew@telus.net']
-const EXCLUDED_DOMAINS = ['@test.ketodial.com', '@example.com']
+const EXCLUDED_DOMAINS = ['@test.ketodial.com', '@example.com', '@test123.com', '@test.com']
+// Placeholder local-parts people type into live forms while testing them.
+const EXCLUDED_LOCALPARTS = ['mctestface']
 
 function isTestEmail(email) {
   if (!email) return false
@@ -220,6 +222,7 @@ function isTestEmail(email) {
   // Brew's own plus-addressed test accounts (iambrew+funneltest0720@ etc.).
   // Never filter on '+' alone — real readers use plus-addressing.
   if (lower.startsWith('iambrew+')) return true
+  if (EXCLUDED_LOCALPARTS.some(l => lower.split('@')[0].includes(l))) return true
   return EXCLUDED_DOMAINS.some(d => lower.includes(d))
 }
 
