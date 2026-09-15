@@ -29,6 +29,8 @@ const DRY = process.argv.includes('--dry-run');
 const SHOP = 63916912;
 const SRC = path.resolve(import.meta.dirname, 'products/pdfs/bonus-insert-calculator.pdf');
 const NAME = 'Free-Calculator-50-Percent-Off.pdf';
+// Etsy dedupes identical uploads to ONE id shared across every listing.
+const CARD_FILE_ID = 1515218127430;
 
 const TARGETS = [
   [4464217679, 'Carnivore Diet Food List Printable'],
@@ -38,6 +40,9 @@ const TARGETS = [
   [4464219372, 'Lion Diet Food List Printable'],
   [4540678283, 'Lion Diet 30-Day Protocol & Meal Plan'],
   [4540695544, '30-Day Carnivore Meal Plan'],
+  // Mixed-diet bundle. Gets the CW card because the CW calculator covers
+  // carnivore, keto, low carb and pescatarian, so it serves every buyer of it.
+  [4495089980, 'Low Carb Keto Carnivore Mega Bundle'],
 ];
 
 const token = await getEtsyToken();
@@ -80,7 +85,12 @@ for (const [id, label] of TARGETS) {
     const fBefore = await files(id);
 
     if (fBefore.length >= 5) { skipped.push([id, label, 'at Etsy 5-file cap']); console.log(`  SKIP ${id} ${label} — 5-file cap`); continue; }
-    if (fBefore.some((f) => /calculator/i.test(f.name || ''))) { skipped.push([id, label, 'card already attached']); console.log(`  SKIP ${id} ${label} — already has it`); continue; }
+    // Match on file id, not name: Etsy returns blank names on this endpoint, so
+    // a name check silently misses and the POST then 400s as a duplicate.
+    if (fBefore.some((f) => String(f.listing_file_id) === String(CARD_FILE_ID))) {
+      skipped.push([id, label, 'card already attached']);
+      console.log(`  SKIP ${id} ${label} — already has it`); continue;
+    }
 
     if (DRY) { console.log(`  would add to ${id} ${label} (files ${fBefore.length} -> ${fBefore.length + 1})`); continue; }
 
