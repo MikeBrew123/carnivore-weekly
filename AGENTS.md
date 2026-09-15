@@ -1,495 +1,140 @@
-# AGENTS.md — Carnivore Weekly
+# AGENTS.md
+
+A repository agent entry point. It tells you where the rules are. It is not a rulebook.
+
+## Authority
+
+1. **Brew's explicit current decisions are the highest authority.** They outrank this
+   file, `CLAUDE.md`, and any guide or skill.
+2. **`CLAUDE.md` is the current interim operating-instruction source.** It is where
+   repository operating instructions live today. It is not a settled canonical
+   rulebook: a 2026-09-14 governance audit found stale facts in it and found policy,
+   procedure and current state mixed together in one file. Treat it as the best
+   available source, not as automatically correct.
+3. **This file does not override repository operating instructions.** Nothing here
+   grants permission that the repository's own instructions, hooks or validators do
+   not already grant.
+
+## Two rules that hold everywhere
+
+**Report material conflicts. Do not silently pick one.** If two sources disagree on
+anything that changes what gets published, sent, spent or deployed, say so in your run
+report or to Brew. Do not resolve it by following whichever version you happen to be
+reading.
+
+**Never bypass a blocking control.** Not every check is one, so know which kind you are
+looking at before you draw a conclusion from it.
+
+- **Local hooks and validation gates refuse the action when they run.** The PreToolUse
+  hooks, the pre-commit checks, the pre-push run of `validate_before_commit.py` and its
+  gates, and the Etsy edit cap and in-process guard all stop the thing from happening.
+  These are the controls you must never work around.
+- **A CI check blocks only where it is configured as a required pre-merge check.**
+  Being in a workflow file is not the same as gating a merge.
+- **A check that runs after a change reaches `main` is an alarm, not a gate.** It can
+  turn a run red and open an issue, and it cannot prevent the change that triggered it.
+  Treat a green post-merge result as evidence the code is probably fine, never as
+  evidence the change was gated on its way in.
+- **Some publishing paths run with no validation gates at all.** The ten
+  `validate_before_commit.py` gates fire from the local pre-push hook, so work pushed
+  from a session on Brew's machine is covered and work pushed by automation from a
+  runner is not. This gap is known and recorded for the governance cleanup. Do not
+  close it by editing a workflow here.
+
+When a document tells you to do something a blocking control refuses, **the control
+blocks the action until the conflict is resolved.** Report the disagreement and stop.
+Either the control or the documentation may be out of date, and which one it is needs
+review, not an assumption in the moment. Do not work around the control, and do not
+rewrite the document to match it, on your own judgement.
+
+## Where the rules actually are
+
+| Topic | Source |
+|---|---|
+| Operating instructions, safety rules, standing decisions | `CLAUDE.md` |
+| Publishing a CW or KD blog post, end to end | the `cw-blog-publish` skill |
+| Etsy listings, the edit cap and the write-first log rule | the `etsy-listing-standards` skill |
+| KetoDial recipes | the `kd-recipe-pipeline` skill |
+| Email: drip, newsletter, addresses, quota handling | [`docs/guides/email.md`](docs/guides/email.md) |
+| Other operational procedure | `docs/guides/` |
+| Error protocol and tracked defects | `docs/project-log/recurring-issues.md` |
+| Why something is the way it is | `docs/project-log/decisions.md` |
+| Current deployed and active state | `docs/project-log/current-status.md` |
+| Unfinished work | Beads (`bd ready`, `bd list`) |
+
+Invoke a skill rather than reconstructing its procedure from memory.
+
+## Specialist agents
+
+**Writer and specialist agents are invoked, never read and imitated.** Use the Agent
+tool with a `subagent_type`. The harness resolves it from `.claude/agents/`, which
+holds the definitions used by this repository's primary Agent-tool workflow.
+
+That is not the same as saying it is the only place a persona exists. Other execution
+paths carry their own separate definitions, and at least one automated path that
+produces published copy uses an inline persona rather than invoking an agent at all.
+Those definitions are not governed by the files in `.claude/agents/` and can drift
+from them. This is known migration debt, tracked for the governance cleanup. Do not
+assume a change made in `.claude/agents/` reaches those paths.
+
+| Agent | `subagent_type` |
+|---|---|
+| Sarah, health and science writer | `sarah-health-coach` |
+| Marcus, performance and protocol writer | `marcus-performance-coach` |
+| Chloe, community and trends writer | `chloe-community-manager` |
+| Leo, database architect | `leo-database-architect` |
+| Quinn, operations manager | `quinn-operations-manager` |
+
+The short slugs (`sarah`, `marcus`, `chloe`) are the database and `author`-field
+identifiers. The `name:` frontmatter inside each agent file is what the Agent tool
+resolves. They are not interchangeable.
+
+Subagents resolve from the **session directory**. "Agent type not found" means you are
+in the wrong directory: change to the repository root and retry. Never fall back to a
+general-purpose agent.
+
+Agents carry their own tool grants, and those grants are the real limit on what they
+can do. An agent without database access cannot run a query no matter what a document
+asks of it: prepare the work in the agent, then execute it from the main session.
+
+`agents/` without the dot prefix holds retired 2026-06 personas. They are kept as a
+historical record and because some procedures were never migrated out of them. Each
+one carries a banner saying so. Do not load them as personas.
 
-## Error Protocol
+**Historical memory locations: read-only, never written to.** `agents/daily_logs/`,
+`memory.log` and the `agents/memory/*.log` files are a retired mechanism. Whatever is
+in them is a record of the past. **Never write new data to any of them**, and never
+create `docs/project-log/daily/`.
 
-**Error log:** [`docs/project-log/recurring-issues.md`](docs/project-log/recurring-issues.md)
+Some personas and procedures still instruct an agent to read or update one of these.
+That instruction is out of date. **Report the conflict rather than following it
+silently**, and do not edit the persona yourself to resolve it.
 
-**On every error, follow this loop without being asked:**
+## Database
 
-1. **Before diagnosing:** check the error log. If the symptom matches a tracked ISSUE, read the Attempts list. Pick a NEW angle — never repeat a fix that already failed.
-2. **After fixing (>15 min, OR any CI/workflow failure):** add or update the entry:
-   ```
-   ## ISSUE-NNN — One-line title
-   🟢 FIXED | 🟡 RECURRING | 🔴 OPEN — Last: YYYY-MM-DD
-   Pattern: one sentence
-   Attempts:
-   - YYYY-MM-DD — what was tried → outcome
-   If recurs: next angle to try
-   ```
-3. **If already tracked and recurred:** append a new dated Attempt. Update status to 🟡 RECURRING.
-4. **Keep entries ≤15 lines.**
+CW and KetoDial deliberately share one project. Site-scoped tables carry a `site`
+column and every query, send or export filters by it unless the task is explicitly
+cross-site. The project identity, the table list and the separation rules are in
+`CLAUDE.md`.
 
-**Pre-push hook:** `scripts/install-hooks.sh` installs `validate_before_commit.py` before every push. Don't bypass with `--no-verify`.
+The connection itself is environment-specific and is configured outside this
+repository. **If no approved database connection is available, stop and report it.**
+Do not substitute a different connection.
 
----
+## Adding rules
 
-## Etsy Shop Edits: HARD CAP (approved by Brew 2026-08-18, deck `07de35c8`, in force 2026-08-19)
+**Do not add a new rule without a confirmed decision from Brew.** An observation, a
+lesson from a failure, or a good idea is not yet a rule. Report it and let him rule on
+it.
 
-**Read this before ANY write to the Etsy API. It binds scheduled runs and live sessions equally.**
+Once a rule is confirmed, **put it in the source that governs the work it binds**: the
+policy, guide, skill or agent definition that the people and processes doing that work
+actually load. A rule written where nothing reads it is not a rule.
 
-Standing authority (deck `82e7694e`, approved 2026-08-10) lets any session change Brew's own Etsy
-shop and his own sites same-day without asking first, on one condition: every change gets a row in
-`/Users/mbrew/Documents/Brew-Vault/00-Core/Live-Changes-Log.md`. **The cap below is a limit ON that
-authority, not a contradiction of it.** The rest of `82e7694e` still stands: third-party contact,
-public posting anywhere else, and anything that spends money still go to Brew first, every time.
-
-**Two rules, both binding:**
-
-1. **At most 3 DISTINCT listings edited in any rolling 7 day window.** Distinct listing ids, not
-   API calls: two edits to one listing is one listing. A 4th listing inside the same window needs
-   Brew's word, or you wait for the window to roll.
-2. **The Live Changes Log row is written BEFORE the call to Etsy, never after.** The row is the
-   counter, so an edit made without a row is invisible to the cap and breaks it by definition. If
-   the call then fails or is abandoned, go back and edit the row to say so. A row for a change that
-   did not happen is a far smaller problem than a change nobody can find.
-
-**Why it exists:** in six days in July the shop took 25 price changes and roughly 30 thumbnail
-swaps, none of them recorded. Three weeks later nobody can tell which half did the damage. The cap
-plus write-first makes that impossible to repeat.
-
-**Preflight, run it before any write:**
-
-```bash
-cd /Users/mbrew/Developer/carnivore-weekly && node etsy/edit-cap.mjs <listing-id> [more ids...]
-```
-
-Read only, makes no Etsy call. It counts the distinct listing ids in the trailing 7 days of the log
-and exits 1 if your edit would break the cap. `assertEditCap(ids)` is exported for scripts to import.
-Self-test: `node etsy/edit-cap.test.mjs`. If the log cannot be read, it fails closed: do not edit.
-
-**One exemption, and it is the only one.** The shop-wide $3.99 price reset Brew approved 2026-08-17
-(deck `d50fae88`, scope confirmed 2026-08-18 as deck `12f2599a`: 26 doubled listings, 24 eligible
-once the 2 image-test controls are excluded) does NOT count against the cap. It is his own prior
-decision, it predates the cap, and it is one batch job rather than incremental edits. It is still hard blocked on Brew ending the 50% sale in Shop Manager. When it
-runs, tag its log row `[cap-exempt 12f2599a]` so the counter skips it and prints the exemption.
-
-**The dangerous call is `updateListing`** (`etsy/update-listings.mjs:487`, PATCH on the listing).
-On 2026-08-10 an image reorder through this path wiped 7 of 8 images on listings 4464217679 and
-4464217699. Send only the fields you actually mean to change, the way
-`etsy/starter-kit-keyword-apply.mjs` does with its two-field payload and its assert, and never a
-full-object replace. Listings inside the live image A/B test (4464217679, 4464217699, 4495049647,
-4495055944) are off limits until the 2026-08-31 read.
-
----
-
-## Content Quality — Writer Agents Required
-
-**NEVER publish ANY user-facing content without using writer agents (Sarah, Marcus, Chloe).**
-
-Applies to: blog posts, editorial commentary, newsletter copy, video descriptions, social media, marketing copy.
-
-**ALWAYS apply humanization:**
-- Remove AI tells: delve, landscape, robust, utilize, leverage, facilitate, crucial, realm, navigate
-- No em-dashes — use periods or commas (max 1 per post)
-- Sound conversational (like talking to a friend)
-- Use contractions (it's, don't, can't)
-- Grade 8-10 reading level, short paragraphs (2-4 sentences)
-
-**ALWAYS apply soft-conversion for product mentions:**
-- Natural context, not sales pitches
-- "Some people find X helpful" > "You must buy X"
-- Trust readers to decide
-
-**Enforcement:** `scripts/generate_commentary.py` has built-in humanization. For manual content, run `/ai-text-humanization` and `/soft-conversion` skills before publishing.
-
----
-
-## Blog Post Pipeline (Mandatory — No Exceptions)
-
-**The One Rule:** Writers produce CONTENT ONLY. `generate_blog_pages.py` produces HTML PAGES.
-Writers NEVER open, edit, or create files in `public/blog/` or `templates/`.
-
-### Step 1 — Pre-Flight (Supabase queries)
-Execute these MCP queries directly (Leo cannot execute MCP):
-```sql
-SELECT * FROM writers WHERE slug = '{writer}';
-
-SELECT memory_type, title, description
-FROM writer_memory_log
-WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}')
-ORDER BY created_at DESC LIMIT 10;
-
-SELECT title, slug FROM writer_content
-WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}')
-ORDER BY created_at DESC LIMIT 5;
-```
-
-### Step 2 — Write Content
-- Read the writer's agent file from `agents/{writer}.md`
-- Write article body as clean HTML: `<h2>`, `<p>`, `<ul>`, `<strong>`, `<blockquote>` only
-- NO page-level tags (`<html>`, `<head>`, `<body>`), NO Jinja2 variables
-- Target: 1,000-1,500 words (7,000-10,000 characters)
-
-### Step 3 — Store in blog_posts.json
-Add or update entry in `data/blog_posts.json`. **ALL fields required** — partial entries cause silent rendering failures.
-
-**Required schema:**
-```json
-{
-  "slug": "YYYY-MM-DD-topic-name",
-  "title": "...",
-  "content": "<full HTML body>",
-  "author": "sarah|marcus|chloe",
-  "author_title": "Health Coach|Performance Coach|Community Manager",
-  "status": "ready|published",
-  "published": true|false,
-  "publish_date": "YYYY-MM-DD",
-  "date": "YYYY-MM-DD",
-  "scheduled_date": "YYYY-MM-DD",
-  "image": "/images/blog/<slug>.jpg or empty",
-  "excerpt": "<150-char hook>",
-  "category": "health|protocol|community|strategy|news|featured",
-  "tags": ["tag1", "tag2"],
-  "meta_description": "<150-160 chars>",
-  "seo": { "meta_description": "<same as above>" }
-}
-```
-
-**Why `publish_date`, `date`, AND `scheduled_date`:** `daily_publish.py` reads `publish_date`, blog index sorts by `date`, homepage bento sorts by `scheduled_date or date`. All three MUST match.
-
-### Step 4 — Render HTML
-```bash
-python3 scripts/generate_blog_pages.py --site cw
-```
-**ALWAYS pass `--site cw` (or `--site kd`).** Bare invocation renders ALL sites' posts into `public/blog/` and pollutes CW's sitemap with KD posts (ISSUE-035).
-
-### Step 5 — Validate
-```bash
-python3 scripts/validate_before_commit.py
-```
-Must pass with 0 critical errors.
-
-### Step 6 — Post-Flight (Supabase save)
-Save article to `writer_content` table. Save new memories to `writer_memory_log`.
-Run `python3 scripts/sync_blog_posts_to_supabase.py` to keep blog_posts.json and Supabase in sync.
-
-### Step 7 — Commit and Push
-```bash
-git add -A && git commit -m "content: {description}" && git push
-```
-
-### PROHIBITED Actions
-- ❌ Editing files in `templates/` during content generation
-- ❌ Writing full HTML pages manually instead of using `generate_blog_pages.py`
-- ❌ Creating HTML files without date prefixes in the slug
-- ❌ Spawning parallel agents that write to `blog_posts.json` simultaneously
-- ❌ Cross-linking to posts that don't exist yet (check `public/blog/` first)
-- ❌ Skipping validation before commit
-
-### Multiple Posts
-Process ONE AT A TIME through Steps 1-3. Then run Steps 4-7 once after all content is stored.
-
----
-
-## Weekly Content Workflow
-
-- **Cadence:** CW 9 posts/week (3 per writer) + KD 6 posts/week, published one/day by GitHub Action
-- **How:** AUTOMATED — Codex scheduled tasks generate content unattended: `weekly-blog-content-generation` (CW, Sun+Wed 4:33am) and `kd-blog-content-generation` (KD, Tue+Fri 4:33am). The blog-queue watchdog opens a GH issue if queues drain.
-- **Manual fallback / mid-week top-up:** Paste `scripts/weekly_content_prompt.md` into Codex. New posts get dates after last queued date.
-- **Status values:** `draft` (not ready) → `ready` (waiting for publish_date) → `published` (live)
-- **Daily publish:** GitHub Action at 9 AM EST runs `scripts/daily_publish.py` — publishes all posts where `status=ready AND publish_date<=today`
-- **ALWAYS run BOTH** `generate_blog_pages.py` AND `generate.py --type pages` before commit. First generates blog pages, second regenerates homepage bento.
-
----
-
-## Blog Post Validation
-
-**BEFORE deploying ANY blog post, ALL validators must pass.**
-
-1. **Copy Editor** (`/copy-editor`) — zero em-dashes, no AI tells, contractions, grade 8-10
-2. **SEO Validator** (`/seo-validator`) — meta description 150-160 chars, canonical URL, title 50-60 chars, schema, heading hierarchy, alt text
-3. **Brand Compliance** (`/carnivore-brand`) — Google Fonts, blog-post.css, Libre Baskerville + Source Sans 3, correct colors
-4. **Frontend** — `<div class="post-content">` wrapper, mobile responsive, no layout breaks
-5. **Visual Validator** (`/visual-validator`) — WCAG 2.1 AA contrast, accessibility
-6. **Internal Backlinks** — 2-3 links to related posts, descriptive anchor text, no broken links
-
-**Automation:** `scripts/validate_before_commit.py` runs pre-commit. `scripts/content_validator.py` validates during generation.
-
-**GO/NO-GO:** All pass = deploy. Any fail = fix first.
-
----
-
-## Blog Post Structure
-
-**Active Template:** `templates/blog_post_template_2026.html`
-**Gold Standard:** `public/blog/2025-12-23-adhd-connection.html`
-**Generation Script:** `scripts/generate_blog_pages.py`
-
-All posts MUST use `blog_post_template_2026.html`:
-- `layout-wrapper-2026` + `main-content-2026` wrappers
-- Wiki links, featured videos, post-footer with reactions + comments, related-content, mobile-nav.js
+**The governance cleanup is in progress. If you are unsure where a confirmed rule
+belongs, report the uncertainty rather than adding another copy somewhere plausible.**
+Duplication across sources is the problem being fixed, and a well-meaning extra copy
+sets it back.
 
-**DO NOT** use `blog_post_template.html` (deprecated, deleted Feb 2026).
-
----
-
-## Generated Files — Manual Edit Policy
-
-Auto-generated: `public/index.html`, `public/channels.html`
-
-Manual edits allowed when instructed, but:
-1. Document the change in `docs/project-log/current-status.md` under MANUAL EDITS LOG
-2. Note it may be overwritten by next `run_weekly_update.sh` (Sundays)
-3. If permanent, ALSO update the source template
-
-**Template files (source of truth):** `templates/index_template.html`, `templates/channels_template.html`
-
----
-
-## Email & Newsletter — All In-House via Resend
-
-**Beehiiv:** DEPRECATED. Do not use. All email is in-house now.
-**MailerLite:** DEPRECATED (2026-05-26). Do not use.
-
-### Sending Infrastructure
-- **Platform:** Resend (all email — drip, newsletter, transactional)
-- **Domain:** `carnivoreweekly.com` (verified, DKIM/SPF/DMARC live)
-- **From addresses:**
-  - CW newsletter: `newsletter@carnivoreweekly.com`
-  - KD newsletter: `ketodial@carnivoreweekly.com`
-  - KD coach: `coach@carnivoreweekly.com`
-- **Reply-to:** `iambrew@gmail.com`
-- **API key:** `secrets/api-keys.json` → `resend.key`
-
-### Drip Sequence (30-Day Carnivore Starter)
-- **Script:** `scripts/send_drip.py` — runs daily via `daily-publish.yml` GitHub Action
-- **Templates:** `data/drip-emails/` — 11 emails: day-1 through day-7 daily, then day-10, 14, 21, 28
-- **Subscribers table:** `drip_subscribers` (Supabase) — tracks `current_day`, `last_sent_at`, `completed`
-- **Flow:** signup → Supabase insert → daily cron advances to next scheduled day → after day 28 graduates to `newsletter_subscribers`
-- **Unsubscribe:** `/api/v1/unsubscribe` on Cloudflare Worker
-
-### Newsletter (Weekly)
-- **Generate:** `scripts/generate_newsletter.py` → `newsletters/{date}.html`
-- **Content:** `data/newsletter_content.json` (subject line, sections by writer)
-- **Send:** `scripts/send_newsletter.py --site cw` (or `--site kd`)
-- **Subscribers table:** `newsletter_subscribers` (Supabase) — `site` field = `cw` or `kd`
-- **KetoDial:** `scripts/send_newsletter.py --site kd`
-
-### Open/Click Tracking
-- **Webhook:** Resend → `https://carnivore-report-api.iambrew.workers.dev/webhook/resend`
-- **Events tracked:** sent, delivered, opened, clicked, bounced, complained
-- **Storage:** `drip_events` table (Supabase) — `email`, `resend_id`, `event_type`, `subject`, `metadata`
-- **Signing secret:** `secrets/api-keys.json` → `resend.webhook_signing_secret`
-- **Query opens:** `SELECT * FROM drip_events WHERE event_type = 'opened' ORDER BY created_at DESC`
-
-### Signup Endpoint
-- **Route:** `/api/v1/subscribe` on Cloudflare Worker → inserts to `drip_subscribers` (Supabase)
-- **Also:** `/api/v1/subscribe/newsletter` → inserts to `newsletter_subscribers`
-
-### NEVER
-- Use Beehiiv for anything (deprecated)
-- Use MailerLite for anything (deprecated)
-- Rich-text paste into any email editor (strips styling)
-- Send newsletters without `--test` first
-
----
-
-## Database Access
-
-### One Supabase Project, Two Sites — Deliberate, Don't Cross the Streams
-
-CW and KD share ONE Supabase project (`kwtdpvnjewtahuxjyltn`). This is intentional, not legacy debt: the writer team (Sarah/Marcus/Chloe) works both sites from shared `writers` / `writer_content` / `writer_memory_log` tables, and the audience flows both ways (keto → carnivore, ex-carnivore → keto), so cross-referencing lives in one database.
-
-**The separation rules (a shared project is NOT shared data):**
-- Site-scoped tables carry a `site` column (`cw`/`kd`): `blog_posts`, `newsletter_subscribers`, `coach_members`, `content_signals`. **Every query, send, or export against these MUST filter by site.** Never SELECT/UPDATE across both sites unless the task is explicitly cross-site.
-- `drip_subscribers` / `drip_events` are **CW-only** (the 30-day Carnivore Starter). If KD ever gets a drip, add a `site` column first — don't reuse the CW rows.
-- Coach tables (`coach_*`) are the KD Coach app. Don't join them into CW reporting except via `coach_members.site`.
-- Any NEW table holding per-site data gets a `site` column from day one, and scripts touching it take a `--site` flag (same convention as `send_newsletter.py --site cw|kd`).
-- Shared-on-purpose (no site filter needed): `writers`, `writer_content`, `writer_memory_log`, `agent_memories`.
-
-### MCP Access
-
-- **Supabase MCP** is configured. Main session executes directly: `mcp__supabase__execute_sql({ query: "SQL" })`
-- **Leo** (`leo-database-architect`) designs SQL, schema, migrations — but CANNOT execute MCP tools
-- **Workflow:** Leo prepares SQL → main session executes via MCP
-- **Stripe MCP** is available for payments, products, refunds — use directly, don't send user to dashboard
-- NEVER ask for credentials — see root AGENTS.md for locations
-- If MCP isn't working: run `/status`, then `/mcp` to re-authenticate
-
----
-
-## Agents
-
-**Quinn** = Operations manager. Updates `docs/project-log/current-status.md` and `decisions.md`.
-
-**Leo** = Database architect. Prepares SQL. Cannot execute MCP.
-
-**Sarah, Marcus, Chloe** = Writer agents. See Content Quality section.
-
-**Deprecated locations (NEVER use):** `docs/project-log/daily/`, `agents/daily_logs/`, `memory.log`
-
----
-
-## Documentation Standards
-
-- **Reports:** `/docs/archive/reports-archive/YYYY-MM-DD-topic.md`
-- **Guides:** Update existing files in `/docs/guides/`, never create new ones
-- **Daily logs:** NEVER create in this project — go to Obsidian only
-
-**PROHIBITED:**
-- ❌ Creating files in `docs/project-log/daily/`
-- ❌ Including API keys, secrets, or credentials in any .md file — use `***REDACTED***`
-- ❌ Leaving one-time reports in `docs/reports/` (archive them)
-
----
-
-## Session Workflow (Beads)
-
-### Starting
-1. `bd ready` — find available work
-2. `bd list --status=in-progress` — pick up where last session left off
-3. `bd update <id> --status=in_progress` on whatever you're starting
-
-### During
-- New work: `bd create "description" --priority <1-5>`
-- Completed: `bd update <id> --status=done`
-- Blocked: `bd update <id> --status=blocked --comment "reason"`
-
-### Ending (MANDATORY when Brew says "wrap up" or "end session")
-1. File remaining work as beads tasks
-2. Update in-progress tasks (done, blocked, or filed — never leave hanging)
-3. Sync: `bd sync && git add .beads/ && git commit -m "beads: end session" && git push`
-4. Report to Brew: completed, filed, `bd ready` output
-
-**Rules:**
-- NEVER end a session without syncing Beads
-- Beads is the source of truth for task tracking, not markdown files
-
----
-
-## Triggers
-| You Say | I Do |
-|---------|------|
-| "good morning" or "standup" | Run /standup |
-| "wrap up" or "done" or "end session" | Session end protocol (see root AGENTS.md) + Beads sync |
-| "decision:" or "we decided" | Quinn logs to decisions.md |
-| "validate site" or "visual check" | Run /visual-validator on all pages |
-| "show reports" or "analytics" | Run `dashboard/generate-all-reports.sh` |
-| "run the week" or "weekly ops" | Read `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/Operator-Handbook.md`, run the weekly loop |
-| "scoreboard" | Read `Brew-Vault/.../Carnivore-Weekly/reports/scoreboard.md` — Operating Rules at top are canonical; latest dated section has the 10-metric operating table. Act on reds, don't just report them |
-
----
-
-## Lessons Learned (Don't Repeat These)
-
-### Content
-1. Content agents must NOT include template HTML in content fields. Content = article body only.
-2. Content agents must NOT generate cross-links to unpublished posts. Check `public/blog/` first.
-2a. Cross-site mentions (CW writer referencing a KD post or vice versa) are ENCOURAGED but must be explicit and use the full cross-domain URL: "I wrote a piece over at KetoDial about X" + `https://ketodial.com/blog/...`. NEVER a same-site-relative link (`/blog/...`) pointing at a post that actually lives on the other site — that renders as a same-domain link, 404s, and fails the pre-commit validator (ISSUE-038, recurred 2026-07-05 and 2026-07-08). Verify the target is actually live on that domain (not just `status: published` in `blog_posts.json`) before referencing it.
-3. Never set future dates on blog posts. Google penalizes content dated ahead of crawl time.
-4. Amazon book links wrap only the title, not the full citation sentence.
-5. Template variables must match generator output. Check both sides.
-6. NEVER bypass the blog post pipeline. Minimal-schema entries silently break homepage bento and blog index sort.
-7. Always run BOTH `generate_blog_pages.py` AND `generate.py --type pages` before commit.
-8. Always run post-flight Supabase sync (`scripts/sync_blog_posts_to_supabase.py`).
-9. The `autonomous_blog_generation.sh` script blocks on stdin — it cannot run unattended. Use `weekly_content_prompt.md` instead.
-
-### SEO / Slug / Date Rules (burned us twice — ISSUE-021, ISSUE-022)
-10. **NEVER batch-rename blog post dates to the same value.** Max 2 posts sharing any single datePublished. Google treats date clustering as a content farming signal and refuses to index.
-11. **NEVER rename a published post's slug or date without creating a redirect** from the old URL to the new one (in `data/redirects.json` + a meta-refresh HTML stub). Google has already crawled the old URL — renaming without redirects creates 404s in GSC.
-12. **NEVER chain redirects.** If post A redirects to B and B's URL changes to C, update A to point directly to C. The sitemap generator strips redirect stubs automatically, but `redirects.json` entries pointing to old URLs must be manually updated.
-13. **Google Indexing API only works for JobPosting/BroadcastEvent schema.** For regular blog pages, resubmit the sitemap and wait for natural recrawl. There is no programmatic "request indexing" for normal pages.
-
-### Code
-14. Always use absolute paths in Python scripts.
-15. Don't touch `content_validator.py` double-slash regex (fixed with `[^:]` before `//`).
-
-### Validation
-16. Pre-commit validator must check link targets exist on disk, not just non-empty hrefs.
-17. Affiliate links must use https:// (mixed content triggers browser warnings).
-18. New validators: always run against full codebase, not just new files.
-19. Health checks must cover blog-to-blog cross-links.
-
-### KetoDial (ISSUE-026 — burned us hard)
-20. **NEVER bulk-regenerate KD blog HTML files.** KD posts are standalone HTML with inline content (no data store). A "regeneration" script wiped all 26 posts' article bodies on June 12. Edits must be surgical (sed/python targeting specific tags only).
-
----
-
-## KetoDial (ketodial.com) — Static Site
-
-KetoDial is a keto-focused site living inside this repo at `ketodial/`. The static site is at `ketodial/public/` (GitHub Pages). The Coach app is at `ketodial/coach-app/` (Vercel).
-
-### KetoDial Blog Post Pipeline
-
-KD blog is a **dual pipeline**:
-
-(a) **Legacy posts (~27 files):** standalone hand-authored HTML files in `ketodial/public/blog/`, content inline in the HTML, no separate data store.
-
-(b) **New posts (since Jun 12):** flow through `data/blog_posts.json` entries with `"site": "kd"` → `scripts/daily_publish.py --site kd` → `ketodial/scripts/generate_kd_blog.py --only-new` renders the HTML from the JSON entry.
-
-**⚠️ NEVER bulk-regenerate KD blog HTML files.** Regeneration overwrites article content (ISSUE-026 wiped all 26 posts on June 12). All edits to existing legacy KD posts must be surgical — use sed/python to target specific tags (meta, images, nav) without touching `<div class="content">`. `--only-new` exists specifically so `generate_kd_blog.py` skips posts whose HTML already exists on disk — never drop that flag.
-
-1. **Template:** Match the exact structure of existing posts (e.g., `keto-flu-electrolyte-fix.html`). Same CSS, nav, footer, JSON-LD schema, GA4 tag (G-0Y79FB48EG), fonts, skip-nav.
-2. **Writers:** Use Sarah (health), Marcus (performance), Chloe (community) agents. Same voice rules as CW: no em-dashes, no AI tells, contractions, grade 8-10 reading level.
-3. **Disclaimers:** Every health-adjacent post MUST include a "Not a Doctor" blockquote disclaimer before closing `</div>`.
-4. **Internal links:** Every new post gets 2-3 cross-links to related KetoDial posts (before the disclaimer). Add backlinks from existing posts to new ones.
-5. **After writing:** Update sitemap.xml, blog/index.html (add cards to feed-grid), and submit to GSC via Google Indexing API.
-6. **Cross-promo rules:** Max 25% of posts get product mentions. Match product to article topic naturally. Etsy links use UTM params: `?utm_source=ketodial&utm_medium=blog&utm_campaign={slug}`. CW cross-links announced naturally: "Sarah wrote a great piece over at Carnivore Weekly..."
-
-### KetoDial Recipe Pipeline (Mandatory — No Exceptions)
-
-**Step 1 — Scrape via Apify**
-Use the Apify MCP tools to scrape recipes from source sites. API key is in `project-nexus/secrets/api-keys.json` under `apify.api_key`.
-
-- Search Apify Store for a recipe scraper actor (e.g., `web-scraper`, recipe-specific actors)
-- Target sources: Wholesome Yum, Diet Doctor, KetoConnect, Ruled Me
-- **Quality gate:** Only 4.5+ star recipes with verified ratings. No recipes under 4.5 stars.
-- **No duplicates:** Check existing recipes in `ketodial/public/recipes/` before scraping
-- Extract: title, rating (stars + vote count), servings, prep/cook/total time, calories, fat, protein, net carbs, full ingredient list with amounts, step-by-step instructions
-
-**Step 2 — Build Recipe Cards**
-- Template: Match EXACTLY the structure of `ketodial/public/recipes/bacon-spinach-egg-cups.html`
-- Same CSS, card layout, gauge SVG, meta row, macro pills, two-column ingredients + method, tip box, pantry/shop section, footer, related recipes
-- Design template reference: `ketodial/design/recipes/Recipe-Card-Template.html`
-- Category tag in header: Breakfast, Lunch, Dinner, Snack, or Dessert
-- Each recipe gets 3 related recipe cards at the bottom linking to same-category recipes
-
-**Step 3 — Generate Images via Replicate**
-- NEVER use images from the source recipe site. We generate our own.
-- Use Replicate API (model: `black-forest-labs/flux-schnell` at ~$0.003/image). Do NOT use nano-banana-pro (~$0.04/image) or flux-pro.
-- API token: `secrets/api-keys.json` under `replicate.api_token`
-- Prompt pattern: describe the finished dish as a food photography scene. Append brand suffix: "warm natural light, rich earthy tones, shallow depth of field, high detail, photorealistic, no text, no people"
-- Save to: `ketodial/public/images/recipes/recipe-{slug}.jpg`
-- Reference script: `scripts/generate_post_images.py` (same Replicate flow, adapt for recipes)
-- Update the recipe HTML: replace the photo placeholder `<div class="photo">` with an `<img>` tag pointing to the generated image
-
-### Image spend budget (shared CW + KD, $1.00/day)
-
-Brew approved a hard $1.00/day image budget on 2026-08-08, one shared pool
-across BOTH sites, on the condition that yesterday's spend appears in his
-morning CEO brief.
-
-- Config: `config/image-budget.json` (`enabled`, `daily_cap_usd`, per-model unit costs)
-- Ledger: `data/image-spend-ledger.jsonl` (append only: date, site, post, image, model, cost)
-- Enforcer: `scripts/image_budget.py`. Status: `python3 scripts/image_budget.py --status`
-- It FAILS CLOSED. Missing/corrupt config, unreadable or corrupt ledger, unwritable
-  ledger, or an unpriced model all mean zero images generated, never "generate anyway".
-- Any new script that calls a paid image API MUST gate on it. Add the model's real
-  unit cost to the config first: unknown models are refused, not guessed.
-- `generate_post_images.py` is forward looking by default (posts publishing today or
-  later) and caps each run at 10 images. Backlog sweeps need an explicit `--slug` or
-  `--include-backlog`, because a cheap model plus a full archive is how a $1 cap
-  becomes a surprise bill.
-
-**Step 4 — Publish**
-After creating recipe HTML files with images:
-1. Add entries to `ketodial/public/sitemap.xml` (priority 0.7, monthly changefreq)
-2. Add cards to `ketodial/public/recipes/index.html` with correct `data-meal` attribute (breakfast/lunch/dinner/snack/dessert)
-3. **Index cards MUST include `<img>` tags** — match existing pattern: `<div class="rwrap"><img src="/images/recipes/recipe-{slug}.jpg" alt="..." loading="lazy" /><span class="net-tag">...`
-4. Update the recipe count in the index filter JS (or use `cards.length` dynamic count)
-5. Submit URLs to Google Indexing API via service account at `dashboard/ga4-credentials.json`
-
-**PROHIBITED:**
-- ❌ Scraping without Apify (use MCP tools, not manual WebFetch)
-- ❌ Using images from source recipe sites (generate via Replicate, we own all images)
-- ❌ Publishing recipes below 4.5 stars
-- ❌ Duplicating existing recipes (check `ketodial/public/recipes/` first)
-- ❌ Missing sitemap or index updates
-- ❌ Skipping GSC submission
-- ❌ Recipes without the pantry/shop section linking to `/pantry.html`
-- ❌ Index cards without `<img>` tags (cards render blank without images)
-
-### KetoDial Supabase
-- KD shares the ONE project with CW: `kwtdpvnjewtahuxjyltn` (NOT the old `wnwkbbfuatdcfragrrpw`) — see "One Supabase Project, Two Sites" under Database Access for the separation rules
-- Same MCP tool: `mcp__eb179240-a327-4553-8a6a-04f57f7ea545__execute_sql`
-- Writer memory, waitlist, coach data all in this project; KD rows in shared tables are `site = 'kd'`
+`CLAUDE.md` is interim and should not accumulate new material by default. Do not add
+policy or copy a procedure into this file.

@@ -44,7 +44,8 @@ Research what our readers are struggling with RIGHT NOW.
 Search the web for:
 - Reddit r/carnivore, r/carnivorediet, r/zerocarb, r/keto: pain points, symptoms, questions this week
 - What would a 55-year-old woman type into Google? Every topic needs a plausible target search query
-- Community trends are language input only — no topic gets assigned without search demand + audience fit (use the Topic Brief Gate in agents/chloe.md)
+- Community trends are language input only. No topic gets assigned without search demand + audience fit (use the Topic Brief Gate in `agents/chloe.md`)
+  - **Known migration debt (2026-09-14):** `agents/chloe.md` is the retired 2026-06 persona and is NOT what the Agent tool loads. It is cited here only because the Topic Brief Gate, the Consensus Science Check and the KetoDial Content Intelligence Protocol live there and have not been migrated into `.claude/agents/chloe.md`. Read those sections as reference. Do **not** load that file as Chloe's persona.
 
 Then query Supabase for what we've already covered:
 ```sql
@@ -85,8 +86,8 @@ Produce 9 topic assignments (Sarah 5, Marcus 2, Chloe 2):
 
 For each of the 9 posts, follow the CLAUDE.md blog pipeline:
 
-1. **Pre-Flight:** query Supabase for writer persona + memories
-2. **Write content** (1,000-1,500 words, HTML body only)
+1. **Pre-Flight:** run `python3 scripts/fetch_writer_context.py <sarah|marcus|chloe>` (writes `/tmp/<writer>_context.json`: Supabase persona, top memories, past articles, published slugs), and read `docs/house-claims.md` for the sections the topic touches.
+2. **Write content.** **Invoke the writer agent, never imitate the voice.** Agent tool, `subagent_type`: `sarah` → `sarah-health-coach`, `marcus` → `marcus-performance-coach`, `chloe` → `chloe-community-manager` (resolved from `.claude/agents/`). Paste the relevant memories and house-claims sections into the prompt. (1,000-1,500 words, HTML body only)
 3. **Store in blog_posts.json** with:
    - `status: "ready"` (NOT "published" — the daily cron handles that)
    - `publish_date`: space across next 7+ days starting tomorrow
