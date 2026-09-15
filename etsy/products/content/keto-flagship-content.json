@@ -927,21 +927,28 @@
     {
       "id": "when-to-call",
       "page": 20,
-      "heading": "When to Stop Reading and Make a Phone Call",
+      "heading": "When to Stop Reading and Get Help",
       "subheading": "Plus the weight question, answered honestly",
       "body": [
         "Feeling a bit flat in week one is ordinary. The things on this list are not that, and no diet guide should be your first stop for any of them."
       ],
-      "bullets": [
-        "Chest pain or pressure.",
-        "A heart that races, pounds or flutters and does not settle.",
-        "Fainting, or feeling like you are about to.",
-        "Shortness of breath.",
-        "Confusion, or someone telling you that you are not making sense.",
-        "Vomiting that will not stop, or any inability to keep fluids down.",
-        "Any symptom that frightens you, including ones not on this list."
-      ],
       "sections": [
+        {
+          "title": "Emergency Signs: Stop and Get Help Now",
+          "body": [
+            "These are not week one wobbles and they are not something to sleep on. If any of them happen, stop and get emergency help straight away. Dial 911 in the US and Canada, or 999 or 112 in the UK and Ireland. Do not wait until morning, do not wait for an office to open, and do not try to work it out with food.",
+            "If you are not sure whether it counts, act as though it does. Emergency staff would far rather see you and send you home again."
+          ],
+          "bullets": [
+            "Chest pain or pressure.",
+            "A heart that races, pounds or flutters and does not settle.",
+            "Fainting, or feeling like you are about to.",
+            "Shortness of breath.",
+            "Confusion, or someone telling you that you are not making sense.",
+            "Vomiting that will not stop, or any inability to keep fluids down.",
+            "Any symptom that frightens you, including ones not on this list."
+          ]
+        },
         {
           "title": "The one conversation worth having first",
           "body": [
