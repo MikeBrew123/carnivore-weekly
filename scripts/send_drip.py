@@ -205,10 +205,23 @@ def fetch_buyer_emails(secrets):
     and therefore suppresses the offer. Do not turn this into an empty set on
     error: an empty set reads as "nobody has bought" and re-creates the bug.
     """
+    LIMIT = 5000  # PostgREST silently caps at 1000 by default; a silent cap here
+                  # would start leaking offers to buyers past that row.
+    emails = set()
     try:
-        rows = supabase_query(secrets, "cw_assessment_sessions", {
-            "select": "email", "payment_status": "eq.completed"})
-        emails = {r["email"].strip().lower() for r in rows if r.get("email")}
+        for table, params in (
+            # Both payer tables, unioned. They fully overlap today (8 of 10),
+            # but that is a property of today's data, not a guarantee, and a
+            # purchase recorded in only one of them must still suppress.
+            ("cw_assessment_sessions",
+             {"select": "email", "payment_status": "eq.completed", "limit": LIMIT}),
+            ("calculator_sessions_v2",
+             {"select": "email", "paid_at": "not.is.null", "limit": LIMIT}),
+        ):
+            rows = supabase_query(secrets, table, params)
+            if len(rows) >= LIMIT:
+                raise RuntimeError(f"{table} hit the {LIMIT}-row cap; result may be truncated")
+            emails |= {norm_email(r["email"]) for r in rows if r.get("email")}
         print(f"  buyers on file: {len(emails)} (offer suppressed for these)")
         return emails
     except Exception as e:
@@ -221,6 +234,21 @@ def strip_markers(html):
     for a, b in (BUYER_SWAP, BUYER_PRE):
         html = html.replace(a, "").replace(b, "")
     return html
+
+
+def norm_email(addr):
+    """Lowercase, trim, and drop any +tag before the @.
+
+    A subscriber who signed up as someone+keto@example.com and paid as someone@example.com
+    is the same person, and the house rule is explicit that a "+" does not make
+    an address junk. Without this they would be treated as a non-buyer and shown
+    the discount for something they own.
+    """
+    addr = (addr or "").strip().lower()
+    if "@" not in addr:
+        return addr
+    local, _, domain = addr.partition("@")
+    return f"{local.split('+', 1)[0]}@{domain}"
 
 
 def swap_for_buyer(html, day, site):
@@ -236,7 +264,14 @@ def swap_for_buyer(html, day, site):
     """
     start, end = BUYER_SWAP
     block = BUYER_BLOCK.get(site, {}).get(day)
-    if block and start in html and end in html:
+    if start in html and end in html:
+        if block is None:
+            # A promo day was added without buyer copy. Remove the offer anyway:
+            # showing a half-price code to someone who paid full price is the
+            # one outcome this whole branch exists to prevent, and an awkward
+            # gap in an email is a far cheaper failure than that.
+            print(f"  ⚠️  no BUYER_BLOCK for {site} day {day} — offer removed, no replacement copy")
+            block = ""
         i, j = html.index(start), html.index(end) + len(end)
         html = html[:i] + block + html[j:]
 
@@ -267,7 +302,7 @@ def apply_promo(html, day, email, stripe_key, buyers=None):
     """
     if day not in PROMO_DAYS:
         return strip_markers(html)
-    if buyers is None or email.strip().lower() in buyers:
+    if buyers is None or norm_email(email) in buyers:
         if buyers is None:
             print("  ⚠️  buyer lookup unavailable — suppressing the offer (fail closed)")
         return swap_for_buyer(html, day, SITE)
@@ -823,7 +858,7 @@ def main():
         # discount subject to someone who will actually receive the buyer
         # variant is worse than no dry run at all.
         is_buyer = next_day in PROMO_DAYS and (
-            buyers is None or sub["email"].strip().lower() in buyers)
+            buyers is None or norm_email(sub["email"]) in buyers)
         subject_out = BUYER_SUBJECT.get(SITE, {}).get(next_day, subject) if is_buyer else subject
 
         if args.dry_run:
