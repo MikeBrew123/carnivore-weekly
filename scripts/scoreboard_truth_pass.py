@@ -27,7 +27,7 @@ import requests
 
 PROJECT_ROOT = Path(__file__).parent.parent
 SECRETS = json.loads((PROJECT_ROOT / "secrets" / "api-keys.json").read_text())
-VAULT_CW = Path("/Users/mbrew/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly")
+VAULT_CW = Path("/Users/mbrew/Documents/Banana Stand Media/01 Carnivore Weekly/Legacy Project")
 SCOREBOARD_MD = VAULT_CW / "reports" / "scoreboard.md"
 SNAPSHOT_DIR = VAULT_CW / "reports" / "scoreboard-snapshots"
 PINTEREST_QUEUE = PROJECT_ROOT / "ketodial" / "marketing" / "pinterest-pin-queue.json"

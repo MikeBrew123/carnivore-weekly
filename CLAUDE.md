@@ -137,8 +137,8 @@ End ("wrap up" / "end session", in addition to the root protocol): file remainin
 | Brew says | Do |
 |---|---|
 | "show reports" / "analytics" | `dashboard/generate-all-reports.sh` |
-| "run the week" / "weekly ops" | Read `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/Operator-Handbook.md`, run the weekly loop |
-| "scoreboard" | Read `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard.md`. Operating Rules at top are canonical. Act on reds. |
+| "run the week" / "weekly ops" | Read `Banana Stand Media/01 Carnivore Weekly/Legacy Project/Operator-Handbook.md`, run the weekly loop |
+| "scoreboard" | Read `Banana Stand Media/01 Carnivore Weekly/Legacy Project/reports/scoreboard.md`. Operating Rules at top are canonical. Act on reds. |
 
 ## Hard rules that were learned the hard way
 - Amazon book links wrap only the title. Affiliate links use https://.

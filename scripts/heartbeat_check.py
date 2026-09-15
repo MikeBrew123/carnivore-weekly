@@ -66,7 +66,7 @@ check('command-center', os.path.join(LOGS, 'command_center.log'), 30 * HOURS)
 #    snapshot file, not the cron log: since 2026-08 the pass is often run by a
 #    Claude scheduled task instead of the 3:30am cron (Mac asleep), and those
 #    runs never touch the cron log. The snapshot is the actual product.
-_snapdir = f'{HOME}/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard-snapshots'
+_snapdir = f'{HOME}/Documents/Banana Stand Media/01 Carnivore Weekly/Legacy Project/reports/scoreboard-snapshots'
 try:
     _newest = max(os.path.join(_snapdir, p) for p in os.listdir(_snapdir) if p.endswith('.json'))
     check('scoreboard-truth-pass', _newest, 8 * DAYS)

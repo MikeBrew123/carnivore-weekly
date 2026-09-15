@@ -365,8 +365,8 @@ CW and KD share ONE Supabase project (`kwtdpvnjewtahuxjyltn`). This is intention
 | "decision:" or "we decided" | Quinn logs to decisions.md |
 | "validate site" or "visual check" | Run /visual-validator on all pages |
 | "show reports" or "analytics" | Run `dashboard/generate-all-reports.sh` |
-| "run the week" or "weekly ops" | Read `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/Operator-Handbook.md`, run the weekly loop |
-| "scoreboard" | Read `Brew-Vault/.../Carnivore-Weekly/reports/scoreboard.md` — Operating Rules at top are canonical; latest dated section has the 10-metric operating table. Act on reds, don't just report them |
+| "run the week" or "weekly ops" | Read `Banana Stand Media/01 Carnivore Weekly/Legacy Project/Operator-Handbook.md`, run the weekly loop |
+| "scoreboard" | Read `Banana Stand Media/01 Carnivore Weekly/Legacy Project/reports/scoreboard.md` — Operating Rules at top are canonical; latest dated section has the 10-metric operating table. Act on reds, don't just report them |
 
 ---
 
