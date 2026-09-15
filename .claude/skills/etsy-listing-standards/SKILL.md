@@ -33,6 +33,11 @@ own recorded history. If Etsy's guidance changes, update THIS file, not just the
   mobile shoppers see. Lead with what the thing IS.
 - Strip: "Instant Download", sale language, prices, "beautiful/amazing/unique" filler.
 - 4+ pipe-separated segments = rewrite it.
+- **At most ONE of `&`, `%`, `:` in a title.** Etsy refuses the whole create/update with
+  `400 too_many_invalid_characters`, "& can only be use once". Cost a failed create on
+  2026-09-15 ("Meal Plan & Food Guide | ... Eat & Avoid Charts"). Prefer spelling the second
+  one out, or better, swap it for an Etsy filter-attribute phrase: "Eat Limit Avoid" replaced
+  "Eat & Avoid" and bought a stronger keyword match than it cost.
 - NEVER state a count or feature the files don't match (the "9 PDFs" vs 7 incident). Verify
   attached files before writing a count into a title.
 
@@ -49,7 +54,14 @@ own recorded history. If Etsy's guidance changes, update THIS file, not just the
 
 - Most specific subcategory ALWAYS; categories act as tags.
 - Charts/posters/food lists: 2078 Art & Collectibles > Prints > Digital Prints.
-- Meal plans, planners, logs, prep kits: 354 Paper & Party Supplies > Paper > Calendars & Planners.
+- **Meal plans and multi-page guides: 2078**, same as charts. They are printable guides, not planners.
+  Measured 2026-09-15: 354 makes Etsy print "Party decor for gatherings and celebrations" as the FIRST
+  Highlight on a keto meal plan, because 354 hangs off the Paper & Party Supplies branch. 2078 prints
+  "Designed by CarnivoreWeekly" in that slot instead. All 5 meal plans in the shop are 2078; 354 on
+  listing 4575891585 was corrected back within the hour.
+- Fill-in planners, logs and organizers ONLY (Doctor Prep Kit, Blood Pressure Log): 354 Paper & Party
+  Supplies > Paper > Calendars & Planners. That is what the 2026-08-22 category batch actually moved,
+  and the rule was over-generalised to "meal plans" afterwards.
 - Recipes/recipe cards: 6347 Craft Supplies & Tools > Patterns & How To > Recipes.
 - NEVER taxonomy 69 (Figurines & Knick Knacks); that was the 2026-08-22 audit's worst find.
 - Fill every attribute offered; attributes act as tags; then don't repeat them in tags.
