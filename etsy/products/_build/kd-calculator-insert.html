@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: letter; margin: 0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    width:8.5in; height:11in; background:#ffffff; color:#0f172a;
+    font-family:'Source Sans 3', Helvetica, sans-serif;
+    display:flex; align-items:center; justify-content:center; }
+  .card { width:7.0in; }
+  .kicker { color:#0ea5e9; font-weight:700; letter-spacing:2.5px; font-size:9.5pt;
+    text-transform:uppercase; text-align:center; margin-bottom:10px; }
+  h1 { font-family:'Libre Baskerville',Georgia,serif; font-size:20pt; line-height:1.15;
+    text-align:center; margin-bottom:12px; }
+  .lede { font-size:10pt; line-height:1.5; color:#475569; text-align:center; margin-bottom:11px; }
+  .results { border:2px solid #0ea5e9; border-radius:12px; overflow:hidden; }
+  .results-head { background:#0ea5e9; color:#fff; padding:7px 14px; font-size:8.5pt;
+    letter-spacing:1.4px; text-transform:uppercase; font-weight:700;
+    display:flex; justify-content:space-between; }
+  .results-body { background:#f0f9ff; padding:10px; }
+  .profile { font-size:9pt; color:#475569; text-align:center; padding-bottom:10px;
+    margin-bottom:11px; border-bottom:1px solid rgba(14,165,233,0.25); }
+  .tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .tile { background:#ffffff; border:1px solid rgba(14,165,233,0.25); border-radius:8px; padding:6px 4px; text-align:center; }
+  .tile .lab { font-size:7.5pt; letter-spacing:0.9px; text-transform:uppercase; color:#475569; margin-bottom:3px; }
+  .tile .num { font-family:'Libre Baskerville',Georgia,serif; font-size:15pt; font-weight:700; color:#0ea5e9; line-height:1.1; }
+  .tile .unit { font-size:7.5pt; color:#475569; margin-top:2px; }
+  .caption { font-size:8pt; color:#475569; text-align:center; margin-top:7px; font-style:italic; }
+  .freeline { font-size:9.5pt; line-height:1.45; color:#475569; text-align:center; margin:10px 0 9px; }
+  .safety { background:#f0f9ff; border-left:4px solid #0ea5e9; border-radius:6px;
+    padding:9px 12px; font-size:9.5pt; line-height:1.42; color:#475569; margin-bottom:11px; }
+  .rule { height:1px; background:rgba(14,165,233,0.25); margin:0 0 11px; }
+  h2 { font-family:'Libre Baskerville',Georgia,serif; font-size:13pt; text-align:center; margin-bottom:6px; }
+  .paid-lede { font-size:9.5pt; line-height:1.42; color:#475569; text-align:center; margin-bottom:9px; }
+  ul { list-style:none; margin-bottom:10px; }
+  li { font-size:9pt; line-height:1.35; color:#475569; padding-left:13px; position:relative; margin-bottom:2px; }
+  li:before { content:"\2022"; color:#0ea5e9; font-weight:700; position:absolute; left:0; }
+  .offer { border:2px dashed #0ea5e9; border-radius:10px; padding:10px; text-align:center; margin-bottom:9px; }
+  .offer .code { font-family:'Libre Baskerville',Georgia,serif; font-size:19pt; font-weight:700;
+    color:#0ea5e9; letter-spacing:3px; line-height:1.1; }
+  .offer .terms { font-size:9.5pt; color:#475569; margin-top:6px; line-height:1.45; }
+  .offer .price s { color:#475569; }
+  .offer .price strong { color:#0f172a; font-size:13pt; }
+  .cta { text-align:center; font-size:12pt; font-weight:700; color:#0ea5e9; margin-bottom:5px; }
+  .closing { text-align:center; font-size:10pt; color:#475569; font-style:italic; }
+  .draft { position:fixed; top:48%; left:0; right:0; text-align:center; font-size:64pt;
+    font-weight:700; color:rgba(14,165,233,0.13); letter-spacing:16px; }
+</style></head><body>
+
+<div class="card">
+  <div class="kicker">FREE WITH YOUR CARNIVORE WEEKLY ORDER</div>
+  <h1>Your own keto numbers, in about two minutes</h1>
+  <p class="lede">The printable you just bought gives you the structure. The KetoDial calculator gives you the amounts, worked out for your body instead of an average one.</p>
+
+  <div class="results">
+    <div class="results-head"><span>Your personalised keto targets</span><span>FREE</span></div>
+    <div class="results-body">
+      <div class="profile">Example: female, 57, 5 ft 4 in, 168 lb, lightly active, losing weight</div>
+      <div class="tiles">
+        <div class="tile"><div class="lab">Daily calories</div><div class="num">1,466</div><div class="unit">kcal</div></div>
+        <div class="tile"><div class="lab">Protein</div><div class="num">92</div><div class="unit">grams</div></div>
+        <div class="tile"><div class="lab">Fat</div><div class="num">114</div><div class="unit">grams</div></div>
+        <div class="tile"><div class="lab">Net carbs</div><div class="num">18</div><div class="unit">grams</div></div>
+        <div class="tile"><div class="lab">Maintenance</div><div class="num">1,832</div><div class="unit">TDEE kcal</div></div>
+        <div class="tile"><div class="lab">Method</div><div class="num" style="font-size:11pt">Mifflin<br>St Jeor</div><div class="unit">metabolic rate</div></div>
+      </div>
+      <div class="caption">Real output for the example profile. Yours will land somewhere else.</div>
+    </div>
+  </div>
+
+  <p class="freeline">Answer six plain questions: sex, age, height, weight, how active you are, and what you are trying to do. Your keto targets come back free, right there on the page, no card and no waiting. It does ask for your email address, because that is where your results and the follow-up go.</p>
+  <div class="safety">Before it prints anything, it asks one question most calculators skip: whether you have kidney disease, reduced kidney function, or are on dialysis. If your answer means a safe number would take a doctor who knows your history, it does not quietly hand you a softer number. It stops, tells you so, and points you to your clinician. That is the part we are proudest of.</div>
+  <div class="rule"></div>
+
+  <h2>If you want the whole thing worked out for you</h2>
+  <p class="paid-lede">The Full Protocol Bundle is every KetoDial guide in one download, built around the numbers you just got. It is for the person who would rather be handed the plan than build it. Buy it once, print it, keep it in a binder on the counter.</p>
+  <ul><li>The Doctor's Report, a clear one-page summary of your profile and targets to take to your next appointment</li><li>The 7-Day Meal Plan, a full week of meals portioned to your own numbers</li><li>The grocery list that goes with the week, sorted the way a store is laid out</li><li>The Keto Starter Kit, covering the first two weeks in plain language</li><li>What to expect week by week, including the rough patches nobody warns you about</li><li>Printable, readable pages. Large type, real tables, nothing you need a phone to use</li></ul>
+
+  <div class="offer">
+    <div class="code">ETSY25</div>
+    <div class="price"><s>$10.99</s> &rarr; <strong>$8.24</strong></div>
+    <div class="terms">25% off the Full Protocol Bundle. Enter it at checkout. The code works on the Full Protocol Bundle only.</div>
+  </div>
+
+  <div class="cta">ketodial.com/calculator.html</div>
+  <p class="closing">Start with your numbers. The rest gets a lot simpler after that.</p>
+</div>
+</body></html>
