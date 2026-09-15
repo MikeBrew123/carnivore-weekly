@@ -98,10 +98,14 @@ BUYER_PREHEADER = {
 # Subject lines that promise the offer. A clean body is not enough: the subject
 # is the most visible part, and "50% off your 30-day plan" in a buyer's inbox is
 # the whole problem even if the email inside behaves. Days not listed keep their
-# normal subject. PLACEHOLDER WORDING - Sarah to confirm before the next day-7.
+# normal subject. Written by Sarah 2026-09-15; each one is the closing line of
+# its own BUYER_BLOCK body, so the inbox line and the email say the same thing.
+# CW day 28 and KD day 28 keep their normal subjects on purpose: both are
+# milestone lines that never mention the offer, so a buyer reading them in the
+# inbox sees nothing they have already paid for.
 BUYER_SUBJECT = {
-    "cw": {7: "One week in. Here is what to do with the plan you have."},
-    "kd": {7: "One week of keto. Here is what to do next."},
+    "cw": {7: "Week one is the only week you need right now"},
+    "kd": {7: "A report you cook from beats one you read once"},
 }
 
 BUYER_SWAP = ("<!--BUYER_SWAP_START-->", "<!--BUYER_SWAP_END-->")
