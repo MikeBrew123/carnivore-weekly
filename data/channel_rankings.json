@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-09-13",
+  "last_updated": "2026-09-16",
   "leaderboard": [
     {
-      "name": "KenDBerryMD",
+      "name": "Laura Spath",
       "rank": 1,
+      "appearances": 4,
+      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+    },
+    {
+      "name": "KenDBerryMD",
+      "rank": 2,
       "appearances": 2,
       "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
-      "name": "Coach Carnivore Cam ",
-      "rank": 2,
-      "appearances": 3,
-      "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
-    },
-    {
-      "name": "Shawn Baker MD",
+      "name": "HomeSteadHow",
       "rank": 3,
-      "appearances": 7,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+      "appearances": 11,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Jenny Mitich",
+      "name": "Meet Carnivore",
       "rank": 4,
-      "appearances": 8,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
-    },
-    {
-      "name": "Carnivore Quest",
-      "rank": 5,
       "appearances": 6,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Tatiana Timofeyev",
-      "rank": 6,
-      "appearances": 7,
-      "channel_id": "UCiw2MH8alOMFFz6Gyll68BQ"
-    },
-    {
-      "name": "Ferrigno Freedom",
-      "rank": 7,
-      "appearances": 5,
-      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
+      "name": "Carnivore Revolution",
+      "rank": 5,
+      "appearances": 2,
+      "channel_id": "UCHlFeDkt3w0DXhrItDtS2_g"
     },
     {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 8,
-      "appearances": 8,
+      "rank": 6,
+      "appearances": 9,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 9,
-      "appearances": 10,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "name": "Jenny Mitich",
+      "rank": 7,
+      "appearances": 9,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "SHAPEFIXER",
+      "name": "Unnatural Vegan",
+      "rank": 8,
+      "appearances": 2,
+      "channel_id": "UCJBry7T2R1WeipWMBWKJ7Rg"
+    },
+    {
+      "name": "Ferrigno Freedom",
+      "rank": 9,
+      "appearances": 6,
+      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
+    },
+    {
+      "name": "Kent Carnivore",
       "rank": 10,
-      "appearances": 1,
-      "channel_id": "UCM1Va_ObWwANw1lrnUSQ6bw"
+      "appearances": 5,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     }
   ]
 }
