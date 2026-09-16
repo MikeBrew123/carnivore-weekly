@@ -1013,6 +1013,7 @@ def build_executive(d, changes, funnel, revenue, attention, today_iso):
 #     generic floor. Otherwise it is counts only, "too few to call".
 
 VOICE_WEEKS = 8
+VOICE_GOAL_WEIGHT_SINCE = '2026-09-16'
 VOICE_MIX_FIELDS = (('goal', 'Goal'), ('diet_type', 'Diet type'),
                     ('age_band', 'Age'), ('sex', 'Sex'))
 
@@ -1155,7 +1156,31 @@ def build_voice(calc_rows, survey_rows, view_rows, questions, options, today):
                           'thin': max(n_cur, n_prev) < MIN_SAMPLE['generic']})
         qlist.sort(key=lambda q: (q['day'] if q['day'] is not None else 99, q['key'] or ''))
 
+        # Goal weight vs chosen goal (recorded from 2026-09-16). A gain goal with a
+        # lower goal weight, or a lose goal with a higher one, means the reader
+        # probably picked the wrong goal. 2 lb of slack so rounding is not a flag.
+        since = date.fromisoformat(VOICE_GOAL_WEIGHT_SINCE)
+        asked = [r for r in done(c30) if r.get('goal') in ('lose', 'gain')
+                 and r['_d'] and r['_d'] >= since]
+        gw = {'asked_30d': len(asked), 'given_30d': 0, 'gain_below_current': 0,
+              'lose_above_current': 0, 'recording_since': VOICE_GOAL_WEIGHT_SINCE}
+        for r in asked:
+            try:
+                target = float(r.get('goal_weight_lb'))
+                current = float(r.get('weight_value'))
+            except (TypeError, ValueError):
+                continue
+            if str(r.get('weight_unit') or '').lower().startswith('kg'):
+                current *= 2.20462
+            gw['given_30d'] += 1
+            if r['goal'] == 'gain' and target < current - 2:
+                gw['gain_below_current'] += 1
+            elif r['goal'] == 'lose' and target > current + 2:
+                gw['lose_above_current'] += 1
+        gw['mismatched_30d'] = gw['gain_below_current'] + gw['lose_above_current']
+
         out[site] = {'weekly': weekly, 'trends': trends, 'mix': mix, 'questions': qlist,
+                     'goal_weight': gw,
                      'calc_completed_30d': len(done(c30)),
                      'respondents_30d': respondents(s30)}
     return out

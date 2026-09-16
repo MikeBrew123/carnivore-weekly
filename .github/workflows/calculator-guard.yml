@@ -24,6 +24,7 @@ on:
       - 'api/medical-context.js'
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
+      - 'tests/calculator-goal-weight-save.test.mjs'
       - 'tests/report-safety.test.mjs'
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
@@ -78,6 +79,7 @@ on:
       - 'api/medical-context.js'
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
+      - 'tests/calculator-goal-weight-save.test.mjs'
       - 'tests/report-safety.test.mjs'
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
@@ -138,6 +140,9 @@ jobs:
           node-version: 20
       - name: Golden macro regression test
         run: node tests/macro_parity/golden_test.mjs
+
+      - name: Free calculator records goal weight
+        run: node tests/calculator-goal-weight-save.test.mjs
 
   # THE SCHEMA CONTRACT. Runs the real worker against a real PostgreSQL instance
   # (PGlite, Postgres compiled to WebAssembly) whose schema is built from the

@@ -323,6 +323,10 @@ export default function CalculatorApp({
             goal: formData.goal,
             deficit_percentage: formData.deficit || null,
             diet_type: formData.diet,
+            // Asked since 2026-09-06, recorded since 2026-09-16. Only sent for the
+            // goals that show the field, so a stale value never rides along.
+            goal_weight_lb: (formData.goal === 'lose' || formData.goal === 'gain')
+              ? (Number(formData.goalWeight) || null) : null,
           },
         })
       }

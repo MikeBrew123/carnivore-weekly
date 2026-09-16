@@ -753,7 +753,8 @@ def fetch_voice():
     calc = []
     for label, src in (('cw', 'cw'), ('kd', 'ketodial')):
         for r in _supa_paged('calculator_sessions_v2',
-                             'created_at,step_completed,sex,age,goal,diet_type,email',
+                             'created_at,step_completed,sex,age,goal,diet_type,email,'
+                             'weight_value,weight_unit,goal_weight_lb',
                              f'source=eq.{src}&created_at=gte.{d70}', 'created_at.asc'):
             if not is_test_email(r.get('email')):
                 r.pop('email', None)
@@ -2662,6 +2663,17 @@ def voice_html(d):
             q_html += (f'<details class="inner"><summary>{len(quiet)} question(s) with no answers '
                        f'in the last 30 days</summary><ul class="small muted vquiet">'
                        + ''.join(f'<li>{x}</li>' for x in quiet) + '</ul></details>')
+        g = s.get('goal_weight') or {}
+        if g.get('mismatched_30d'):
+            mm = (f'<span class="gw-flag">{g["mismatched_30d"]} contradict their goal</span> '
+                  f'<span class="muted small">({g["gain_below_current"]} chose gain with a lower '
+                  f'goal weight, {g["lose_above_current"]} chose lose with a higher one; likely '
+                  f'picked the wrong goal)</span>')
+        else:
+            mm = '<span class="muted">none contradict their goal</span>'
+        gw_html = (f'<p class="small gw-line"><b>Goal weight:</b> given by {g.get("given_30d", 0)} of '
+                   f'{g.get("asked_30d", 0)} lose/gain readers since recording began '
+                   f'({esc(g.get("recording_since", ""))}, rolling 30 days) &middot; {mm}</p>')
         blocks += f'''<div class="voice-site site-{site}">
 <h3><span class="rule" style="background:{accent}"></span>{name}</h3>
 <div class="vcharts">
@@ -2670,6 +2682,7 @@ def voice_html(d):
 </div>
 {table(["", "Last 7 days vs prior 7", "Last 30 days vs prior 30"], trend_rows)}
 <h4 class="vsub">Calculator answers <span class="muted small">(completed calculators, last 30 days vs the 30 before)</span></h4>
+{gw_html}
 <div class="vmixes">{mix or '<p class="muted small">No completed calculators in 60 days.</p>'}</div>
 <h4 class="vsub">Email check-in answers <span class="muted small">(one person counted once per email, however many boxes they tick)</span></h4>
 {q_html}
@@ -3237,6 +3250,8 @@ def render_html(d):
       border-radius:3px;padding:1px 4px;margin-left:6px;white-space:nowrap;opacity:.8}
     .d.neutral.up,.d.neutral.down{color:var(--info)}
     .vquiet{margin:6px 0 0 18px;line-height:1.6}
+    .gw-line{margin:6px 0 2px}
+    .gw-flag{color:var(--warn);font-weight:600}
     @media (max-width:720px){.vcharts,.vmixes{grid-template-columns:1fr}}
 
     /* ── Forensic detail ── */

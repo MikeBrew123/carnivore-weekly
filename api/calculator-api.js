@@ -908,6 +908,14 @@ async function handleSaveStep2(request, env) {
       return createErrorResponse('RATE_LIMIT', 'Too many requests. Try again later.', 429);
     }
 
+    // Optional goal weight (lbs). Anything unusable is stored as null rather than
+    // failing the step save: goal, diet and activity must still land. The column's
+    // 50-1000 check is only a backstop for this.
+    const goalWeightRaw = Number(data.goal_weight_lb);
+    const goal_weight_lb = Number.isFinite(goalWeightRaw) && goalWeightRaw >= 50 && goalWeightRaw <= 1000
+      ? Math.round(goalWeightRaw * 10) / 10
+      : null;
+
     const response = await fetch(
       `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${session_token}&select=email`,
       {
@@ -924,6 +932,7 @@ async function handleSaveStep2(request, env) {
           goal: data.goal,
           deficit_percentage: data.deficit_percentage || null,
           diet_type: data.diet_type,
+          goal_weight_lb,
           step_completed: 3,
           updated_at: new Date().toISOString(),
         }),

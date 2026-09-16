@@ -850,6 +850,24 @@ class VoiceTests(unittest.TestCase):
         self.assertEqual(v['weekly'][-1]['calc_completed'], 0)
         self.assertEqual(v['mix']['Goal']['n_cur'], 0)
 
+    def test_goal_weight_that_contradicts_the_goal_is_counted(self):
+        base = {'site': 'cw', 'created_at': '2026-09-16', 'step_completed': 3}
+        rows = [dict(base, goal='gain', weight_value=257, weight_unit='lbs', goal_weight_lb=200),
+                dict(base, goal='gain', weight_value=120, weight_unit='lbs', goal_weight_lb=130),
+                dict(base, goal='lose', weight_value=90, weight_unit='kg', goal_weight_lb=190),
+                dict(base, goal='lose', weight_value=150, weight_unit='lbs', goal_weight_lb=170),
+                dict(base, goal='gain', weight_value=150, weight_unit='lbs', goal_weight_lb=120,
+                     created_at='2026-09-10'),
+                dict(base, goal='lose', weight_value=200, weight_unit='lbs', goal_weight_lb=201),
+                dict(base, goal='lose', weight_value=200, weight_unit='lbs', goal_weight_lb=None),
+                dict(base, goal='maintain', weight_value=150, weight_unit='lbs', goal_weight_lb=None)]
+        g = X.build_voice(rows, [], [], [], [], self.TODAY)['cw']['goal_weight']
+        self.assertEqual(g['asked_30d'], 6)        # the 09-10 row predates recording
+        self.assertEqual(g['given_30d'], 5)
+        self.assertEqual(g['gain_below_current'], 1)
+        self.assertEqual(g['lose_above_current'], 1)   # 90 kg = 198 lb, so 190 is not above
+        self.assertEqual(g['mismatched_30d'], 2)
+
     def test_render_says_unavailable_not_zero_when_fetch_failed(self):
         import generate_command_center as G
         html = G.voice_html({'voice': {'error': 'boom'}})
