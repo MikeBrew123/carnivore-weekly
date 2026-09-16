@@ -1137,9 +1137,15 @@ def fetch_automation_health():
     out = {'workflows': []}
     for wf, (label, max_age) in HEALTH_WORKFLOWS.items():
         try:
+            # Unfiltered and sorted here, not ?status=completed&per_page=1: on
+            # 2026-09-16 03:40 the filtered query returned the 09-04 run while
+            # 09-05..09-15 had all succeeded, raising a false 12-day stall.
             runs = http_json(
                 f'https://api.github.com/repos/{GITHUB_REPO}/actions/workflows/{wf}/runs'
-                f'?per_page=1&status=completed', headers=headers).get('workflow_runs', [])
+                f'?per_page=20', headers=headers).get('workflow_runs', [])
+            runs = sorted((x for x in runs if x.get('status') == 'completed'),
+                          key=lambda x: x.get('run_started_at') or x.get('updated_at') or '',
+                          reverse=True)
             if not runs:
                 out['workflows'].append({'label': label, 'state': 'never-ran'})
                 continue
