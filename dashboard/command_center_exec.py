@@ -996,3 +996,166 @@ def build_executive(d, changes, funnel, revenue, attention, today_iso):
         'suggested_action': actions[:2],
         'generated_by': 'deterministic rules',
     }
+
+
+# ── What people are telling us (calculator answers + drip poll answers) ──
+# Added 2026-09-16. Pure: the fetcher hands in rows, this returns numbers.
+#
+# Counting rules, because the raw tables overstate engagement:
+#   - A poll RESPONDENT is one person answering one day's check-in. The response
+#     table stores one row per ticked option, and day-2-style check-ins carry four
+#     questions, so one reader can write six rows. Rows are never shown as people.
+#   - A person is subscriber_id when the answer came from an email link, else the
+#     browser fingerprint. Anonymous visitors cannot be de-duplicated any better.
+#   - Weeks are Monday-start. The current week is partial and flagged; WoW and MoM
+#     use rolling 7 and 30 day windows ending today, never the partial week.
+#   - An answer-mix shift is only given in points when BOTH periods clear the
+#     generic floor. Otherwise it is counts only, "too few to call".
+
+VOICE_WEEKS = 8
+VOICE_MIX_FIELDS = (('goal', 'Goal'), ('diet_type', 'Diet type'),
+                    ('age_band', 'Age'), ('sex', 'Sex'))
+
+
+def _age_band(age):
+    try:
+        a = int(age)
+    except (TypeError, ValueError):
+        return None
+    for lo, hi, name in ((0, 34, 'under 35'), (35, 44, '35-44'), (45, 54, '45-54'),
+                         (55, 64, '55-64'), (65, 200, '65+')):
+        if lo <= a <= hi:
+            return name
+    return None
+
+
+def _d(ts):
+    try:
+        return date.fromisoformat(str(ts)[:10])
+    except (TypeError, ValueError):
+        return None
+
+
+def _person(r):
+    return r.get('subscriber_id') or r.get('fingerprint') or r.get('id')
+
+
+def _mix(rows, field):
+    counts = {}
+    for r in rows:
+        v = r.get(field)
+        v = str(v).strip().lower() if v not in (None, '') else None
+        if v:
+            counts[v] = counts.get(v, 0) + 1
+    return counts, sum(counts.values())
+
+
+def _mix_compare(cur_rows, prev_rows, field):
+    cur, n_cur = _mix(cur_rows, field)
+    prev, n_prev = _mix(prev_rows, field)
+    floor = MIN_SAMPLE['generic']
+    reliable = n_cur >= floor and n_prev >= floor
+    out = []
+    for v in sorted(set(cur) | set(prev), key=lambda k: (-cur.get(k, 0), -prev.get(k, 0))):
+        c, p = cur.get(v, 0), prev.get(v, 0)
+        cp = round(c * 100 / n_cur, 1) if n_cur else None
+        pp = round(p * 100 / n_prev, 1) if n_prev else None
+        out.append({'value': v, 'cur_n': c, 'prev_n': p, 'cur_pct': cp, 'prev_pct': pp,
+                    'pts': round(cp - pp, 1) if reliable and cp is not None and pp is not None
+                    else None})
+    return {'n_cur': n_cur, 'n_prev': n_prev, 'reliable': reliable, 'values': out}
+
+
+def build_voice(calc_rows, survey_rows, view_rows, questions, options, today):
+    """Per-site trends for calculator answers and drip check-in answers.
+
+    calc_rows:   calculator_sessions_v2 rows with site ('cw'|'kd'), created_at,
+                 step_completed, sex, age, goal, diet_type. Test emails already removed.
+    survey_rows: drip_survey_responses rows (site, day, question_id, option_id,
+                 subscriber_id, fingerprint, submitted_at, answered_via).
+    view_rows:   drip_survey_views rows (site, fingerprint, created_at).
+    questions:   drip_survey_questions rows (id, site, day, question_key, question_text, active).
+    options:     drip_survey_options rows (id, question_id, option_text, display_order).
+    """
+    week0 = today - timedelta(days=today.weekday())
+    weeks = [week0 - timedelta(weeks=i) for i in range(VOICE_WEEKS - 1, -1, -1)]
+
+    def in_window(d, days, offset=0):
+        end = today - timedelta(days=offset)
+        return d is not None and end - timedelta(days=days - 1) <= d <= end
+
+    qmap = {q['id']: q for q in questions or []}
+    omap = {o['id']: o for o in options or []}
+    out = {}
+    for site in ('cw', 'kd'):
+        calc = [dict(r, _d=_d(r.get('created_at')), age_band=_age_band(r.get('age')))
+                for r in calc_rows or [] if r.get('site') == site]
+        surv = [dict(r, _d=_d(r.get('submitted_at'))) for r in survey_rows or []
+                if r.get('site') == site]
+        views = [dict(r, _d=_d(r.get('created_at'))) for r in view_rows or []
+                 if r.get('site') == site]
+
+        def done(rows):
+            return [r for r in rows if (r.get('step_completed') or 0) >= 3]
+
+        def respondents(rows):
+            return len({(_person(r), r.get('day')) for r in rows})
+
+        weekly = []
+        for w in weeks:
+            wc = [r for r in calc if r['_d'] and w <= r['_d'] < w + timedelta(days=7)]
+            ws = [r for r in surv if r['_d'] and w <= r['_d'] < w + timedelta(days=7)]
+            weekly.append({'week_start': w.isoformat(), 'partial': w == week0,
+                           'calc_starts': len(wc), 'calc_completed': len(done(wc)),
+                           'poll_respondents': respondents(ws)})
+
+        def period(days, offset):
+            c = [r for r in calc if in_window(r['_d'], days, offset)]
+            s = [r for r in surv if in_window(r['_d'], days, offset)]
+            v = [r for r in views if in_window(r['_d'], days, offset)]
+            return c, s, v
+
+        trends = {}
+        for key, days in (('wow', 7), ('mom', 30)):
+            c1, s1, v1 = period(days, 0)
+            c0, s0, v0 = period(days, days)
+            trends[key] = [
+                delta('Calculator starts', len(c0), len(c1), base='calculator'),
+                delta('Calculator completions', len(done(c0)), len(done(c1)), base='calculator'),
+                delta('Check-in respondents', respondents(s0), respondents(s1)),
+                delta('Check-in page views', len(v0), len(v1)),
+            ]
+
+        c30, s30, _ = period(30, 0)
+        c60, s60, _ = period(30, 30)
+        mix = {label: _mix_compare(done(c30), done(c60), field)
+               for field, label in VOICE_MIX_FIELDS}
+
+        qrows = {}
+        for side, r in [('cur', x) for x in s30] + [('prev', x) for x in s60]:
+            q = qmap.get(r.get('question_id'))
+            if not q:
+                continue
+            e = qrows.setdefault(q['id'], {'day': q.get('day'), 'key': q.get('question_key'),
+                                           'text': q.get('question_text'),
+                                           'active': q.get('active'),
+                                           'cur_people': set(), 'prev_people': set(),
+                                           'cur_opts': {}, 'prev_opts': {}})
+            e[f'{side}_people'].add(_person(r))
+            label = (omap.get(r.get('option_id')) or {}).get('option_text') or '(unknown option)'
+            e[f'{side}_opts'][label] = e[f'{side}_opts'].get(label, 0) + 1
+        qlist = []
+        for e in qrows.values():
+            n_cur, n_prev = len(e['cur_people']), len(e['prev_people'])
+            top = sorted(e['cur_opts'].items(), key=lambda x: -x[1])[:3]
+            qlist.append({'day': e['day'], 'key': e['key'], 'text': e['text'],
+                          'active': e['active'],
+                          'respondents_30d': n_cur, 'respondents_prev_30d': n_prev,
+                          'top_answers': [{'answer': a, 'count': n} for a, n in top],
+                          'thin': max(n_cur, n_prev) < MIN_SAMPLE['generic']})
+        qlist.sort(key=lambda q: (q['day'] if q['day'] is not None else 99, q['key'] or ''))
+
+        out[site] = {'weekly': weekly, 'trends': trends, 'mix': mix, 'questions': qlist,
+                     'calc_completed_30d': len(done(c30)),
+                     'respondents_30d': respondents(s30)}
+    return out

@@ -800,5 +800,66 @@ class Renders(unittest.TestCase):
         self.assertIn('Replies from readers', cockpit)
 
 
+class VoiceTests(unittest.TestCase):
+    TODAY = date(2026, 9, 16)   # a Wednesday
+
+    def _q(self):
+        qs = [{'id': 'q1', 'site': 'cw', 'day': 2, 'question_key': 'symptoms',
+               'question_text': 'Feeling any of these?', 'active': True}]
+        opts = [{'id': 'o1', 'question_id': 'q1', 'option_text': 'Tired'},
+                {'id': 'o2', 'question_id': 'q1', 'option_text': 'Hungry'}]
+        return qs, opts
+
+    def test_one_reader_ticking_several_boxes_is_one_respondent(self):
+        qs, opts = self._q()
+        rows = [{'id': str(i), 'site': 'cw', 'day': 2, 'question_id': 'q1', 'option_id': o,
+                 'fingerprint': 'fp1', 'submitted_at': '2026-09-15T10:00:00'}
+                for i, o in enumerate(['o1', 'o2', 'o1'])]
+        v = X.build_voice([], rows, [], qs, opts, self.TODAY)['cw']
+        self.assertEqual(v['respondents_30d'], 1)
+        self.assertEqual(v['questions'][0]['respondents_30d'], 1)
+        self.assertEqual(v['weekly'][-1]['poll_respondents'], 1)
+        self.assertTrue(v['questions'][0]['thin'])
+
+    def test_current_week_is_flagged_partial_and_monday_based(self):
+        v = X.build_voice([], [], [], [], [], self.TODAY)['cw']
+        self.assertEqual(len(v['weekly']), X.VOICE_WEEKS)
+        self.assertEqual(v['weekly'][-1]['week_start'], '2026-09-14')
+        self.assertTrue(v['weekly'][-1]['partial'])
+        self.assertFalse(any(w['partial'] for w in v['weekly'][:-1]))
+
+    def test_mix_shift_withheld_on_thin_base_and_given_when_both_periods_clear(self):
+        def calc(n, goal, day):
+            return [{'site': 'cw', 'created_at': day, 'step_completed': 3, 'goal': goal}
+                    for _ in range(n)]
+        thin = calc(5, 'lose', '2026-09-10') + calc(5, 'maintain', '2026-08-10')
+        m = X.build_voice(thin, [], [], [], [], self.TODAY)['cw']['mix']['Goal']
+        self.assertFalse(m['reliable'])
+        self.assertTrue(all(x['pts'] is None for x in m['values']))
+        solid = (calc(30, 'lose', '2026-09-10') + calc(10, 'maintain', '2026-09-10')
+                 + calc(20, 'lose', '2026-08-10') + calc(20, 'maintain', '2026-08-10'))
+        m = X.build_voice(solid, [], [], [], [], self.TODAY)['cw']['mix']['Goal']
+        self.assertTrue(m['reliable'])
+        lose = next(x for x in m['values'] if x['value'] == 'lose')
+        self.assertEqual(lose['pts'], 25.0)
+
+    def test_incomplete_calculators_do_not_count_as_completions_or_answers(self):
+        rows = [{'site': 'kd', 'created_at': '2026-09-15', 'step_completed': 1, 'goal': 'lose'}]
+        v = X.build_voice(rows, [], [], [], [], self.TODAY)['kd']
+        self.assertEqual(v['weekly'][-1]['calc_starts'], 1)
+        self.assertEqual(v['weekly'][-1]['calc_completed'], 0)
+        self.assertEqual(v['mix']['Goal']['n_cur'], 0)
+
+    def test_render_says_unavailable_not_zero_when_fetch_failed(self):
+        import generate_command_center as G
+        html = G.voice_html({'voice': {'error': 'boom'}})
+        self.assertIn('unavailable', html)
+        qs, opts = self._q()
+        ok = {'voice': X.build_voice([], [], [], qs, opts, self.TODAY)}
+        html = G.voice_html(ok)
+        self.assertIn('Carnivore Weekly', html)
+        self.assertIn('KetoDial', html)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

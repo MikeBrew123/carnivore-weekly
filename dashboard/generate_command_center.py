@@ -729,6 +729,61 @@ def fetch_demographics():
     return out
 
 
+
+def _supa_paged(table, select, filters, order):
+    rows, offset = [], 0
+    while True:
+        batch = supa_fetch(table, select=select, filters=f'{filters}&offset={offset}',
+                           order=order, limit=1000)
+        rows.extend(batch or [])
+        if not batch or len(batch) < 1000 or offset > 20000:
+            return rows
+        offset += 1000
+
+
+def fetch_voice():
+    """Raw rows for X.build_voice: calculator answers and drip check-in answers, 70 days.
+
+    70 days covers the 8 weekly bars and two full 30-day windows. Test addresses are
+    removed here with the same is_test_email() the demographics card uses; check-in
+    answers are dropped when their linked subscriber is a test address. Anonymous
+    check-in answers (no subscriber) cannot be screened and are kept.
+    """
+    d70 = iso_days_ago(70)
+    calc = []
+    for label, src in (('cw', 'cw'), ('kd', 'ketodial')):
+        for r in _supa_paged('calculator_sessions_v2',
+                             'created_at,step_completed,sex,age,goal,diet_type,email',
+                             f'source=eq.{src}&created_at=gte.{d70}', 'created_at.asc'):
+            if not is_test_email(r.get('email')):
+                r.pop('email', None)
+                r['site'] = label
+                calc.append(r)
+    surveys = _supa_paged('drip_survey_responses',
+                          'id,site,day,question_id,option_id,subscriber_id,fingerprint,'
+                          'submitted_at,answered_via',
+                          f'submitted_at=gte.{d70}', 'submitted_at.asc')
+    sub_ids = sorted({r['subscriber_id'] for r in surveys if r.get('subscriber_id')})
+    test_subs = set()
+    for i in range(0, len(sub_ids), 100):
+        chunk = ','.join(sub_ids[i:i + 100])
+        for sr in supa_fetch('drip_subscribers', select='id,email',
+                             filters=f'id=in.({chunk})', limit=100):
+            if is_test_email(sr.get('email')):
+                test_subs.add(sr['id'])
+    hidden = sum(1 for r in surveys if r.get('subscriber_id') in test_subs)
+    surveys = [r for r in surveys if r.get('subscriber_id') not in test_subs]
+    views = _supa_paged('drip_survey_views', 'site,fingerprint,created_at',
+                        f'created_at=gte.{d70}', 'created_at.asc')
+    questions = supa_fetch('drip_survey_questions',
+                           select='id,site,day,question_key,question_text,active', limit=1000)
+    options = supa_fetch('drip_survey_options', select='id,question_id,option_text,display_order',
+                         limit=5000)
+    out = X.build_voice(calc, surveys, views, questions, options, TODAY)
+    out['hidden_test_answers'] = hidden
+    return out
+
+
 def fetch_feedback():
     """Counts computed in Python (not supa_count) so test entries can be excluded."""
     rows = supa_fetch('content_feedback',
@@ -1744,6 +1799,8 @@ def collect(use_model=True):
     data['funnels'] = guarded('Funnels', fetch_funnels)
     print('  Demographics...')
     data['demographics'] = guarded('Demographics', fetch_demographics)
+    print('  Voice (calculator + check-in answers)...')
+    data['voice'] = guarded('Voice', fetch_voice)
     print('  Feedback...')
     data['feedback'] = guarded('Feedback', fetch_feedback)
     print('  Mail...')
@@ -2528,6 +2585,104 @@ def customer_signal_html(d):
             f'to the model.</p></section>')
 
 
+
+# ── What people are telling us ───────────────────────────────────────
+
+def _voice_bars(weekly, key, accent):
+    vals = [w[key] for w in weekly]
+    mx = max(vals) or 1
+    cols = ''
+    for w, v in zip(weekly, vals):
+        h = max(round(v * 100 / mx), 2 if v else 0)
+        label = datetime.strptime(w['week_start'], '%Y-%m-%d').strftime('%b %-d')
+        tip = f'Week of {label}: {v}' + (' (week in progress)' if w['partial'] else '')
+        cols += (f'<div class="vb{" partial" if w["partial"] else ""}" title="{esc(tip)}">'
+                 f'<span class="vb-n">{v}</span>'
+                 f'<span class="vb-bar" style="height:{h}%;background:{accent}"></span>'
+                 f'<span class="vb-l">{esc(label)}</span></div>')
+    return f'<div class="vbars">{cols}</div>'
+
+
+def _voice_trend_cell(c):
+    if not c:
+        return '<span class="muted">—</span>'
+    return f'{c["cur"]:,} <span class="muted small">vs {c["prev"]:,}</span> {delta_cell(c)}'
+
+
+def _voice_mix_table(label, m):
+    if not m['n_cur'] and not m['n_prev']:
+        return ''
+    note = ('' if m['reliable'] else
+            ' <span class="thin-tag">too few to call</span>')
+    rows = []
+    for v in m['values'][:6]:
+        cur = f'{v["cur_pct"]:.0f}%' if v['cur_pct'] is not None else '—'
+        prev = f'{v["prev_pct"]:.0f}%' if v['prev_pct'] is not None else '—'
+        if v['pts'] is None:
+            chg = '<span class="muted">—</span>'
+        else:
+            cls = 'up' if v['pts'] > 0 else ('down' if v['pts'] < 0 else 'flat')
+            chg = f'<span class="d {cls} neutral">{v["pts"]:+.0f} pts</span>'
+        rows.append([esc(v['value']), f'{cur} <span class="muted small">({v["cur_n"]})</span>',
+                     f'{prev} <span class="muted small">({v["prev_n"]})</span>', chg])
+    return (f'<div class="vmix"><h4>{esc(label)} <span class="muted small">'
+            f'{m["n_cur"]} vs {m["n_prev"]} answers</span>{note}</h4>'
+            f'{table(["Answer", "Last 30d", "Prior 30d", "Shift"], rows)}</div>')
+
+
+def voice_html(d):
+    v = d.get('voice') or {}
+    head = ('<h2>What people are telling us<span class="h2sub">calculator answers &middot; '
+            'email check-in answers &middot; both sites</span></h2>')
+    if v.get('error') or not v.get('cw'):
+        return (f'<section class="card voice" id="voice">{head}<p class="na-msg">'
+                f'Answer data unavailable — not zero answers.</p></section>')
+    blocks = ''
+    for site, name, accent in (('cw', 'Carnivore Weekly', 'var(--cw)'),
+                               ('kd', 'KetoDial', 'var(--kd)')):
+        s = v.get(site) or {}
+        tr = s.get('trends') or {}
+        trend_rows = [[esc(w['label']), _voice_trend_cell(w), _voice_trend_cell(m)]
+                      for w, m in zip(tr.get('wow') or [], tr.get('mom') or []) if w and m]
+        mix = ''.join(_voice_mix_table(label, m) for label, m in (s.get('mix') or {}).items())
+        q_rows, quiet = [], []
+        for q in s.get('questions') or []:
+            if not q['respondents_30d']:
+                quiet.append(f'Day {q["day"]}: {esc(q["text"])} ({q["respondents_prev_30d"]} prior)')
+                continue
+            top = ', '.join(f'{esc(a["answer"])} ({a["count"]})' for a in q['top_answers']) or '—'
+            tag = ' <span class="thin-tag">too few to call</span>' if q['thin'] else ''
+            off = '' if q['active'] else ' <span class="muted small">(retired)</span>'
+            q_rows.append([f'Day {q["day"]}', esc(q['text']) + off + tag,
+                           str(q['respondents_30d']), str(q['respondents_prev_30d']), top])
+        q_html = (table(['Email', 'Question', 'People 30d', 'Prior 30d', 'Top answers (30d)'],
+                        q_rows) if q_rows else
+                  '<p class="muted small">No check-in answers in the last 30 days.</p>')
+        if quiet:
+            q_html += (f'<details class="inner"><summary>{len(quiet)} question(s) with no answers '
+                       f'in the last 30 days</summary><ul class="small muted vquiet">'
+                       + ''.join(f'<li>{x}</li>' for x in quiet) + '</ul></details>')
+        blocks += f'''<div class="voice-site site-{site}">
+<h3><span class="rule" style="background:{accent}"></span>{name}</h3>
+<div class="vcharts">
+<div><span class="k">Calculators completed per week</span>{_voice_bars(s["weekly"], "calc_completed", accent)}</div>
+<div><span class="k">People answering email check-ins per week</span>{_voice_bars(s["weekly"], "poll_respondents", accent)}</div>
+</div>
+{table(["", "Last 7 days vs prior 7", "Last 30 days vs prior 30"], trend_rows)}
+<h4 class="vsub">Calculator answers <span class="muted small">(completed calculators, last 30 days vs the 30 before)</span></h4>
+<div class="vmixes">{mix or '<p class="muted small">No completed calculators in 60 days.</p>'}</div>
+<h4 class="vsub">Email check-in answers <span class="muted small">(one person counted once per email, however many boxes they tick)</span></h4>
+{q_html}
+</div>'''
+    hidden = v.get('hidden_test_answers') or 0
+    return (f'<section class="card voice" id="voice">{head}{blocks}'
+            f'<p class="foot">Weeks start Monday; the faded bar is the week in progress. '
+            f'Percent changes are only shown when the sample can carry them, and answer-mix '
+            f'shifts need at least {X.MIN_SAMPLE["generic"]} answers in both periods. '
+            f'Test accounts removed ({hidden} test check-in answer(s) hidden); anonymous '
+            f'check-in answers cannot be screened.</p></section>')
+
+
 DQ_WORD = {'ok': ('ok', 'current'), 'failed': ('crit', 'error'),
            'missing': ('warn', 'unavailable'), 'not-configured': ('off', 'not configured')}
 
@@ -3061,6 +3216,29 @@ def render_html(d):
     .datahealth li.crit .dq-state{color:var(--crit)}
     .datahealth .rnote{display:inline;margin:0}
 
+    /* ── What people are telling us ── */
+    .voice{margin-bottom:var(--gap)}
+    .voice-site{padding:14px 0 18px;border-top:1px solid var(--line-soft)}
+    .voice-site:first-of-type{border-top:none;padding-top:4px}
+    .voice-site h3{display:flex;align-items:center;gap:9px;font:600 14px/1 var(--sans);margin-bottom:12px}
+    .voice-site h3 .rule{width:3px;height:14px;border-radius:2px;display:block}
+    .vcharts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:10px}
+    .vbars{display:flex;align-items:flex-end;gap:5px;height:110px;margin-top:6px}
+    .vb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+    .vb-bar{width:100%;border-radius:3px 3px 0 0;display:block;max-height:72%}
+    .vb-n{font:11px/1.3 var(--mono);color:var(--dim)}
+    .vb-l{font:9.5px/1.3 var(--mono);color:var(--faint);white-space:nowrap;margin-top:3px}
+    .vb.partial .vb-bar{opacity:.4}
+    .vb.partial .vb-l{font-style:italic}
+    .vsub{font:600 12.5px/1.4 var(--sans);margin:16px 0 4px}
+    .vmixes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 18px}
+    .vmix h4{font:600 12px/1.4 var(--sans);margin-top:8px}
+    .thin-tag{font:10px/1 var(--mono);color:var(--warn);border:1px solid var(--warn);
+      border-radius:3px;padding:1px 4px;margin-left:6px;white-space:nowrap;opacity:.8}
+    .d.neutral.up,.d.neutral.down{color:var(--info)}
+    .vquiet{margin:6px 0 0 18px;line-height:1.6}
+    @media (max-width:720px){.vcharts,.vmixes{grid-template-columns:1fr}}
+
     /* ── Forensic detail ── */
     .forensic{margin-top:26px;border-top:1px solid var(--line);padding-top:8px}
     .forensic>summary{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;
@@ -3241,7 +3419,7 @@ def render_html(d):
 <h1>Command Centre</h1>
 <nav><a href="#today">Today</a><a href="#scorecards">Scorecards</a><a href="#funnel">Funnel</a>
 <a href="#measuring">Measuring</a><a href="#signal">Signal</a><a href="#timeline">Timeline</a>
-<a href="#health">Data</a><a href="#forensic">Detail</a></nav>
+<a href="#voice">Voice</a><a href="#health">Data</a><a href="#forensic">Detail</a></nav>
 <span class="when">{esc(d["meta"]["generated_at"])} PT</span>
 </header>
 <main>
@@ -3276,6 +3454,8 @@ def render_html(d):
 </div>
 
 <div id="timeline">{timeline_html(d)}</div>
+
+{voice_html(d)}
 
 <div id="health">{data_health_html(d)}</div>
 

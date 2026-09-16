@@ -1,6 +1,12 @@
 # Current Status
 
-**Last Updated:** 2026-09-14 (paid-report calorie guidance shipped and deployed; one real purchase still owed, bead `carnivore-weekly-n5jc`)
+**Last Updated:** 2026-09-16 (day-5 placeholder fixed; Command Centre voice section)
+
+**2026-09-16 · Day-5 placeholder removed from the live check-in page, and the Command Centre gains a "What people are telling us" section.**
+
+Day 5 (CW) went live 09-13 with `drip_survey_questions.question_text` still "[PLACEHOLDER - writers] How much are you hoping to lose?". The email was right (Sarah's copy); the check-in page renders the DB text, visible in the form view and on "Change my answer". Red team R19 (09-12) named this as a launch gate; go-live activated the row without replacing the text. Fixed in place on both sites (KD still inactive) with Sarah's approved email wording minus "Tap one."; NOT version-bumped because `day-5.html` hardcodes the six option uuids of this row. Verified on the live page. Record: `supabase/migrations/20260916_goal_target_question_text.sql`. Lesson: a go-live checklist for a DB-driven question must read the rendered page, not only the email.
+
+Command Centre: new section `voice_html` (nav "Voice"), logic in `command_center_exec.build_voice` (5 tests, three mutation-checked). Per site: 8 Monday-start weekly bars (calculators completed, check-in respondents), WoW and MoM deltas, calculator answer mix (goal, diet, age, sex) last 30d vs prior 30d with shifts withheld under 20 answers per period, and per-question check-in answers. Respondents are distinct people per email day, never option rows (one reader can write six). First read: CW calculator completions 132 vs 77 MoM; share choosing goal=gain rose 1% to 17% across ~30 days, spread evenly by day, not one batch (worth checking against bead `4sk8` before reading it as audience change). KD is too thin for any mix call.
 
 **2026-09-14 · Electrolyte defect class: four P0s down to one. Three verified-fixed beads closed, and the four CW blog pages carrying the universal potassium target are repaired and live. MERGED `981604a2` (PR #75).**
 
