@@ -15,24 +15,12 @@ CREATE INDEX IF NOT EXISTS idx_calculator2_sessions_token ON public.calculator2_
 -- Enable RLS
 ALTER TABLE public.calculator2_sessions ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policy: Everyone can insert (anonymous session creation)
-CREATE POLICY IF NOT EXISTS "Allow anonymous session creation"
-  ON public.calculator2_sessions
-  FOR INSERT
-  WITH CHECK (true);
-
--- Create RLS policy: Everyone can read their own session
-CREATE POLICY IF NOT EXISTS "Allow reading own session"
-  ON public.calculator2_sessions
-  FOR SELECT
-  USING (true);
-
--- Create RLS policy: Everyone can update their own session
-CREATE POLICY IF NOT EXISTS "Allow updating own session"
-  ON public.calculator2_sessions
-  FOR UPDATE
-  USING (true)
-  WITH CHECK (true);
+-- SECURITY NOTE (2026-09-16): the open anon policies this file originally created
+-- (always-true read, insert and update rules) were removed in production by
+-- 20260218_tighten_rls_policies.sql, 20260405_tighten_calculator2_sessions_rls.sql and
+-- 20260721_db_health_security_fixes.sql. Live state: RLS on, service_role only.
+-- All reads and writes go through the Cloudflare Worker using the service role.
+-- No anon/authenticated policies: the service role bypasses RLS, so nothing else is needed.
 
 -- Create updated_at trigger
 CREATE OR REPLACE FUNCTION update_calculator2_sessions_updated_at()

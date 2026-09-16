@@ -52,31 +52,12 @@ EXECUTE FUNCTION update_calculator2_sessions_last_active();
 -- ===== ROW LEVEL SECURITY =====
 ALTER TABLE calculator2_sessions ENABLE ROW LEVEL SECURITY;
 
--- Policy 1: Allow anonymous users to INSERT (create) new sessions
--- Rationale: Token-based sessions don't require auth context
-CREATE POLICY insert_calculator2_sessions ON calculator2_sessions
-    FOR INSERT
-    WITH CHECK (true);
-
--- Policy 2: Allow anonymous users to SELECT their own session by token
--- Rationale: POST request to /rest/v1/calculator2_sessions?select=* returns all rows
---           matching the WHERE clause - token-based lookup is secure
-CREATE POLICY select_calculator2_sessions ON calculator2_sessions
-    FOR SELECT
-    USING (true);
-
--- Policy 3: Allow anonymous users to UPDATE their session fields
--- Rationale: Form state persistence requires ability to update
-CREATE POLICY update_calculator2_sessions ON calculator2_sessions
-    FOR UPDATE
-    USING (true)
-    WITH CHECK (true);
-
--- Policy 4: Service role can manage all sessions (cleanup, audits)
-CREATE POLICY service_role_calculator2_sessions ON calculator2_sessions
-    FOR ALL
-    USING (auth.role() = 'service_role')
-    WITH CHECK (auth.role() = 'service_role');
+-- SECURITY NOTE (2026-09-16): the open anon policies this file originally created
+-- (always-true read, insert and update rules) were removed in production by
+-- 20260218_tighten_rls_policies.sql, 20260405_tighten_calculator2_sessions_rls.sql and
+-- 20260721_db_health_security_fixes.sql. Live state: RLS on, service_role only.
+-- All reads and writes go through the Cloudflare Worker using the service role.
+-- No anon/authenticated policies: the service role bypasses RLS, so nothing else is needed.
 
 -- ===== TABLE DOCUMENTATION =====
 COMMENT ON TABLE calculator2_sessions IS 'Stateless session management for Calculator2 rebuild - tracks form progress with 48-hour expiration.';
