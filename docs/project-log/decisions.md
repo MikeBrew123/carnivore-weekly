@@ -2297,3 +2297,38 @@ rule that a caveat after a number is not a gate. The editorial rule is now enfor
 mechanically instead of by vigilance.
 
 Read date for all three tiers: **2026-10-12**.
+
+## 2026-09-17 — Author sign-offs lose the em dash
+
+Commit `e2afa6e0`, pushed to main. Brew approved this by Command Deck tap at
+05:29 PDT (card `deac162e`), which also closed the older card `dcc131a3` he
+answered at 05:21 the same morning: "just the name, no dash."
+
+Sixteen articles ended with `<p>—Chloe</p>` and friends. They now end with
+`<p>Chloe</p>`. No hyphen, no en dash, just the name. This is the standing style
+rule applied to the one place readers see it: Brew does not use em dashes in
+anything written for humans.
+
+**Fixed at the source, not just the output.** The sign-off lives in
+`data/blog_posts.json`, which is what `scripts/generate_blog_pages.py` renders
+into `public/blog/`. Editing only the HTML would have left the change on a timer,
+the same failure mode that reverted approved homepage copy for ten days. All three
+locations were changed together: the JSON source (16), the deployed pages in
+`public/blog/` (16), and the legacy `blog/` mirror (16). 48 sign-offs, 33 files.
+
+**Deliberately left alone.** Em dashes in HTML section-divider comments
+(`<!-- ===== OPENING — Chloe ===== -->`) are invisible to readers and out of
+scope for this card. Em dashes inside article prose were also untouched; this was
+a sign-off change, not a sweep.
+
+**Still open, worth a decision later:** `agents/chloe.md`, `agents/sarah.md` and
+`agents/marcus.md` each instruct "max 1 em-dash" per post rather than zero, so the
+writers are still licensed to produce them in new prose. That contradicts the
+standing rule and is why the dashes existed. Not changed here, since the approval
+covered sign-off form only.
+
+Verification was by direct inspection: zero remaining matches for the em dash
+sign-off pattern across all three locations, JSON re-parsed valid at 305 posts,
+and the full diff audited to confirm every one of the 48 changed lines is a
+sign-off. `npm test` was not used and proves nothing in this repo; its 28 jest
+suites are Playwright specs that run no real assertions on the jest path.
