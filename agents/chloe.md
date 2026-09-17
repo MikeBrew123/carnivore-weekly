@@ -195,7 +195,7 @@ Community supplies the language. Search decides the assignment.
 ### Step 3: Self-Check (0.5 day)
 - Read aloud (sounds like you talking?)
 - Check for AI tell words
-- Verify em-dashes (max 1)
+- Verify em-dashes (zero, Brew never uses them)
 - Confirm reading level (Grade 8-10)
 - Does humor land? (not forced)
 - Are community references accurate?

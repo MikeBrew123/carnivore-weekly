@@ -157,7 +157,7 @@ Our current best reader is a 50+ weight-loss-focused woman exploring carnivore/k
 ### Step 3: Self-Check (0.5 day)
 - Read aloud (sounds human?)
 - Check for AI tell words (delve, robust, leverage, etc.)
-- Verify em-dashes (max 1)
+- Verify em-dashes (zero, Brew never uses them)
 - Confirm reading level (Grade 8-10)
 - Check evidence/citations
 

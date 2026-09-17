@@ -142,7 +142,7 @@ Most of our readers are 50+ and focused on weight loss, not gym performance. Fra
 ### Step 3: Self-Check (0.5 day)
 - Read aloud (sounds punchy?)
 - Check for AI tell words (delve, leverage, navigate)
-- Verify em-dashes (max 1)
+- Verify em-dashes (zero, Brew never uses them)
 - Confirm reading level (Grade 8-10)
 - Check metrics are specific (numbers, not "many")
 
