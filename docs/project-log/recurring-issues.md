@@ -879,3 +879,28 @@ structured output or an exact database/API lookup, echo the resolved id AND titl
 verify both immediately before every update.
 If recurs: `SELECT old_value FROM events WHERE issue_id=? AND event_type='updated' ORDER BY
 created_at DESC LIMIT 1` holds the full pre-edit JSON.
+
+## ISSUE-084 — Reddit trend threads are stale at use time, and the date field gets misread
+Status: 🟢 FIXED (reporting only; the cadence question is open for Brew)
+
+Pattern: two separate traps in `data/reddit-trends-{site}.json`.
+(1) Per-thread timestamps live in `created`. Probing `date` or `created_at` returns
+None on every post and looks exactly like a snapshot with no dates, which is the
+wrong conclusion. `fetched_at` is the SNAPSHOT's age and says nothing about thread age.
+(2) The 14-day freshness filter runs at FETCH time and the reuse window is also 14
+days, so the two stack: a thread 13 days old when pulled is 27 days old on the last
+day the snapshot is reused. Nothing in the reuse output showed thread age, so a run
+can publish "trending" topics sourced from month-old threads without noticing.
+
+Attempts:
+- 2026-09-19 — Found during the KD batch. That run reported "null dates" (trap 1, my
+  misread) and shipped 2 posts from 20- and 26-day-old threads (trap 2). Measured after:
+  0 of 37 posts in the 13.9-day-old snapshot were still inside the 14-day trend window.
+  Fixed in `scripts/fetch_reddit_trends.py`: added `post_age_days`/`describe_freshness`/
+  `print_threads`, every listing now prints each thread's age TODAY and tags it STALE,
+  the reuse path prints a fresh-vs-total count and warns under 5, and the module
+  docstring names `created` explicitly. Reporting only, spend behaviour unchanged.
+
+If recurs: the deeper fix is to make the reuse decision depend on how many FRESH
+threads remain, not just on file age. That changes when Apify spends, so it is Brew's
+call (the 14-day cadence exists to protect the $5/month free credit, ISSUE-080).

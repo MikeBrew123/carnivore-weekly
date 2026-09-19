@@ -37,6 +37,11 @@ Writes data/reddit-trends-{site}.json:
     {"site", "fetched_at", "window": "top posts of the last 7 days",
      "posts": [{title, subreddit, score, num_comments, created, url}]}
 
+Per-thread timestamps live in "created" (ISO 8601). NOT "date", NOT "created_at".
+Reading the wrong key returns None and looks exactly like a snapshot with no
+dates in it; that misread cost a run on 2026-09-19. "fetched_at" is when the
+SNAPSHOT was pulled and says nothing about how old any individual thread is.
+
 A fetch that returns nothing NEVER overwrites a good snapshot. Losing the last
 good pull is worse than a stale one: on 2026-09-13 the recovered 2026-09-05
 pull is what the KD batch was written from.
@@ -64,6 +69,13 @@ ALL_SUBREDDITS = ['carnivorediet', 'carnivore', 'keto', 'xxketo',
                   'lowcarb', 'ketorecipes']
 MAX_ITEMS = 15  # per subreddit
 MAX_AGE_DAYS = 14  # reuse a snapshot younger than this instead of spending
+# The blog-gen briefs tell topic research that threads older than this are not
+# trends. It is NOT the same number as MAX_AGE_DAYS and the two stack: a thread
+# 13 days old at fetch is 27 days old on the last day the snapshot is reused.
+# See the thread-age reporting below; on 2026-09-19 only 2 of 37 posts in a
+# 13.9-day-old KD snapshot were still inside this window, and both topics that
+# run published came from 20- and 26-day-old threads.
+TREND_WINDOW_DAYS = 14
 ACTOR = 'harshmaur~reddit-scraper'
 KEY_PATHS = [
     '/Users/mbrew/Developer/carnivore-weekly/secrets/api-keys.json',
@@ -90,6 +102,41 @@ def data_dir():
 
 def out_path_for(site):
     return os.path.join(data_dir(), f'reddit-trends-{site}.json')
+
+
+def post_age_days(post):
+    """Age in days of a single thread, or None if its timestamp is unreadable.
+
+    The field is 'created' (ISO 8601, from the actor's createdAt). It is spelled
+    out here because a caller guessing 'date' or 'created_at' gets None back and
+    concludes the snapshot has no dates at all, which is what happened on
+    2026-09-19.
+    """
+    created = post.get('created') or ''
+    try:
+        dt = datetime.datetime.fromisoformat(created.replace('Z', '+00:00'))
+    except (AttributeError, ValueError):
+        return None
+    return (datetime.datetime.now(datetime.timezone.utc) - dt).total_seconds() / 86400
+
+
+def describe_freshness(posts, window=TREND_WINDOW_DAYS):
+    """(fresh_count, total_datable) for posts still inside the trend window."""
+    ages = [post_age_days(p) for p in posts]
+    datable = [a for a in ages if a is not None]
+    return sum(1 for a in datable if a <= window), len(datable)
+
+
+def print_threads(posts, limit=10):
+    """Print top threads with each one's age TODAY, not at fetch time."""
+    for p in posts[:limit]:
+        age = post_age_days(p)
+        if age is None:
+            stamp = '  ?d'
+        else:
+            stamp = f'{age:>4.0f}d' + ('' if age <= TREND_WINDOW_DAYS else ' STALE')
+        print(f"  {stamp} {p['score']:>5}⬆ {p['num_comments']:>4}💬 "
+              f"r/{p['subreddit']}: {p['title'][:80]}")
 
 
 def snapshot_age_days(site):
@@ -130,9 +177,17 @@ def main():
               f'({len(snap["posts"])} posts), under the {args.max_age_days:g}-day '
               f'cadence. No Apify spend.')
         print('  Run with --force to pull anyway.')
-        for p in snap['posts'][:10]:
-            print(f"  {p['score']:>5}⬆ {p['num_comments']:>4}💬 "
-                  f"r/{p['subreddit']}: {p['title'][:90]}")
+
+        # Snapshot age is NOT thread age. Threads keep ageing while the file is
+        # reused, so report how many are still inside the trend window today.
+        fresh, datable = describe_freshness(snap['posts'])
+        print(f'  Thread freshness TODAY: {fresh} of {datable} posts are within '
+              f'{TREND_WINDOW_DAYS} days.')
+        if datable and fresh < 5:
+            print(f'  ⚠️  Only {fresh} genuinely fresh thread(s). Treat the rest as '
+                  'durable reader problems, NOT as trends, and say so in the run '
+                  'report. Do not present a stale thread as "trending".')
+        print_threads(snap['posts'])
         return
 
     why = 'forced' if args.force else (
@@ -263,9 +318,8 @@ def main():
         print(f'{len(site_posts)} posts -> {out_path_for(site)}')
 
     print(f'\nTop threads for --site {args.site}:')
-    for p in [p for p in posts
-              if p['subreddit'].lower() in {s.lower() for s in SUBREDDITS[args.site]}][:10]:
-        print(f"  {p['score']:>5}⬆ {p['num_comments']:>4}💬 r/{p['subreddit']}: {p['title'][:90]}")
+    print_threads([p for p in posts
+                   if p['subreddit'].lower() in {s.lower() for s in SUBREDDITS[args.site]}])
 
 
 if __name__ == '__main__':
