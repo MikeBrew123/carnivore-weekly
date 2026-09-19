@@ -1,4 +1,4 @@
-# House Claims — the canonical positions and numbers
+# House Claims: the canonical positions and numbers
 
 Created 2026-08-24 after the content-quality review found the archive contradicting
 itself on core numbers and stances (full findings:
@@ -34,11 +34,13 @@ Positions below default to the site's post-July-2026 editorial standard
 
 - Protein target: 0.8-1.0 g per pound of GOAL body weight for most readers.
   Hard training: up to 1.2 g/lb goal weight. The denominator is always goal body
-  weight, on both sites. **RESOLVED 2026-08-31, the VERIFY flag is closed: the
-  denominator stays goal body weight and the calculator is the side that is out of
-  sync.** See the changelog entry below for the reasoning and for what the live
-  calculator actually does today. Editorial content follows this file. Do not
-  restate the calculator's current formula as a house position in a post.
+  weight, on both sites. **RESOLVED 2026-08-31 and the code caught up on
+  2026-09-08: the denominator stays goal body weight, and the live calculator now
+  asks for a goal weight and computes protein from it.** The calculator and this
+  file agree today. See the 2026-08-31 and 2026-09-19 changelog entries below for
+  the reasoning and for what the live calculator actually does. Editorial content
+  follows this file. Do not restate the calculator's current formula as a house
+  position in a post.
 - Per-meal distribution: 30-40 g protein per meal beats one giant dose, especially 50+.
 - Fat: protein is the anchor, fat is the lever. Satiety baseline ≈ 1:1 fat to
   protein by grams; when cutting, trim ADDED fat first (butter, tallow), never the
@@ -167,6 +169,9 @@ Positions below default to the site's post-July-2026 editorial standard
   `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/todos.md`. Until it ships, the
   calculator and this file disagree for any reader with weight to lose, and that
   gap is known rather than accidental.
+
+  **[Superseded 2026-09-19: the input shipped on 2026-09-08. The paragraph above
+  is kept as the record of what was true on 08-31. See the 2026-09-19 entry.]**
 
   *Also settled by the same ruling:* the deficit tiers behind the how-fast
   dropdown (10% conservative, 15% moderate, 20% aggressive, 25% very aggressive,
@@ -333,3 +338,53 @@ Positions below default to the site's post-July-2026 editorial standard
   files sit in etsy/products/pdfs/ (gitignored since 2026-07-14, because they are
   paid deliverables and this repo is public) and are ready for that window.
   Uploading is a separate, deliberate act: etsy/upload-pdf-files.mjs.
+
+- 2026-09-19: **THE CALCULATOR NOW ASKS FOR GOAL WEIGHT. The gap the 2026-08-31
+  entry left open is closed.** No figure in this file changed. The house standard
+  was already 0.8-1.0 g per pound of goal body weight; the code moved to meet it.
+
+  *Why this entry exists.* The 2026-08-31 entry said the goal-weight input had not
+  shipped and that the calculator and this file therefore disagreed for any reader
+  with weight to lose. That stopped being true on 2026-09-08 and nobody came back
+  to say so, so the file was telling writers the calculator was wrong when it was
+  not. Found during the 2026-09-19 content queue review, where two KD posts
+  correctly told readers the calculator runs off goal weight.
+
+  *What is live, verified in code on 2026-09-19.* Step 2 of the calculator asks
+  for an optional goal weight (`Step2FitnessDiet.tsx`, imperial and metric).
+  `calculateMacrosCanonical` in `calculator2-demo/src/lib/calculations.ts:128-138`
+  uses it as the protein basis when present, with two guards: floored at BMI 18.5
+  for the reader's height so an unrealistic goal cannot cut the protein target,
+  and the old BMI>=30 proxy still caps a goal set that high. No goal weight means
+  the pre-09-08 path, unchanged, so saved sessions price identically.
+  `api/calculator-api.js:2220` carries the same math, and the shipped bundle that
+  `public/assets/calculator2/index.html` references contains the field.
+
+  *How it got here.* Commit `39545312`, "calculator: collect goal weight and base
+  protein on it", authored 2026-09-06 and cherry-picked onto main 2026-09-08. All
+  1,474 existing golden cases were byte-identical, with 13 new cases covering the
+  goal-weight branches. Then commit `7c1931ee`, 2026-09-16, which found that the
+  field was being asked but the answer discarded, and added the column and the
+  save, on Brew's word: "if we ask and people give it, we record it." The working
+  branch is now `archive/calculator-goal-weight`; the repo is on `main`.
+
+  *One thing this does NOT change.* The BMI>=30 proxy and the how-fast deficit
+  tiers stand exactly as the 2026-08-31 entry left them. The keto and low-carb
+  ratio formula in the deprecated `calculateMacros` path (25% of calories) is
+  untouched and unrelated; the canonical path treats keto as a low-carb diet and
+  gives it the goal-weight protein basis like the rest.
+
+  *Posts may now say so.* It is accurate for a post to tell a reader the
+  calculator runs their number off goal weight. The standing rule in the Protein
+  section still holds: do not restate the calculator's formula as a house
+  position, because the house position is this file.
+
+  *Two stale rows left outside this file*, in
+  `Banana Stand Media/01 Carnivore Weekly/Legacy Project/todos.md`: one still says
+  the goal-weight input needs a ruling, and two later rows say the repo sits on
+  branch `calculator-goal-weight` with work "NOT approved for publication". The
+  code is on main and live. Whether that counts as approved is Brew's to say, so
+  those rows are flagged, not edited.
+
+  *Still open from earlier entries:* the LDL stance wording (2026-08-24 item 2),
+  and the three additions Sarah proposed on 2026-08-31.
