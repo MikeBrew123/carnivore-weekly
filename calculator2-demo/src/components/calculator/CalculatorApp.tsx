@@ -394,8 +394,37 @@ export default function CalculatorApp({
     setErrors(newErrors)
   }
 
-  const handleUpgradeClick = () => {
+  // Offer instrumentation (deck add99e65). 158 people reached free results last
+  // month and 4 bought, and nothing recorded whether the other 154 pressed the
+  // button and backed out or never pressed it — GA4's begin_checkout read 0 while
+  // the modal was opening. This writes the press and the unpaid close to the funnel
+  // row itself. Fire-and-forget: a failed beacon must never cost a sale.
+  const logOfferEvent = (event: 'click' | 'dismiss', surface?: string) => {
+    // The store's token is the one calculator_sessions_v2 is keyed by — it is what
+    // /api/v1/calculator/session minted and what Step3 sends to results-viewed. The
+    // `sessionToken` prop is a different, older identifier; preferring it wrote every
+    // offer event against a row that does not exist (caught in a live click test
+    // 2026-09-20, matched=0). Store first, prop only as a fallback.
+    const token = storedSessionToken || sessionToken
+    if (!token) return
+    try {
+      fetch(`${API_BASE}/api/v1/calculator/offer-event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_token: token, event, surface }),
+        keepalive: true,
+      }).catch(() => {})
+    } catch { /* never block the offer */ }
+  }
+
+  const handleUpgradeClick = (surface: string = 'unknown') => {
     console.log('[CalculatorApp] Upgrade button clicked')
+    logOfferEvent('click', surface)
+    window.gtag?.('event', 'calculator_offer_click', {
+      'event_category': 'calculator',
+      'event_label': 'offer_button_clicked',
+      'source': surface
+    })
     // Already-paid users (arriving via Back from Step 4 or Start Over) must
     // never see the payment modal again — $29 buys exactly one report, and
     // the server enforces that via the already_generated check on report/init
@@ -1130,7 +1159,7 @@ export default function CalculatorApp({
               Please upgrade to access the full health profile.
             </p>
             <button
-              onClick={handleUpgradeClick}
+              onClick={() => handleUpgradeClick('step4_locked_prompt')}
               style={{
                 backgroundColor: '#ffd700',
                 color: '#1a120b',
@@ -1204,7 +1233,18 @@ export default function CalculatorApp({
             onEmailChange={setEmail}
             formData={formData as FormData}
             onSuccess={() => handlePaymentSuccess()}
-            onCancel={() => setShowPaymentModal(false)}
+            onCancel={() => {
+              // Closed without paying: Escape, the X, or the cancel button all land
+              // here. A redirect to Stripe leaves the page instead, and a completed
+              // payment closes the modal through handlePaymentSuccess, so neither
+              // is counted as a dismissal.
+              logOfferEvent('dismiss')
+              window.gtag?.('event', 'calculator_offer_dismissed', {
+                'event_category': 'calculator',
+                'event_label': 'payment_modal_closed_unpaid'
+              })
+              setShowPaymentModal(false)
+            }}
           />
       )}
     </>

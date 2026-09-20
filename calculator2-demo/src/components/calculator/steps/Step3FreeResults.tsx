@@ -16,7 +16,7 @@ declare global {
 interface Step3FreeResultsProps {
   data: FormData
   macros: MacroResults | null
-  onUpgrade: () => void
+  onUpgrade: (surface?: string) => void
   onBack: () => void
   // True when the user already paid — CTAs continue to Step 4 instead of
   // opening the payment modal (CalculatorApp handles the routing)
@@ -458,7 +458,7 @@ export default function Step3FreeResults({
               'source': 'bridge_offer',
               'diet_type': data.diet
             })
-            onUpgrade()
+            onUpgrade('offer_bridge')
           }}
           style={{
             background: 'linear-gradient(135deg, #ffd700 0%, #f0c800 100%)',
@@ -629,7 +629,7 @@ export default function Step3FreeResults({
                 'event_category': 'calculator',
                 'event_label': 'lock_overlay_clicked'
               })
-              onUpgrade()
+              onUpgrade('meal_lock_overlay')
             }}
             style={{
               position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
@@ -714,7 +714,7 @@ export default function Step3FreeResults({
                 'event_label': 'upgrade_clicked',
                 'diet_type': data.diet
               })
-              onUpgrade()
+              onUpgrade('offer_final_card')
             }}
             style={{
               width: '100%',

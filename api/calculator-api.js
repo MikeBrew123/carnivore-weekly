@@ -478,8 +478,15 @@ const stripeCouponMap = {
   'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
   'CARNIVORE50': '0yWiiOLv',  // 25% off once ($21.75) — name says 50 but it's actually 25% off 😏
   'THANKYOU25': 'ks9WVZAP',   // 25% off once ($21.75) — thank-you code for readers who report site issues
-  'ETSY50': '52fYA51M',       // 50% off forever ($14.50) — Etsy cross-sell coupon
+  // ETSY50 and DRIP50 pointed at the SAME Stripe coupon (52fYA51M) until
+  // 2026-09-20, so a redemption could not say which channel it came from and
+  // the Etsy insert card shipped 2026-09-15 had no meter on it. They are now
+  // two distinct Stripe coupon objects with identical economics (50% off), so
+  // the coupon id on a charge IS the attribution (deck add99e65).
+  'ETSY50': 'ETSY50',         // 50% off once ($14.50) — Etsy insert card only
   'DRIP50': '52fYA51M',       // 50% off ($14.50) — Day 7 drip graduation reward
+                              // (scripts/send_drip.py mints WEEK1-/GRAD- promo
+                              //  codes against this same coupon; leave it alone)
   // TEST99 removed - $0.10 below Stripe's 50 cent minimum
   'EARLY25': null,            // TODO: Create in Stripe
   'LAUNCH50': null,           // TODO: Create in Stripe
@@ -812,6 +819,71 @@ async function handleResultsViewed(request, env) {
     return createSuccessResponse({ saved: true });
   } catch (err) {
     console.error('handleResultsViewed error:', err);
+    return createErrorResponse('INTERNAL_ERROR', String(err), 500);
+  }
+}
+
+/**
+ * POST /api/v1/calculator/offer-event
+ * Record what happens at the $29 offer. Body: { session_token, event, surface }
+ * where event is 'click' (a $29 CTA was pressed) or 'dismiss' (the payment modal
+ * was closed without paying).
+ *
+ * Why this exists (deck add99e65, money-path costing 2026-09-18): 158 sessions
+ * reached free results in 30 days and 4 bought, and nothing on record could say
+ * whether the other 154 pressed the button and backed out or never pressed it.
+ * GA4 could not answer it — begin_checkout read 0 while the modal was opening and
+ * calculator_payment_cancelled has never fired — so the signal is written to the
+ * funnel row instead of trusting a client-side analytics beacon.
+ *
+ * Best-effort by design: the caller ignores the response, and a failure here must
+ * never block a customer from buying.
+ */
+async function handleOfferEvent(request, env) {
+  try {
+    if (!validateContentType(request)) {
+      return createErrorResponse('INVALID_CONTENT_TYPE', 'Expected application/json', 400);
+    }
+    const body = await parseJsonBody(request);
+    const { session_token, event, surface } = body || {};
+    if (!session_token || !event) {
+      return createErrorResponse('MISSING_FIELDS', 'session_token and event required', 400);
+    }
+    if (event !== 'click' && event !== 'dismiss') {
+      return createErrorResponse('INVALID_EVENT', "event must be 'click' or 'dismiss'", 400);
+    }
+    if (!checkRateLimit(`offer_${session_token}`, 30)) {
+      return createErrorResponse('RATE_LIMIT', 'Too many requests. Try again later.', 429);
+    }
+
+    const res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/record_calculator_offer_event`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        p_session_token: String(session_token).slice(0, 128),
+        p_event: event,
+        p_surface: typeof surface === 'string' ? surface.slice(0, 64) : null,
+      }),
+    });
+
+    if (!res.ok) {
+      console.warn('[handleOfferEvent] RPC failed:', res.status, await res.text());
+      return createErrorResponse('DB_UPDATE_FAILED', `Failed to record offer event: ${res.status}`, 500);
+    }
+
+    // The RPC returns how many funnel rows it matched. Zero means the token is
+    // unknown (stale tab, cleared storage) — worth logging, not worth an error.
+    const matched = await res.json();
+    if (matched === 0) {
+      console.warn(`[handleOfferEvent] no funnel row for token (event=${event})`);
+    }
+    return createSuccessResponse({ saved: true, event, matched });
+  } catch (err) {
+    console.error('handleOfferEvent error:', err);
     return createErrorResponse('INTERNAL_ERROR', String(err), 500);
   }
 }
@@ -6264,6 +6336,10 @@ async function handleCreateCheckout(request, env) {
           formBody.append('discounts[0][coupon]', couponResult.stripe_coupon_id);
         }
         couponApplied = true;
+        // Stamp the code on the Checkout Session so attribution survives in the
+        // webhook payload and stripe_webhook_events without a second Stripe
+        // lookup. ETSY50 here means an Etsy insert card produced this sale.
+        formBody.append('metadata[coupon_code]', String(coupon_code).toUpperCase().slice(0, 40));
       } else {
         console.log(`[Coupon] Invalid: ${couponResult.error}`);
         // Don't fail checkout - just proceed without discount
@@ -9133,6 +9209,11 @@ export default {
     // Free-results view marker (funnel truth between step 3 and payment)
     if (path === '/api/v1/calculator/results-viewed' && method === 'POST') {
       return sendWithCors(await handleResultsViewed(request, env));
+    }
+
+    // Offer-button instrumentation: did they press the $29 button, or only read it?
+    if (path === '/api/v1/calculator/offer-event' && method === 'POST') {
+      return sendWithCors(await handleOfferEvent(request, env));
     }
 
     // Payment flow
