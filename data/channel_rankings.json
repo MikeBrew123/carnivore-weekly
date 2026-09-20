@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-09-16",
+  "last_updated": "2026-09-20",
   "leaderboard": [
     {
-      "name": "Laura Spath",
-      "rank": 1,
-      "appearances": 4,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
-    },
-    {
-      "name": "KenDBerryMD",
-      "rank": 2,
-      "appearances": 2,
-      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
-    },
-    {
       "name": "HomeSteadHow",
-      "rank": 3,
+      "rank": 1,
       "appearances": 11,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "Meet Carnivore",
-      "rank": 4,
-      "appearances": 6,
+      "rank": 2,
+      "appearances": 7,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
+      "name": "Aseel Soueid",
+      "rank": 3,
+      "appearances": 1,
+      "channel_id": "UC-DnBn8Z9PaYuGF5nXA8Rfg"
+    },
+    {
       "name": "Carnivore Revolution",
-      "rank": 5,
+      "rank": 4,
       "appearances": 2,
       "channel_id": "UCHlFeDkt3w0DXhrItDtS2_g"
     },
     {
+      "name": "Unnatural Vegan",
+      "rank": 5,
+      "appearances": 2,
+      "channel_id": "UCJBry7T2R1WeipWMBWKJ7Rg"
+    },
+    {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
       "rank": 6,
-      "appearances": 9,
+      "appearances": 10,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
       "name": "Jenny Mitich",
       "rank": 7,
-      "appearances": 9,
+      "appearances": 10,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "Unnatural Vegan",
+      "name": "Emmathecarnivore",
       "rank": 8,
-      "appearances": 2,
-      "channel_id": "UCJBry7T2R1WeipWMBWKJ7Rg"
-    },
-    {
-      "name": "Ferrigno Freedom",
-      "rank": 9,
-      "appearances": 6,
-      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
+      "appearances": 11,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
       "name": "Kent Carnivore",
-      "rank": 10,
+      "rank": 9,
       "appearances": 5,
       "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+    },
+    {
+      "name": "Low Carb Revelation",
+      "rank": 10,
+      "appearances": 4,
+      "channel_id": "UCwOl62ThH4xyfDj5plL1BNg"
     }
   ]
 }
