@@ -1512,4 +1512,10 @@
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-09-20-many-ounces-meat-meal-lose-weight.html</loc>
+        <lastmod>2026-09-20</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
 </urlset>
