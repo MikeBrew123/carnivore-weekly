@@ -2333,3 +2333,61 @@ sign-off pattern across all three locations, JSON re-parsed valid at 305 posts,
 and the full diff audited to confirm every one of the 48 changed lines is a
 sign-off. `npm test` was not used and proves nothing in this repo; its 28 jest
 suites are Playwright specs that run no real assertions on the jest path.
+
+## 2026-09-20 — Keto Starter Kit rewrite shipped (deck `bdc5c1e1`)
+
+Listing 4532542805 got the rewrite from
+`Banana Stand Media/01 Carnivore Weekly/Legacy Project/reports/starter-kit-fix-plan-2026-09-17.md`.
+Brew answered deck card `bdc5c1e1` on 2026-09-19 05:38 PDT with "ship it Saturday
+(recommended)". It did not ship Saturday because the run that would have done it
+never fired, so it shipped today. Two earlier cards agree and do not conflict:
+`377d53bc` ("Keep it and give recommendations to fix it") and `de825012`
+("reword it.. look for better meta, why does it not list").
+
+**Four fields, one listing, one edit slot.** Title, the 13 tags, the first three
+sentences of the description and the materials array, every word verbatim from
+plan sections 2, 3, 4 and 5. Price, state, taxonomy, attributes, images and
+digital files were not sent and are verified unchanged (CA$21.99, active,
+taxonomy 2078, 5 images, 5 files). No image field went in the update, because
+this shop breaks on that.
+
+**Purpose-built script, not the batch tool.** `etsy/starter-kit-rewrite-2026-09-20.mjs`,
+same shape as `etsy/remove-tags-2026-09-19.mjs` (commit `93d81c33`).
+`update-listings.mjs` rewrites every field on every listing and is the wrong tool
+for an approved four-field change. The script refuses to run if the live
+description has drifted from the text the plan expected, carries a `--dry-run`
+mode, and re-reads the listing after the write to assert 12 named conditions.
+
+**The reason behind the edit.** The kit had 8 views in 75 days. It was not losing
+Etsy search, it was not being entered into it: 12 of its 13 tags were already
+owned by bigger listings in the same shop, and Etsy shows one or two listings per
+shop per results page, so it queued behind listings with 16,266 and 3,034 views.
+Nine of the thirteen new tags are used by no other listing in the shop.
+
+**Not renewed.** The plan recommends renewal and it costs about 20 cents.
+Spending money needs Brew's word, so the listing clock is untouched and the
+20 cents is unspent. That is the one recommendation from the plan not carried out.
+
+**Correction: the `&#39;` defect never existed.** Plan finding 5 reported the
+stored description holding literal `&#39;` sequences, and flagged that it could
+not be verified against a shopper's view. It is an artifact of reading the API:
+Etsy HTML-escapes apostrophes in its GET response. We sent real apostrophes and
+got `&#39;` back; unescape that and the live text is byte-identical to what we
+sent. The proof is that a genuinely literal `&#39;` would come back as
+`&amp;#39;` under the same escaping, and it does not, before the edit or after.
+So no shopper ever saw entity codes. The public listing page still returns
+HTTP 403 to an unauthenticated fetch, so the shopper-eye check remains the one
+thing unverified, exactly as it was for the plan.
+
+**Cap.** This was the 3rd and last of 3 distinct listings in the rolling 7-day
+window (the keto flagship on 09-16, the carnivore food list on 09-19). No further
+Etsy edit until the window rolls. The Live Changes Log row was written before the
+call, as the rule requires, and `etsy/edit-cap.mjs` counts it.
+
+One wrinkle worth keeping: the cap counter reads any 10-digit number in a log row
+as a listing edited on that row's date, so quoting other listing ids in a row's
+prose silently backdates them. The row here names ids only where they belong.
+
+**Read the result 2026-10-03.** Metric is lifetime views on 4532542805 from the
+existing daily snapshot. Baseline 8 views in 75 days, 2 in the last 29. Working
+is 25 or more views in 14 days; dead is under 10.
