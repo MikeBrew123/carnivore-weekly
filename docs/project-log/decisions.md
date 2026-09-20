@@ -2336,6 +2336,10 @@ suites are Playwright specs that run no real assertions on the jest path.
 
 ## 2026-09-20 — Keto Starter Kit rewrite shipped (deck `bdc5c1e1`)
 
+Shipped in commit `7eb928bf` (script + this entry). The Etsy write itself is not
+in git: it is an API call, and its audit trail is the Live Changes Log row dated
+2026-09-20 in `Brew-Vault/00-Core/Live-Changes-Log.md`, written before the call.
+
 Listing 4532542805 got the rewrite from
 `Banana Stand Media/01 Carnivore Weekly/Legacy Project/reports/starter-kit-fix-plan-2026-09-17.md`.
 Brew answered deck card `bdc5c1e1` on 2026-09-19 05:38 PDT with "ship it Saturday
