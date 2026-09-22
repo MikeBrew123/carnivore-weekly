@@ -2398,3 +2398,41 @@ prose silently backdates them. The row here names ids only where they belong.
 **Read the result 2026-10-03.** Metric is lifetime views on 4532542805 from the
 existing daily snapshot. Baseline 8 views in 75 days, 2 in the last 29. Working
 is 25 or more views in 14 days; dead is under 10.
+
+## 2026-09-22: Drip changes A, B, C shipped live (deck 33055cd3)
+
+Brew approved on 2026-09-22 08:51 PT ("write them"). Code commit `4dc476fd` (parent),
+`e02df8c` (ketodial/public). Copy by Sarah via her agent file, all three pieces.
+
+**A. KD day 5 (bead kwjf, closed).** `data/drip-emails/kd/day-5.html` rewritten: keeps day 4's
+"when does keto feel good" promise, then the six one-tap goal_target bands. KD
+journey-checkin had no one-tap handler (the bead's "one-tap is shared" was wrong for KD);
+ported from CW. DB: KD goal_target `be929587` active, KD day-5 grid (4 rows) inactive.
+Eligibility rule now live on KD: 14 of 44 active KD subscribers are maintain/gain and will
+skip day 5. First KD day-5 sends 2026-09-24 (2 subscribers at day 3; nobody at day 4).
+
+**B. Ninth symptom option (bead ukz5, closed).** Exclusivity call: "Honestly, I feel great"
+and "None of these" are exclusive in the form (ticking either clears the rest; ticking any
+symptom clears both). Chosen as the least surprising: it is how every survey form readers
+have used behaves, and it keeps stored answers clean. Client-side only; render Rule 5 stays
+as the backstop, no worker change. New option "Something not on this list" (id
+`1cc9565d`, display_order 7; the two non-symptoms moved to 8 and 9). Its card sits first in
+priority because it is the only card that can hide palpitations or fainting. Safety block no
+longer claims there is no box. CW page only; KD's symptoms_today has no cards and is unchanged.
+
+**C. CW day 4 removed.** `day-4.html` deleted, so day 4 is a quiet day. Numbering is
+unchanged, nothing double-sends or skips: `current_day` still advances one per run.
+hardest_part added on day 10 as a new question `6bc5d8a1` (same text and six options), with
+Sarah's per-option payback cards on the page (day 10 only). Day-10 grid and what_helps
+inactive. The day-4 hardest_part row stays ACTIVE on purpose so links in already-sent day-4
+emails keep working. Readers now between day 4 and day 9 (26) will be asked hardest_part
+again on day 10; the email frames it as "right now" and the payback is new to them, so
+accepted, not a fork. Day 21 line changed to "A while back I asked" (true for both cohorts).
+Two tests moved their fixture off day 4.
+
+**Checks.** Playwright with a mocked API: exclusivity in all four directions, ninth card
+first with the salt clause, all six day-10 cards via one-tap, no cards on day 4, KD one-tap
+auto-submits and renders the horizon. Mobile check clean on both sequences. Dry run: tomorrow
+4 CW readers get the quiet day 4, 8 get the new day 10. Live worker read-back matches.
+Known, not caused here: `tests/test_day5_eligibility.py` has two stale live-state
+assertions (CW goal_target is active since 2026-09-12; real skip events exist).
