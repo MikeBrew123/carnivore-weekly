@@ -94,8 +94,8 @@ def run_drip_dry_run():
     """Run send_drip.main() with --dry-run over three canned subscribers:
     one due a real email, one on a quiet day, one due to graduate."""
     pending = [
-        # day 3 -> day 4, a template that exists, so this is the send path
-        {"id": "r1", "email": "someone@gmail.com", "current_day": 3, "subscribed_at": None},
+        # day 2 -> day 3, a template that exists, so this is the send path (day 4 was removed 2026-09-22)
+        {"id": "r1", "email": "someone@gmail.com", "current_day": 2, "subscribed_at": None},
         # day 8 has no template, so this is the quiet-day advance path
         {"id": "r2", "email": "somebody@gmail.com", "current_day": 8, "subscribed_at": None},
         # day 28 is FINAL_DAY, so next_day 29 is the graduation path: the bug
@@ -123,7 +123,7 @@ def test_drip_dry_run_touches_nothing():
     check("the final-day subscriber is reported, not graduated",
           "Would graduate user@gmail.com" in out)
     check("the due subscriber is reported, not mailed",
-          "Would send day 4 to someone@gmail.com" in out)
+          "Would send day 3 to someone@gmail.com" in out)
     check("the quiet day is reported, not advanced",
           "Would advance somebody@gmail.com" in out)
     if FAILED:

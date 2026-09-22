@@ -395,6 +395,26 @@
         function show(el) { el.classList.remove('hidden'); }
         function hide(el) { el.classList.add('hidden'); }
 
+        // ---- symptoms_today exclusivity (bead carnivore-weekly-ukz5, 2026-09-22) ----
+        // "Honestly, I feel great" and "None of these" are answers ABOUT the list, not
+        // items on it, so in a multi-select they behave the way every survey form
+        // readers have used behaves: ticking either one clears everything else, and
+        // ticking any symptom clears both of them. Two non-symptoms can never be held
+        // together either. Keyed by label (see SYMPTOM_CARDS for why), and only on the
+        // symptoms_today question. Render Rule 5 below stays as the backstop for any
+        // answer that reaches the server without passing through this form.
+        function enforceExclusive(target) {
+            if (!target || target.type !== 'checkbox' || !target.checked) return;
+            if (target.name !== 'q_symptoms_today') return;
+            var group = document.querySelectorAll('#questions input[name="q_symptoms_today"]');
+            var targetIsNone = SYMPTOM_NONE.indexOf(target.getAttribute('data-label')) >= 0;
+            Array.prototype.forEach.call(group, function (inp) {
+                if (inp === target) return;
+                var isNone = SYMPTOM_NONE.indexOf(inp.getAttribute('data-label')) >= 0;
+                if (targetIsNone || isNone) inp.checked = false;
+            });
+        }
+
         function renderQuestions(data) {
             // Question-specific context only. Writes to its OWN element and
             // reveals it; the privacy disclosure above is never touched.
@@ -412,12 +432,13 @@
                 var sub = q.type === 'single' ? 'Pick one.' : 'Check everything that applies.';
                 var html = '<p class="q-text">' + esc(q.text) + '</p><p class="q-sub">' + sub + '</p>';
                 q.options.forEach(function (o) {
-                    html += '<label class="opt"><input type="' + inputType + '" name="q_' + esc(q.key) + '" value="' + esc(o.id) + '"><span>' + esc(o.text) + '</span></label>';
+                    html += '<label class="opt"><input type="' + inputType + '" name="q_' + esc(q.key) + '" value="' + esc(o.id) + '" data-label="' + esc(o.text) + '"><span>' + esc(o.text) + '</span></label>';
                 });
                 card.innerHTML = html;
                 host.appendChild(card);
             });
-            host.addEventListener('change', function () {
+            host.addEventListener('change', function (ev) {
+                enforceExclusive(ev && ev.target);
                 host.querySelectorAll('.opt').forEach(function (l) {
                     l.classList.toggle('checked', l.querySelector('input').checked);
                 });
@@ -447,7 +468,7 @@
             curve: '<p class="horizon-note">Weight does not come off in a straight line. It comes off in steps, with flat stretches in between that feel like nothing is happening. A flat fortnight inside a range like this is not a stall. It is what the middle of the range looks like from the inside.</p>',
             floor: '<p class="horizon-note"><strong>One note on your number.</strong> We cap how fast this range can go, because past a certain point faster only means eating less than I would ever tell you to eat. So this range is longer than some online calculators will hand you. That is deliberate. The shorter number is not a better plan, it is a plan you would abandon in March.</p>',
             longHorizon: '<p class="horizon-note"><strong>That is a long horizon, and I would rather say so than dress it up.</strong> The stretch you will feel comes a long way before the number lands. Energy, sleep, joints and how your clothes fit usually shift early, and those are not consolation prizes. So do not plan in years. Plan in 12-week blocks, see what actually happens, then set the next 12 with better information than you have today.</p>',
-            disclaimer: 'This is a planning range based on general patterns, not medical advice about you. If you take medication or you are managing a diagnosed condition, that changes the picture in ways a calculator cannot see, and your doctor should be part of the plan. — Sarah'
+            disclaimer: 'This is a planning range based on general patterns, not medical advice about you. If you take medication or you are managing a diagnosed condition, that changes the picture in ways a calculator cannot see, and your doctor should be part of the plan.'
         };
 
         function spokenMonths(m) {
@@ -565,6 +586,15 @@
                 body: '<p>Yesterday I called it habit rather than hunger, which is half the story. The other half is that you’re very likely under-eating. Cravings at 9pm after a light day are your body asking for food, not specifically for sugar.</p>',
                 today: 'Make your next meal bigger, with more fat in it, and eat it earlier than you did today. What we don’t do here is find you a substitute. Not fruit, not dark chocolate, not a sugar-free version of anything. A swap keeps the loop running. Protein, fat, salt and a bit of time are what actually close it.'
             },
+            // Ninth option (Sarah, 2026-09-22, bead carnivore-weekly-ukz5). A symptom-type
+            // option: it combines with the other symptoms and clears 7 and 8.
+            'Something not on this list': {
+                saltCard: true,
+                body: '<p>At this stage the usual ones are leg cramps, a heart that flutters or thumps, dizziness when you stand up, nausea, or feeling cold. The first three often come back to yesterday’s salt answer, because salt and fluid are leaving faster than they’re coming in. Nausea usually means fat went up too fast. Feeling cold usually means you’re not eating enough yet. Whatever yours is, reply to the email and tell me, since there’s no box for it here.</p>',
+                today: 'Salt your food properly, have a mug of broth, and make your next meal a full one. Don’t reach for potassium or magnesium tablets on your own. They interact with some medications, and that’s a call for your doctor or pharmacist.',
+                saltClause: ' If you take blood pressure medication or water tablets, read the caveat at the bottom before you add salt.',
+                notAdaptation: 'Chest pain, fainting, shortness of breath, or a heart that races at rest or beats irregularly and doesn’t settle is not a day 3 diet symptom. Call emergency services now rather than replying to me. Vomiting that stops you keeping water down, or dizziness that keeps getting worse, gets seen today.'
+            },
             'Honestly, I feel great': {
                 body: '<p>Good, and it’s worth saying that isn’t luck. Feeling fine at this point usually means you’re eating enough and salting your food properly, which is most of what the first week actually asks of you.</p>'
                     + '<p>One warning, because this is the specific way a good day 3 turns into a rough day 10. Feeling good is not a signal to eat less, skip meals, or start fasting. That is the most common way people talk themselves into the dip they were on track to avoid.</p>',
@@ -580,7 +610,10 @@
         // Rule 1: fixed priority order. NOT tap order and NOT option id order. Ordered by
         // how much the card matters if the reader only reads one, so the person who
         // happens to tap cravings first does not get the least important card at the top.
-        var SYMPTOM_PRIORITY = ['Headache', 'Digestive changes', 'Low energy', 'Sleep changes', 'Irritable', 'Cravings'];
+        // 'Something not on this list' sits first (Sarah, 2026-09-22): it is the only card that
+        // can be hiding palpitations or fainting, and at 4+ picks everything past slot 3
+        // drops into the generic compact block, so its red-flag line must never be the one cut.
+        var SYMPTOM_PRIORITY = ['Something not on this list', 'Headache', 'Digestive changes', 'Low energy', 'Sleep changes', 'Irritable', 'Cravings'];
         var SYMPTOM_NONE = ['Honestly, I feel great', 'None of these'];
         var SYMPTOM_MAX_FULL = 3;   // Rule 2
 
@@ -595,7 +628,7 @@
         var SYMPTOM_SAFETY =
             '<p><strong>The salt caveat, because yesterday’s email didn’t give you one.</strong> If you take blood pressure medication or a diuretic, or you have kidney disease, “more salt” is not a free instruction for you. Ask your doctor what’s appropriate for you before you increase it. I’d rather flag that a day late than leave it unsaid.</p>'
             + '<p>And the general version: if you take any medication or you’re managing a diagnosed condition, tell your doctor you’ve changed how you eat. Changing your food can change how a medication behaves, and that part isn’t mine to advise on.</p>'
-            + '<p>And if what you’re feeling isn’t on that list at all, reply to the email and tell me. There’s no box for it on this page, and I would rather hear it than have you pick the nearest thing instead.</p>'
+            + '<p>And if what you’re feeling is the one I didn’t list, or something new turns up later this week, reply to the email and tell me what it is. I’d rather hear the real thing than guess at it from a tap.</p>'
             + '<p>I’m a health coach, not your doctor. What’s above is what these things usually mean in the first week. It isn’t a diagnosis of what’s happening to you, and I can’t tell from a tap whether what you’re feeling is adaptation or something else entirely. If something feels wrong rather than uncomfortable, trust that and get it checked.</p>';
 
         function symptomCardHTML(label, cfg, claimSalt) {
@@ -653,6 +686,57 @@
             html += '<div class="sym-safety">' + SYMPTOM_SAFETY + '</div>';
             host.innerHTML = html;
             show($('symptom-payback'));
+        }
+
+        // ---- Day 10: hardest_part payback (moved from day 4, 2026-09-22) ----------
+        // Copy is Sarah's, verbatim. Keyed by option label, like SYMPTOM_CARDS.
+        // Copy by Sarah, 2026-09-22, day-10 hardest_part payback.
+        // Keyed by option label, exactly as the six buttons in day-10.html read.
+        // Render with the same shape as symptomCardHTML: label, body, "Today:", optional "Not adaptation:".
+
+        var HARDEST_INTRO =
+            '<p><strong>Thanks. That’s recorded.</strong></p>'
+            + '<p>Here’s what usually sits behind the one you picked at this stage, and the one thing I’d do about it today.</p>';
+
+        var HARDEST_CARDS = {
+            'Fighting cravings': {
+                // No "Not adaptation" line on purpose. Cravings at day 10 are not a red flag.
+                body: '<p>Cravings in week 2 are usually one of two things: a meal that was too small, or a time of day that used to have a snack in it. The 3pm and 9pm ones are mostly habit. What we don’t do here is find you a substitute. Not fruit, not dark chocolate, not a sugar-free version of anything. A swap keeps the loop running. Protein, fat, salt and a bit of time close it.</p>',
+                today: 'Make your next meal bigger, with more fat and properly salted, and eat it before the time your craving usually shows up.'
+            },
+            'Social situations': {
+                body: '<p>This one is mostly logistics plus one sentence you’ve practised. Most restaurants will do a steak, a burger without the bun, or eggs and bacon, and most people at the table care far less than you expect. The hard part is usually the moment someone asks, so decide your answer now. “I’m trying something for my health and it’s going well” ends the conversation faster than an explanation does.</p>',
+                today: 'If you’re going out and don’t know the menu, eat something before you leave. Choosing on a full stomach is a lot easier than choosing hungry.'
+            },
+            'Bored of my meals': {
+                body: '<p>Boredom at day 10 is real, and it usually means you narrowed down to one or two meals because they were easy. That was sensible in week 1. Now there’s room to rotate: a different cut, a different animal, a different way of cooking it. Ground beef as patties one night and crumbled into scrambled eggs the next are two different dinners. Lamb chops, pork shoulder, salmon and chicken thighs all count.</p>',
+                today: 'Buy one cut you haven’t cooked yet this month and make it this week. Salt it well and keep it simple.'
+            },
+            'Rough symptoms': {
+                body: '<p>At day 10 the first thing to check is still the fix in the email: are you salting every meal properly, and eating full meals rather than half ones? Those two cover most of what people feel this week, the headaches, the cramps, the flat tiredness. If you take medication for blood pressure, your heart, fluid or your kidneys, reread the potassium paragraph before you add anything beyond salted food.</p>',
+                today: 'Salt every meal to taste, eat three proper meals, drink to thirst, and give it five days before you judge how it’s going.',
+                notAdaptation: 'Chest pain, fainting, a racing or fluttering heart that doesn’t settle, or symptoms that are getting worse rather than better are not adaptation. Don’t wait those out. Chest pain or fainting means getting seen today, not after the weekend.'
+            },
+            'The cost': {
+                body: '<p>Eating this way can cost less than people expect, once you stop shopping for it like a special occasion. Ground beef, eggs, chuck roast and pork shoulder do most of the work. Check the markdown section early in the day, when the reduced cuts go out, and freeze whatever you won’t cook in the next two days. Steak every night is a choice, not a requirement.</p>',
+                today: 'Build your next shop around ground beef and eggs, and pick up one marked-down cut for the freezer.'
+            },
+            "Doubting it's working": {
+                body: '<p>Day 10 is too early for the scale to settle the question, and the water shifts of the first weeks make it a noisy judge anyway. Look at the things that tend to move first instead: how you sleep, whether the afternoon slump has eased, how your clothes sit, how long you go between meals without thinking about food. Some people notice those by now and some don’t yet. Both are normal.</p>',
+                today: 'Write down three things tonight: how you slept, your energy at 3pm, and how your waistband feels. Check the same three again a week from now.'
+            }
+        };
+
+        var HARDEST_FOOTER =
+            '<p>I’m a health coach, not your doctor. This is what usually helps at this point, not a read on your situation, and if you take medication or manage a diagnosed condition, your doctor gets the final word on any change. If your hardest part isn’t on the list, reply to the email and tell me. I’d rather hear it than have you tap the nearest button.</p>';
+
+        function renderHardestPayback(label) {
+            var host = $('symptom-payback');
+            var cfg = HARDEST_CARDS[label];
+            if (!host || !cfg) return;
+            host.innerHTML = HARDEST_INTRO + symptomCardHTML(label, cfg, false)
+                + '<div class="sym-safety">' + HARDEST_FOOTER + '</div>';
+            show(host);
         }
 
         function renderResults(data, mine, answered) {
@@ -773,6 +857,19 @@
                         q.options.forEach(function (o) { byId[o.id] = o.text; });
                         var labels = picked.map(function (id) { return byId[id]; }).filter(Boolean);
                         if (labels.length) renderSymptomPayback(labels);
+                    })();
+                    // Day 10: hardest_part payback (Sarah, 2026-09-22). Same host and
+                    // same card shape as day 3. Day 10 only: the question also stays
+                    // live on day 4 so links in already-sent day-4 emails keep working,
+                    // and these cards are written for the week-2 wall.
+                    (function () {
+                        if (day !== 10) return;
+                        var q = (state.questions || []).filter(function (x) { return x.key === 'hardest_part'; })[0];
+                        if (!q) return;
+                        var byId = {};
+                        q.options.forEach(function (o) { byId[o.id] = o.text; });
+                        var label = picked.map(function (id) { return byId[id]; }).filter(Boolean)[0];
+                        if (label) renderHardestPayback(label);
                     })();
                 })
                 .catch(function () {

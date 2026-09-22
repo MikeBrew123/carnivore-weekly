@@ -172,9 +172,9 @@ def run_drip(net):
 
 PENDING = [
     {"id": "11111111-1111-4111-8111-111111111111", "email": "someone@gmail.com",
-     "current_day": 3, "subscribed_at": None},
+     "current_day": 2, "subscribed_at": None},
     {"id": "22222222-2222-4222-8222-222222222222", "email": "somebody@gmail.com",
-     "current_day": 3, "subscribed_at": None},
+     "current_day": 2, "subscribed_at": None},
 ]
 
 
@@ -193,7 +193,7 @@ def test_drip_quota_refusal_is_recorded_and_alarmed():
     row = rows[0] if rows else {}
     check("row names the subscriber id", row.get("subscriber_id") == refused_id)
     check("row names the site and list", row.get("site") == "cw" and row.get("list_name") == "drip")
-    check("row names the drip day", row.get("template") == "30day-starter/day-4")
+    check("row names the drip day", row.get("template") == "30day-starter/day-3")
     check("row carries a refusal time", bool(row.get("refused_at")))
     check("row carries the address for a hand re-send", row.get("email") == "somebody@gmail.com")
     check("row carries Resend's error name", row.get("error_name") == "daily_quota_exceeded")
@@ -204,7 +204,7 @@ def test_drip_quota_refusal_is_recorded_and_alarmed():
     check("step output resend_quota_refused=true is set",
           "resend_quota_refused=true" in snap.output)
     check("alert table names the subscriber id and day",
-          refused_id in snap.alert and "30day-starter/day-4" in snap.alert)
+          refused_id in snap.alert and "30day-starter/day-3" in snap.alert)
     check("alert table carries NO email address (public repo)",
           "@" not in snap.alert)
     check("GitHub error annotation printed", "::error title=Resend quota refusal::" in out)
