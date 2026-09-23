@@ -2436,3 +2436,11 @@ auto-submits and renders the horizon. Mobile check clean on both sequences. Dry 
 4 CW readers get the quiet day 4, 8 get the new day 10. Live worker read-back matches.
 Known, not caused here: `tests/test_day5_eligibility.py` has two stale live-state
 assertions (CW goal_target is active since 2026-09-12; real skip events exist).
+
+## 2026-09-23 — KD post 2026-09-25 (deli meat lunch) potassium target removed before publish
+Removed the sentence "Adult women need about 2,600 mg of potassium a day, men about 3,400 mg." from
+`2026-09-25-deli-meat-keto-lunch-trap` in `data/blog_posts.json`. It was the last universal potassium
+target in the queue and failed `scripts/check_electrolyte_dosing.py`. Suppressed, not substituted, per the
+2026-09-14 electrolyte sweep rule; the food-first sentence before it stays. The guard's "36 g" hit was the
+egg-cup protein figure and cleared once the potassium sentence went. Guard now PASS across 358 documents.
+Done by the morning journal loop under the own-site factual-error rule, promised to Brew 2026-09-22.
