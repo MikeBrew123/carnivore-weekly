@@ -71,6 +71,17 @@ def strip_date_prefix(slug: str) -> str:
     return re.sub(r"^\d{4}-\d{2}-\d{2}-", "", slug)
 
 
+def fix_dated_kd_links(html_content: str) -> str:
+    """Rewrite KD blog hrefs that carry the YYYY-MM-DD- slug prefix to the live
+    filename (the prefix is stripped on disk, so the dated URL is a 404, ISSUE-085).
+    Only touches ketodial.com/blog/ and site-relative /blog/ hrefs."""
+    return re.sub(
+        r'href="((?:https://ketodial\.com)?/blog/)\d{4}-\d{2}-\d{2}-([a-z0-9-]+?)(?:\.html|/)?"',
+        r'href="\1\2.html"',
+        html_content,
+    )
+
+
 def reading_time(html_content: str) -> int:
     """Estimate reading time from HTML content. Minimum 3 minutes."""
     text = re.sub(r"<[^>]+>", "", html_content)
@@ -349,7 +360,7 @@ def generate_post_html(post: dict) -> str:
     kd_slug = strip_date_prefix(post["slug"])
     author_info = AUTHOR_MAP.get(post.get("author", "team"), AUTHOR_MAP["team"])
     meta_desc = get_meta_description(post)
-    content = post.get("content", "")
+    content = fix_dated_kd_links(post.get("content", ""))
     pub_date = get_publish_date(post)
 
     json_ld = build_json_ld(post, kd_slug)

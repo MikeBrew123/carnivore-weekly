@@ -103,6 +103,12 @@ def review_post(p):
     # content legitimately discusses sweeteners.
     for problem in cw_sweet_check(html, p.get('site', 'cw'), p['slug']):
         critical.append(problem)
+    # KD files drop the YYYY-MM-DD- slug prefix, so a dated KD blog URL is a 404
+    # (ISSUE-085). Relative /blog/ links only point at KD when the post is KD.
+    kd_dated = [l for l in links if re.search(r'ketodial\.com/blog/\d{4}-\d{2}-\d{2}-', l)
+                or (p.get('site', 'cw') == 'kd' and re.match(r'/blog/\d{4}-\d{2}-\d{2}-', l))]
+    if kd_dated:
+        critical.append(f'{len(kd_dated)} date-prefixed KD link(s), strip the date: ' + ', '.join(kd_dated))
     if emdash:
         critical.append(f'{emdash} em-dash(es)')
     if tells:

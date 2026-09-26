@@ -904,3 +904,11 @@ Attempts:
 If recurs: the deeper fix is to make the reuse decision depend on how many FRESH
 threads remain, not just on file age. That changes when Apify spends, so it is Brew's
 call (the 14-day cadence exists to protect the $5/month free credit, ISSUE-080).
+
+## ISSUE-085 — KD posts link other KD posts by date-prefixed URL (404)
+🟢 FIXED | Last: 2026-09-26 | Related: [[ISSUE-038]]
+Pattern: `blog_posts.json` KD slugs carry `YYYY-MM-DD-`, but `generate_kd_blog.py` strips it for the filename, so `ketodial.com/blog/2026-..-slug.html` (and relative `/blog/2026-..-slug/`) 404. The KD batch run (`kd-blog-content-generation` task, commits 790aa313 2026-09-05 and 99bcc4fb 2026-09-19) added internal links by pasting the raw slug. Nothing downstream checked: the writer prompt had no link rule, `content-queue-review` said "/blog/<slug>.html" (correct for CW only), `content_review.py` only counted links, and KD renders at publish time so the pre-push validator never saw it.
+Attempts:
+- 2026-09-26 — 14 dead hrefs in 4 live posts (deli-meat-keto-lunch-trap, keto-staples-never-run-out, ribeye-bacon-calories-count, boring-keto-meals-week-6). Fixed in blog_posts.json and surgically in ketodial/public HTML (href-only regex, no regen); all 10 targets curl 200. Prevention, three layers: (1) prompts: link rule added to `kd-blog-content-generation` step 4b/4c and `content-queue-review` step 3 (~/.claude/scheduled-tasks); (2) `content_review.py` flags any dated KD link as CRITICAL (KD-relative, or any ketodial.com/blog/ link incl. from CW posts); (3) `generate_kd_blog.py::fix_dated_kd_links()` rewrites them at render time as a backstop. Both guards tested against positive and negative cases.
+- 2026-09-26 — side note: `kd-regen-guard.sh` also blocks read-only commands (grep, heredoc text) that merely mention the generator filename, same class as ISSUE-082. Worked around with Read/Write; not fixed here.
+If recurs: a path renders KD HTML without `generate_post_html` (newsletter, Pinterest, drip) or emits dated KD links elsewhere. Reuse `fix_dated_kd_links` there rather than hand-patching.
