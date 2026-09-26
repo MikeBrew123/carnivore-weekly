@@ -25,6 +25,12 @@ Remember `ketodial/public` is a git submodule: commit inside it, then bump the
 pointer in the parent repo.
 """
 
+# RETIRED 2026-09-26 (Brew): /calculator is a redirect to the homepage calculator again.
+# The homepage IS the calculator and is the page Google indexes; a second calculator page
+# split the signal. Do not regenerate it. See docs/project-log/decisions.md 2026-09-26.
+raise SystemExit("build_calculator_page.py is retired (2026-09-26); /calculator redirects to /#calc")
+
+
 import re
 import sys
 from pathlib import Path
