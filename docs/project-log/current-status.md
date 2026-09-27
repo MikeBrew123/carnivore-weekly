@@ -1,6 +1,8 @@
 # Current Status
 
-**Last Updated:** 2026-09-16 (day-5 placeholder fixed; Command Centre voice section)
+**Last Updated:** 2026-09-27 (calculator page protein copy; Brian protein reply)
+
+**2026-09-27 · Calculator page protein copy corrected; reader reply sent.** `public/calculator.html` now says protein is 2 g/kg of goal weight when given (explainer, 2 FAQ answers + JSON-LD, table) and drops the false "activity surplus" (`0803340a`, `147f034e`, both verified live). Sarah replied to brhuizenga (Resend `01a0e3e3`, draft `writer_memory_log` 467, `content_feedback` row closed). Open: P0 bead on reports delivered before the safety fixes (Brian's Aug report likely still has "3-7 teaspoons" salt), parked by Brew; P2 bead for the results screen not naming goal weight.
 
 **2026-09-16 · The free calculator now records goal weight, and the Command Centre flags goals it contradicts. MERGED `7c1931ee`, worker DEPLOYED `ee4b1e22`.** Goal weight had been asked on step 2 since 09-06 (drives the on-screen protein target) but the step-2 save never sent it and `calculator_sessions_v2` had no column, so every free answer was discarded; the paid path already kept it in `cw_assessment_sessions.form_data` (both post-09-06 purchases have it). Brew: "if we are asking and people are giving it, we should be recording it", and a goal weight that contradicts the goal is a sign something is wrong. New column `goal_weight_lb` (50-1000 backstop), worker stores null for unusable values rather than failing the save, client sends it for lose/gain only. No math changed (parity 1495/1495). Voice section now shows goal weight given vs asked and counts gain-with-lower / lose-with-higher targets (bead `4sk8`). Verified live with a headless run: step-2 payload carried 180 and the row stored 180.0. Test artefacts left in place on purpose: one `brew+calctest@example.com` session and drip row (fixture, refused by `send_drip`, filtered from dashboards).
 
