@@ -7356,6 +7356,64 @@ async function resolveCheckinToken(env, token, site) {
 }
 
 /**
+ * EXIT-SURVEY TICKET (2026-09-27).
+ *
+ * The unsubscribe exit survey was the one drip-email answer path still landing with
+ * subscriber_id NULL: unsubscribe links are keyed by email, not by checkin_token,
+ * so the page had nothing to send. The handler already knows who the subscriber is
+ * (it just unsubscribed them), so it mints this short-lived signed ticket and embeds
+ * it in the page instead.
+ *
+ * Why not embed the checkin_token: the unsubscribe URL needs only an email address.
+ * Putting checkin_token on that page would let anyone who knows an address mint a
+ * token that can overwrite that person's day 1-28 check-in answers. A ticket is
+ * scoped to day 0 / source=unsubscribe for one subscriber on one site, and expires.
+ * Like the check-in token it RECORDS and never REVEALS.
+ *
+ * Format: <subscriber uuid>.<site>.<expiry ms>.<hex HMAC-SHA256>
+ */
+const EXIT_TICKET_TTL_MS = 2 * 60 * 60 * 1000;
+
+async function exitTicketSignature(env, payload) {
+  // EXIT_SURVEY_SECRET if configured, otherwise the service role key. Either way it
+  // only ever feeds an HMAC with a domain label, so the secret itself never leaves.
+  const secret = env.EXIT_SURVEY_SECRET || env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) return null;
+  const key = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`exit-survey-v1|${payload}`));
+  return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function mintExitTicket(env, subscriberId, site, now = Date.now()) {
+  if (typeof subscriberId !== 'string' || !/^[0-9a-f-]{36}$/i.test(subscriberId)) return null;
+  if (!DRIP_SURVEY_SITES.includes(site)) return null;
+  const payload = `${subscriberId.toLowerCase()}.${site}.${now + EXIT_TICKET_TTL_MS}`;
+  const sig = await exitTicketSignature(env, payload);
+  return sig ? `${payload}.${sig}` : null;
+}
+
+// Returns the subscriber id the ticket was minted for, or null. Never throws:
+// a bad ticket means the exit answer is recorded anonymously, as it always was.
+async function verifyExitTicket(env, ticket, site, now = Date.now()) {
+  try {
+    if (typeof ticket !== 'string' || ticket.length > 200) return null;
+    const m = /^([0-9a-f-]{36})\.([a-z]+)\.(\d{10,16})\.([0-9a-f]{64})$/.exec(ticket.trim());
+    if (!m) return null;
+    const [, id, tSite, exp, sig] = m;
+    if (tSite !== site || Number(exp) < now) return null;
+    const expected = await exitTicketSignature(env, `${id}.${tSite}.${exp}`);
+    if (!expected || expected.length !== sig.length) return null;
+    let diff = 0;
+    for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
+    return diff === 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * ITEM 3A: THE GOAL-MAGNITUDE PAYBACK.
  *
  * The reader taps one band saying how much they hope to lose. We already hold their
@@ -7873,7 +7931,12 @@ async function handleDripSurveySubmit(request, env) {
     // malformed, absent or cross-site tokens resolve to null and the answer is
     // recorded anonymously, exactly as it was before identity existed.
     const subscriber = await resolveCheckinToken(env, body.token, site);
-    const subscriberId = subscriber ? subscriber.id : null;
+    let subscriberId = subscriber ? subscriber.id : null;
+    // Exit survey: the unsubscribe page carries a signed ticket, not a token. It is
+    // honoured only for day 0 / source=unsubscribe, so it can never touch a check-in.
+    if (!subscriberId && day === 0 && source === 'unsubscribe') {
+      subscriberId = await verifyExitTicket(env, body.exit_ticket, site);
+    }
     const answeredVia = subscriberId
       ? (body.answered_via === 'one_tap' ? 'one_tap' : 'page')
       : null;
@@ -9406,20 +9469,30 @@ async function handleUnsubscribe(url, env) {
     }
   );
 
-  // Also check drip_subscribers (scoped to this site's drip)
-  await fetch(
-    `${env.SUPABASE_URL}/rest/v1/drip_subscribers?email=eq.${encodeURIComponent(cleanEmail)}&site=eq.${site}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
-        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({ unsubscribed: true }),
+  // Also check drip_subscribers (scoped to this site's drip). Returns the id so the
+  // exit survey below can be attributed via a signed ticket (see mintExitTicket).
+  let exitTicket = null;
+  try {
+    const dripRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/drip_subscribers?email=eq.${encodeURIComponent(cleanEmail)}&site=eq.${site}&select=id`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({ unsubscribed: true }),
+      }
+    );
+    const dripRows = dripRes.ok ? await dripRes.json() : [];
+    if (Array.isArray(dripRows) && dripRows.length === 1) {
+      exitTicket = await mintExitTicket(env, dripRows[0].id, site);
     }
-  ).catch(() => {});
+  } catch {
+    // Best effort, as before: a failure here leaves the exit answer anonymous.
+  }
 
   const siteName = site === 'kd' ? 'KetoDial' : 'Carnivore Weekly';
   // Exit survey (Brew, 2026-08-30). The unsubscribe is already committed above,
@@ -9440,6 +9513,7 @@ async function handleUnsubscribe(url, env) {
     <script>
     (function(){
       var site=${JSON.stringify(site)};
+      var ticket=${JSON.stringify(exitTicket)};
       var box=document.getElementById('exitOpts');
       var wrap=document.getElementById('exitSurvey');
       fetch('/api/v1/drip-survey?day=0&site='+site)
@@ -9456,7 +9530,7 @@ async function handleUnsubscribe(url, env) {
               var fp;
               try{fp=crypto.randomUUID();}catch(e){fp='fp-'+Math.random().toString(36).slice(2)+Date.now();}
               fetch('/api/v1/drip-survey',{method:'POST',headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({site:site,day:0,option_ids:[o.id],fingerprint:fp,source:'unsubscribe'})
+                body:JSON.stringify({site:site,day:0,option_ids:[o.id],fingerprint:fp,source:'unsubscribe',exit_ticket:ticket})
               }).catch(function(){});
               wrap.innerHTML='<p style="color:#15803d;font-size:14px;margin:22px 0 0;">Thanks, that helps.</p>';
             };
@@ -9854,6 +9928,10 @@ export {
   // rather than asserting on a reimplementation of them.
   resolveCheckinToken as __test_resolveCheckinToken,
   handleDripSurveySubmit as __test_handleDripSurveySubmit,
+  // Exit-survey attribution (2026-09-27). See tests/exit-survey-identity.test.mjs.
+  handleUnsubscribe as __test_handleUnsubscribe,
+  mintExitTicket as __test_mintExitTicket,
+  verifyExitTicket as __test_verifyExitTicket,
   // Item 3A goal-magnitude payback. Exported so the suite can drive the real
   // derivation against real calculator rows instead of a reimplementation of it.
   computeGoalHorizon as __test_computeGoalHorizon,

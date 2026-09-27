@@ -97,6 +97,9 @@ const answersFor = async (id) =>
 
 // ---- tests ----------------------------------------------------------------
 const HIST_BEFORE = (await (await rest('/drip_survey_responses?select=id')).json()).length;
+// Anonymous count at start. Not HIST_BEFORE: since 2026-09-13 real linked answers
+// exist, so "every row is anonymous" stopped being true in production.
+const ANON_BEFORE = (await (await rest('/drip_survey_responses?subscriber_id=is.null&select=id')).json()).length;
 
 await setup();
 console.log(`\nDrip check-in identity — fixtures ${subs.cw.id.slice(0, 8)}… (cw) / ${subs.kd.id.slice(0, 8)}… (kd)\n`);
@@ -228,7 +231,7 @@ for (const [label, bad] of [['malformed', 'not-a-token'], ['well-formed but unkn
   const stillAnon = (await (await rest('/drip_survey_responses?subscriber_id=is.null&select=id')).json()).length;
   const ours = (await answersFor(subs.cw.id)).length + (await answersFor(subs.kd.id)).length;
   ok(histAfter === HIST_BEFORE + ours, 'no historical row was deleted or added behind our back', `${HIST_BEFORE} -> ${histAfter}, ours ${ours}`);
-  ok(stillAnon === HIST_BEFORE, `all ${HIST_BEFORE} pre-existing rows remain anonymous`, `${stillAnon}`);
+  ok(stillAnon === ANON_BEFORE, `all ${ANON_BEFORE} pre-existing anonymous rows remain anonymous`, `${stillAnon}`);
 }
 
 await teardown();
