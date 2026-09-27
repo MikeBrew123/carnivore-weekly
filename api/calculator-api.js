@@ -9448,10 +9448,12 @@ export default {
 // pins all three to one vector.
 //
 // Old unsigned links sit in inboxes already, so they keep working until
-// LEGACY_UNSUBSCRIBE_CUTOFF (at least 30 days after the last unsigned send, which is
-// the CAN-SPAM floor) and then show an "expired" page instead of acting.
+// LEGACY_UNSUBSCRIBE_CUTOFF and then show an "expired" page instead of acting.
+// CASL (Canada) requires an unsubscribe link to keep working for at least 60 days
+// after the email was sent, so the cutoff MUST be 60+ days after the deploy that
+// stops unsigned sends. If that deploy lands after 2026-11-30, move this date.
 const UNSUBSCRIBE_BASE = 'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe';
-const LEGACY_UNSUBSCRIBE_CUTOFF_MS = Date.parse('2026-12-01T00:00:00Z');
+const LEGACY_UNSUBSCRIBE_CUTOFF_MS = Date.parse('2027-01-31T00:00:00Z');
 
 function normalizeUnsubEmail(email) {
   return String(email || '').trim().toLowerCase();

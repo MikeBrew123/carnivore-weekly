@@ -105,12 +105,12 @@ ok(!/checkin_token|unsubscribe_token/.test(noSecret.html), 'the rejection page r
 console.log('\n4. Legacy unsigned links: honoured until the cutoff, inert after it');
 const realNow = Date.now;
 try {
-  Date.now = () => Date.parse('2026-11-30T23:59:59Z');
+  Date.now = () => Date.parse('2027-01-30T23:59:59Z');
   const before = await hit(q('reader@example.com', 'cw'));
   ok(before.status === 200 && before.writes.length === 2, 'legacy link still unsubscribes the day before the cutoff');
   const legacyNoSite = await hit('email=reader%40example.com');
   ok(legacyNoSite.status === 200 && legacyNoSite.writes.every((w) => w.url.includes('site=eq.cw')), 'old CW drip links without &site= still default to cw');
-  Date.now = () => Date.parse('2026-12-01T00:00:00Z');
+  Date.now = () => Date.parse('2027-01-31T00:00:00Z');
   const after = await hit(q('reader@example.com', 'cw'));
   ok(after.status === 410 && after.writes.length === 0, 'legacy link writes nothing from the cutoff on', `${after.status}/${after.writes.length}`);
   ok(/expired/i.test(after.html) && /reply/i.test(after.html), 'expired page tells the reader how to get off the list');
