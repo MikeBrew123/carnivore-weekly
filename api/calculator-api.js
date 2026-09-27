@@ -6885,7 +6885,7 @@ async function sendKetoDialWelcome(email, env) {
     console.error('KD welcome: RESEND_API_KEY not configured');
     return;
   }
-  const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(email)}&site=kd`;
+  const unsubUrl = await buildUnsubscribeUrl(env, email, 'kd');
   const html = `<div style="margin:0;padding:0;background:#e2eef7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#334155">
   <div style="max-width:600px;margin:0 auto;background:#ffffff">
     <div style="background:linear-gradient(135deg,#38bdf8 0%,#2dd4bf 100%);padding:32px 24px;text-align:center">
@@ -8788,7 +8788,7 @@ async function sendAbandonRecoveryIfOwed(env, obj) {
   if (!env.RESEND_API_KEY) return { failed: true, reason: 'RESEND_API_KEY not configured' };
 
   const link = buildRecoveryLink(assessmentId);
-  const unsub = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(to)}&site=cw`;
+  const unsub = await buildUnsubscribeUrl(env, to, 'cw');
   const { text, html } = buildAbandonEmailBody(link, unsub);
 
   const send = await fetch('https://api.resend.com/emails', {
@@ -9437,6 +9437,60 @@ export default {
   },
 };
 
+// ===== SIGNED UNSUBSCRIBE LINKS (2026-09-27) =====
+// Until this change the link was ?email=...&site=... and nothing else, so anyone who
+// knew an address could unsubscribe that person from the newsletter and the drip.
+// Every link now carries sig = HMAC-SHA256(UNSUBSCRIBE_SECRET, "unsubscribe-v1|site|email"),
+// hex, first 32 chars (128 bits). Stateless on purpose: the KD plan email and the
+// abandon-recovery email go to people who may have no subscriber row to hold a token,
+// and the Python senders need no extra query. scripts/unsubscribe_link.py and
+// ketodial/worker/index.js compute the same value; tests/unsubscribe-signed-link.test.mjs
+// pins all three to one vector.
+//
+// Old unsigned links sit in inboxes already, so they keep working until
+// LEGACY_UNSUBSCRIBE_CUTOFF (at least 30 days after the last unsigned send, which is
+// the CAN-SPAM floor) and then show an "expired" page instead of acting.
+const UNSUBSCRIBE_BASE = 'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe';
+const LEGACY_UNSUBSCRIBE_CUTOFF_MS = Date.parse('2026-12-01T00:00:00Z');
+
+function normalizeUnsubEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+async function unsubscribeSignature(env, email, site) {
+  if (!env.UNSUBSCRIBE_SECRET) return null;
+  const key = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(env.UNSUBSCRIBE_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`unsubscribe-v1|${site}|${normalizeUnsubEmail(email)}`));
+  return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
+}
+
+async function verifyUnsubscribeSignature(env, email, site, sig) {
+  if (typeof sig !== 'string' || !/^[0-9a-f]{32}$/.test(sig)) return false;
+  const expected = await unsubscribeSignature(env, email, site);
+  if (!expected) return false;
+  let diff = 0;
+  for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
+  return diff === 0;
+}
+
+// Every worker-sent email builds its link here. A missing secret falls back to the
+// legacy unsigned link (honoured until the cutoff) so a transactional email still
+// goes out, and logs loudly because that link stops working after the cutoff.
+async function buildUnsubscribeUrl(env, email, site) {
+  const clean = normalizeUnsubEmail(email);
+  const sig = await unsubscribeSignature(env, clean, site);
+  if (!sig) console.error('UNSUBSCRIBE_SECRET is not set - sending an unsigned unsubscribe link');
+  return `${UNSUBSCRIBE_BASE}?email=${encodeURIComponent(clean)}&site=${site}${sig ? `&sig=${sig}` : ''}`;
+}
+
+function unsubscribeNoticePage(title, body, status) {
+  return new Response(`<html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:sans-serif;text-align:center;padding:60px 16px;"><h2>${title}</h2><p>${body}</p></body></html>`, {
+    status, headers: { 'Content-Type': 'text/html' }
+  });
+}
+
 // ===== UNSUBSCRIBE HANDLER =====
 async function handleUnsubscribe(url, env) {
   const email = url.searchParams.get('email');
@@ -9444,12 +9498,29 @@ async function handleUnsubscribe(url, env) {
   const site = DRIP_SURVEY_SITES.includes(rawSite) ? rawSite : 'cw';
 
   if (!email) {
-    return new Response('<html><body style="font-family:sans-serif;text-align:center;padding:60px;"><h2>Invalid unsubscribe link</h2><p>No email address provided.</p></body></html>', {
-      status: 400, headers: { 'Content-Type': 'text/html' }
-    });
+    return unsubscribeNoticePage('Invalid unsubscribe link', 'No email address provided.', 400);
   }
 
-  const cleanEmail = decodeURIComponent(email).trim().toLowerCase();
+  let cleanEmail;
+  try { cleanEmail = normalizeUnsubEmail(decodeURIComponent(email)); } catch { cleanEmail = normalizeUnsubEmail(email); }
+
+  // Nothing is written until the link proves it came from us. A present-but-wrong
+  // sig never falls through to the legacy path, or stripping it would be a bypass
+  // only until someone noticed, and appending garbage would be one forever.
+  const sig = url.searchParams.get('sig');
+  if (sig !== null) {
+    if (!(await verifyUnsubscribeSignature(env, cleanEmail, site, sig))) {
+      if (!env.UNSUBSCRIBE_SECRET) console.error('UNSUBSCRIBE_SECRET is not set - cannot verify unsubscribe links');
+      return unsubscribeNoticePage('Invalid unsubscribe link',
+        'This link could not be verified. Please use the unsubscribe link in your most recent email from us, or reply to it and ask to be removed.', 400);
+    }
+  } else if (Date.now() >= LEGACY_UNSUBSCRIBE_CUTOFF_MS) {
+    return unsubscribeNoticePage('This unsubscribe link has expired',
+      'Please use the unsubscribe link in your most recent email from us, or reply to it and ask to be removed.', 410);
+  } else {
+    // Counted in worker logs so we can see legacy traffic die off before the cutoff.
+    console.warn(`[unsubscribe] legacy unsigned link honoured (site=${site})`);
+  }
 
   // Update newsletter_subscribers
   const res = await fetch(
@@ -9932,6 +10003,9 @@ export {
   handleUnsubscribe as __test_handleUnsubscribe,
   mintExitTicket as __test_mintExitTicket,
   verifyExitTicket as __test_verifyExitTicket,
+  // Signed unsubscribe links (2026-09-27). See tests/unsubscribe-signed-link.test.mjs.
+  unsubscribeSignature as __test_unsubscribeSignature,
+  buildUnsubscribeUrl as __test_buildUnsubscribeUrl,
   // Item 3A goal-magnitude payback. Exported so the suite can drive the real
   // derivation against real calculator rows instead of a reimplementation of it.
   computeGoalHorizon as __test_computeGoalHorizon,

@@ -21,6 +21,9 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
+# Senders refuse to run without the unsubscribe signing key (scripts/unsubscribe_link.py).
+import os as _os  # noqa: E402
+_os.environ.setdefault("UNSUBSCRIBE_SECRET", "test-unsubscribe-secret")
 
 import send_newsletter as sn  # noqa: E402
 

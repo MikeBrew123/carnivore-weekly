@@ -66,6 +66,7 @@ on:
       - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'tests/paid-resume-email.test.mjs'
       - 'tests/abandoned-checkout-recovery.test.mjs'
+      - 'tests/unsubscribe-signed-link.test.mjs'
       - 'tests/ordered-list-continuity.test.mjs'
       - 'public/calculator.html'
       - 'public/assets/calculator2/**'
@@ -98,6 +99,7 @@ on:
       - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'tests/paid-resume-email.test.mjs'
       - 'tests/abandoned-checkout-recovery.test.mjs'
+      - 'tests/unsubscribe-signed-link.test.mjs'
       - 'tests/ordered-list-continuity.test.mjs'
       - 'public/calculator.html'
       - 'public/assets/calculator2/**'
@@ -259,6 +261,13 @@ jobs:
       # the sale it was chasing.
       - name: Abandoned-checkout recovery
         run: node tests/abandoned-checkout-recovery.test.mjs
+
+      # Unsubscribe links are HMAC-signed (2026-09-27). Pins the CW worker, the KD
+      # worker and scripts/unsubscribe_link.py to one vector, and proves a wrong,
+      # cross-site or cross-email sig writes nothing.
+      - name: Signed unsubscribe links
+        run: node tests/unsubscribe-signed-link.test.mjs
+
       # Who is allowed to receive a paid report. The endpoint used to mail report_html
       # to whatever address the request body named, with no owner check and no payment
       # check, so a session UUID was enough to have a stranger's weight, medications

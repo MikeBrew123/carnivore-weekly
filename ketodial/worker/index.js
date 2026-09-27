@@ -537,6 +537,30 @@ function buildPlanEmail(m, goal, p) {
 </body></html>`;
 }
 
+// Signed unsubscribe link (2026-09-27). The endpoint lives on the CW worker
+// (api/calculator-api.js), which refuses an unsigned link after its legacy cutoff.
+// This MUST compute the same value as unsubscribeSignature() there and
+// scripts/unsubscribe_link.py: HMAC-SHA256(UNSUBSCRIBE_SECRET,
+// "unsubscribe-v1|site|email lowercased"), hex, first 32 chars. Set the SAME secret
+// on both workers. Missing secret: the plan email still goes out, with an unsigned
+// link, and the error is logged.
+const UNSUBSCRIBE_BASE = 'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe';
+
+async function buildUnsubscribeUrl(env, email, site) {
+  const clean = String(email || '').trim().toLowerCase();
+  let sig = '';
+  if (env.UNSUBSCRIBE_SECRET) {
+    const key = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(env.UNSUBSCRIBE_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`unsubscribe-v1|${site}|${clean}`));
+    sig = [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
+  } else {
+    console.error('UNSUBSCRIBE_SECRET is not set - sending an unsigned unsubscribe link');
+  }
+  return `${UNSUBSCRIBE_BASE}?email=${encodeURIComponent(clean)}&site=${site}${sig ? `&sig=${sig}` : ''}`;
+}
+
 async function handleEmailPlan(request, env) {
   try {
     const b = await request.json();
@@ -611,7 +635,7 @@ async function handleEmailPlan(request, env) {
     // Minted per send, so an old email's reference is superseded rather than shared.
     const resumeToken = await mintResumeToken(b.token, env);
 
-    const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(email)}&site=kd`;
+    const unsubUrl = await buildUnsubscribeUrl(env, email, 'kd');
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
@@ -1726,3 +1750,6 @@ function jsonResponse(status, data) {
     headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
   });
 }
+
+// Test hook: tests/unsubscribe-signed-link.test.mjs pins this to the CW worker and Python.
+export { buildUnsubscribeUrl as __test_buildUnsubscribeUrl };

@@ -27,13 +27,13 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import send_guard  # noqa: E402
 from subscriber_hygiene import filter_mailable  # noqa: E402
+import unsubscribe_link  # noqa: E402
 
 HTML = ROOT / "emails" / "2026-08-27-coach-launch.html"
 LEDGER = ROOT / "reports" / "coach-launch-send-ledger.jsonl"
 SUBJECT = "Nobody was expecting to hear from him on Sunday"
 FROM = "Sarah at Carnivore Weekly <newsletter@carnivoreweekly.com>"
 REPLY_TO = "sarah@carnivoreweekly.com"
-UNSUB = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
 TEST_EMAILS = ["iambrew@gmail.com"]
 
 
@@ -114,9 +114,8 @@ def confirm(prompt):
         return False
 
 
-def personalise(html, email):
-    from urllib.parse import quote
-    return (html.replace("{{unsubscribe_url}}", f"{UNSUB}?email={quote(email)}&site=cw")
+def personalise(html, email, unsub_secret):
+    return (html.replace("{{unsubscribe_url}}", unsubscribe_link.unsubscribe_url(email, "cw", unsub_secret))
                 .replace("{{first_name_comma}}", ","))
 
 
@@ -135,6 +134,11 @@ def main():
     send_guard.set_dry_run(a.dry_run)
 
     s = secrets()
+    try:
+        unsub_secret = unsubscribe_link.load_secret(s)
+    except unsubscribe_link.MissingUnsubscribeSecret as exc:
+        print(f"Error: {exc}")
+        sys.exit(1)
     html = HTML.read_text(encoding="utf-8")
     ledger_path = Path(a.ledger)
     use_ledger = not a.test          # --test only ever hits Brew; keep it out of the real ledger
@@ -204,7 +208,7 @@ def main():
                 r = requests.post("https://api.resend.com/emails",
                                   headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
                                   json={"from": FROM, "to": e, "reply_to": REPLY_TO,
-                                        "subject": SUBJECT, "html": personalise(html, e)},
+                                        "subject": SUBJECT, "html": personalise(html, e, unsub_secret)},
                                   timeout=30)
             except requests.RequestException as exc:
                 failed += 1

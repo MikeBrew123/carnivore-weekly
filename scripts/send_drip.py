@@ -42,13 +42,13 @@ SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import send_guard  # noqa: E402
+import unsubscribe_link  # noqa: E402
 import resend_quota  # noqa: E402
 from subscriber_hygiene import is_undeliverable_fixture  # noqa: E402
 
 TEST_EMAIL = "iambrew@gmail.com"
 WEBHOOK_URL = os.environ.get("RESEND_WEBHOOK_URL", "")
 FINAL_DAY = 28  # Graduate to the weekly newsletter after this day's email
-UNSUB_URL = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
 
 # ===== Expiring per-subscriber promo codes (days 7 & 28) =====
 # Each day-7/day-28 send mints a unique single-use Stripe promotion code with
@@ -143,8 +143,6 @@ SITES = {
         "drip_dir": PROJECT_ROOT / "data" / "drip-emails",
         "sequence": "30day-starter",
         "newsletter_site": "cw",
-        # Legacy CW links carry no site param; the unsubscribe handler defaults to cw.
-        "unsub_extra": "",
         "default_subject": "Your First Weeks on Carnivore",
     },
     "kd": {
@@ -156,13 +154,13 @@ SITES = {
         "drip_dir": PROJECT_ROOT / "data" / "drip-emails" / "kd",
         "sequence": "kd-30day-starter",
         "newsletter_site": "kd",
-        "unsub_extra": "&site=kd",
         "default_subject": "Day {day} — Your Keto Starter",
     },
 }
 
 SITE = "cw"          # set from --site in main()
 CFG = SITES["cw"]    # set from --site in main()
+UNSUB_SECRET = None  # set in main() from UNSUBSCRIBE_SECRET; see unsubscribe_link.py
 
 
 def mint_promo_code(stripe_key, day, email):
@@ -544,10 +542,14 @@ def add_checkin_token(html, checkin_token):
     return CHECKIN_URL_RE.sub(lambda m: f"{m.group(1)}&t={checkin_token}", html)
 
 
+def unsub_url(email):
+    """Signed unsubscribe link for this site's drip (scripts/unsubscribe_link.py)."""
+    return unsubscribe_link.unsubscribe_url(email, SITE, UNSUB_SECRET)
+
+
 def personalize(html, email, checkin_token=None):
     """Substitute merge tags. {$unsubscribe} was previously sent literally (dead link)."""
-    from urllib.parse import quote
-    unsub = f"{UNSUB_URL}?email={quote(email)}{CFG['unsub_extra']}"
+    unsub = unsub_url(email)
     return add_checkin_token(html.replace("{$unsubscribe}", unsub), checkin_token)
 
 
@@ -559,7 +561,6 @@ def send_email(resend_key, to, subject, html, tags=None, log=True):
     # Choke point: no Resend call in a dry run, from any caller.
     if not send_guard.allow(f'send "{subject}" to {to}'):
         return False, "blocked by dry-run"
-    from urllib.parse import quote
     payload = {
         "from": CFG["from_email"],
         "to": [to],
@@ -568,7 +569,7 @@ def send_email(resend_key, to, subject, html, tags=None, log=True):
         "html": html,
         "headers": {
             "X-Entity-Ref-ID": f"drip-{to}-{subject[:30]}",
-            "List-Unsubscribe": f"<{UNSUB_URL}?email={quote(to)}{CFG['unsub_extra']}>",
+            "List-Unsubscribe": f"<{unsub_url(to)}>",
         },
     }
     if tags:
@@ -720,6 +721,13 @@ def main():
     secrets = load_secrets()
     global secrets_cache
     secrets_cache = secrets
+    # Before any path that can mail someone: no secret, no send (see unsubscribe_link.py).
+    global UNSUB_SECRET
+    try:
+        UNSUB_SECRET = unsubscribe_link.load_secret(secrets)
+    except unsubscribe_link.MissingUnsubscribeSecret as exc:
+        print(f"Error: {exc}")
+        sys.exit(1)
     resend_key = secrets["resend"]["key"]
 
     if args.test:

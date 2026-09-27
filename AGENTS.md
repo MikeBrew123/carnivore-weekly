@@ -256,7 +256,7 @@ Manual edits allowed when instructed, but:
 - **Templates:** `data/drip-emails/` — 11 emails: day-1 through day-7 daily, then day-10, 14, 21, 28
 - **Subscribers table:** `drip_subscribers` (Supabase) — tracks `current_day`, `last_sent_at`, `completed`
 - **Flow:** signup → Supabase insert → daily cron advances to next scheduled day → after day 28 graduates to `newsletter_subscribers`
-- **Unsubscribe:** `/api/v1/unsubscribe` on Cloudflare Worker
+- **Unsubscribe:** `/api/v1/unsubscribe` on Cloudflare Worker. Links are HMAC-signed (`&sig=`, key `UNSUBSCRIBE_SECRET`); build them with `scripts/unsubscribe_link.py` (Python) or `buildUnsubscribeUrl` (workers), never by hand. Unsigned links stop working 2026-12-01.
 
 ### Newsletter (Weekly)
 - **Generate:** `scripts/generate_newsletter.py` → `newsletters/{date}.html`

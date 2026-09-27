@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import send_guard  # noqa: E402
 import resend_quota  # noqa: E402
 from subscriber_hygiene import filter_mailable  # noqa: E402
+import unsubscribe_link  # noqa: E402
 
 # email (lowercased) -> newsletter_subscribers.id, filled by get_subscribers().
 # Only used to name the subscriber in a Resend quota refusal record.
@@ -179,12 +180,14 @@ def load_subject(site_config):
     return f"{site_config['name']} — The Weekly Dial-In"
 
 
-UNSUB_BASE = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
+def unsub_url_for(email, site, secret):
+    # kd_coach has no unsubscribe handling of its own; the worker has always mapped
+    # an unknown site to cw, so it is signed as cw to keep that behaviour exactly.
+    return unsubscribe_link.unsubscribe_url(email, site if site in unsubscribe_link.SITES else "cw", secret)
 
 
-def personalize_html(html, email, site):
-    from urllib.parse import quote
-    unsub_url = f"{UNSUB_BASE}?email={quote(email)}&site={site}"
+def personalize_html(html, email, site, secret):
+    unsub_url = unsub_url_for(email, site, secret)
     html = html.replace("{{unsubscribe_url}}", unsub_url)
     html = html.replace("{{ unsubscribe_link }}", unsub_url)
     return html
@@ -212,6 +215,8 @@ RESEND_MAX_RETRIES = 4
 def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html, site,
                     secrets=None, template=None):
     results = []
+    # Raises before the first send if the secret is missing: no unsigned links go out.
+    unsub_secret = unsubscribe_link.load_secret(secrets)
     for email in to_emails:
         # Choke point (scripts/send_guard.py). The dry-run path returns long
         # before this loop, so in a live run this changes nothing. It is here
@@ -219,7 +224,7 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
         if not send_guard.allow(f"send \"{subject}\" to {email}"):
             results.append((email, "blocked", "dry-run"))
             continue
-        personalized = personalize_html(html, email, site)
+        personalized = personalize_html(html, email, site, unsub_secret)
         # Same List-Unsubscribe the drip has always sent (send_drip.py). The
         # weekly went out without it: verified on a real delivered CW issue
         # (2026-09-06), whose DKIM h= list was
@@ -229,13 +234,12 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
         # provider shows no unsubscribe button and readers reach for "report
         # spam" instead, which costs far more than an unsubscribe.
         #
-        # Deliberately the SAME url personalize_html puts in the body, so the
-        # header and the visible link resolve identically and carry the right
-        # brand: &site=cw for CW, &site=kd for KD. The body link is untouched.
+        # Deliberately the SAME signed url personalize_html puts in the body, so
+        # the header and the visible link resolve identically and carry the right
+        # brand: &site=cw for CW, &site=kd for KD.
         # RFC 8058 one-click (List-Unsubscribe-Post) is NOT added here: it needs
         # the endpoint to accept POST, which is a separate change.
-        from urllib.parse import quote
-        unsub_url = f"{UNSUB_BASE}?email={quote(email)}&site={site}"
+        unsub_url = unsub_url_for(email, site, unsub_secret)
         payload = {
             "from": f"{from_name} <{from_email}>",
             "to": [email],
@@ -345,6 +349,11 @@ def main():
     if not secrets:
         secrets = load_secrets()
     resend_key = secrets["resend"]["key"]
+    try:
+        unsubscribe_link.load_secret(secrets)
+    except unsubscribe_link.MissingUnsubscribeSecret as exc:
+        print(f"Error: {exc}")
+        sys.exit(1)
 
     results = send_via_resend(
         resend_key, site["from_email"], site["from_name"],
