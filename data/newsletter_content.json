@@ -1,31 +1,45 @@
 {
-  "date": "2026-09-20",
-  "subject_line": "Your stomach hurts and you're doing everything right",
-  "opening": "<p style='margin:0;'>Hey, happy Sunday. This week we're getting into the stuff nobody talks about at dinner: the bloating, the nausea, the cravings that feel like they come out of nowhere. If your body has been sending mixed signals lately, you're not alone and you're not failing. Let's sort it out.</p>",
+  "date": "2026-09-27",
+  "subject_line": "Why you keep waking up on Day One",
+  "opening": "<p style='margin:0;'>Hey, happy Sunday. This week we're tackling something that doesn't get talked about enough: the restart loop that keeps you stuck, what your numbers actually mean on a plate, and how to show up at a potluck without eating off-plan or explaining yourself to Aunt Linda. Grab your coffee. Let's get into it.</p>",
   "hero": {
-    "slug": "2026-09-16-still-bloated-carnivore-two-months",
-    "title": "Still Bloated on Carnivore Two Months In",
-    "writer": "Sarah",
-    "teaser": "You did everything the plan said. No plants, no carbs, no cheating. And yet every evening your stomach looks like you swallowed a basketball. Most people assume they're just not far enough in, but Sarah says the real answer is almost never patience. There are three specific causes she sees over and over, and once you know which one you're dealing with, the fix is actually pretty simple.",
-    "cta": "Find your cause first"
+    "slug": "2026-09-22-day-one-stop-restarting",
+    "title": "Day One Again: How to Stop Restarting",
+    "writer": "Chloe",
+    "teaser": "If Monday has lost its meaning, you're not broken. You've just been handed a plan that was never going to work from the start. Most people think the problem is willpower or commitment, but Chloe says it's something much simpler, and much easier to fix. The answer isn't a stricter rule. It's a smaller door.",
+    "cta": "Read before Monday rolls around"
   },
   "supporting": [
     {
-      "slug": "2026-09-19-much-eat-carnivore-barely-move",
-      "title": "How Much to Eat on Carnivore If You Barely Move",
-      "teaser": "The forum says eat more, but Marcus explains why that advice has a hidden catch for people who sit most of the day."
+      "slug": "2026-09-26-carnivore-potluck-what-to-bring",
+      "title": "What to Bring to a Potluck When You Eat Carnivore",
+      "teaser": "Chloe shares the one dish that never comes home with leftovers, and exactly how to handle the questions that follow."
     },
     {
-      "slug": "2026-09-17-cravings-spike-week-before-period",
-      "title": "Why Cravings Spike the Week Before Your Period",
-      "teaser": "Sarah found a specific hormonal pattern that explains why one week a month feels like your whole strategy falls apart."
+      "slug": "2026-09-24-carnivore-macro-results-explained",
+      "title": "Your Carnivore Macro Results, Explained Line by Line",
+      "teaser": "Marcus takes your numbers off the spreadsheet and shows you what they actually look like on a plate come Monday morning."
     },
     {
-      "slug": "2026-09-18-bone-broth-digestion-wrecked",
-      "title": "Bone Broth When Your Digestion Is Wrecked",
-      "teaser": "Sarah lays out the exact situation where broth beats steak, and it's not as obvious as it sounds."
+      "slug": "2026-09-23-resting-heart-rate-up-carnivore",
+      "title": "Resting Heart Rate Went Up on Carnivore: Why",
+      "teaser": "Your watch is showing a number you don't like, and Sarah explains what's usually behind it, plus the one sign that means you shouldn't wait."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Track when the bloat hits, not just what you ate.</strong> For the next five days, write down the time your stomach feels distended and what you ate in the two hours before. Morning bloat and evening bloat point to completely different causes, and you can't fix what you haven't spotted yet.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're looking at something almost nobody tracks on carnivore, and community members say fixing it cut their fatigue in half faster than any food change did.</p>"
+  "community_pulse": [
+    {
+      "question": "My gut has actually felt better since I started, but everyone online says this way of eating will wreck your digestion. Am I missing something?",
+      "answer": "You're not missing anything. Many people find that removing fiber and plant compounds clears up bloating, cramps, and unpredictable digestion, sometimes within the first two weeks. Community members report improvements in gut symptoms regularly, so trust what your body is telling you over what the comment section says."
+    },
+    {
+      "question": "I've been eating this way for a while and I'm doing well, but I slipped back into keto snacks and sweets for a bit and now I've put weight back on. Is it really that easy to stall yourself?",
+      "answer": "It really can be that fast. Many people find that even foods marketed as 'keto-friendly' stall fat loss and bring cravings back stronger than before. The straightforward fix is returning to basics: meat, fat, salt, and time. The weight that came back is mostly water and inflammation, and it tends to leave just as quickly."
+    },
+    {
+      "question": "I'm only a week in and I feel like I haven't lost as much as I expected. How do I know if it's actually working?",
+      "answer": "The first week is almost never the whole picture. Community members consistently report that early loss is mostly water, and the real shift in how you feel and look tends to show up in weeks two through four. Give it a full month before you judge the results."
+    }
+  ],
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Write down your single non-negotiable meal for the week.</strong> Not a full plan, just one meal you will absolutely hit no matter what. Marcus says building consistency starts with one anchor, not a perfect spreadsheet. Pick your meal, set your time, and make it happen before anything else changes.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week, Sarah gets into something a lot of women quietly Google but rarely ask out loud: unexpected physical changes in the first month, and which ones mean your body is shifting in the right direction.</p>"
 }

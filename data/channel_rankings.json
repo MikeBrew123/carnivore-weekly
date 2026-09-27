@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-09-23",
+  "last_updated": "2026-09-27",
   "leaderboard": [
     {
-      "name": "Dr Karan",
+      "name": "Low Carb Love",
       "rank": 1,
+      "appearances": 2,
+      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
+    },
+    {
+      "name": "Dr Karan",
+      "rank": 2,
       "appearances": 1,
       "channel_id": "UCc-Yj3lMj3s_n1tqcGIzQ6g"
     },
     {
-      "name": "Aseel Soueid",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UC-DnBn8Z9PaYuGF5nXA8Rfg"
+      "name": "Carnivore Quest",
+      "rank": 3,
+      "appearances": 8,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 3,
-      "appearances": 11,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "name": "Chris Cooking Nashville",
+      "rank": 4,
+      "appearances": 4,
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
+    },
+    {
+      "name": "HomeSteadHow",
+      "rank": 5,
+      "appearances": 12,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "Carnivore Teacher Alpha",
+      "rank": 6,
+      "appearances": 5,
+      "channel_id": "UCLoe46vokIWT50lOoqcr5kg"
+    },
+    {
+      "name": "Haircafe",
+      "rank": 7,
+      "appearances": 2,
+      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
+    },
+    {
+      "name": "Laura Spath",
+      "rank": 8,
+      "appearances": 5,
+      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
     },
     {
       "name": "Meet Carnivore",
-      "rank": 4,
+      "rank": 9,
       "appearances": 8,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 5,
-      "appearances": 11,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
-    },
-    {
-      "name": "Carnivore Quest",
-      "rank": 6,
-      "appearances": 7,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
-    },
-    {
-      "name": "Loving Life Over 50",
-      "rank": 7,
-      "appearances": 1,
-      "channel_id": "UCNYcP-p8kCE8eSal_jHzTxg"
-    },
-    {
-      "name": "Courtney Luna",
-      "rank": 8,
-      "appearances": 2,
-      "channel_id": "UCzgj3pQycdp7SUUbz56wNCw"
-    },
-    {
-      "name": "Female Fit & Fifty, 50+ WEIGHT LOSS for Women",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCMzdtN_sI96voWA-6oHaf8w"
-    },
-    {
-      "name": "Coach Stephen ",
+      "name": "The Carnivore Fix",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCHVQSc3rHY3EaeAhHxC6XBQ"
+      "channel_id": "UCPBh5cCjq7tbNKWw6RifUmg"
     }
   ]
 }
