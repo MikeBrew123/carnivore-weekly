@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
 import { useFormStore } from '../../stores/formStore'
+import { acquisitionCheckoutFields, acquisitionGaParams } from '../../lib/acquisitionSource'
 
 declare global {
   interface Window {
@@ -86,7 +87,8 @@ export default function StripePaymentModal({
     if (window.gtag) {
       window.gtag('event', 'calculator_payment_modal_opened', {
         'event_category': 'calculator',
-        'event_label': 'payment_modal_opened'
+        'event_label': 'payment_modal_opened',
+        ...acquisitionGaParams(),
       })
     }
   }, [])
@@ -226,6 +228,7 @@ export default function StripePaymentModal({
           coupon_code: discountApplied?.code || null,
           discount_percent: discountApplied?.percent || 0,
           session_token: sessionToken,
+          ...acquisitionCheckoutFields(),
         })
       })
 
@@ -259,6 +262,7 @@ export default function StripePaymentModal({
           currency: 'USD',
           items: [{ item_id: tierId, item_name: tierTitle, price: finalPrice / 100, quantity: 1 }],
           coupon: discountApplied?.code || undefined,
+          ...acquisitionGaParams(),
         })
       }
 

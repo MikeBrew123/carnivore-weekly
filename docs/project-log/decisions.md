@@ -2446,3 +2446,67 @@ target in the queue and failed `scripts/check_electrolyte_dosing.py`. Suppressed
 2026-09-14 electrolyte sweep rule; the food-first sentence before it stays. The guard's "36 g" hit was the
 egg-cup protein figure and cleared once the potassium sentence went. Guard now PASS across 358 documents.
 Done by the morning journal loop under the own-site factual-error rule, promised to Brew 2026-09-22.
+
+## 2026-09-27: abandoned-checkout recovery gets source attribution, sending stays OFF
+
+Brew approved building it 2026-09-27. This closes the one reason given on 2026-09-13 for
+re-disabling recovery sending: a reader who came back through the recovery link converted on
+the ordinary Step 3 offer and could not be told apart from an organic bridge-offer conversion.
+**`CW_ABANDON_RECOVERY_ENABLED` is untouched and stays `"false"`.** Turning it on is Brew's call
+and needs this branch deployed first (site AND worker). Branch `feat/abandon-recovery-attribution`,
+not merged, not deployed.
+
+**How the source travels, hop by hop.**
+- **Link.** `buildRecoveryLink` now adds `src=abandon_recovery` (the app's own marker),
+  `rc=<the expired checkout id>`, and `utm_source=cw_abandon_recovery&utm_medium=email&utm_campaign=abandon_recovery`.
+  The UTM is what lets GA4 attribute the whole session to the recovery campaign with the built-in
+  `sessionCampaignName` dimension, so no GA4 custom dimension or admin change is needed.
+  `payment=resume` and `session_id` are unchanged, so the restore path is exactly as before.
+- **Browser.** New `calculator2-demo/src/lib/acquisitionSource.ts` reads `src`/`rc` on arrival
+  (allowlist: `abandon_recovery` only) and keeps them in sessionStorage for the tab. A recovery
+  arrival fires its own `calculator_recovery_landing` event. `calculator_offer_impression`,
+  `calculator_bridge_cta_click`, `calculator_payment_modal_opened`, `begin_checkout` and the browser
+  `purchase` carry `acquisition_source`; organic events are byte-identical because the helper
+  returns nothing without a source. The modal posts `acquisition_source` and
+  `recovered_from_checkout` to `/create-checkout`. Bundle rebuilt (`index--oNEZVbr.js`); the
+  previous bundle was first confirmed to be a reproducible build of main, so the rebuild carries
+  only this change.
+- **Stripe.** `/create-checkout` validates both fields (unknown source dropped, malformed checkout
+  ref dropped) and writes `metadata[acquisition_source]` and `metadata[recovered_from_checkout]`
+  on the NEW Checkout Session, plus `src=` on the success and cancel URLs so the returning page can
+  tag its purchase even if storage was lost. The server-side Measurement Protocol purchase carries
+  `acquisition_source` too.
+- **Our database, no migration.** On `checkout.session.completed` with that metadata the worker
+  writes a `stripe_webhook_events` row: `stripe_event_id = cw-recovery-conversion:<paid checkout id>`,
+  `event_type = cw_abandon_recovery_conversion`, `session_id` = the assessment, `amount_cents` = the
+  amount paid. Same marker pattern as `cw-abandon-email` and `cw-resume-email`. Recovery revenue is
+  `sum(amount_cents) where event_type = 'cw_abandon_recovery_conversion'`. It repeats the amount on
+  the matching completed row, so any total over this table must be scoped by event_type (already
+  true, since refunds live there). The write is bookkeeping: idempotent on its marker, repeated on
+  the duplicate path, and it can never fail the webhook or hold up the resume email.
+
+**Command centre.** `fetch_offer_events` runs a second GA4 query restricted to
+`sessionCampaignName = abandon_recovery`. `split_recovery` subtracts those sessions day by day, so
+the paid funnel AND the "CW bridge offer revision" experiment are organic only. Recovery gets its
+own line (arrivals, modal, checkout, purchase, plus Stripe charges and gross from metadata), and
+Stripe revenue gets a separate "CW calculator report (abandon recovery)" product line. The
+GA4-vs-Stripe purchase cross-check compares organic with organic. If the split query fails the
+totals are left as they are and the panel says the bridge cohort is unverified for that window,
+never that recovery was zero.
+
+**Tests.** Recovery suite extended with group L (36 new assertions, 119 total, all pass): link
+contents, allowlist, Stripe metadata and URLs, organic checkouts untouched, conversion row written
+once, redelivery does not double it, the duplicate path repairs a missing row, a refused row never
+fails the purchase, front-end tagging, and the committed bundle containing the change. Dashboard
+suite gained 7 tests (87 pass). A local Playwright run against the committed bundle, with every
+Google analytics host blocked so nothing reached the production property, confirmed the landing,
+impression and modal events carry the source and the checkout call posts it; an organic load
+stores nothing.
+
+**Known limits, recorded rather than hidden.** A reader who spends over 30 minutes on Stripe's page
+returns in a new GA4 session that may not carry the campaign, so GA4 can undercount recovery
+purchases; Stripe metadata is the authority for money and the dashboard uses it. A reader who
+opens the email on one device and buys on another loses the source, and that sale lands in the
+organic line. Both cases are expected to be rare, and the `recovered_from_checkout` metadata plus the
+`cw_abandon_email_sent` markers allow a manual cross-check of any organic purchase by a recovery
+recipient if the numbers ever look off.

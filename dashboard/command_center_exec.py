@@ -219,7 +219,86 @@ FUNNEL_BRANCHES = [
 ]
 
 
-def build_funnel(events, window_days=28, stripe_purchases=None):
+# ── Recovery-source attribution (2026-09-27) ─────────────────────────
+# The abandoned-checkout recovery email links back with utm_campaign=abandon_recovery,
+# so GA4 attributes every event in that session to the recovery campaign with the
+# built-in sessionCampaignName dimension. Those sessions are subtracted from the
+# funnel and from the bridge-offer experiment, and shown on their own line. Without
+# this a recovery conversion is indistinguishable from an organic bridge conversion,
+# which is why sending was switched off on 2026-09-13.
+RECOVERY_CAMPAIGN = 'abandon_recovery'
+RECOVERY_LANDING_EVENT = 'calculator_recovery_landing'
+
+
+def split_recovery(events):
+    """Return (organic_events, recovery) from fetch_offer_events output.
+
+    organic_events has the same shape as `events`, with recovery-campaign sessions
+    and fires removed day by day. `recovery` is {'by_event': ...} for the recovery
+    campaign alone, or {'unavailable': reason} when the split query failed. An
+    unavailable split leaves the totals untouched and says so; it never pretends
+    recovery was zero.
+    """
+    if not events or events.get('error'):
+        return events, {'unavailable': (events or {}).get('error', 'no event data')}
+    if events.get('recovery_error'):
+        out = dict(events)
+        out['recovery_split'] = 'unavailable'
+        return out, {'unavailable': events['recovery_error']}
+    rec_by = events.get('recovery_by_event') or {}
+    organic = {}
+    for name, rec in (events.get('by_event') or {}).items():
+        if name == RECOVERY_LANDING_EVENT:
+            continue          # recovery-only by construction; not an organic stage
+        sub = {r['date']: r for r in (rec_by.get(name) or {}).get('daily', [])}
+        day_rows = []
+        for r in rec.get('daily', []):
+            s = sub.get(r['date']) or {}
+            day_rows.append({'date': r['date'],
+                             'sessions': max(0, r['sessions'] - s.get('sessions', 0)),
+                             'events': max(0, r['events'] - s.get('events', 0))})
+        organic[name] = {'sessions': sum(r['sessions'] for r in day_rows),
+                         'events': sum(r['events'] for r in day_rows),
+                         'daily': day_rows}
+    out = dict(events)
+    out['by_event'] = organic
+    out['recovery_split'] = 'applied'
+    return out, {'by_event': rec_by}
+
+
+def build_recovery_line(recovery, stripe_recovery=None):
+    """The recovery email's own line: arrivals, intent, checkouts, purchases.
+
+    GA4 counts are sessions in the recovery campaign. Stripe is the authority for
+    money: a Checkout Session carrying metadata acquisition_source=abandon_recovery.
+    """
+    if not recovery or recovery.get('unavailable'):
+        return {'status': 'unavailable',
+                'reason': (recovery or {}).get('unavailable', 'no data'),
+                'note': ('Recovery traffic could not be separated, so the funnel above may '
+                         'include it. Treat the bridge cohort as unverified for this window.')}
+    by = recovery.get('by_event') or {}
+
+    def s(ev):
+        return (by.get(ev) or {}).get('sessions', 0)
+    sr = stripe_recovery or {}
+    return {
+        'status': 'measured',
+        'landings': s(RECOVERY_LANDING_EVENT),
+        'offer_seen': s('calculator_offer_impression'),
+        'modal_opened': s('calculator_payment_modal_opened'),
+        'checkouts': s('begin_checkout'),
+        'purchases_ga4': s('purchase'),
+        'stripe_charges': sr.get('charges'),
+        'stripe_gross': sr.get('gross'),
+        'note': ('Sessions that arrived from the abandoned-checkout recovery email '
+                 '(utm_campaign=abandon_recovery). Excluded from the funnel above and from '
+                 'the bridge-offer experiment. Revenue is from Stripe metadata.'),
+    }
+
+
+def build_funnel(events, window_days=28, stripe_purchases=None, recovery=None,
+                 stripe_recovery=None):
     """Sequential paid funnel from GA4 sessions-with-event.
 
     Sessions, not event counts, are the denominator: one reader clicking the
@@ -297,11 +376,20 @@ def build_funnel(events, window_days=28, stripe_purchases=None):
             'text': (f'{a["name"]} → {b["name"]}: {a["sessions"]} → {b["sessions"]} sessions '
                      f'({b["from_prev_pct"]}% carried through, {worst_drop} lost).'),
         }
+    if recovery is not None:
+        out['recovery'] = build_recovery_line(recovery, stripe_recovery)
+        if events.get('recovery_split') == 'applied':
+            out['source'] += ', recovery-email sessions excluded'
     if stripe_purchases is not None:
         ga_purchase = next((s['sessions'] for s in stages if s['name'] == 'Purchase'), None)
+        # The stages are organic once recovery is split out, so Stripe is compared on
+        # the same basis: recovery-sourced charges come off the Stripe side too.
+        rec_charges = (stripe_recovery or {}).get('charges') or 0
+        organic_charges = (stripe_purchases - rec_charges
+                           if events.get('recovery_split') == 'applied' else stripe_purchases)
         out['purchase_crosscheck'] = {
-            'ga4_sessions': ga_purchase, 'stripe_charges': stripe_purchases,
-            'agrees': (ga_purchase == stripe_purchases),
+            'ga4_sessions': ga_purchase, 'stripe_charges': organic_charges,
+            'agrees': (ga_purchase == organic_charges),
         }
     return out
 

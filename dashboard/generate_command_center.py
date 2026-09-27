@@ -414,7 +414,10 @@ def fetch_traffic(property_id):
 # begin_checkout 2026-05-29, purchase 2026-01-01.
 FUNNEL_EVENTS = ('calculator_step1_viewed', 'calculator_free_results',
                  'calculator_offer_impression', 'calculator_bridge_cta_click',
-                 'calculator_payment_modal_opened', 'begin_checkout', 'purchase')
+                 'calculator_payment_modal_opened', 'begin_checkout', 'purchase',
+                 # 2026-09-27: fires only on arrival from the abandoned-checkout
+                 # recovery email. Split out by split_recovery, never an organic stage.
+                 X.RECOVERY_LANDING_EVENT)
 
 
 def fetch_offer_events(property_id, days=28):
@@ -425,7 +428,8 @@ def fetch_offer_events(property_id, days=28):
     have claimed four times the people who actually engaged.
     """
     from google.analytics.data_v1beta.types import (
-        DateRange, Dimension, Filter, FilterExpression, Metric, RunReportRequest)
+        DateRange, Dimension, Filter, FilterExpression, FilterExpressionList, Metric,
+        RunReportRequest)
     f = FilterExpression(filter=Filter(field_name='eventName', string_filter=Filter.StringFilter(
         match_type=Filter.StringFilter.MatchType.FULL_REGEXP, value='|'.join(FUNNEL_EVENTS))))
     resp = ga4_client().run_report(RunReportRequest(
@@ -446,8 +450,38 @@ def fetch_offer_events(property_id, days=28):
         rec['daily'].append({'date': day, 'events': ev, 'sessions': se})
     for rec in by.values():
         rec['daily'].sort(key=lambda x: x['date'])
-    return {'window_days': days, 'by_event': by,
-            'metric_note': 'sessions = GA4 sessions containing the event; events = raw fires'}
+    out = {'window_days': days, 'by_event': by,
+           'metric_note': 'sessions = GA4 sessions containing the event; events = raw fires'}
+    # The same events, restricted to sessions from the abandoned-checkout recovery
+    # email (built-in sessionCampaignName, no custom dimension needed). A failure is
+    # recorded, not zeroed: split_recovery then reports the split as unavailable.
+    try:
+        rf = FilterExpression(and_group=FilterExpressionList(expressions=[
+            f,
+            FilterExpression(filter=Filter(field_name='sessionCampaignName',
+                                           string_filter=Filter.StringFilter(
+                                               match_type=Filter.StringFilter.MatchType.EXACT,
+                                               value=X.RECOVERY_CAMPAIGN))),
+        ]))
+        rresp = ga4_client().run_report(RunReportRequest(
+            property=property_id,
+            dimensions=[Dimension(name='date'), Dimension(name='eventName')],
+            metrics=[Metric(name='eventCount'), Metric(name='sessions')],
+            date_ranges=[DateRange(start_date=f'{days}daysAgo', end_date='yesterday')],
+            dimension_filter=rf, limit=20000))
+        rby = {}
+        for r in rresp.rows:
+            raw = r.dimension_values[0].value
+            day = f'{raw[:4]}-{raw[4:6]}-{raw[6:]}'
+            rec = rby.setdefault(r.dimension_values[1].value, {'events': 0, 'sessions': 0, 'daily': []})
+            ev, se = int(r.metric_values[0].value), int(r.metric_values[1].value)
+            rec['events'] += ev
+            rec['sessions'] += se
+            rec['daily'].append({'date': day, 'events': ev, 'sessions': se})
+        out['recovery_by_event'] = rby
+    except Exception as e:
+        out['recovery_error'] = f'recovery split query failed: {str(e)[:160]}'
+    return out
 
 
 # ── Google Search Console ────────────────────────────────────────────
@@ -1057,6 +1091,7 @@ def fetch_revenue():
     # assessment_session_id = CW calculator report, items / kd_ session token =
     # KD protocol, shop_product = shop item.
     pi_label = {}
+    recovery_pis = set()
     try:
         sessions = http_json(
             f'https://api.stripe.com/v1/checkout/sessions?limit=100&created[gte]={now_ts - 30 * 86400}',
@@ -1064,7 +1099,14 @@ def fetch_revenue():
         for s in sessions:
             md = s.get('metadata') or {}
             if md.get('assessment_session_id'):
-                label = 'CW calculator report'
+                # 2026-09-27: a report bought from the abandoned-checkout recovery
+                # email is its own revenue line, not part of the organic report sales.
+                if md.get('acquisition_source') == X.RECOVERY_CAMPAIGN:
+                    label = 'CW calculator report (abandon recovery)'
+                    if s.get('payment_intent'):
+                        recovery_pis.add(s['payment_intent'])
+                else:
+                    label = 'CW calculator report'
             elif md.get('items') or str(md.get('session_token', '')).startswith('kd_'):
                 label = f"KD {md.get('items') or 'protocol'}"
             elif md.get('shop_product'):
@@ -1098,6 +1140,7 @@ def fetch_revenue():
         'prev_7d': window([c for c in ok if now_ts - 14 * 86400 <= c['created']
                            < now_ts - 7 * 86400]),
         'last_30d': window(ok),
+        'recovery_30d': window([c for c in ok if c.get('payment_intent') in recovery_pis]),
         'mtd': window(mtd),
         'days_left_in_month': days_in_month - days_elapsed,
         'month_pace': pace,
@@ -1826,14 +1869,19 @@ def collect(use_model=True):
     today_iso = TODAY.isoformat()
     data['data_quality'] = X.build_data_quality(data, NOW_STR)
     data['timeline'] = X.parse_timeline(PROJECT_ROOT, days=45, today=TODAY)
+    # Recovery-email sessions come out of the funnel and the bridge experiment and
+    # are shown on their own line (2026-09-27).
+    offer_organic, offer_recovery = X.split_recovery(data['offer_events'])
     data['paid_funnel'] = X.build_funnel(
-        data['offer_events'],
-        stripe_purchases=((data.get('revenue') or {}).get('last_30d') or {}).get('charges'))
+        offer_organic,
+        stripe_purchases=((data.get('revenue') or {}).get('last_30d') or {}).get('charges'),
+        recovery=offer_recovery,
+        stripe_recovery=(data.get('revenue') or {}).get('recovery_30d'))
     data['revenue_exec'] = X.build_revenue(data.get('revenue'), NET_TARGET_MONTHLY, TODAY)
     data['changes'] = X.build_changes(data, TODAY)
     data['signal'] = {s: X.clean_traffic((data.get('traffic') or {}).get(s), today_iso)
                       for s in ('cw', 'kd')}
-    data['experiments'] = X.build_experiments(load_experiments(), data['offer_events'], TODAY)
+    data['experiments'] = X.build_experiments(load_experiments(), offer_organic, TODAY)
     data['needs_attention'] = X.build_needs_attention(data, data['changes'], TODAY)
     data['dont_overreact'] = X.build_dont_overreact(data, data['changes'],
                                                     data['paid_funnel'], today_iso)
@@ -2365,6 +2413,26 @@ def paid_funnel_html(d):
                    f'Stripe {xc["stripe_charges"]} charges. Windows differ '
                    f'({pf.get("window_days")}d GA4, 30d Stripe), so exact agreement is not '
                    f'expected.</p>')
+    rc = pf.get('recovery') or {}
+    rc_html = ''
+    if rc.get('status') == 'measured':
+        money = ('' if rc.get('stripe_charges') is None else
+                 f' Stripe (30d): {rc["stripe_charges"]} charges, ${rc.get("stripe_gross") or 0:,.2f}.')
+        rc_html = (f'<h3 class="sub">Recovery email (own line, not in the stages above)</h3>'
+                   f'<div class="branches">'
+                   f'<div class="branch"><span>Arrived from the email</span>'
+                   f'<span class="n">{rc["landings"]:,} sessions</span></div>'
+                   f'<div class="branch"><span>Payment modal opened</span>'
+                   f'<span class="n">{rc["modal_opened"]:,} sessions</span></div>'
+                   f'<div class="branch"><span>Checkout started</span>'
+                   f'<span class="n">{rc["checkouts"]:,} sessions</span></div>'
+                   f'<div class="branch"><span>Purchase</span>'
+                   f'<span class="n">{rc["purchases_ga4"]:,} sessions</span></div></div>'
+                   f'<p class="foot tight">{esc(rc["note"])}{esc(money)}</p>')
+    elif rc.get('status') == 'unavailable':
+        rc_html = (f'<h3 class="sub">Recovery email</h3>'
+                   f'<p class="na-msg">Split unavailable ({esc(rc.get("reason", ""))}). '
+                   f'{esc(rc["note"])}</p>')
     return (f'<section class="card funnel"><h2>Paid funnel'
             f'<span class="h2sub">{pf.get("window_days")} days · sessions containing each event'
             f'</span></h2>'
@@ -2372,7 +2440,7 @@ def paid_funnel_html(d):
             f'<h3 class="sub">Ways into the payment modal</h3>'
             f'<p class="foot tight">These overlap and are not summed. The modal has more than '
             f'one entry control, so they are intent signals, not a stage above it.</p>'
-            f'<div class="branches">{br}</div>{xc_html}'
+            f'<div class="branches">{br}</div>{rc_html}{xc_html}'
             f'<p class="foot">Sessions, not event fires: one reader clicking a CTA four times '
             f'is one engaged session. Every stage says how it is known.</p></section>')
 

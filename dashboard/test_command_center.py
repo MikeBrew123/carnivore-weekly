@@ -879,5 +879,110 @@ class VoiceTests(unittest.TestCase):
         self.assertIn('KetoDial', html)
 
 
+
+class RecoveryAttribution(unittest.TestCase):
+    """Recovery-email traffic is its own line and never part of the organic cohort.
+
+    Sending was switched off on 2026-09-13 because a recovery conversion looked
+    exactly like an organic bridge-offer conversion. These pin the split that
+    makes it safe to turn back on.
+    """
+
+    def ev(self, series):
+        return {ev: {'sessions': sum(n for _, n, _ in rows), 'events': sum(e for _, _, e in rows),
+                     'daily': [{'date': d, 'sessions': n, 'events': e} for d, n, e in rows]}
+                for ev, rows in series.items()}
+
+    def world(self, recovery=None, recovery_error=None):
+        out = {'window_days': 28, 'by_event': self.ev({
+            'calculator_step1_viewed': [('2026-09-15', 200, 240)],
+            'calculator_free_results': [('2026-09-15', 100, 110)],
+            'calculator_offer_impression': [('2026-09-15', 60, 70), ('2026-09-16', 50, 55)],
+            'calculator_bridge_cta_click': [('2026-09-15', 8, 20)],
+            'calculator_payment_modal_opened': [('2026-09-15', 10, 12)],
+            'begin_checkout': [('2026-09-15', 4, 4)],
+            'purchase': [('2026-09-15', 3, 3)],
+            'calculator_recovery_landing': [('2026-09-15', 5, 5)],
+        })}
+        if recovery_error:
+            out['recovery_error'] = recovery_error
+        else:
+            out['recovery_by_event'] = self.ev(recovery or {})
+        return out
+
+    RECOVERY = {
+        'calculator_recovery_landing': [('2026-09-15', 5, 5)],
+        'calculator_offer_impression': [('2026-09-15', 4, 4)],
+        'calculator_bridge_cta_click': [('2026-09-15', 2, 3)],
+        'calculator_payment_modal_opened': [('2026-09-15', 2, 2)],
+        'begin_checkout': [('2026-09-15', 1, 1)],
+        'purchase': [('2026-09-15', 1, 1)],
+    }
+
+    def test_recovery_sessions_are_subtracted_day_by_day(self):
+        org, rec = X.split_recovery(self.world(self.RECOVERY))
+        by = org['by_event']
+        self.assertEqual(org['recovery_split'], 'applied')
+        self.assertEqual(by['calculator_offer_impression']['sessions'], 106)  # 110 - 4
+        self.assertEqual(by['purchase']['sessions'], 2)
+        self.assertEqual(by['begin_checkout']['sessions'], 3)
+        # The other day had no recovery traffic and is untouched.
+        d16 = [r for r in by['calculator_offer_impression']['daily'] if r['date'] == '2026-09-16']
+        self.assertEqual(d16[0]['sessions'], 50)
+
+    def test_the_landing_event_is_never_an_organic_stage(self):
+        org, _ = X.split_recovery(self.world(self.RECOVERY))
+        self.assertNotIn(X.RECOVERY_LANDING_EVENT, org['by_event'])
+
+    def test_recovery_is_its_own_line_with_stripe_as_the_money_authority(self):
+        org, rec = X.split_recovery(self.world(self.RECOVERY))
+        f = X.build_funnel(org, stripe_purchases=3, recovery=rec,
+                           stripe_recovery={'charges': 1, 'gross': 29.0})
+        line = f['recovery']
+        self.assertEqual(line['status'], 'measured')
+        self.assertEqual(line['landings'], 5)
+        self.assertEqual(line['checkouts'], 1)
+        self.assertEqual(line['purchases_ga4'], 1)
+        self.assertEqual(line['stripe_charges'], 1)
+        by = {s['name']: s for s in f['stages']}
+        self.assertEqual(by['Purchase']['sessions'], 2, 'the funnel stages are organic')
+        self.assertIn('recovery-email sessions excluded', f['source'])
+
+    def test_crosscheck_compares_organic_with_organic(self):
+        org, rec = X.split_recovery(self.world(self.RECOVERY))
+        f = X.build_funnel(org, stripe_purchases=3, recovery=rec,
+                           stripe_recovery={'charges': 1, 'gross': 29.0})
+        self.assertEqual(f['purchase_crosscheck']['stripe_charges'], 2)
+        self.assertTrue(f['purchase_crosscheck']['agrees'])
+
+    def test_bridge_experiment_excludes_recovery_sessions(self):
+        spec = [{'name': 'CW bridge offer revision', 'started': '2026-09-14',
+                 'denominator_event': 'calculator_offer_impression',
+                 'numerator_event': 'calculator_bridge_cta_click',
+                 'checkout_event': 'begin_checkout', 'outcome_event': 'purchase',
+                 'min_sample': 100}]
+        org, _ = X.split_recovery(self.world(self.RECOVERY))
+        e = X.build_experiments(spec, org, date(2026, 9, 20))[0]
+        self.assertEqual(e['denominator'], 106)
+        self.assertEqual(e['numerator'], 6)
+        self.assertEqual(e['outcome'], 2)
+
+    def test_a_failed_split_is_unavailable_not_zero(self):
+        org, rec = X.split_recovery(self.world(recovery_error='GA4 down'))
+        self.assertEqual(org['recovery_split'], 'unavailable')
+        self.assertEqual(org['by_event']['purchase']['sessions'], 3, 'totals left as they are')
+        f = X.build_funnel(org, recovery=rec)
+        self.assertEqual(f['recovery']['status'], 'unavailable')
+        self.assertIn('unverified', f['recovery']['note'])
+        self.assertNotIn('recovery-email sessions excluded', f['source'])
+
+    def test_no_recovery_traffic_changes_nothing(self):
+        org, rec = X.split_recovery(self.world({}))
+        self.assertEqual(org['by_event']['purchase']['sessions'], 3)
+        f = X.build_funnel(org, stripe_purchases=3, recovery=rec,
+                           stripe_recovery={'charges': 0, 'gross': 0})
+        self.assertEqual(f['recovery']['landings'], 0)
+        self.assertEqual(f['purchase_crosscheck']['stripe_charges'], 3)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

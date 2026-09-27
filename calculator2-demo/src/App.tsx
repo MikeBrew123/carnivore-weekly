@@ -3,6 +3,7 @@ import { getOrCreateSession } from './lib/session'
 import CalculatorApp from './components/calculator/CalculatorApp'
 import AssessmentSuccess from './components/AssessmentSuccess'
 import { useFormStore } from './stores/formStore'
+import { captureAcquisitionSource } from './lib/acquisitionSource'
 
 // How long a persisted "payment success" state is honored on a fresh visit.
 // Long enough to finish the health profile after paying, short enough that a
@@ -27,6 +28,16 @@ export default function App() {
         // Check if returning from payment
         const params = new URLSearchParams(window.location.search)
         const payment = params.get('payment')
+        // Recovery-source attribution: remember `src` for this tab before anything
+        // else reads the URL, so the Stripe round trip cannot lose it.
+        const acquisition = captureAcquisitionSource()
+        if (payment === 'resume' && acquisition) {
+          // Its own line on the dashboard: arrivals from the recovery email.
+          ;(window as any).gtag?.('event', 'calculator_recovery_landing', {
+            event_category: 'calculator',
+            acquisition_source: acquisition.source,
+          })
+        }
         // Accept both 'session_id' (from Stripe redirect) and 'assessment_id' (legacy)
         const assessmentId = params.get('session_id') || params.get('assessment_id')
 

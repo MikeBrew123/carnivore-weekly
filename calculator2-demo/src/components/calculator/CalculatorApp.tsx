@@ -3,6 +3,7 @@ import { FormData, MacroResults } from '../../types/form'
 import { calculateMacrosCanonical, ADULT_MIN_AGE } from '../../lib/calculations'
 import { useFormStore } from '../../stores/formStore'
 import { usePaymentState } from '../../hooks/usePaymentState'
+import { acquisitionGaParams } from '../../lib/acquisitionSource'
 import ProgressIndicator from './ProgressIndicator'
 import FormContainer from './FormContainer'
 import Step1PhysicalStats from './steps/Step1PhysicalStats'
@@ -457,7 +458,8 @@ export default function CalculatorApp({
           item_name: 'Personalized Carnivore Protocol',
           price: paidDollars,
           quantity: 1
-        }]
+        }],
+        ...acquisitionGaParams(),
       })
       localStorage.setItem(dedupKey, '1')
     }

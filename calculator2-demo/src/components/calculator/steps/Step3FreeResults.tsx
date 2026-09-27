@@ -3,6 +3,7 @@ import { FormData, MacroResults } from '../../../types/form'
 import MacroPreview from '../../ui/MacroPreview'
 import MicroSurvey from '../../ui/MicroSurvey'
 import { useFormStore } from '../../../stores/formStore'
+import { acquisitionGaParams } from '../../../lib/acquisitionSource'
 import { ADULT_MIN_AGE, ADULT_ONLY_MESSAGE } from '../../../lib/calculations'
 // @ts-ignore — shared plain-JS module, same pattern as api/goal-semantics.js
 import { buildSampleDay, getDietSampleDay } from '../../../../../api/sample-day.js'
@@ -100,7 +101,8 @@ function useOfferImpression(ref: React.RefObject<HTMLDivElement>, surface: strin
           if (entry.isIntersecting && !tracked.current) {
             window.gtag?.('event', 'calculator_offer_impression', {
               'event_category': 'calculator',
-              'event_label': surface
+              'event_label': surface,
+              ...acquisitionGaParams(),
             })
             tracked.current = true
             observer.disconnect()
@@ -456,7 +458,8 @@ export default function Step3FreeResults({
               'event_category': 'calculator',
               'event_label': 'bridge_cta_clicked',
               'source': 'bridge_offer',
-              'diet_type': data.diet
+              'diet_type': data.diet,
+              ...acquisitionGaParams(),
             })
             onUpgrade('offer_bridge')
           }}
