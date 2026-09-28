@@ -1227,7 +1227,7 @@ export default function CalculatorApp({
           <StripePaymentModal
             key="stripe-payment-modal"
             tierId="bundle"
-            tierTitle="Complete Carnivore Protocol"
+            tierTitle="Your Full 30-Day Plan"
             tierPrice="$29"
             email={email}
             onEmailChange={setEmail}

@@ -415,7 +415,7 @@ export default function StripePaymentModal({
                   fontSize: '13px',
                   color: '#4b5563',
                   margin: '2px 0 0 0',
-                }}>One-time purchase</p>
+                }}>13 sections, built from your numbers. One-time purchase.</p>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 {discountApplied && (
