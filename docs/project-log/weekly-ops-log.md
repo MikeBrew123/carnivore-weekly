@@ -204,3 +204,17 @@ Beads filed (carnivore-weekly): 5ggf (cycle), + writeback, #calc anchor, distrib
 **Beads.** Filed `h4ue` (P2, missed CW content run), `77ik` (P3, staleness check), `bx2k` (P3, handbook/prompt drift: cron TZ, Pinterest rows, bundle description). Closed `x6hq` (KD queue self-healed 09-19). Pinterest beads `xmoy`/`0thw`/`vidn` look superseded by the 09-15 decision; left for Brew.
 **Recurring-issues.** No new ISSUE.
 **Deck (Step 6).** Published scoreboard 2026-09-21 and rewrote briefing via bobloblaw-nas; all three endpoints 200. Biggest WoW change: checkout completed 5 to 0 (no Stripe charge in 7d after last week's 3-sale record). No decision posted (4 already pending, none new). No failures.
+
+## 2026-09-28 — Weekly Ops Review
+
+**Revenue.** Stripe 30d: 3 charges / $87.00 (the 09-07..09-13 sales). **7d: 0 charges, second straight week.** Checkout 7d: 2 x $29 sessions (09-22, 09-25), both expired unpaid. Coupon redemptions this week: 0 (all-time unchanged: WELCOME5 1, Etsy 50% 2; 0 discounted sessions). Etsy 90d $117.51 CAD, 20 receipts; by month Jun 1 (window-truncated) / Jul 10 / Aug 4 / **Sep 5** (+ 09-21 keto list, 09-24 pescatarian pair $14.48). Tracked 4532542805 (Keto Starter Kit): 0 sales, 8 views.
+**List + drip.** drip_subscribers new 7d: CW 27, KD 7 (34 total, ~4.9/day vs 2+/day target; prior week 51). Snapshot active 163. drip_events 7d: CW 450 delivered / 342 opened / 93 clicked / 2 bounced / 10 skipped; KD 136 / 86 / 5 / 2. **1 complained (CW, 09-24, day-28 email, subscriber joined 08-15 via calculator, 0 opens ever).** Auto-handled: drip `completed`, `bounced_at` set "spam complaint", newsletter status `complained`. No action needed.
+**Search.** Calculator cluster (regex carnivore.*(macro|calculator), 09-19..09-25): 67 imp / 2 clicks / wpos 12.4 (prev 94 / 4 / 9.6). "carnivore macro calculator" 9.6, "carnivore tdee calculator" 7.4 (was 9.2), "carnivore diet macro calculator" 10.7. /calculator.html page-level 229 imp / 33 clicks / pos 6.3 (prev 397 / 36 / 6.4); latest days likely still filling. **KD (https://ketodial.com/): 0 impressions, 0 pages, both weeks.** Backlinks: not instrumented.
+**Traffic (GA4 30d).** CW 1,139 sessions (prev 1,060), KD 285 (prev 240).
+**Queues.** CW blog 14 ready, 8 in next 7 days 🟢 (09-23 and 09-27 runs each landed 9). KD blog 2 ready (09-29, 10-02) 🟢. Pin queue 0 of 207, channel retired 09-15.
+**Crons.** Truth pass run manually before the 10:30 local cron: "Scoreboard appended for 2026-09-28. Errors: none". Heartbeat last wrote 09-21, all clear; today's fires 10:45 local.
+**GH issues.** #79 (automation staleness, pin queue 20d): same false alarm as #78, left open, tracked by bead `77ik`.
+**Beads.** Closed `h4ue` (CW content gen recovered). None filed.
+**Recurring-issues.** No new ISSUE.
+**Deck (Step 6).** Published scoreboard 2026-09-28 and rewrote briefing via bobloblaw-nas; all three endpoints 200. Biggest WoW change: first spam complaint in weeks (0 to 1), auto-suppressed. No decision posted (0 pending, nothing new due). No failures.
+**Note.** Staged only this log + .beads/ rather than `git add -A -- docs/`: `docs/project-log/current-status.md` carries another session's uncommitted edits (concurrency rule).
