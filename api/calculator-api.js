@@ -398,6 +398,63 @@ function suggestEmailFix(email) {
   return best ? `${local}@${best}` : null;
 }
 
+// Misspellings of the big providers that are REAL registered domains, so the DNS
+// gate below lets them through and the mail bounces or goes to a stranger.
+// 'gnail.com' got a real KD signup past the gate on 2026-09-20. Every entry here
+// is a domain nobody uses on purpose; correct it silently rather than bounce.
+// Brew 2026-09-30: "fix the typos don't just block them".
+const KNOWN_TYPO_DOMAINS = {
+  'gnail.com': 'gmail.com', 'gmial.com': 'gmail.com', 'gamil.com': 'gmail.com',
+  'gmal.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gmaill.com': 'gmail.com',
+  'gmsil.com': 'gmail.com', 'gmaul.com': 'gmail.com', 'gmali.com': 'gmail.com',
+  'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com', 'gmail.con': 'gmail.com',
+  'gmail.cmo': 'gmail.com', 'gmail.vom': 'gmail.com', 'gmail.xom': 'gmail.com',
+  'gmail.comm': 'gmail.com', 'gmail.om': 'gmail.com', 'googlemail.co': 'googlemail.com',
+  'yagoo.com': 'yahoo.com', 'yaho.com': 'yahoo.com', 'yahho.com': 'yahoo.com',
+  'yhoo.com': 'yahoo.com', 'yahooo.com': 'yahoo.com', 'uahoo.com': 'yahoo.com',
+  'yahoo.con': 'yahoo.com', 'yahoo.cm': 'yahoo.com', 'yahoo.vom': 'yahoo.com',
+  'hotmial.com': 'hotmail.com', 'hotmai.com': 'hotmail.com', 'hotmal.com': 'hotmail.com',
+  'hotmil.com': 'hotmail.com', 'hotnail.com': 'hotmail.com', 'hotmaill.com': 'hotmail.com',
+  'hotmail.con': 'hotmail.com', 'hotmail.cm': 'hotmail.com',
+  'outlok.com': 'outlook.com', 'outllok.com': 'outlook.com', 'outlook.con': 'outlook.com',
+  'iclod.com': 'icloud.com', 'icoud.com': 'icloud.com', 'icloud.con': 'icloud.com',
+  'aol.con': 'aol.com', 'aoll.com': 'aol.com',
+  'comcast.com': 'comcast.net', 'sbcglobal.com': 'sbcglobal.net',
+};
+
+// Returns { email, correctedFrom }. When the domain is a known misspelling the
+// address comes back trimmed, lowercased and corrected; otherwise it comes back
+// exactly as given, so existing case-sensitive matching is untouched.
+// Synchronous and DNS-free so it can run on every write path without latency.
+function correctEmailTypo(email) {
+  const raw = String(email || '').trim();
+  const clean = raw.toLowerCase();
+  const at = clean.lastIndexOf('@');
+  if (at < 1) return { email: raw, correctedFrom: null };
+  const fixed = KNOWN_TYPO_DOMAINS[clean.slice(at + 1)];
+  if (!fixed) return { email: raw, correctedFrom: null };
+  const corrected = `${clean.slice(0, at)}@${fixed}`;
+  console.log(`[email-typo] corrected ${clean.slice(at + 1)} -> ${fixed}`);
+  return { email: corrected, correctedFrom: clean };
+}
+
+// Full cleanup for enrollment paths: known misspellings first, then, when the
+// domain cannot receive mail at all and one confident near-miss exists, take the
+// near-miss instead of rejecting. Only a dead domain with no close match is
+// still refused. Returns { email, correctedFrom, error }.
+async function resolveSignupEmail(email) {
+  const first = correctEmailTypo(email);
+  first.email = first.email.toLowerCase();
+  const domain = first.email.slice(first.email.lastIndexOf('@') + 1);
+  if (await domainHasMailRecords(domain)) return { ...first, error: null };
+  const guess = suggestEmailFix(first.email);
+  if (guess) {
+    console.log(`[email-typo] dead domain ${domain} -> ${guess.slice(guess.lastIndexOf('@') + 1)}`);
+    return { email: guess, correctedFrom: first.correctedFrom || first.email, error: null };
+  }
+  return { ...first, error: await checkEmailDeliverable(first.email) };
+}
+
 // True = domain can plausibly receive mail (or we could not find out).
 // FAILS OPEN on any DNS trouble: a signup must never be lost to our own
 // resolver having a bad minute. Accepts an A record with no MX because RFC 5321
@@ -640,7 +697,7 @@ async function handleCreateSession(request, env) {
           // includes it in the create payload). This stops emailless funnel rows,
           // which also let the Stripe webhook's email-fallback match the row and
           // mark it paid — the cause of revenue under-counting in the v2 funnel.
-          ...(body.email ? { email: body.email } : {}),
+          ...(body.email ? { email: correctEmailTypo(body.email).email } : {}),
         };
       }
     } catch (_) { /* no body is fine */ }
@@ -938,7 +995,7 @@ async function handleSaveStep1(request, env) {
           height_cm: data.height_cm || null,
           weight_value: data.weight_value,
           weight_unit: data.weight_unit || 'lbs',
-          email: data.email || null,
+          email: data.email ? correctEmailTypo(data.email).email : null,
           step_completed: 2,
           updated_at: new Date().toISOString(),
         }),
@@ -6052,7 +6109,9 @@ async function handleCreateCheckout(request, env) {
       );
     }
 
-    const { email, first_name, form_data, formData, success_url, cancel_url, tier_id, amount, discount_percent, coupon_code, session_token } = body;
+    const { email: rawEmail, first_name, form_data, formData, success_url, cancel_url, tier_id, amount, discount_percent, coupon_code, session_token } = body;
+    // Same typo correction as the calculator, so the receipt and report go where step 1 saved.
+    const email = rawEmail ? correctEmailTypo(rawEmail).email : rawEmail;
     const finalFormData = form_data || formData;
 
     // Map tier_id to Stripe price_id
@@ -7007,12 +7066,11 @@ async function handleSubscribe(request, env) {
     if (!email || !isValidEmail(email.trim())) {
       return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
     }
-    const cleanEmail = email.trim().toLowerCase();
-    // Catch dead domains at the door, so a typo gets fixed while the person is
-    // still on the form instead of silently bouncing for 30 days.
-    const undeliverable = await checkEmailDeliverable(cleanEmail);
-    if (undeliverable) return undeliverable;
-    return await subscribeCore(env, cleanEmail, source || 'homepage', diet_type, site);
+    // Fix typos rather than refuse them: known misspellings and dead domains with
+    // one confident near-miss are corrected; only an unfixable dead domain is refused.
+    const resolved = await resolveSignupEmail(email);
+    if (resolved.error) return resolved.error;
+    return await subscribeCore(env, resolved.email, source || 'homepage', diet_type, site);
   } catch (err) {
     return createErrorResponse('SUBSCRIBE_ERROR', String(err), 500);
   }
@@ -9955,6 +10013,8 @@ async function handleResendWebhook(request, env) {
 // coming back.
 // ============================================================================
 export {
+  correctEmailTypo as __test_correctEmailTypo,
+  resolveSignupEmail as __test_resolveSignupEmail,
   buildReportData as __test_buildReportData,
   generateAllReports as __test_generateAllReports,
   calculateMacros as __test_calculateMacros,
