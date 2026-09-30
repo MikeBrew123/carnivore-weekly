@@ -139,7 +139,7 @@ def test_graduation_branch_checks_dry_run_before_writing():
     print("\nthe graduation branch checks dry-run before its first write")
     src = (PROJECT_ROOT / "scripts" / "send_drip.py").read_text(encoding="utf-8")
     start = src.index("if next_day > FINAL_DAY:")
-    end = src.index("subject, html = load_drip_email(next_day)", start)
+    end = src.index("subject, html = load_drip_email(next_day", start)
     branch = src[start:end]
     guard = branch.find("args.dry_run")
     write = branch.find("supabase_update")

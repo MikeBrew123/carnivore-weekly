@@ -161,6 +161,43 @@ SITES = {
     },
 }
 
+# ===== KD day 1 from Carnivore Weekly, for CW-sourced subscribers =====
+# Decision 2026-09-23 (bead carnivore-weekly-a1s7): a KetoDial drip subscriber
+# who signed up through Carnivore Weekly gets their FIRST email from the Carnivore
+# Weekly address, introducing KetoDial. Every later day sends from KetoDial as
+# normal. Copy: data/drip-emails/kd/day-1-from-cw.html (Sarah, 2026-09-30).
+#
+# SWITCHED OFF. Nothing changes for any reader until KD_CW_INTRO_ENABLED is set
+# to 1/true in the environment of the KD drip run, and that needs Brew's approval
+# of the copy first. Unset, empty or anything else means off.
+#
+# "Signed up through CW" = a KD drip row whose source is the CW calculator:
+# subscribeCore() in api/calculator-api.js routes CW calculator keto/low-carb
+# picks to site='kd' with source='calculator' (plus the 'calculator-backfill'
+# rows from bead 39ow). KD's own signups use other sources (kd-homepage,
+# etsy-bonus) and never get this variant.
+CW_INTRO_FLAG = "KD_CW_INTRO_ENABLED"
+CW_INTRO_SOURCES = frozenset({"calculator", "calculator-backfill"})
+CW_INTRO_VARIANT = "from-cw"
+CW_INTRO_FROM = SITES["cw"]["from_email"]
+
+
+def cw_intro_enabled():
+    return os.environ.get(CW_INTRO_FLAG, "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def use_cw_intro(sub, day):
+    """True only for a CW-sourced KD subscriber's day 1, with the flag on and
+    the variant template present. Any doubt means the normal KD day 1."""
+    return (
+        cw_intro_enabled()
+        and SITE == "kd"
+        and day == 1
+        and (sub.get("source") or "").strip().lower() in CW_INTRO_SOURCES
+        and (CFG["drip_dir"] / f"day-{day}-{CW_INTRO_VARIANT}.html").exists()
+    )
+
+
 SITE = "cw"          # set from --site in main()
 CFG = SITES["cw"]    # set from --site in main()
 UNSUB_SECRET = None  # set in main() from UNSUBSCRIBE_SECRET; see unsubscribe_link.py
@@ -560,12 +597,12 @@ RESEND_SLEEP = 0.6        # stay under Resend's ~2 req/sec rate limit
 RESEND_MAX_RETRIES = 4
 
 
-def send_email(resend_key, to, subject, html, tags=None, log=True):
+def send_email(resend_key, to, subject, html, tags=None, log=True, from_email=None):
     # Choke point: no Resend call in a dry run, from any caller.
     if not send_guard.allow(f'send "{subject}" to {to}'):
         return False, "blocked by dry-run"
     payload = {
-        "from": CFG["from_email"],
+        "from": from_email or CFG["from_email"],
         "to": [to],
         "reply_to": CFG["reply_to"],
         "subject": subject,
@@ -829,7 +866,7 @@ def main():
                 sys.exit(1)
 
     pending = supabase_query(secrets, "drip_subscribers", {
-        "select": "id,email,current_day,subscribed_at,checkin_token",
+        "select": "id,email,current_day,subscribed_at,checkin_token,source",
         "site": f"eq.{SITE}",
         "completed": "eq.false",
         "unsubscribed": "eq.false",
@@ -923,7 +960,8 @@ def main():
             print(f"  🎓 {sub['email']} — completed drip, added to {CFG['name']} weekly")
             continue
 
-        subject, html = load_drip_email(next_day)
+        cw_intro = use_cw_intro(sub, next_day)
+        subject, html = load_drip_email(next_day, CW_INTRO_VARIANT if cw_intro else None)
         if not html:
             # Sparse sequence: no email defined for this day — advance silently
             if args.dry_run:
@@ -960,6 +998,8 @@ def main():
 
         if args.dry_run:
             mark = "  [BUYER: offer suppressed]" if is_buyer else ""
+            if cw_intro:
+                mark += "  [CW intro: from Carnivore Weekly]"
             print(f"  Would send day {next_day} to {sub['email']}: {subject_out}{mark}")
             continue
 
@@ -979,12 +1019,15 @@ def main():
             {"name": "drip_day", "value": str(next_day)},
             {"name": "sequence", "value": CFG["sequence"]},
         ]
+        if cw_intro:
+            tags.append({"name": "variant", "value": "cw-intro"})
         stripe_key = (secrets.get("stripe") or {}).get("secret_key_live", "")
         html_merged = apply_promo(html, next_day, sub["email"], stripe_key, buyers)
         ok, detail = send_email(
             resend_key, sub["email"], subject_out,
             personalize(html_merged, sub["email"], sub.get("checkin_token")),
             tags=tags,
+            from_email=CW_INTRO_FROM if cw_intro else None,
         )
         if ok:
             supabase_update(secrets, "drip_subscribers", sub["id"], {
