@@ -83,10 +83,12 @@ import argparse
 import hashlib
 import json
 import os
+import socket
 import subprocess
 import sys
 import tempfile
 import time
+import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
@@ -1655,6 +1657,11 @@ def model_narrative(data, model=NARRATIVE_MODEL):
                                 for e in (data.get('timeline') or [])[:12]],
         'experiments': data.get('experiments'),
         'customer_signal_7d': (data.get('mail') or {}).get('signal_7d'),
+        # Which sources failed this run, so the review cannot narrate a failed
+        # read as a quiet day.
+        'failed_sources': [{'source': srcs['label'], 'why': srcs['detail']}
+                           for srcs in ((data.get('data_quality') or {}).get('sources') or [])
+                           if srcs.get('state') == 'failed'],
     }
     focus_name, focus_scope = daily_focus()
     if focus_scope:
@@ -1713,6 +1720,9 @@ def model_narrative(data, model=NARRATIVE_MODEL):
         "A deterministic brief, an attention list and a do-not-overreact list have ALREADY "
         "been computed and are shown above yours on the page. Do not repeat them; add only "
         "what a rule cannot infer. Never present an inference as a measurement.\n"
+        "Any block containing an 'error' key, and anything named in failed_sources, was NOT "
+        "MEASURED. Never describe it as zero, flat, quiet or stalled; say the source could not "
+        "be read and move on.\n"
         "Note: in search data, LOWER average position is better (position 1 = top of Google). "
         "Sanity-check metrics before citing them: an open rate over 100% means multiple opens "
         "per send, not a healthy list signal — flag oddities instead of quoting them straight.\n"
@@ -1776,12 +1786,67 @@ def model_narrative(data, model=NARRATIVE_MODEL):
 
 # ── Collect everything ───────────────────────────────────────────────
 
-def guarded(name, fn, *args):
-    try:
-        return fn(*args)
-    except Exception as e:
-        print(f'  {name} failed: {e}')
-        return {'error': str(e)[:200]}
+# A transient network failure and a genuine zero are the same picture to a
+# reader, so a read is retried before it is allowed to blank a section. On
+# 2026-09-18 the 03:42 run lost Supabase to a read timeout and GA4 to a 503 in
+# the same pass; both sections rendered as zeros and were reported as missing
+# data. Auth and schema errors are NOT retried: they will not fix themselves,
+# and three attempts at a bad key only spends the run's time budget.
+RETRY_BACKOFF = (2, 5)          # seconds to wait before attempt 2 and attempt 3
+RETRY_ATTEMPTS = 3
+
+_TRANSIENT_CODES = {408, 425, 429, 500, 502, 503, 504}
+_TRANSIENT_HINTS = ('timed out', 'timeout', 'connection reset', 'connection aborted',
+                    'connection refused', 'broken pipe', 'remote end closed',
+                    'temporarily unavailable', 'service unavailable', 'deadline exceeded',
+                    'bad gateway', 'gateway timeout', 'name resolution', 'eof occurred',
+                    'try again', 'too many requests', 'unavailable')
+# Checked first: a message may carry both words (a 403 body can say "try
+# again"), and a permanent failure must never be retried on that account.
+_PERMANENT_HINTS = ('unauthorized', 'forbidden', 'permission denied', 'invalid api key',
+                    'invalid authentication', 'jwt', 'signature', 'credential',
+                    'does not exist', 'not found', 'no such', 'undefined column',
+                    'undefined table', 'invalid input syntax', 'pgrst', 'schema cache',
+                    'bad request', 'unprocessable')
+
+
+def is_transient(e):
+    """True when retrying the same call could plausibly succeed."""
+    if isinstance(e, urllib.error.HTTPError):
+        return e.code in _TRANSIENT_CODES
+    code = getattr(e, 'code', None)          # google.api_core carries an int code too
+    if isinstance(code, int):
+        return code in _TRANSIENT_CODES
+    if isinstance(e, (socket.timeout, TimeoutError, ConnectionError)):
+        return True
+    msg = str(e).lower()
+    if any(h in msg for h in _PERMANENT_HINTS):
+        return False
+    if isinstance(e, urllib.error.URLError):
+        return True
+    return any(h in msg for h in _TRANSIENT_HINTS)
+
+
+def guarded(name, fn, *args, attempts=RETRY_ATTEMPTS):
+    last = None
+    for i in range(attempts):
+        try:
+            return fn(*args)
+        except Exception as e:
+            last = e
+            if i == attempts - 1 or not is_transient(e):
+                break
+            wait = RETRY_BACKOFF[min(i, len(RETRY_BACKOFF) - 1)]
+            print(f'  {name} transient failure ({e}): attempt {i + 1} of {attempts}, '
+                  f'retrying in {wait}s')
+            time.sleep(wait)
+    tried = min(i + 1, attempts)
+    kind = 'transient' if is_transient(last) else 'permanent'
+    print(f'  {name} failed after {tried} attempt(s) [{kind}]: {last}')
+    # 'unreadable' is what the renderers key on to say "not read" instead of
+    # drawing a zero. Keep it on every failure path.
+    return {'error': str(last)[:200], 'error_kind': kind,
+            'attempts': tried, 'unreadable': True}
 
 
 def collect(use_model=True):
@@ -1891,6 +1956,32 @@ def err_note(block, label):
     return None
 
 
+def unreadable_html(label, block=None, what='number'):
+    """The card for a source that did not answer.
+
+    A blank funnel and a funnel with no traffic look identical, and on
+    2026-09-18 that cost a morning: a Supabase read timeout and a GA4 503 blanked
+    the calculator states and the bridge experiment, and both were read as real
+    zeros. The banner at the top of the page was not enough, because the card
+    itself still said 0. So the card says it, in the card, in place of the
+    number it would otherwise have drawn.
+    """
+    err = (block or {}).get('error') if isinstance(block, dict) else None
+    kind = (block or {}).get('error_kind') if isinstance(block, dict) else None
+    tries = (block or {}).get('attempts') if isinstance(block, dict) else None
+    detail = esc(str(err)[:160]) if err else 'the source was not collected this run'
+    tail = ''
+    if tries:
+        tail = f' after {tries} attempt{"s" if tries != 1 else ""}'
+        if kind == 'transient':
+            tail += '; a later run will probably succeed'
+    return (f'<div class="unreadable">'
+            f'<p class="ur-head">⚠ {esc(label)} could not be read</p>'
+            f'<p class="ur-body">This is <b>not zero</b>. The data source did not answer{tail}, '
+            f'so no {esc(what)} is shown. Re-run the build once it recovers.</p>'
+            f'<p class="ur-why">{detail}</p></div>')
+
+
 def funnel_html(f, accent):
     """Renders the calculator block. When the block declares sequential=False
     this draws STATES, each against sessions started, and prints no
@@ -1899,7 +1990,7 @@ def funnel_html(f, accent):
     captured at step 1 and is not downstream of step 3.
     """
     if not f or f.get('error'):
-        return err_note(f, 'Funnel') or '<p class="muted">No data.</p>'
+        return unreadable_html('Calculator states', f, what='stage count')
     stages = f['stages']
     sequential = f.get('sequential', True)
     top = max(s['count'] for s in stages) or 1
@@ -2311,8 +2402,8 @@ def paid_funnel_html(d):
     pf = d.get('paid_funnel') or {}
     if pf.get('error'):
         return (f'<section class="card"><h2>Paid funnel</h2>'
-                f'<p class="na-msg">Event data unavailable — {esc(pf["error"])}. '
-                f'No stages are drawn rather than drawing zeros.</p></section>')
+                + unreadable_html('Paid funnel event data', pf, what='stage')
+                + '</section>')
     stages = pf.get('stages', [])
     leak_to = (pf.get('biggest_leak') or {}).get('to')
     rows, prev = '', None
@@ -2392,6 +2483,19 @@ def experiments_html(d):
                 '</section>')
     body = ''
     for e in exps:
+        if e.get('unreadable'):
+            # No threshold bar, no counts: there is nothing to draw a bar from,
+            # and a bar at 0% is exactly the picture that misled.
+            body += (f'<div class="exp-item unread">'
+                     f'<div class="exp-head"><b>{esc(e["name"])}</b>'
+                     f'<span class="rnote">counted from {esc(e["started"])}</span></div>'
+                     + unreadable_html(e['name'],
+                                       {'error': e.get('source_error'),
+                                        'error_kind': e.get('source_error_kind'),
+                                        'attempts': e.get('source_attempts')},
+                                       what='session count')
+                     + f'<p class="interp">{esc(e["verdict"])}</p></div>')
+            continue
         pending = e.get('not_started')
         locked = 'KEEP MEASURING' in e['status']
         state = 'pending' if pending else ('locked' if locked else 'eligible')
@@ -2793,6 +2897,10 @@ def render_html(d):
         narrative_html = f'<div class="narrative">{focus_tag}{paras}<p class="muted small">— written by {esc(gen_by)}</p></div>'
 
     f = d.get('funnels', {})
+    # One string, reused by every card that Supabase feeds. Empty when the read
+    # succeeded, so the normal path is untouched.
+    funnels_unreadable = (unreadable_html('Supabase funnel data', f)
+                          if f.get('error') else '')
     coach = f.get('coach', {}) if not f.get('error') else {}
     drip_cw = f.get('drip_cw', {}) if not f.get('error') else {}
     drip_kd = f.get('drip_kd', {}) if not f.get('error') else {}
@@ -3008,6 +3116,20 @@ def render_html(d):
     .interp{font:13px/1.55 var(--sans);color:var(--dim)}
     .caveat{font:11.5px/1.5 var(--sans);color:var(--warn);margin-top:8px}
     .na-msg{font:13px/1.55 var(--sans);color:var(--warn)}
+    /* A read that failed must not be able to pass for a measured zero, so it
+       gets a bordered, hatched block in place of the number, not a grey line
+       of small print under one. */
+    .unreadable{border:1px solid var(--crit);border-left:4px solid var(--crit);
+      border-radius:6px;padding:12px 14px;margin:10px 0;
+      background:repeating-linear-gradient(135deg,rgba(229,89,79,.10) 0 10px,
+      rgba(229,89,79,.04) 10px 20px)}
+    .unreadable .ur-head{font:700 13px/1.4 var(--sans);color:var(--crit);
+      letter-spacing:.02em;margin:0 0 6px;text-transform:uppercase}
+    .unreadable .ur-body{font:13px/1.6 var(--sans);color:var(--text);margin:0 0 6px}
+    .unreadable .ur-body b{color:var(--crit)}
+    .unreadable .ur-why{font:11px/1.5 var(--mono);color:var(--dim);margin:0;
+      word-break:break-word}
+    .exp-item.unread{border-color:var(--crit)}
 
     /* The signature: three segments, filled to the evidence tier. */
     .ev{display:inline-flex;gap:1.5px;margin-left:7px;vertical-align:2px}
@@ -3505,16 +3627,16 @@ def render_html(d):
 <div class="panel" id="panel-audience" role="tabpanel" hidden>
 <div class="fgrid">
 <div class="card"><h3>CW calculator states <span class="muted small">(30d)</span></h3>
-{funnel_html(f.get('calculator_cw'), 'var(--cw)')}</div>
+{funnel_html(f.get('calculator_cw') or f, 'var(--cw)')}</div>
 <div class="card"><h3>KD calculator states <span class="muted small">(30d)</span></h3>
-{funnel_html(f.get('calculator_kd'), 'var(--kd)')}</div>
+{funnel_html(f.get('calculator_kd') or f, 'var(--kd)')}</div>
 {demo_card('CW calculator demographics', d['demographics'].get('cw') if not d['demographics'].get('error') else d['demographics'], 'var(--cw)')}
 {demo_card('KD calculator demographics', d['demographics'].get('kd') if not d['demographics'].get('error') else d['demographics'], 'var(--kd)')}
-<div class="card"><h3>30-day drip (CW)</h3>{drip_cw_html or err_note(f, 'Funnels') or ''}</div>
-<div class="card"><h3>30-day drip (KD)</h3>{drip_kd_html or err_note(f, 'Funnels') or ''}</div>
-<div class="card"><h3>Newsletter (CW)</h3><div class="statrow">{nl_block(nl_cw)}</div></div>
-<div class="card"><h3>Newsletter (KD)</h3><div class="statrow">{nl_block(nl_kd)}</div></div>
-<div class="card"><h3>Coach (KD)</h3>{coach_html}</div>
+<div class="card"><h3>30-day drip (CW)</h3>{drip_cw_html or funnels_unreadable or ''}</div>
+<div class="card"><h3>30-day drip (KD)</h3>{drip_kd_html or funnels_unreadable or ''}</div>
+<div class="card"><h3>Newsletter (CW)</h3>{funnels_unreadable or f'<div class="statrow">{nl_block(nl_cw)}</div>'}</div>
+<div class="card"><h3>Newsletter (KD)</h3>{funnels_unreadable or f'<div class="statrow">{nl_block(nl_kd)}</div>'}</div>
+<div class="card"><h3>Coach (KD)</h3>{coach_html or funnels_unreadable or ''}</div>
 </div></div>
 
 <div class="panel" id="panel-email" role="tabpanel" hidden>

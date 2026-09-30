@@ -185,12 +185,20 @@ Product Hunt can be powerful for reaching early adopters, but it's not magic—i
 ### Pros
 - Exposure to tech-savvy early adopter audience
 - Credibility bump (especially if Product of the Day)
-- Potential PR coverage and backlinks
+- Potential PR coverage from journalists who monitor the feed
 
 ### Cons
 - Very competitive to rank well
 - Short-lived traffic spikes
 - Requires significant pre-launch planning
+- **No SEO value.** Product Hunt's outbound link carries `rel="noreferrer noopener ugc"`.
+  Google treats `ugc` as a hint and generally passes no ranking credit, so a listing is
+  not a backlink play. Never pitch Product Hunt (or any directory) as an SEO tactic
+  without first checking the `rel` attribute on a live listing.
+- **Traffic is unattributable by default.** The same `noreferrer` strips the referrer
+  header, so clicks land in GA4 as `(not set)` or direct and the channel reads as dead.
+  Put a UTM on the destination URL in the listing itself, e.g.
+  `?utm_source=producthunt&utm_medium=referral&utm_campaign=launch`.
 
 ### How to Launch Successfully
 

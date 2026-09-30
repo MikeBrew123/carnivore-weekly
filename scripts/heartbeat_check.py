@@ -54,8 +54,21 @@ def check(name, path, max_age, missing_is_dead=True):
         notes.append(f"{name} ok ({age / HOURS:.0f}h)")
 
 
-# 1. Dashboard cron (daily 10:00 UTC) — stale after 30h
-check('dashboard-cron', os.path.join(LOGS, 'dashboard_update.log'), 30 * HOURS)
+# 1. Dashboard sheet (daily 10:00 PT) — stale after 30h. Moved to the Mac Mini
+#    2026-09-23 (LaunchAgent com.minibrew.cw.dashboard-sheet), so the MacBook's
+#    copy of the log no longer moves. Read the Mini's log mtime over SSH.
+try:
+    _mt = subprocess.run(
+        ['ssh', '-o', 'ConnectTimeout=10', '-o', 'BatchMode=yes', 'mini',
+         'stat -f %m /Users/mbrew/Developer/carnivore-weekly/logs/dashboard_update.log'],
+        capture_output=True, text=True, timeout=30).stdout.strip()
+    _age = NOW - int(_mt)
+    if _age > 30 * HOURS:
+        problems.append(f"dashboard-sheet (Mini): no activity for {_age / DAYS:.1f}d")
+    else:
+        notes.append(f"dashboard-sheet (Mini) ok ({_age / HOURS:.0f}h)")
+except Exception as e:
+    problems.append(f"dashboard-sheet (Mini): could not check over SSH ({e})")
 
 # 1b. Command Center (daily 3:40 PT, moved off Actions 2026-08-28) — stale after 30h.
 #     Nothing watched this job when it lived in Actions; Aug 27 ran 10h late and Aug 28
@@ -95,8 +108,14 @@ try:
     with open('/tmp/vault-sync.log') as f:
         dated = [l.strip() for l in f.readlines()[-50:] if l[:2] == '20']
     last = dated[-1] if dated else ''
-    if 'FAIL' in last:
-        problems.append(f'launchagent vaultsync: latest run failed — {last}')
+    # One or two FAILs are Wi-Fi blips (it fires every 10 min and self-heals).
+    # Alert only after 6 in a row, i.e. an hour without a successful sync.
+    import re
+    _m = re.search(r'FAIL \((\d+)\)', last)
+    if _m and int(_m.group(1)) >= 6:
+        problems.append(f'launchagent vaultsync: {_m.group(1)} failed runs in a row — {last}')
+    elif 'FAIL' in last:
+        notes.append(f'vault-sync transient fail ({last[:19]})')
     elif last:
         notes.append('vault-sync ok')
 except OSError:

@@ -32,7 +32,8 @@ A PreToolUse hook (`scripts/hooks/etsy-write-first-guard.sh`) enforces both rule
 ## Concurrency: one active mutating session per worktree (Brew, 2026-09-08)
 **Assume another Claude session may be pointed at this checkout.** On 2026-09-08 two sessions shared `/Users/mbrew/Developer/carnivore-weekly` and the other one committed this session's uncommitted safety work inside its own commits (`api/medical-context.js` entered history via a commit about shopping lists).
 
-- Before any multi-step work that will modify files, **create a worktree** (`git worktree add --detach <path> HEAD`) and work there. One active mutating session per working directory.
+- Before any multi-step work that will modify files, **create a worktree** (`git worktree add --detach .claude/worktrees/<name> HEAD`) and work there. One active mutating session per working directory.
+- **Worktree location (Brew, 2026-09-27):** worktrees live ONLY under `carnivore-weekly/.claude/worktrees/` (gitignored). Never create them as siblings in `~/Developer/` (that produced 13 `cw-*` folders / 16 GB). When the PR merges or the verification is done, `git worktree remove` it in the same session.
 - **Never use bare `git stash` / `git stash pop`** — the stash stack is shared across worktrees and another session can pop yours. Use `git stash push -u -m "<unique-tag>"`, apply by SHA, then drop by tag.
 - Submodules are NOT checked out in a new worktree. `git submodule update --init ketodial/public` before running any suite that reads the intake form, or its assertions fail for the wrong reason.
 - A worktree's submodule follows the parent's committed gitlink, which may be **ahead of** the main checkout's submodule. Check both before applying a patch.

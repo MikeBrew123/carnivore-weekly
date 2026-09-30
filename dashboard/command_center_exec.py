@@ -232,7 +232,9 @@ def build_funnel(events, window_days=28, stripe_purchases=None):
     because that means the stages are not sequential and the funnel is lying.
     """
     if not events or events.get('error'):
-        return {'error': (events or {}).get('error', 'no event data')}
+        return {'error': (events or {}).get('error', 'no event data'),
+                'error_kind': (events or {}).get('error_kind'),
+                'attempts': (events or {}).get('attempts'), 'unreadable': True}
     by = events.get('by_event', {})
     stages, prev_n, first_n = [], None, None
     for name, ev, status, note in FUNNEL_SPEC:
@@ -545,6 +547,7 @@ SOURCE_SPEC = [
     ('gsc_kd', 'Search Console · KD', ('search', 'kd')),
     ('bing_cw', 'Bing Webmaster · CW', ('search', 'bing_cw')),
     ('supabase', 'Supabase', ('funnels',)),
+    ('ga4_events', 'GA4 · paid-funnel events', ('offer_events',)),
     ('stripe', 'Stripe', ('revenue',)),
     ('resend', 'Resend (email events)', ('email_engagement',)),
     ('etsy', 'Etsy snapshot', ('etsy',)),
@@ -723,7 +726,13 @@ def build_experiments(specs, events, today, min_impressions=100):
     this function never declares one.
     """
     out = []
-    by = (events or {}).get('by_event', {}) if events and not events.get('error') else {}
+    # When the event source itself failed, every count below would be a zero
+    # that nothing measured. The experiment is reported as UNREADABLE and no
+    # denominator, numerator or threshold bar is produced at all: "0 of 100
+    # sessions" was read as a real, stalled experiment on 2026-09-18 when GA4
+    # had simply returned a 503.
+    unreadable = bool(events is None or (isinstance(events, dict) and events.get('error')))
+    by = (events or {}).get('by_event', {}) if not unreadable else {}
     for spec in specs or []:
         try:
             started = date.fromisoformat(spec['started'])
@@ -731,6 +740,37 @@ def build_experiments(specs, events, today, min_impressions=100):
             continue
         days = (today - started).days + 1        # inclusive count of measured days
         not_open = started > today
+
+        if unreadable:
+            out.append({
+                'name': spec.get('name', 'unnamed'),
+                'shipped': spec.get('shipped'), 'shipped_ref': spec.get('shipped_ref'),
+                'started': spec['started'], 'start_rationale': spec.get('start_rationale'),
+                'not_started': not_open, 'days': max(0, days),
+                'unreadable': True,
+                'source_error': str((events or {}).get('error', 'event source not collected'))[:200],
+                'source_error_kind': (events or {}).get('error_kind'),
+                'source_attempts': (events or {}).get('attempts'),
+                'denominator_label': spec.get('denominator_label', spec.get('denominator_event')),
+                'numerator_label': spec.get('numerator_label', spec.get('numerator_event')),
+                'checkout_label': spec.get('checkout_label',
+                                           'Checkout sessions in same measurement window'),
+                'outcome_label': spec.get('outcome_label',
+                                          'Purchase sessions in same measurement window'),
+                'denominator': None, 'numerator': None, 'checkouts': None, 'outcome': None,
+                'min_sample': spec.get('min_sample', min_impressions),
+                'threshold_meaning': ('Minimum review threshold. Reaching it makes the result '
+                                      'worth reading; it is not proof, not a winner, and not a '
+                                      'decision.'),
+                'attribution': ('Checkout and purchase counts are SAME-WINDOW totals for the '
+                                'whole site, not outcomes attributed to this experiment.'),
+                'status': 'COULD NOT BE READ: EVENT SOURCE FAILED',
+                'verdict': ('The event source did not answer this run, so nothing was counted. '
+                            'This is not a zero-engagement result and the experiment has not '
+                            'stalled. Re-run the build before drawing any conclusion.'),
+                'rate_pct': None, 'notes': spec.get('notes'),
+            })
+            continue
 
         def since(event_name):
             rec = by.get(event_name)
@@ -872,7 +912,13 @@ def build_what_matters(d, changes, funnel, revenue, attention, experiments, toda
     #    sentence as the impressions would imply an attribution that does not
     #    exist.
     for e in (experiments or []):
-        if e.get('not_started'):
+        if e.get('unreadable'):
+            add('action',
+                f'{e["name"]}: the experiment could not be read this run.',
+                'The GA4 event source failed, so the impression and CTA counts are missing, not '
+                'zero. A failed read and a dead experiment look identical in a count.',
+                'Re-run the dashboard before judging the bridge card. Change nothing yet.', 1)
+        elif e.get('not_started'):
             add('watch',
                 f'{e["name"]}: measurement has not started. Window opens {e["started"]}.',
                 f'The revision shipped part-way through {(e.get("shipped") or "")[:10]}, so that '

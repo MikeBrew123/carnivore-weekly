@@ -210,7 +210,9 @@
       "Bash(python3 -c \"import json; d=json.load\\(open\\('dashboard/command-center-data.json'\\)\\); print\\(json.dumps\\({'as_of': d.get\\('meta',{}\\).get\\('generated_date'\\), 'kd_demographics': d.get\\('demographics',{}\\).get\\('kd'\\)}, indent=1, default=str\\)\\)\")",
       "Bash(python3 -)",
       "Bash(cat >> *)",
-      "Bash(sed -n '/YOUR MEMORIES/,/^# /p' /tmp/marcus_prompt.txt)"
+      "Bash(sed -n '/YOUR MEMORIES/,/^# /p' /tmp/marcus_prompt.txt)",
+      "Bash(node etsy/dump-listing.mjs 4575891585)",
+      "Bash(node etsy/fetch-listings.mjs)"
     ]
   },
   "disabledMcpjsonServers": [
