@@ -118,7 +118,7 @@ If verification fails, report the error - do not claim success.
 
 ## Long-Term Memory (Supabase)
 
-Quinn has access to the **hybrid-vector-db** skill for institutional memory operations.
+(2026-09-29: the hybrid-vector-db skill was archived; Project Nexus has been dormant since February 2026. Institutional memory lives in the repo project logs and the Banana Stand Media vault, not in a vector database.)
 
 ### Available Tools
 - `query_relational(sql)` — Raw SQL for JOINs, aggregates on knowledge_entries
