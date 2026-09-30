@@ -87,9 +87,9 @@ check("KD", "List-Unsubscribe present", bool(kd_hdr), repr(kd_hdr))
 check("KD", "header routes to site=kd", "&site=kd" in kd_hdr, kd_hdr)
 check("KD", "header does NOT route to cw", "site=cw" not in kd_hdr, kd_hdr)
 check("KD", "KD From identity correct",
-      kd["from"] == "KetoDial — The Weekly Dial-In <ketodial@carnivoreweekly.com>", kd["from"])
+      kd["from"] == "KetoDial — The Weekly Dial-In <ketodial@ketodial.com>", kd["from"])
 check("KD", "KD sends from a verified domain",
-      kd["from"].endswith("<ketodial@carnivoreweekly.com>"), kd["from"])
+      kd["from"].endswith("<ketodial@ketodial.com>"), kd["from"])
 check("KD", "header url matches body url",
       kd_hdr.strip("<>") in kd["html"], "header/body mismatch")
 check("KD", "no RFC 8058 one-click (out of scope)",

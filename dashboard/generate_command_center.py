@@ -130,6 +130,7 @@ TEST_EMAIL_MARKERS = ('iambrew@gmail.com', 'iambrew+', '@test.ketodial.com', '@e
 # through the inbound catch-all (e.g. newsletter to a subscriber address on
 # this domain) — never reader mail.
 OWN_SENDER_MARKERS = ('newsletter@carnivoreweekly.com', 'ketodial@carnivoreweekly.com',
+                      'ketodial@ketodial.com',
                       'coach@carnivoreweekly.com')
 
 # Server-side equivalents for supa_count()/PostgREST, since those counts never

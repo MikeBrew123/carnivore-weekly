@@ -147,8 +147,11 @@ SITES = {
     },
     "kd": {
         "name": "KetoDial",
-        "from_email": "KetoDial <ketodial@carnivoreweekly.com>",
-        # Replies ride the @carnivoreweekly.com inbound catch-all: the inbox is
+        "from_email": "KetoDial <ketodial@ketodial.com>",
+        # Sent from ketodial.com (Resend-verified 2026-09-12, cut over 2026-09-30):
+        # the KetoDial name on a carnivoreweekly.com address was being filtered at
+        # Microsoft, Apple and Gmail (reports/kd-drip-audit-2026-09-30.md).
+        # ketodial.com has no inbound, so replies ride the @carnivoreweekly.com inbound catch-all: the inbox is
         # scanned daily and Brew gets one digest with proposed drafts from Sarah.
         "reply_to": "ketodial@carnivoreweekly.com",
         "drip_dir": PROJECT_ROOT / "data" / "drip-emails" / "kd",

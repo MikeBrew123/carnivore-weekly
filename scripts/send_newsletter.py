@@ -50,7 +50,7 @@ SITES = {
     },
     "kd": {
         "name": "KetoDial",
-        "from_email": "ketodial@carnivoreweekly.com",
+        "from_email": "ketodial@ketodial.com",
         "from_name": "KetoDial — The Weekly Dial-In",
         "reply_to": "newsletter@carnivoreweekly.com",
         "newsletter_dir": PROJECT_ROOT / "ketodial" / "public" / "newsletter",
