@@ -583,3 +583,9 @@ public viewer nicety, buyers get the PDF by email); recovery email copy review a
 `calculator2-demo/index.html` loading the production GA4 id so local dev sessions write to the
 live property; the synthetic verification row `evt_1UFFL2EVDfkpGz8wNre6XZsv` in
 `stripe_webhook_events` to exclude from real abandonment counts.
+
+## 2026-09-29 evening: instruction-file cleanup (Developer cleanup session)
+- Shared checkout was blocked since the 09-28 04:23 ops review left 8 files uncommitted; saved to `wip/main-leftovers-2026-09-29`, main re-synced. Three edits are parked there and NOT on main yet: `scripts/heartbeat_check.py` Mini-SSH fix, the CLAUDE.md worktree-location rule, dashboard command-center edits. Re-apply during the governance walkthrough.
+- `.agents/skills` (25 marketing skills) archived to `docs/archive/agents-skills-2026-09-29` (cc387a3c). Block C text fixes in `2a0873f1`: quinn.md, sarah/marcus/chloe, growth agents, kd-recipe-pipeline, cw-blog-publish, etsy-listing-standards, `.claude/rules/ketodial-legacy-blog.md`, CLAUDE.md L14/L96/L135. AGENTS.md deliberately untouched: `chore/rules-governance` (cd189757) rewrites it and conflicts with the 09-27 signed-unsubscribe rule.
+- Scheduled tasks: pull guard in content-queue-review, weekly-blog and kd-blog; kd-blog commits images inside the `ketodial/public` submodule first; both blog tasks commit `data/image-spend-ledger.jsonl`. Crontab: scoreboard truth pass Mon 03:30, heartbeat Mon 03:45 Pacific (stdout to `logs/heartbeat_cron.log`).
+- Pinterest is dead (Brew 2026-09-29): task folders archived, rules removed. Full audit: Brew-Vault `04-Systems/Projects/Home-AI-Server/Instruction-Audit-2026-09-29.md`.
