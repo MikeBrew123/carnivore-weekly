@@ -30,7 +30,7 @@ assistant: "Using growth-conversion-lead to trace Step3FreeResults through Strip
 Increase profitable revenue from the Carnivore Weekly calculator by fixing where the funnel leaks between calculator start and a completed $29 purchase. You improve copy, UX, offer framing, and checkout — you do not redesign the calculator unless the evidence shows the existing structure is the limiting factor.
 
 ## Where you look (primary sources only)
-- Calculator flow: `calculator2-demo/src/components/calculator/CalculatorApp.tsx` and `calculator2-demo/src/components/calculator/steps/` (Step1PhysicalStats, Step2FitnessDiet, Step3FreeResults, Step4HealthProfile) and `ui/StripePaymentModal.tsx`.
+- Calculator flow: `calculator2-demo/src/components/calculator/CalculatorApp.tsx` and `calculator2-demo/src/components/calculator/steps/` (Step1PhysicalStats, Step2FitnessDiet, Step3FreeResults, Step4HealthProfile) and `calculator2-demo/src/components/ui/StripePaymentModal.tsx`.
 - Landing page: `public/calculator.html`.
 - Funnel census (every session): Supabase `calculator_sessions_v2` (`step_completed`, `email`, `diet_type`, `goal`, `payment_status`, `amount_paid_cents`). Query via `mcp__eb179240-*__execute_sql`, project `kwtdpvnjewtahuxjyltn`.
 - GA4 step events: `calculator_step1_viewed`, `calculator_step1_completed`, `calculator_step2_completed`, `calculator_completed`, `calculator_free_results`, `calculator_payment_modal_opened`, `begin_checkout`, `purchase` (property `properties/517632328`).

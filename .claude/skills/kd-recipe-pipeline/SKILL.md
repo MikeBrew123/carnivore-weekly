@@ -26,6 +26,6 @@ description: Add KetoDial recipes - Apify scrape, recipe card build, Replicate i
 1. `ketodial/public/sitemap.xml` entry (priority 0.7, monthly).
 2. Card in `ketodial/public/recipes/index.html` with the correct `data-meal` and an `<img>` tag: `<div class="rwrap"><img src="/images/recipes/recipe-{slug}.jpg" alt="..." loading="lazy" /><span class="net-tag">...`. Cards without `<img>` render blank.
 3. Update the recipe count in the index filter JS (or use `cards.length`).
-4. Submit URLs to the Google Indexing API with `dashboard/ga4-credentials.json`.
+4. Resubmit `ketodial/public/sitemap.xml` in Google Search Console and wait. No Indexing API for normal pages (it only accepts JobPosting and BroadcastEvent).
 
-PROHIBITED: scraping without Apify, source-site images, recipes under 4.5 stars, duplicates, missing sitemap/index updates, skipping GSC submission, cards missing the pantry section or `<img>`.
+PROHIBITED: scraping without Apify, source-site images, recipes under 4.5 stars, duplicates, missing sitemap/index updates, skipping the GSC sitemap resubmit, cards missing the pantry section or `<img>`.

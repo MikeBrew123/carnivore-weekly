@@ -51,4 +51,4 @@ Return ONLY:
 2. **Evidence** — quoted customer language or SQL result, with source.
 3. **Recommendation** — the messaging or targeting implication.
 4. **Next action** — single next step + which funnel metric it informs.
-Rank by revenue relevance. Maintain the running log in `growth/Customer-Insights.md` (append-only). Do not deploy.
+Rank by revenue relevance. Maintain the running log in `/Users/mbrew/Documents/Banana Stand Media/01 Carnivore Weekly/Legacy Project/growth/Customer-Insights.md` (append-only; never a relative `growth/` path, which would create the file inside this public repo). Do not deploy.

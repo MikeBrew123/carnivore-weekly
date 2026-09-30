@@ -18,8 +18,11 @@ own recorded history. If Etsy's guidance changes, update THIS file, not just the
 3. **Never touch the bestseller** 4464219356 without explicit fresh approval from Brew. It is
    ~half of all lifetime revenue.
 4. **Check live state immediately before any write** (near-miss rule of 2026-08-10).
-5. **Public-facing changes always need Brew's go.** Titles, prices, categories, photos: his tap.
-   Materials and alt text are recorded as no-approval API work, still logged.
+5. **Authority per the approve-deny list** (`/Users/mbrew/Documents/Banana Stand Media/01 Carnivore Weekly/Legacy Project/approve-deny-list.md`).
+   G1 lets a session change titles, categories, photos and materials on Brew's own shop same-day,
+   inside the edit cap, with the Live Changes Log row first. Prices stay RED (R6/R7): never change
+   a price outside a batch Brew already approved. Materials and alt text are recorded as
+   no-approval API work, still logged.
 6. Measure results on VIEWS, not sales (2026-08-09 arithmetic: sales need ~550 days per arm).
 
 ## Titles (Etsy's current doctrine, confirmed by their own AI recommendations)
@@ -91,8 +94,8 @@ holds per-listing AI titles: read them, bring them to Brew, accept selectively. 
 
 ## Where things live
 
-- Daily snapshots: reports/etsy-snapshots/snapshots.jsonl (8:09am task) + etsy-watchdog (8:42am).
-- Audit of record: Brew-Vault/.../reports/etsy-listing-audit-2026-08-22.md (+ data json in repo).
+- Daily snapshots: reports/etsy-snapshots/snapshots.jsonl, written by the `etsy-daily-snapshot` scheduled task at 3:00am PT (snapshot + watchdog merged 2026-08-24).
+- Audit of record: `/Users/mbrew/Documents/Banana Stand Media/01 Carnivore Weekly/Legacy Project/reports/etsy-listing-audit-2026-08-22.md` (+ data json in repo).
 - Change log: Brew-Vault/00-Core/Live-Changes-Log.md. Ledger: decision-ledger.md.
 
 ## Thumbnail rule (ISSUE-064 verdict, 2026-08-02)

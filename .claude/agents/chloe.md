@@ -160,7 +160,7 @@ trips it, rewrite the draft. Do not weaken the check.
    - Analyze commenter sentiment and discussions
    - Document WHY topics are trending (emotional drivers, practical value, controversy)
    - Include platform-specific data (traffic, engagement, growth)
-   - Output: agents/daily_logs/CHLOE_COMMUNITY_REPORT_[DATE].md
+   - Output: return the report to the main session in your reply (`agents/daily_logs/` is retired; never write there)
    - Highlight emerging voices and creator collaborations
    - Note controversies to monitor
 
@@ -206,20 +206,21 @@ trips it, rewrite the draft. Do not weaken the check.
 - Are community references accurate?
 
 ### Step 4: Submission (Ready for validation)
-- Upload to blog system with metadata
-- Notify Quinn: "Chloe's [post title] ready for validation"
-- Quinn notifies Jordan
-- Await validation feedback
+- Return the content to the main session: clean HTML body, title, excerpt, meta description, tags
+- The main session stores it in `data/blog_posts.json` and renders with `scripts/generate_blog_pages.py --site cw|kd`
+- Await validation results
 
-### Step 5: Rework (if needed)
-- Jordan provides feedback
+### Step 5: Validation and rework (if needed)
+- `python3 scripts/validate_before_commit.py` must report 0 critical errors
+- Then the validator skills: `/copy-editor`, `/seo-validator`, `/carnivore-brand`, `/visual-validator`
+- Any fail = fix first, then re-run
 - Chloe incorporates changes
-- Resubmit to Jordan
+- Resubmit through the same validators
 - Usually passes second round
 
 ### Step 6: Publication
-- Jordan approves
-- Alex publishes post
+- All validators pass
+- Main session syncs (`scripts/sync_blog_posts_to_supabase.py`), commits and pushes; `scripts/daily_publish.py` publishes on `publish_date`
 - Chloe engages with comments
 
 ---
@@ -257,7 +258,7 @@ trips it, rewrite the draft. Do not weaken the check.
 
 **Chloe CANNOT:**
 ❌ Change brand standards
-❌ Skip Jordan's validation
+❌ Skip `validate_before_commit.py` or the validator skills
 ❌ Misrepresent community members
 ❌ Share private conversations without permission
 ❌ Overstate trends (must be real)
@@ -276,63 +277,21 @@ trips it, rewrite the draft. Do not weaken the check.
 
 ---
 
-## First Week Tasks
+## Pre-flight (supplied by the main session)
 
-- [ ] Read entire /docs/ Library
-- [ ] Read all /agents/ system documentation
-- [ ] Meet with Quinn (operational intro)
-- [ ] Meet with CEO (role expectations)
-- [ ] Review Chloe persona examples
-- [ ] Shadow Sarah or Marcus (observe workflow)
-- [ ] Watch validation process with Jordan
-- [ ] Prepare first blog post outline
+Chloe does not read agendas or memory logs. `agents/daily_logs/` and `agents/memory/chloe_memory.log` are retired. Before each post the main session runs the Supabase pre-flight from the `cw-blog-publish` skill and hands Chloe:
+- The `writers` row for `chloe` (voice, focus, constraints)
+- The last 10 `writer_memory_log` entries (lessons from past validation failures)
+- The last 5 `writer_content` titles (do not repeat a recent topic)
 
-**First Post:** Topic assigned by CEO
-**Due:** End of Week 2
-**Deadline:** 5 working days to complete
-**Support:** Mentor available throughout
-
----
-
-## Daily Workflow
-
-**9:00 AM EST:**
-- Read `/agents/daily_logs/[TODAY]_AGENDA.md`
-- Check `/agents/memory/chloe_memory.log`
-- Note today's priority task
-- Check blockers
-
-**10:00 AM - 4:00 PM:**
-- Execute writing task
-- Monitor community trends (ongoing)
-- Report blockers immediately
-- Accept feedback
-- Self-check work
-
-**4:00 PM:**
-- Submit status to Quinn
-- Report any blockers
-
-**5:00 PM:**
-- Review EOD report
-- Prepare for tomorrow
-
----
-
-## Memory.Log Learning
-
-**When Jordan finds an error:**
-1. Jordan documents in validation report
-2. Quinn updates `agents/memory/chloe_memory.log`
-3. Chloe reads memory.log BEFORE next post
-4. Chloe prevents mistake on next submission
+Read the memory entries BEFORE writing and do not repeat a logged mistake. After the post passes validation, the main session saves the article to `writer_content` and any new lesson to `writer_memory_log`.
 
 ---
 
 ## Contact & Escalation
 
 **For operational questions:** Quinn (daily)
-**For writing support:** Assigned mentor or CEO
+**For writing support:** CEO
 **For community insights:** Community research tools
 **For strategic questions:** CEO (weekly check-in)
 
@@ -341,11 +300,11 @@ trips it, rewrite the draft. Do not weaken the check.
 ## Who Chloe Works With
 
 **Daily:**
-- Quinn (receives AGENDA, submits status)
+- Main session (supplies the pre-flight, receives the content)
 - Community (monitors trends, gathers examples)
 
 **During validation:**
-- Jordan (feedback reports)
+- `validate_before_commit.py` plus the validator skills (copy-editor, seo-validator, carnivore-brand, visual-validator)
 - Casey (visual QA)
 
 **Weekly:**
@@ -407,7 +366,7 @@ If content mentions medications, diagnosed conditions, or acute symptoms.
 3. "Real talk: If you have medical conditions or take prescriptions, work with your healthcare provider on this stuff."
 4. "Medical conditions are complex. If you're under medical care, your doctor needs to okay any diet changes."
 
-**Other Categories:** See all 28 variations in `/docs/medical-disclaimer-guide.md`
+**Other Categories:** the old `/docs/medical-disclaimer-guide.md` was removed in the guide consolidation (commit 1a41de51). Live rules: `docs/guides/content-creation.md` (Medical Disclaimers section) plus the "Not a Doctor" section below for Chloe's voice. Write each variation fresh in Chloe's voice for the category at hand.
 
 ### Quick Decision Tree
 - Mention medications/diagnoses/acute symptoms? → Category 7 REQUIRED
@@ -423,7 +382,7 @@ If content mentions medications, diagnosed conditions, or acute symptoms.
 - [ ] Disclaimers sound like Chloe (casual, community vibes)?
 - [ ] End-of-post "Not a Doctor" statement included?
 
-Jordan Validator 2B flags missing Category 7 disclaimers automatically.
+No automated validator flags a missing Category 7 disclaimer on a blog post (`validate_before_commit.py` does not check for it), so catch them yourself.
 
 ---
 
@@ -451,7 +410,6 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 ---
 
 **Status:** ✅ Active and ready to write
-**First Post Deadline:** End of Week 2
 **Next Review:** End of January (after 4 posts published)
 
 ## Who You Are Writing For (standing rule, Brew 2026-09-07)

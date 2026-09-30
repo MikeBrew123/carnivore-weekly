@@ -11,7 +11,7 @@
 ---
 
 ## Etsy Shop Edits: HARD CAP (Brew, 2026-08-18; in force 2026-08-19)
-Standing authority (2026-08-10) lets any session change Brew's own Etsy shop and sites same-day, on one condition: every change gets a row in `/Users/mbrew/Documents/Brew-Vault/00-Core/Live-Changes-Log.md`. Third-party contact, public posting elsewhere, and anything that spends money still go to Brew first.
+Standing authority (2026-08-10) lets any session change Brew's own Etsy shop and sites same-day, on one condition: every change gets a row in `/Users/mbrew/Documents/Brew-Vault/00-Core/Live-Changes-Log.md`. Third-party contact, public posting elsewhere, and anything that spends money still go to Brew first. Authority list of record: `/Users/mbrew/Documents/Banana Stand Media/01 Carnivore Weekly/Legacy Project/approve-deny-list.md` (G1 grants same-day own-shop changes; prices stay RED, R6/R7).
 
 1. **At most 3 DISTINCT listing ids edited in any rolling 7-day window.** A 4th needs Brew's word or you wait.
 2. **The Live Changes Log row is written BEFORE the Etsy call, never after.** The row is the counter. If the call fails, edit the row to say so.
@@ -92,7 +92,7 @@ PROHIBITED:
 **Weekly cadence:** CW 9 posts/week + KD 6/week, published one per day by the `daily-publish.yml` GitHub Action at 9 AM EST (`scripts/daily_publish.py`, status `ready` + `publish_date <= today`). Content is generated unattended by the `weekly-blog-content-generation` (Sun+Wed 4:33am) and `kd-blog-content-generation` (Tue+Fri) scheduled tasks; manual top-up: paste `scripts/weekly_content_prompt.md`. `scripts/autonomous_blog_generation.sh` blocks on stdin and cannot run unattended.
 **ALWAYS run BOTH** `generate_blog_pages.py --site cw|kd` AND `scripts/generate.py --type pages` before commit. Bare `generate_blog_pages.py` renders every site into `public/blog/` and pollutes the CW sitemap (ISSUE-035).
 
-**Template:** `templates/blog_post_template_2026.html` is the only blog template (`blog_post_template.html` was deleted Feb 2026). Fix the template, never the output file. Same for `public/index.html`, `public/channels.html`, `public/archive.html`: sources are `templates/index_template.html`, `channels_template.html`, `archive_template.html`; `scripts/run_weekly_update.sh` regenerates them on Sundays. Manual edits to output files get logged under MANUAL EDITS LOG in `docs/project-log/current-status.md`.
+**Template:** `templates/blog_post_template_2026.html` is the only blog template (`blog_post_template.html` was deleted Feb 2026). Fix the template, never the output file. Same for `public/index.html`, `public/channels.html`, `public/archive.html`: sources are `templates/index_template.html`, `channels_template.html`, `archive_template.html`; `scripts/generate.py --type all --site cw` regenerates them, run by `.github/workflows/weekly-update.yml` (Sun+Wed 00:00 UTC). Manual edits to output files get logged under MANUAL EDITS LOG in `docs/project-log/current-status.md`.
 
 ### SEO / slug / date rules (ISSUE-021, ISSUE-022)
 - Max 2 posts sharing any single `datePublished`. Never batch-rename dates to one value.
@@ -131,7 +131,7 @@ CW and KD share project `kwtdpvnjewtahuxjyltn` on purpose (shared writer team an
 
 ## Session Workflow (Beads)
 Start: `bd ready`, then `bd list --status=in-progress`, then `bd update <id> --status=in_progress`. During: `bd create "..." --priority <1-5>`, `bd update <id> --status=done|blocked --comment "..."`.
-End ("wrap up" / "end session", in addition to the root protocol): file remaining work as beads, close or block every in-progress task, then `bd sync && git add .beads/ && git commit -m "beads: end session" && git push`, and report completed / filed / `bd ready`. NEVER end a session without syncing. Beads is the source of truth for tasks, not markdown.
+End ("wrap up" / "end session", in addition to the root protocol): file remaining work as beads, close or block every in-progress task, then `bd sync` (local export only: `.beads/issues.jsonl` is gitignored since 2026-09-08 because the repo is public; beads data stays local and is never committed), and report completed / filed / `bd ready`. NEVER end a session without syncing. Beads is the source of truth for tasks, not markdown.
 
 ## Triggers (project-specific; root triggers still apply)
 | Brew says | Do |

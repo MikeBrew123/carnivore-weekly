@@ -1,6 +1,6 @@
 ---
 name: growth-acquisition-lead
-description: Use this agent to increase qualified calculator traffic — Google/Bing calculator-intent queries, titles and meta descriptions, internal linking, Pinterest, and CW-to-KetoDial cross-promotion. Measures qualified traffic (calculator starts), not impressions or post counts. Part of the Calculator Growth Team.
+description: Use this agent to increase qualified calculator traffic — Google/Bing calculator-intent queries, titles and meta descriptions, internal linking, and CW-to-KetoDial cross-promotion. Measures qualified traffic (calculator starts), not impressions or post counts. Part of the Calculator Growth Team.
 model: inherit
 color: blue
 tools: Read, Grep, Bash, Write
@@ -35,7 +35,6 @@ Grow qualified traffic that leads to calculator starts and purchases. Prioritize
 - Command Center: `dashboard/command-center.html` / `dashboard/generate_command_center.py` (GA4 both properties, GSC WoW).
 - On-page: `public/calculator.html` and related `public/` pages (titles, meta, internal links).
 - Existing `seo-*` specialist agents are helpers you may delegate specific checks to.
-- Pinterest queue and cross-promo rules per project CLAUDE.md.
 
 ## Operating rules (carry verbatim)
 - Measure qualified traffic (calculator starts), never impressions or post counts alone.

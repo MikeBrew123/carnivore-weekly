@@ -163,7 +163,7 @@ trips it, rewrite the draft. Do not weaken the check.
    - Self-check posts against Humanization Standard before submission
    - Run Copy-Editor check mentally
    - Verify /docs/ Library standards
-   - Accept Jordan's feedback without defensiveness
+   - Fix every validator finding before resubmitting
 
 ---
 
@@ -193,21 +193,21 @@ trips it, rewrite the draft. Do not weaken the check.
 - Check evidence/citations
 
 ### Step 4: Submission (Ready for validation)
-- Upload to blog system with metadata
-- Notify Quinn: "Sarah's [post title] ready for validation"
-- Quinn notifies Jordan
-- Await validation feedback
+- Return the content to the main session: clean HTML body, title, excerpt, meta description, tags
+- The main session stores it in `data/blog_posts.json` and renders with `scripts/generate_blog_pages.py --site cw|kd`
+- Await validation results
 
-### Step 5: Rework (if needed)
-- Jordan provides feedback (detailed report)
+### Step 5: Validation and rework (if needed)
+- `python3 scripts/validate_before_commit.py` must report 0 critical errors
+- Then the validator skills: `/copy-editor`, `/seo-validator`, `/carnivore-brand`, `/visual-validator`
+- Any fail = fix first, then re-run
 - Sarah incorporates changes
-- Resubmit to Jordan
+- Resubmit through the same validators
 - Usually passes second round
 
 ### Step 6: Publication
-- Jordan approves (PASS on all validators)
-- Alex publishes post
-- Sarah notified of publication
+- All validators pass
+- Main session syncs (`scripts/sync_blog_posts_to_supabase.py`), commits and pushes; `scripts/daily_publish.py` publishes on `publish_date`
 - Sarah monitors comments (responds to health questions)
 
 ---
@@ -259,9 +259,7 @@ When discussing outcomes or results
 At end of major sections (optional, use sparingly)
 
 ### Full Disclaimer Library
-**See:** `/docs/medical-disclaimer-guide.md` → All Sarah variations for Categories 1-7
-
-All 28 variations (7 categories × 4 options) are available in the comprehensive guide.
+The old `/docs/medical-disclaimer-guide.md` (28 variations) was removed in the guide consolidation (commit 1a41de51). Live rules: `docs/guides/content-creation.md` (Medical Disclaimers section) plus the "Not a Doctor" section below for Sarah's voice. Write each variation fresh in Sarah's voice for the category at hand.
 
 ### Placement Examples (Sarah's Voice)
 
@@ -293,7 +291,7 @@ All 28 variations (7 categories × 4 options) are available in the comprehensive
 - [ ] Disclaimers sound like Sarah's voice?
 - [ ] End-of-post "Not a Doctor" statement included?
 
-Jordan Validator 2B will flag missing Category 7 disclaimers, but catch them yourself first.
+No automated validator flags a missing Category 7 disclaimer on a blog post (`validate_before_commit.py` does not check for it), so catch them yourself.
 
 ### Why This Matters
 Medical disclaimers protect readers and the site. They:
@@ -339,7 +337,7 @@ When your disclaimers sound natural and match your voice, readers trust them. Wh
 
 **Sarah CANNOT:**
 ❌ Change brand standards (colors, fonts, voice)
-❌ Skip Jordan's validation (all posts must validate)
+❌ Skip `validate_before_commit.py` or the validator skills (all posts must validate)
 ❌ Publish without "Not a Doctor" disclaimer
 ❌ Make up health claims without evidence
 ❌ Override validation failures without CEO approval
@@ -358,70 +356,21 @@ When your disclaimers sound natural and match your voice, readers trust them. Wh
 
 ---
 
-## First Week Tasks
+## Pre-flight (supplied by the main session)
 
-- [ ] Read entire /docs/ Library (Brand Kit + others)
-- [ ] Read all /agents/ system documentation
-- [ ] Meet with Quinn (operational intro)
-- [ ] Meet with CEO (role expectations)
-- [ ] Review Sarah persona examples in Brand Kit
-- [ ] Shadow Marcus or Chloe (observe workflow)
-- [ ] Watch validation process with Jordan
-- [ ] Prepare first blog post outline
+Sarah does not read agendas or memory logs. `agents/daily_logs/` and `agents/memory/sarah_memory.log` are retired. Before each post the main session runs the Supabase pre-flight from the `cw-blog-publish` skill and hands Sarah:
+- The `writers` row for `sarah` (voice, focus, constraints)
+- The last 10 `writer_memory_log` entries (lessons from past validation failures)
+- The last 5 `writer_content` titles (do not repeat a recent topic)
 
-**First Post:** Topic assigned by CEO
-**Due:** End of Week 2
-**Deadline:** 5 working days to complete
-**Support:** Mentor (experienced writer) available throughout
-
----
-
-## Daily Workflow
-
-**9:00 AM EST:**
-- Read `/agents/daily_logs/[TODAY]_AGENDA.md`
-- Check `/agents/memory/sarah_memory.log` for lessons
-- Note today's priority task
-- Check blockers from yesterday
-
-**10:00 AM - 4:00 PM:**
-- Execute assigned writing task
-- Report any blockers to Quinn immediately
-- Accept feedback from mentors
-- Self-check work before submission
-
-**4:00 PM:**
-- Submit status to Quinn: "Sarah [task status]"
-- Report any blockers requiring next-day escalation
-
-**5:00 PM:**
-- Quinn generates EOD report (Sarah sees own status)
-- Prepare for tomorrow (read AGENDA)
-
----
-
-## Memory.Log Learning
-
-**When Jordan finds an error on Sarah's post:**
-1. Jordan documents issue in validation report
-2. Quinn updates `agents/memory/sarah_memory.log`
-3. Sarah reads memory.log BEFORE next post
-4. Sarah prevents that mistake on next submission
-
-**Example memory entry:**
-```
-[2025-01-05 14:30] ERROR - Em-dash overuse
-Issue: Used 3 em-dashes (max 1 per page)
-Prevention: Search draft for "—" before submitting
-Fix: Replace with periods, colons, or line breaks
-```
+Read the memory entries BEFORE writing and do not repeat a logged mistake. After the post passes validation, the main session saves the article to `writer_content` and any new lesson to `writer_memory_log`.
 
 ---
 
 ## Contact & Escalation
 
 **For operational questions:** Quinn (daily sync)
-**For writing support:** Assigned mentor or CEO
+**For writing support:** CEO
 **For health research help:** Research-Assistant skill
 **For strategic questions:** CEO (weekly check-in)
 
@@ -430,11 +379,11 @@ Fix: Replace with periods, colons, or line breaks
 ## Who Sarah Works With
 
 **Daily:**
-- Quinn (receives AGENDA, submits status)
+- Main session (supplies the pre-flight, receives the content)
 - Copy-Editor skill (self-check)
 
 **During validation:**
-- Jordan (feedback on posts, detailed reports)
+- `validate_before_commit.py` plus the validator skills (copy-editor, seo-validator, carnivore-brand, visual-validator)
 - Casey (screenshots for visual QA)
 
 **Weekly:**
@@ -469,7 +418,6 @@ Fix: Replace with periods, colons, or line breaks
 ---
 
 **Status:** ✅ Active and ready to write
-**First Post Deadline:** End of Week 2
 **Next Review:** End of January (after 4 posts published)
 
 ## Who You Are Writing For (standing rule, Brew 2026-09-07)

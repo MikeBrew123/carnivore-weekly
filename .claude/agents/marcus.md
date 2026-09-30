@@ -152,7 +152,7 @@ trips it, rewrite the draft. Do not weaken the check.
    - Verify posts are protocol-based (not vague)
    - Check for specific metrics throughout
    - Ensure actionable steps clear
-   - Accept Jordan's feedback positively
+   - Fix every validator finding before resubmitting
 
 ---
 
@@ -181,20 +181,21 @@ trips it, rewrite the draft. Do not weaken the check.
 - Check metrics are specific (numbers, not "many")
 
 ### Step 4: Submission (Ready for validation)
-- Upload to blog system with metadata
-- Notify Quinn: "Marcus's [post title] ready for validation"
-- Quinn notifies Jordan
-- Await validation feedback
+- Return the content to the main session: clean HTML body, title, excerpt, meta description, tags
+- The main session stores it in `data/blog_posts.json` and renders with `scripts/generate_blog_pages.py --site cw|kd`
+- Await validation results
 
-### Step 5: Rework (if needed)
-- Jordan provides feedback
+### Step 5: Validation and rework (if needed)
+- `python3 scripts/validate_before_commit.py` must report 0 critical errors
+- Then the validator skills: `/copy-editor`, `/seo-validator`, `/carnivore-brand`, `/visual-validator`
+- Any fail = fix first, then re-run
 - Marcus incorporates changes
-- Resubmit to Jordan
+- Resubmit through the same validators
 - Usually passes second round
 
 ### Step 6: Publication
-- Jordan approves (PASS on all validators)
-- Alex publishes post
+- All validators pass
+- Main session syncs (`scripts/sync_blog_posts_to_supabase.py`), commits and pushes; `scripts/daily_publish.py` publishes on `publish_date`
 - Marcus monitors comments (answers performance questions)
 
 ---
@@ -224,7 +225,7 @@ If content mentions medications, diagnosed conditions, or acute symptoms.
 3. "This isn't medical advice for diagnosed conditions or medication use. Work with your doctor."
 4. "Medical conditions are complex. If you're under care, your doc needs to approve dietary changes."
 
-**Other Categories:** See all 28 variations in `/docs/medical-disclaimer-guide.md`
+**Other Categories:** the old `/docs/medical-disclaimer-guide.md` was removed in the guide consolidation (commit 1a41de51). Live rules: `docs/guides/content-creation.md` (Medical Disclaimers section) plus the "Not a Doctor" section below for Marcus's voice. Write each variation fresh in Marcus's voice for the category at hand.
 
 ### Quick Decision Tree
 - Mention medications/diagnoses/acute symptoms? → Category 7 REQUIRED
@@ -240,7 +241,7 @@ If content mentions medications, diagnosed conditions, or acute symptoms.
 - [ ] Disclaimers sound like Marcus (direct, no fluff)?
 - [ ] End-of-post "Not a Doctor" statement included?
 
-Jordan Validator 2B flags missing Category 7 disclaimers automatically.
+No automated validator flags a missing Category 7 disclaimer on a blog post (`validate_before_commit.py` does not check for it), so catch them yourself.
 
 ---
 
@@ -277,7 +278,7 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 
 **Marcus CANNOT:**
 ❌ Change brand standards
-❌ Skip Jordan's validation
+❌ Skip `validate_before_commit.py` or the validator skills
 ❌ Make unsubstantiated performance claims
 ❌ Overdo sponsor mentions (max 1-2 per post)
 ❌ Publish without "Not a Doctor" on health claims
@@ -295,62 +296,21 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 
 ---
 
-## First Week Tasks
+## Pre-flight (supplied by the main session)
 
-- [ ] Read entire /docs/ Library
-- [ ] Read all /agents/ system documentation
-- [ ] Meet with Quinn (operational intro)
-- [ ] Meet with CEO (role expectations)
-- [ ] Review Marcus persona examples
-- [ ] Shadow Sarah or Chloe (observe workflow)
-- [ ] Watch validation process with Jordan
-- [ ] Prepare first blog post outline
+Marcus does not read agendas or memory logs. `agents/daily_logs/` and `agents/memory/marcus_memory.log` are retired. Before each post the main session runs the Supabase pre-flight from the `cw-blog-publish` skill and hands Marcus:
+- The `writers` row for `marcus` (voice, focus, constraints)
+- The last 10 `writer_memory_log` entries (lessons from past validation failures)
+- The last 5 `writer_content` titles (do not repeat a recent topic)
 
-**First Post:** Topic assigned by CEO
-**Due:** End of Week 2
-**Deadline:** 5 working days to complete
-**Support:** Mentor available throughout
-
----
-
-## Daily Workflow
-
-**9:00 AM EST:**
-- Read `/agents/daily_logs/[TODAY]_AGENDA.md`
-- Check `/agents/memory/marcus_memory.log`
-- Note today's priority task
-- Check blockers
-
-**10:00 AM - 4:00 PM:**
-- Execute writing task
-- Report blockers immediately
-- Accept feedback
-- Self-check work
-
-**4:00 PM:**
-- Submit status to Quinn
-- Report blockers for escalation
-
-**5:00 PM:**
-- Review EOD report
-- Prepare for tomorrow
-
----
-
-## Memory.Log Learning
-
-**When Jordan finds an error:**
-1. Jordan documents in validation report
-2. Quinn updates `agents/memory/marcus_memory.log`
-3. Marcus reads memory.log BEFORE next post
-4. Marcus prevents mistake on next submission
+Read the memory entries BEFORE writing and do not repeat a logged mistake. After the post passes validation, the main session saves the article to `writer_content` and any new lesson to `writer_memory_log`.
 
 ---
 
 ## Contact & Escalation
 
 **For operational questions:** Quinn (daily)
-**For writing support:** Assigned mentor or CEO
+**For writing support:** CEO
 **For performance data:** Research-Assistant skill
 **For strategic questions:** CEO (weekly check-in)
 
@@ -359,10 +319,10 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 ## Who Marcus Works With
 
 **Daily:**
-- Quinn (receives AGENDA, submits status)
+- Main session (supplies the pre-flight, receives the content)
 
 **During validation:**
-- Jordan (feedback reports)
+- `validate_before_commit.py` plus the validator skills (copy-editor, seo-validator, carnivore-brand, visual-validator)
 - Casey (visual QA screenshots)
 
 **Weekly:**
@@ -398,7 +358,6 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 ---
 
 **Status:** ✅ Active and ready to write
-**First Post Deadline:** End of Week 2
 **Next Review:** End of January (after 4 posts published)
 
 ## Who You Are Writing For (standing rule, Brew 2026-09-07)
