@@ -660,28 +660,79 @@ def dynamic_send_cap(secrets):
         return MIN_SEND_CAP  # Fail safe but recoverable
 
 
-def already_sent_today(secrets, email):
-    """Check if this email already received this site's drip today. Prevents duplicates."""
+class DedupeCheckFailed(Exception):
+    """The "already sent today?" answer could not be established."""
+
+
+def _utc_today():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def already_sent_today(secrets, sub_id):
+    """True if this subscriber row already got this site's drip today (UTC).
+
+    FAIL CLOSED (Brew, deck card 1f3f2f68, 2026-09-30; beads qhpe + wxmk).
+    This used to swallow every error and return False, so a Supabase hiccup
+    meant "not sent yet" and the reader was mailed again. Once a second run
+    can queue behind the first, that is a real duplicate email to a real
+    person. Now any answer we cannot trust raises DedupeCheckFailed and the
+    caller skips the reader for the day. current_day is not advanced, so the
+    next daily run sends them this same email: a one-day slip, never a double.
+
+    Looked up by row id, not email, so address encoding can never be the
+    reason the row goes missing. A missing row is also "cannot confirm".
+    """
     sb = secrets["supabase"]
     key = sb["service_role_key"]
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     try:
         resp = requests.get(
             f"{sb['url']}/rest/v1/drip_subscribers",
             headers={"apikey": key, "Authorization": f"Bearer {key}"},
-            params={
-                "select": "last_sent_at",
-                "email": f"eq.{email}",
-                "site": f"eq.{SITE}",
-            },
+            params={"select": "id,last_sent_at", "id": f"eq.{sub_id}", "site": f"eq.{SITE}"},
+            timeout=15,
         )
-        if resp.status_code == 200 and resp.json():
-            last = resp.json()[0].get("last_sent_at", "")
-            if last and last[:10] == today:
-                return True
-    except Exception:
-        pass  # Fail open — better to risk a send than silently skip
-    return False
+        if resp.status_code != 200:
+            raise DedupeCheckFailed(f"HTTP {resp.status_code}")
+        rows = resp.json()
+    except DedupeCheckFailed:
+        raise
+    except Exception as e:
+        raise DedupeCheckFailed(f"{type(e).__name__}: {e}") from e
+    row = next((r for r in rows or [] if isinstance(r, dict) and r.get("id") == sub_id), None)
+    if row is None:
+        raise DedupeCheckFailed("subscriber row not returned")
+    last = row.get("last_sent_at") or ""
+    return last[:10] == _utc_today()
+
+
+RERUN_OVERRIDE_ENV = "DRIP_ALLOW_SAME_DAY_RERUN"
+
+
+def site_already_sent_today(secrets):
+    """Run-level lock: has any drip for this site already gone out today (UTC)?
+
+    The per-reader check above is the last line of defence. This is the first:
+    a second same-day run (a manual dispatch queued behind the cron, a re-run
+    of a finished job, a laptop run on top of the Action) stops before it
+    touches anyone. It keys off drip_subscribers.last_sent_at, which only a
+    successful send writes, so a run that crashed before sending anything does
+    not lock the day. Raises DedupeCheckFailed when it cannot tell; the caller
+    treats that as locked.
+    """
+    today = _utc_today()
+    try:
+        rows = supabase_query(secrets, "drip_subscribers", {
+            "select": "id,last_sent_at",
+            "site": f"eq.{SITE}",
+            "last_sent_at": f"gte.{today}T00:00:00+00:00",
+            "limit": "1",
+        })
+    except Exception as e:
+        raise DedupeCheckFailed(f"{type(e).__name__}: {e}") from e
+    if not isinstance(rows, list):
+        raise DedupeCheckFailed("unexpected response shape")
+    # Re-check the date here rather than trusting the filter alone.
+    return any((r.get("last_sent_at") or "")[:10] == today for r in rows if isinstance(r, dict))
 
 
 def preview_all(resend_key, to):
@@ -747,6 +798,36 @@ def main():
         preview_all(resend_key, args.preview_to)
         return
 
+    # Same-day run lock (Brew, deck card 1f3f2f68, 2026-09-30; bead wxmk).
+    # FAIL CLOSED: if we cannot tell whether today's drip already went out,
+    # nobody is mailed this run. The override is for a deliberate, human
+    # re-run only; it is never set in any workflow.
+    if os.environ.get(RERUN_OVERRIDE_ENV) != "1":
+        lock_reason = None
+        try:
+            if site_already_sent_today(secrets):
+                lock_reason = "sent"
+        except DedupeCheckFailed as e:
+            lock_reason = f"check failed ({e})"
+        if lock_reason == "sent":
+            msg = (f"{CFG['name']} drip already sent today ({_utc_today()} UTC). "
+                   "This is a second same-day run, so it sends nothing.")
+            if args.dry_run:
+                print(f"  Would STOP: {msg} (dry run continues for inspection)")
+            else:
+                print(f"::warning title=Drip same-day run blocked::{msg}")
+                print(f"🛑 {msg}")
+                return
+        elif lock_reason:
+            msg = (f"could not confirm whether today's {CFG['name']} drip already went out: "
+                   f"{lock_reason}. Failing closed, nobody mailed this run; tomorrow's run catches up.")
+            if args.dry_run:
+                print(f"  Would STOP: {msg}")
+            else:
+                print(f"::error title=Drip run lock check failed::{msg}")
+                print(f"🛑 {msg}")
+                sys.exit(1)
+
     pending = supabase_query(secrets, "drip_subscribers", {
         "select": "id,email,current_day,subscribed_at,checkin_token",
         "site": f"eq.{SITE}",
@@ -795,6 +876,7 @@ def main():
     sent = 0
     failed = []
     skipped_dup = 0
+    dedupe_failed = []
     skipped_new = 0
     skipped_ineligible = 0
     graduated = 0
@@ -881,10 +963,16 @@ def main():
             print(f"  Would send day {next_day} to {sub['email']}: {subject_out}{mark}")
             continue
 
-        # Dedup: skip if already sent today (prevents double-sends from re-runs)
-        if already_sent_today(secrets, sub["email"]):
-            skipped_dup += 1
-            print(f"  ⏭️  {sub['email']} — already sent today, skipping")
+        # Dedup: skip if already sent today (prevents double-sends from re-runs).
+        # FAIL CLOSED: a failed check skips this reader for today, loudly.
+        try:
+            if already_sent_today(secrets, sub["id"]):
+                skipped_dup += 1
+                print(f"  ⏭️  {sub['email']} — already sent today, skipping")
+                continue
+        except DedupeCheckFailed as e:
+            dedupe_failed.append((sub["email"], next_day, str(e)[:90]))
+            print(f"  🛑 {sub['email']} — could not confirm day {next_day} was not already sent today ({e}); SKIPPED, retries tomorrow")
             continue
 
         tags = [
@@ -927,11 +1015,25 @@ def main():
         summary += f" ({quota_refused} refused by the Resend quota, recorded in {resend_quota.TABLE})"
     if skipped_dup:
         summary += f", {skipped_dup} skipped (already sent today)"
+    if dedupe_failed:
+        summary += f", {len(dedupe_failed)} SKIPPED (dedupe check failed, fail closed)"
     if skipped_ineligible:
         summary += f", {skipped_ineligible} skipped (no usable calculator context for a personalised day)"
     if skipped_new:
         summary += f", {skipped_new} waiting on the 48h day-1 buffer"
     print(summary)
+
+    if dedupe_failed:
+        print("")
+        print("=" * 62)
+        print(f"  {len(dedupe_failed)} READER(S) SKIPPED: DEDUPE CHECK FAILED")
+        print("  Could not confirm they had not already been mailed today, so")
+        print("  they were not mailed (fail closed). current_day was not")
+        print("  advanced; the next daily run sends them this same email.")
+        print("=" * 62)
+        for email, day, detail in dedupe_failed:
+            print(f"  SKIPPED: day {day} -> {email} — {detail[:70]}")
+        print(f"::error title=Drip dedupe check failed::{len(dedupe_failed)} {SITE} reader(s) skipped today because the already-sent check failed")
 
     if failed:
         print("")
@@ -942,6 +1044,9 @@ def main():
         print("=" * 62)
         for email, day, detail in failed:
             print(f"  MISSED: day {day} -> {email} — {detail[:70]}")
+
+    if failed or dedupe_failed:
+        # Non-zero so the workflow's drip-failure alert opens a GitHub issue.
         sys.exit(1)
 
 

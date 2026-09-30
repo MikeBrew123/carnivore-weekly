@@ -12,8 +12,15 @@ permissions:
   id-token: write
   issues: write
 
+# Own group, not the "pages" group shared with deploy.yml (Brew, deck card
+# 1f3f2f68, 2026-09-30; bead wxmk). On 2026-09-14 two dispatches 32s apart
+# left a publisher run queued behind the first under "pages", one step away
+# from a second drip send. GitHub still lets one run wait here (a newer one
+# replaces it), so the real stop is the same-day lock in send_drip.py: a run
+# that finds today's drip already sent mails nobody. The deploy job below
+# keeps the "pages" group so it still serialises with deploy.yml.
 concurrency:
-  group: "pages"
+  group: daily-publish
   cancel-in-progress: false
 
 jobs:
@@ -269,6 +276,9 @@ jobs:
   deploy:
     needs: publish
     runs-on: ubuntu-latest
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
