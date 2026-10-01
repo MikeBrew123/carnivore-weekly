@@ -83,6 +83,10 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          # Day 1 from Carnivore Weekly for CW-calculator keto signups. Brew
+          # approved the copy on deck 54c86753 (2026-10-01). Set the repo
+          # variable to anything but true to switch it off without a deploy.
+          KD_CW_INTRO_ENABLED: ${{ vars.KD_CW_INTRO_ENABLED }}
         run: python3 scripts/send_drip.py --site kd
 
       - name: Alert on KD drip failure
