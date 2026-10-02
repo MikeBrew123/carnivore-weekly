@@ -487,9 +487,6 @@ def build_needs_attention(d, changes, today):
         elif runway is not None and runway < 3:
             add('amber', f'{lbl} blog queue holds {s["ready"]} post(s), about {runway} publishing '
                          f'day(s) left at the current cadence.')
-    pin = q.get('pinterest') or {}
-    if pin.get('unposted') == 0:
-        add('amber', 'Pinterest queue is empty — posting has stopped.')
 
     for site, lbl in (('cw', 'CW'), ('kd', 'KD')):
         eng = (d.get('email_engagement') or {}).get(site) or {}

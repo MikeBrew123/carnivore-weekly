@@ -1221,7 +1221,7 @@ def fetch_automation_health():
 
 def fetch_queues():
     """Content queue depths from repo files — a drained queue is the classic
-    silent failure here (the Pinterest queue once sat at 0 for days unnoticed)."""
+    silent failure here (a queue once sat at 0 for days unnoticed)."""
     out = {}
     try:
         with open(os.path.join(PROJECT_ROOT, 'data', 'blog_posts.json')) as fh:
@@ -1246,14 +1246,6 @@ def fetch_queues():
                          'runway_days': int(ready / per_day) if per_day else None}
     except Exception as e:
         out['error'] = str(e)[:200]
-    try:
-        with open(os.path.join(PROJECT_ROOT, 'ketodial', 'marketing',
-                               'pinterest-pin-queue.json')) as fh:
-            pins = json.load(fh).get('pins', [])
-        out['pinterest'] = {'unposted': sum(1 for p in pins if not p.get('posted')),
-                            'total': len(pins)}
-    except Exception as e:
-        out['pinterest'] = {'error': str(e)[:200]}
     return out
 
 
@@ -1554,9 +1546,6 @@ def build_insights(d):
                          f'generation run refills it.')
         elif s and s.get('ready', 99) <= 2:
             add('watch', f'{label} blog queue is down to {s["ready"]} ready post(s).')
-    pin = q.get('pinterest') or {}
-    if pin.get('unposted') == 0 and 'error' not in pin:
-        add('watch', 'Pinterest pin queue is empty — the daily poster has nothing to post.')
 
     for w in (d.get('automation') or {}).get('workflows', []):
         if w.get('state') == 'failure':
@@ -2750,10 +2739,6 @@ def render_html(d):
                 warn = ' style="color:var(--red)"' if s.get('ready', 0) == 0 else ''
                 parts.append(f'<span{warn}><b>{s.get("ready", "?")}</b> {label} ready'
                              f' <span class="muted">(last pub {esc(s.get("last_published") or "—")})</span></span>')
-        pin = q.get('pinterest') or {}
-        if 'unposted' in pin:
-            warn = ' style="color:var(--red)"' if pin['unposted'] == 0 else ''
-            parts.append(f'<span{warn}><b>{pin["unposted"]}</b> Pinterest pins queued</span>')
         queue_html = ' · '.join(parts)
 
     ydata = d.get('yesterday') or {}
@@ -3712,10 +3697,6 @@ def email_report(data, html, nas_ok=False):
                 n = s.get('ready', '?')
                 style = 'color:#dc2626;font-weight:700' if n == 0 else ''
                 q_bits.append(f'<span style="{style}">{label} posts: {n}</span>')
-        pin = qd.get('pinterest') or {}
-        if 'unposted' in pin:
-            style = 'color:#dc2626;font-weight:700' if pin['unposted'] == 0 else ''
-            q_bits.append(f'<span style="{style}">Pinterest: {pin["unposted"]}</span>')
     pulse_html = ''
     if auto_bits or q_bits:
         pulse_html = (f'<p style="margin:0 0 4px;font-size:13px;color:#444">{auto_bits}</p>'
