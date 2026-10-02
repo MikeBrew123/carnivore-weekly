@@ -1515,10 +1515,16 @@ def build_insights(d):
         if not e or e.get('error'):
             continue
         attempts = e.get('attempts', 0)
-        if e.get('complained', 0) > 0:
-            add('alert', f'{label}: {e["complained"]} spam complaint(s) this week '
-                         f'({e.get("complaint_rate_pct")}% of delivered) — protect sender '
+        # One complaint is a watch item (the reader is auto-suppressed on the first
+        # hit); two or more, or 0.3% (Google's hard line), is an alert.
+        n_c = e.get('complained', 0)
+        if n_c >= 2 or (n_c and (e.get('complaint_rate_pct') or 0) >= 0.3):
+            add('alert', f'{label}: {n_c} spam complaints this week '
+                         f'({e.get("complaint_rate_pct")}% of delivered). Protect sender '
                          f'reputation, review list quality.')
+        elif n_c == 1:
+            add('watch', f'{label}: 1 spam complaint this week '
+                         f'({e.get("complaint_rate_pct")}% of delivered), reader auto-suppressed.')
         if attempts >= 100 and (e.get('bounce_rate_pct') or 0) >= 5:
             add('watch', f'{label} bounce rate {e["bounce_rate_pct"]}% of {attempts} attempts.')
         if attempts >= 100 and e.get('unique_open_rate_pct') is not None \
