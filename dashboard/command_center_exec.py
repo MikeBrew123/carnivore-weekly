@@ -193,7 +193,10 @@ def clean_traffic(t, today_iso):
 # Stage sources, and why each is labelled the way it is. A stage with no event
 # behind it is declared, never estimated into existence.
 FUNNEL_SPEC = [
-    ('Calculator started', 'calculator_step1_viewed', 'measured', None),
+    ('Calculator opened', 'calculator_step1_viewed', 'measured',
+     'Fires on page load, so bots and drive-by opens count here.'),
+    ('Calculator started', 'calculator_step1_engaged', 'measured',
+     'First tap into any Step 1 field (instrumented 2026-10-02). Empty before then.'),
     ('Free result reached', 'calculator_free_results', 'measured', None),
     ('Paid offer eligible', None, 'inferred',
      'No eligibility event exists. Everyone who reaches a free result is offered the '
@@ -207,6 +210,12 @@ FUNNEL_SPEC = [
     ('Purchase', 'purchase', 'measured', 'Cross-checked against Stripe charges.'),
 ]
 
+# Events newer than the funnel window. Until the window is fully covered, the
+# stage counts only part of the period while the stages around it count all of
+# it, so it would show a drop that is really just missing days. Such a stage is
+# shown as 'partial' and kept out of the rates and the biggest-leak call.
+INSTRUMENTED_SINCE = {'calculator_step1_engaged': date(2026, 10, 2)}
+
 # CTA paths into the payment modal. They are shown as CONTRIBUTORS, never as a
 # sequential stage: a session can reach the modal through any of them, so they
 # overlap, and summing them would double-count. The 2026-09-13 run made this
@@ -219,7 +228,7 @@ FUNNEL_BRANCHES = [
 ]
 
 
-def build_funnel(events, window_days=28, stripe_purchases=None):
+def build_funnel(events, window_days=28, stripe_purchases=None, today=None):
     """Sequential paid funnel from GA4 sessions-with-event.
 
     Sessions, not event counts, are the denominator: one reader clicking the
@@ -234,8 +243,18 @@ def build_funnel(events, window_days=28, stripe_purchases=None):
     if not events or events.get('error'):
         return {'error': (events or {}).get('error', 'no event data')}
     by = events.get('by_event', {})
+    window_start = (today or date.today()) - timedelta(days=window_days)
     stages, prev_n, first_n = [], None, None
     for name, ev, status, note in FUNNEL_SPEC:
+        since = INSTRUMENTED_SINCE.get(ev)
+        if since and since > window_start and by.get(ev) is not None:
+            rec = by[ev]
+            stages.append({'name': name, 'status': 'partial', 'sessions': rec['sessions'],
+                           'events': rec['events'], 'from_prev_pct': None, 'from_start_pct': None,
+                           'impossible': False, 'repeat_ratio': None,
+                           'note': (f'Only counted since {since.isoformat()}, so it covers part of '
+                                    f'this window. No rate until {(since + timedelta(days=window_days)).isoformat()}.')})
+            continue
         if status == 'inferred':
             # Inferred from the stage above. If that stage is itself unavailable
             # the inference has nothing to stand on, so this stage is declared
@@ -282,8 +301,11 @@ def build_funnel(events, window_days=28, stripe_purchases=None):
                            'them.'),
            'source': 'GA4 sessions containing each event (CW property)'}
     # Biggest proportional drop between two measured, adequately-sampled stages.
+    # Compared between neighbouring USABLE stages, so a stage that is unavailable
+    # or only partly counted does not hide the drop across it.
+    usable = [s for s in stages if s['status'] in ('measured', 'inferred') and s['sessions'] is not None]
     worst, worst_drop = None, 0
-    for a, b in zip(stages, stages[1:]):
+    for a, b in zip(usable, usable[1:]):
         if not a['sessions'] or b['sessions'] is None or a['sessions'] < 20:
             continue
         drop = a['sessions'] - b['sessions']

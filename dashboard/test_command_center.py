@@ -168,8 +168,27 @@ class Funnel(unittest.TestCase):
             calculator_step1_viewed=(280, 280), calculator_free_results=(123, 123),
             calculator_offer_impression=(100, 100), calculator_bridge_cta_click=(7, 7),
             calculator_payment_modal_opened=(6, 6), begin_checkout=(3, 3), purchase=(3, 3)))
-        self.assertEqual(f['biggest_leak']['from'], 'Calculator started')
+        self.assertEqual(f['biggest_leak']['from'], 'Calculator opened')
         self.assertEqual(f['biggest_leak']['lost'], 157)
+
+    def test_newly_instrumented_stage_is_partial_and_never_the_leak(self):
+        from datetime import date
+        ev = self.events(calculator_step1_viewed=(300, 300), calculator_step1_engaged=(20, 20),
+                         calculator_free_results=(130, 130))
+        f = X.build_funnel(ev, today=date(2026, 10, 10))
+        st = {s['name']: s for s in f['stages']}
+        self.assertEqual(st['Calculator started']['status'], 'partial')
+        self.assertIsNone(st['Calculator started']['from_prev_pct'])
+        self.assertFalse(st['Free result reached']['impossible'])
+        self.assertEqual(st['Free result reached']['from_prev_pct'], 43.3)
+        self.assertEqual(f['biggest_leak']['from'], 'Calculator opened')
+        import generate_command_center as G
+        html = G.paid_funnel_html({'paid_funnel': f})
+        self.assertIn('partial window', html)
+        self.assertNotIn('−280 lost', html)
+        self.assertIn('−170 lost', html)
+        full = X.build_funnel(ev, today=date(2026, 11, 1))
+        self.assertEqual({s['name']: s for s in full['stages']}['Calculator started']['status'], 'measured')
 
     def test_no_event_data_is_an_error_not_an_empty_funnel(self):
         self.assertIn('error', X.build_funnel({'error': 'GA4 down'}))

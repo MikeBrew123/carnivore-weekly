@@ -1117,6 +1117,8 @@ export default function CalculatorApp({
             onFieldChange={handleFieldChange}
             onSetErrors={handleSetErrors}
             errors={errors}
+            onTrack={(eventName, params, once) =>
+              once ? trackFunnelOnce(eventName, params) : trackCalculatorEvent(eventName, params)}
           />
         )
       case 2:

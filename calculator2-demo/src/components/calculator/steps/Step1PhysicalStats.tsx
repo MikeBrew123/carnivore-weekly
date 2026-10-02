@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FormData } from '../../../types/form'
 import FormField from '../shared/FormField'
 import RadioGroup from '../shared/RadioGroup'
@@ -15,7 +15,21 @@ interface Step1PhysicalStatsProps {
   onFieldChange?: (fieldName: string) => void
   onSetErrors?: (errors: Record<string, string>) => void
   errors: Record<string, string>
+  onTrack?: (eventName: string, params?: Record<string, string>, once?: boolean) => void
 }
+
+// calculator_step1_viewed fires on page load, so bots and drive-by opens count
+// as "started". These events separate a real start (a field was touched) from
+// an open, and say where people stop. The field is in the EVENT NAME, not only
+// a param: GA4 cannot report a param without a registered custom dimension,
+// which is why the old `step` param reads "(not set)" everywhere.
+// Field ids collapse to the five questions a reader sees.
+const TRACKED_FIELD: Record<string, string> = {
+  email: 'email', sex: 'sex', age: 'age',
+  heightFeet: 'height', heightInches: 'height', heightCm: 'height',
+  weight: 'weight', weightKg: 'weight',
+}
+const FIELD_ORDER = ['email', 'sex', 'age', 'height', 'weight']
 
 // Every error key that belongs to the height group. "height" (nothing entered)
 // is not the name of any input, which is why it used to render nowhere and a
@@ -34,11 +48,52 @@ export default function Step1PhysicalStats({
   onFieldChange,
   onSetErrors,
   errors,
+  onTrack,
 }: Step1PhysicalStatsProps) {
   // Offered when the typed domain is one character off a common provider.
   // Advisory only: the user can ignore it and continue.
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null)
   const formRef = useRef<HTMLDivElement>(null)
+
+  // Step 1 engagement tracking (see TRACKED_FIELD above)
+  const touchedFields = useRef<Set<string>>(new Set())
+  const lastField = useRef<string | null>(null)
+  const continued = useRef(false)
+  // focusFirstError moves focus itself; that is not the reader touching a field
+  const autoFocusing = useRef(false)
+
+  const handleFocusCapture = (e: React.FocusEvent<HTMLDivElement>) => {
+    const el = e.target as HTMLInputElement
+    const field = TRACKED_FIELD[el.id] || TRACKED_FIELD[el.name]
+    if (!field || !onTrack || autoFocusing.current) return
+    lastField.current = field
+    if (touchedFields.current.has(field)) return
+    if (touchedFields.current.size === 0) {
+      onTrack('calculator_step1_engaged', { first_field: field }, true)
+    }
+    touchedFields.current.add(field)
+    onTrack(`calculator_s1_touch_${field}`, { field }, true)
+  }
+
+  // Leaving the page after touching a field but before passing Step 1. Unmount
+  // (moving to Step 2) removes the listener, so a finisher never fires it.
+  // GA4's gtag sends with sendBeacon, which survives the page closing.
+  // The parent passes a fresh closure each render; read it through a ref so the
+  // listener is attached once.
+  const trackRef = useRef(onTrack)
+  trackRef.current = onTrack
+  useEffect(() => {
+    const onPageHide = () => {
+      const field = lastField.current
+      if (!field || continued.current || !trackRef.current) return
+      trackRef.current(`calculator_s1_quit_${field}`, {
+        field,
+        fields_touched: String(touchedFields.current.size),
+      }, true)
+    }
+    window.addEventListener('pagehide', onPageHide)
+    return () => window.removeEventListener('pagehide', onPageHide)
+  }, [])
 
   const unitSystem = unitSystemOf(data)
   const isMetric = unitSystem === 'metric'
@@ -204,7 +259,9 @@ export default function Step1PhysicalStats({
     const first = order.find(({ keys }) => keys.some((key) => errs[key]))
     const field = first && root.querySelector<HTMLElement>(first.selector)
     if (!first || !field) return
+    autoFocusing.current = true
     field.focus({ preventScroll: true })
+    autoFocusing.current = false
     const target = (first.scrollId && root.querySelector<HTMLElement>(`#${first.scrollId}`)) || field
     // After React paints the message, so it lands on screen with the field.
     requestAnimationFrame(() => bringIntoView(target))
@@ -246,15 +303,21 @@ export default function Step1PhysicalStats({
       console.log('[Step1] Validation failed, showing errors')
       onSetErrors?.(newErrors)
       focusFirstError(newErrors)
+      // First failing question in screen order: tells a confusing field apart
+      // from one people simply will not fill in.
+      const failed = FIELD_ORDER.find((f) =>
+        Object.keys(newErrors).some((key) => (TRACKED_FIELD[key] || key) === f))
+      if (failed) onTrack?.(`calculator_s1_error_${failed}`, { field: failed })
       return
     }
 
     console.log('[Step1] Validation passed, calling onContinue()')
+    continued.current = true
     onContinue()
   }
 
   return (
-    <div className="space-y-10" ref={formRef}>
+    <div className="space-y-10" ref={formRef} onFocusCapture={handleFocusCapture}>
       <div className="mb-10">
         <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', color: '#ffd700', fontWeight: '600', marginBottom: '8px' }}>Let's Start with Your Basics</h2>
         <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '18px', color: '#f5f5f5' }}>These measurements help us calculate your personalized macros.</p>

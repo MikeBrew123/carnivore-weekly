@@ -412,8 +412,8 @@ def fetch_traffic(property_id):
 # 2026-09-13 (first-fired dates from dashboard/ga4_event_history.py):
 # step1_viewed 2026-07-10, free_results 2026-01-06, offer_impression 2026-08-01,
 # bridge_cta_click 2026-05-29, payment_modal_opened 2026-01-09,
-# begin_checkout 2026-05-29, purchase 2026-01-01.
-FUNNEL_EVENTS = ('calculator_step1_viewed', 'calculator_free_results',
+# begin_checkout 2026-05-29, purchase 2026-01-01. step1_engaged added 2026-10-02.
+FUNNEL_EVENTS = ('calculator_step1_viewed', 'calculator_step1_engaged', 'calculator_free_results',
                  'calculator_offer_impression', 'calculator_bridge_cta_click',
                  'calculator_payment_modal_opened', 'begin_checkout', 'purchase')
 
@@ -2300,7 +2300,7 @@ def scorecard_html(d, site, label, ident):
 # ── Paid funnel: the drops are the information ───────────────────────
 
 STAGE_TAG = {'measured': ('m', 'measured'), 'inferred': ('i', 'inferred'),
-             'unavailable': ('u', 'unavailable')}
+             'unavailable': ('u', 'unavailable'), 'partial': ('u', 'partial window')}
 
 
 def paid_funnel_html(d):
@@ -2319,11 +2319,15 @@ def paid_funnel_html(d):
         # 100% carried" there is not a measurement and can never change. It is
         # not drawn; the stage's own note explains the equality.
         definitional = st['status'] == 'inferred'
+        # A partial stage counts only part of the window, so a drop drawn to or
+        # from it would be missing days, not lost people. No row, and the stage
+        # below it measures from the last full stage.
+        partial = st['status'] == 'partial'
         # The drop BETWEEN stages is what a reader acts on, so it is drawn as
         # its own row. A proportional bar per stage would collapse to nothing by
         # the bottom of this funnel and would say less than the numbers do; the
         # first stage's bar would also be 100% by definition and never move.
-        if prev is not None and n is not None and not definitional:
+        if prev is not None and n is not None and not definitional and not partial:
             lost = prev - n
             kept = (n / prev * 100) if prev else 0
             hot = ' hot' if st['name'] == leak_to else ''
@@ -2344,7 +2348,7 @@ def paid_funnel_html(d):
                  f'<span class="tag t-{cls}">{word}</span></span>'
                  f'<span class="sval">{num(n, "count", X.evidence(n, "sessions"))}</span></div>'
                  f'{rep}{note}</div>')
-        if n is not None:
+        if n is not None and not partial:
             prev = n
     br = ''
     for b in pf.get('branches', []):
