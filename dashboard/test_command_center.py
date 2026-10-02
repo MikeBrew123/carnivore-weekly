@@ -264,6 +264,11 @@ class Attention(unittest.TestCase):
         sevs = {i['severity'] for i in X.build_needs_attention(d, {'wow': [], 'dod': []}, TODAY)}
         self.assertEqual(sevs, {'red', 'amber'})
 
+    def test_pinterest_queue_raises_nothing(self):
+        # Pinterest declared dead 2026-09-29; a stale empty queue must stay silent.
+        d = dict(self.base, queues={'pinterest': {'unposted': 0, 'total': 40}})
+        self.assertEqual(X.build_needs_attention(d, {'wow': [], 'dod': []}, TODAY), [])
+
     def test_email_thresholds_need_an_adequate_cohort(self):
         thin = dict(self.base, email_engagement={'cw': {'attempts': 20, 'bounce_rate_pct': 40.0}})
         self.assertEqual(X.build_needs_attention(thin, {'wow': [], 'dod': []}, TODAY), [])
@@ -578,8 +583,8 @@ class WhatMatters(unittest.TestCase):
     def test_amber_attention_is_not_mirrored_here(self):
         items = X.build_what_matters(
             self.empty, self.base_changes(), {}, {'unavailable': True},
-            [{'severity': 'amber', 'text': 'Pinterest queue empty', 'why': None}], [], TODAY_ISO)
-        self.assertNotIn('Pinterest queue empty', [i['fact'] for i in items])
+            [{'severity': 'amber', 'text': 'KD blog queue runway is short', 'why': None}], [], TODAY_ISO)
+        self.assertNotIn('KD blog queue runway is short', [i['fact'] for i in items])
 
     def test_red_attention_leads(self):
         items = X.build_what_matters(
