@@ -279,6 +279,13 @@ class Attention(unittest.TestCase):
         self.assertEqual(X.build_needs_attention(d, {'wow': [], 'dod': []}, TODAY)[0]['severity'],
                          'red')
 
+    def test_single_complaint_is_amber_not_red(self):
+        d = dict(self.base, email_engagement={
+            'cw': {'attempts': 432, 'complained': 1, 'complaint_rate_pct': 0.23,
+                   'bounce_rate_pct': 0.2, 'delivery_rate_pct': 99.8}})
+        self.assertEqual(X.build_needs_attention(d, {'wow': [], 'dod': []}, TODAY)[0]['severity'],
+                         'amber')
+
 
 class DontOverreact(unittest.TestCase):
     def test_low_sample_movements_are_listed(self):

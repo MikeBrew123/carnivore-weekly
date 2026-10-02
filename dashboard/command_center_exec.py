@@ -499,9 +499,18 @@ def build_needs_attention(d, changes, today):
         if (eng.get('bounce_rate_pct') or 0) >= 5:
             add('amber', f'{lbl} bounce rate is {eng["bounce_rate_pct"]}% of {att} attempts '
                          f'(threshold 5%).', 'Sustained bounces cost sender reputation.')
-        if (eng.get('complaint_rate_pct') or 0) >= 0.1:
-            add('red', f'{lbl} complaint rate is {eng["complaint_rate_pct"]}% of delivered '
-                       f'(threshold 0.1%).', 'Above 0.1% mailbox providers start filtering.')
+        # One complaint at ~450 sends/week is ~0.2%, so a single misfiled report
+        # always crosses 0.1%. The sender already suppresses on the first complaint,
+        # so one is amber (watch), two or more or 0.3% (Google's hard line) is red.
+        n_c = eng.get('complained') or 0
+        rate_c = eng.get('complaint_rate_pct') or 0
+        if n_c >= 2 or rate_c >= 0.3:
+            add('red', f'{lbl} complaint rate is {rate_c}% of delivered ({n_c} complaints, '
+                       f'threshold 0.1%).', 'Above 0.1% mailbox providers start filtering.')
+        elif rate_c >= 0.1:
+            add('amber', f'{lbl} had 1 spam complaint ({rate_c}% of delivered). The reader was '
+                         f'auto-suppressed; at our volume one complaint crosses 0.1%.',
+                'Becomes red on a second complaint in the window.')
         if (eng.get('delivery_rate_pct') or 100) < 95:
             add('amber', f'{lbl} delivery rate is {eng["delivery_rate_pct"]}% of {att} attempts.')
 
@@ -959,12 +968,18 @@ def build_executive(d, changes, funnel, revenue, attention, today_iso):
 
     eng_cw = (d.get('email_engagement') or {}).get('cw') or {}
     if eng_cw.get('attempts'):
-        healthy = ((eng_cw.get('bounce_rate_pct') or 0) < 5
-                   and (eng_cw.get('complaint_rate_pct') or 0) < 0.1)
-        brief.append(f'Email is {"healthy" if healthy else "showing a deliverability problem"}: '
-                     f'{eng_cw["delivery_rate_pct"]:.1f}% delivery on {eng_cw["attempts"]} CW '
-                     f'attempts, {eng_cw["bounce_rate_pct"]:.1f}% bounce, '
-                     f'{eng_cw["unique_open_rate_pct"]:.0f}% unique open rate.')
+        n_c = eng_cw.get('complained') or 0
+        rate_c = eng_cw.get('complaint_rate_pct') or 0
+        delivery_ok = ((eng_cw.get('bounce_rate_pct') or 0) < 5
+                       and (eng_cw.get('delivery_rate_pct') or 100) >= 95)
+        line = (f'Email delivery is {"healthy" if delivery_ok else "a problem"}: '
+                f'{eng_cw["delivery_rate_pct"]:.1f}% delivery on {eng_cw["attempts"]} CW '
+                f'attempts, {eng_cw["bounce_rate_pct"]:.1f}% bounce, '
+                f'{eng_cw["unique_open_rate_pct"]:.0f}% unique open rate.')
+        if n_c:
+            line += (f' {n_c} spam complaint{"s" if n_c > 1 else ""} ({rate_c}% of delivered), '
+                     f'auto-suppressed{"; two or more is a real problem" if n_c > 1 else ""}.')
+        brief.append(line)
 
     if kd:
         brief.append(f'KD remains small: {kd["clean_7d"]} cleaned-trend sessions this week '
