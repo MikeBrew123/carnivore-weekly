@@ -589,3 +589,14 @@ live property; the synthetic verification row `evt_1UFFL2EVDfkpGz8wNre6XZsv` in
 - `.agents/skills` (25 marketing skills) archived to `docs/archive/agents-skills-2026-09-29` (cc387a3c). Block C text fixes in `2a0873f1`: quinn.md, sarah/marcus/chloe, growth agents, kd-recipe-pipeline, cw-blog-publish, etsy-listing-standards, `.claude/rules/ketodial-legacy-blog.md`, CLAUDE.md L14/L96/L135. AGENTS.md deliberately untouched: `chore/rules-governance` (cd189757) rewrites it and conflicts with the 09-27 signed-unsubscribe rule.
 - Scheduled tasks: pull guard in content-queue-review, weekly-blog and kd-blog; kd-blog commits images inside the `ketodial/public` submodule first; both blog tasks commit `data/image-spend-ledger.jsonl`. Crontab: scoreboard truth pass Mon 03:30, heartbeat Mon 03:45 Pacific (stdout to `logs/heartbeat_cron.log`).
 - Pinterest is dead (Brew 2026-09-29): task folders archived, rules removed. Full audit: Brew-Vault `04-Systems/Projects/Home-AI-Server/Instruction-Audit-2026-09-29.md`.
+
+<!-- The section below was written 2026-09-27, parked on wip/main-leftovers-2026-09-29, restored 2026-10-03. -->
+
+## 2026-09-27: two personal Sarah emails sent on Brew's go
+- Checkout abandoner (09-22 session 900fef4d): no-pitch feedback ask, Resend 01a0e380-c806-70eb-85ac-42c27d77edcf. No discount; drip day 7 carries DRIP50 anyway.
+- Rebecca (feedback 08-21, no reply to Sarah's 08-22 answer): short check-in, Resend 01a0e385-7245-727c-93a9-8abe685cfa26.
+- Honey reader (feedback 09-24): Sarah's reply BOUNCED at Hotmail 1s after delivery; she never got it. Open gap: bounces on manual Sarah replies alert nobody.
+- Recovery attribution built on branch feat/abandon-recovery-attribution (ed5612cf), not merged: main checkout has uncommitted edits to the two dashboard files. Flag stays "false".
+- Group A check-ins (4 early-drip survey answerers, no pitch) sent on Brew's go 08:50 PDT: 3 CW from "Sarah at Carnivore Weekly", 1 KD from "Sarah at KetoDial" (blood-sugar doctor line posed as a question per Brew). Resend 01a0e38e-f817, 01a0e38f-078b, 01a0e38f-18fb, 01a0e38f-2b43. Replies to sarah@.
+- FINDING: drip_survey_responses only links answers to a subscriber since 2026-09-13 (41 linked). 110 answers from 07-20 onward are anonymous, and unlinked answers are still arriving (latest 09-27), so some answer path still drops the subscriber id. Engineering, ours.
+- Group B batch 1 (10 drip finishers, no buy) sent 09:03 PDT, split A (keep emails going?) / B (report worth it?) / offer (2 who clicked 50% off). Full list and next steps: BSM vault reports/reader-outreach-2026-09-27.md. Read due 10-02.
