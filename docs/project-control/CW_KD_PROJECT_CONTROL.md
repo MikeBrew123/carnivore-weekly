@@ -56,9 +56,10 @@ and paid-report delivery is now owner- and payment-gated (`520d8d01`, worker `a1
 remains is operational rather than structural — a clean end-to-end production purchase reproduced
 by Brew, and an alert for paid-but-not-delivered.
 
-**CW is currently in a measurement hold.** The revised bridge offer shipped 2026-09-13 and its
-clean measurement window opens 2026-09-14. Bridge copy, layout and price are frozen, and drip
-copy that sells the $29 report should not change while the experiment runs. See §4A.A3.
+**CW is currently in a measurement hold.** The 09-13 bridge revision ended 2026-10-03 as LOST
+(0 sales from 113 offer views vs 6 from 193 before it). Its replacement, one short bridge card per
+diet (`45ba129d`), measures from 2026-10-04. Bridge copy, layout and price are frozen, and drip
+copy that sells the $29 report should not change while it runs. See §4A.A3.
 
 ---
 
@@ -394,7 +395,25 @@ row `evt_1UFFL2EVDfkpGz8wNre6XZsv`.
 
 ---
 
-## A3. CW bridge offer experiment — MEASURING FROM 2026-09-14
+## A3. CW bridge offer experiment: DIET CARDS MEASURING FROM 2026-10-04
+
+| Field | Value |
+|---|---|
+| Diet bridge cards shipped | 2026-10-03 afternoon PDT (`45ba129d`), tested live end to end, test rows deleted |
+| Clean measurement window opens | **2026-10-04** |
+| Minimum review threshold | 100 sessions that saw the offer (about 2026-10-20) |
+| Bar to beat | about 8% of viewers clicking (pre-09-13 card, 10 of 118); 3.1% buying (6 of 193) |
+| Declared in | `dashboard/experiments.json` ("CW diet bridge cards") |
+| Lessons from the lost 09-13 test | BSM vault `growth/Experiment-Log.md` EXP-005 |
+
+- **Read clicks first, then purchases** (Brew 2026-10-03). Clicks arrive about 10 times faster
+  and would have exposed the 09-13 failure about 10 days earlier. Purchases still decide.
+- **The review date is a hard date.** The 09-13 test reached 100 views on 09-27 and sat unread for
+  6 days at zero sales. Read it the day it becomes eligible.
+
+### Previous: 09-13 bridge revision, ENDED 2026-10-03 as LOST
+Result: 0 sales from 113 offer views (pre-revision card: 6 from 193); 2 offer clicks logged since
+09-20. The notes below describe how that cohort was measured and still apply to the new one.
 
 | Field | Value |
 |---|---|
@@ -419,8 +438,8 @@ row `evt_1UFFL2EVDfkpGz8wNre6XZsv`.
   outcomes without real session-intersection instrumentation, which does not exist and was not
   added.
 
-> **The bridge card copy, layout and price are FROZEN while measuring.** Brew and every agent
-> session are bound by this until the panel reads `REVIEW ELIGIBLE` and Brew makes a call.
+> **The diet bridge cards' copy, layout and price are FROZEN while measuring.** Brew and every
+> agent session are bound by this until the panel reads `REVIEW ELIGIBLE` and Brew makes a call.
 
 ---
 
@@ -664,7 +683,7 @@ Rules:
 
 | Workstream | Status | Priority | Definition of Done |
 |---|---|---:|---|
-| CW bridge offer experiment | **MEASURING FROM 2026-09-14 / FROZEN** | P0 | 100 sessions that saw the offer, then a human review. Copy, layout and price frozen until then |
+| CW bridge offer experiment | **DIET CARDS MEASURING FROM 2026-10-04 / FROZEN** (09-13 revision ended 10-03 as LOST) | P0 | 100 sessions that saw the offer (about 10-20), then a human review the same day. Copy, layout and price frozen until then |
 | KD weekly newsletter restoration | **FIXED / AWAITING FIRST SEND** | P0 | A real KD weekly delivered on the Sat 2026-09-19 17:00 PDT run. Queue precondition met by `9add6737` (posts 09-15, 09-18) |
 | CW report safety / canonical pipeline | DEPLOYED / VERIFY REGRESSION ONLY | P0 | One authoritative safe generation path; unsafe data cannot affect downstream report |
 | CW paid-report delivery authorization | **DEPLOYED** (`520d8d01`, worker `a19e5933`) | P0 | Owner + payment gated, delivery to stored address only, uniform 403 |
