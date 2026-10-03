@@ -2256,7 +2256,12 @@ function calculateMacros(formData) {
   const isGain = goal === 'gain';
   // Normalize diet - check both 'diet' and 'selectedProtocol' fields, case-insensitive
   const rawDiet = formData.diet || formData.selectedProtocol || 'carnivore';
-  const diet = rawDiet.toLowerCase().trim();
+  const dietIn = rawDiet.toLowerCase().trim();
+  // PescoDial styles (Brew, 2026-10-03). Keto, low carb and carnivore reuse the
+  // existing branches unchanged; only pesco-mediterranean has its own split.
+  const pescoAlias = { 'pesco-keto': 'keto', 'pesco-lowcarb': 'lowcarb', 'pesco-carnivore': 'pescatarian' };
+  const isPesco = dietIn.indexOf('pesco-') === 0;
+  const diet = pescoAlias[dietIn] || dietIn;
   // lifestyle is what the frontend free-results calc keys off; exercise is a fallback
   const activityKey = String(formData.lifestyle || formData.exercise || 'moderate').toLowerCase().trim();
 
@@ -2309,6 +2314,7 @@ function calculateMacros(formData) {
   const selfServiceFloor = sex === 'female' ? 1200 : 1500;
   let floorApplied = false;
   let targetSuppressed = false;
+  let suppressionReason = 'maintenance_at_or_below_self_service_floor';
   let requestedDeficitPct = isLose ? deficitPct : 0;
   let effectiveDeficitPct = requestedDeficitPct;
 
@@ -2327,13 +2333,44 @@ function calculateMacros(formData) {
     }
   }
 
+  // PescoDial: an underweight reader (BMI under 18.5) who picks "lose" gets no
+  // deficit target (Brew, 2026-10-03). Suppress, never substitute.
+  if (isLose && isPesco && !targetSuppressed) {
+    const hM = heightCmVal / 100;
+    if (weightKg / (hM * hM) < 18.5) {
+      targetSuppressed = true;
+      suppressionReason = 'underweight_weight_loss';
+      effectiveDeficitPct = 0;
+    }
+  }
+
   let protein, fat, carbs;
 
   // All low-carb/animal-based diets use similar macro calculation
   // High protein (2g/kg), fat fills remaining calories, minimal carbs
   const isLowCarbDiet = ['carnivore', 'lion', 'pescatarian', 'keto', 'strict carnivore', 'lowcarb', 'low-carb', 'low carb'].includes(diet);
 
-  if (isLowCarbDiet) {
+  if (diet === 'pesco-mediterranean') {
+    // Pesco-Mediterranean (PescoDial, Brew 2026-10-03, Option A of
+    // PescoDial-Macro-Profile-Proposal-2026-10): protein 1.2 g/kg of the same
+    // goal-weight basis as the low-carb branch, capped at 35% of calories;
+    // fat 35% of calories; carbs fill the rest.
+    const heightM = heightCmVal / 100;
+    const bmi = weightKg / (heightM * heightM);
+    const goalLb = Number(formData.goalWeight) || 0;
+    const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0;
+    let proteinBasisKg;
+    if (goalKg > 0) {
+      const goalBmi = goalKg / (heightM * heightM);
+      const floorKg = 18.5 * heightM * heightM;
+      proteinBasisKg = goalBmi >= 30 ? 25 * heightM * heightM : Math.max(goalKg, floorKg);
+    } else {
+      proteinBasisKg = bmi >= 30 ? 25 * heightM * heightM : weightKg;
+    }
+    protein = Math.min(Math.round(proteinBasisKg * 1.2), Math.floor((calories * 0.35) / 4));
+    fat = Math.round((calories * 0.35) / 9);
+    carbs = Math.round((calories - protein * 4 - fat * 9) / 4);
+  } else if (isLowCarbDiet) {
     // 2g/kg, but for BMI >= 30 base it on reference weight at BMI 25 instead of
     // total weight - 2g/kg of total weight told a 312 lb customer to eat 283g/day.
     const heightM = heightCmVal / 100;
@@ -2396,7 +2433,7 @@ function calculateMacros(formData) {
     carbs_grams: null,
     tdee: Math.round(tdee),
     targetSuppressed: true,
-    suppressionReason: 'maintenance_at_or_below_self_service_floor',
+    suppressionReason,
     selfServiceFloor,
     floorApplied: false,
     requestedDeficitPct,

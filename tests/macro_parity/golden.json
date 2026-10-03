@@ -35719,5 +35719,492 @@
    "requestedDeficitPct": 20,
    "effectiveDeficitPct": 20
   }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "maintain",
+   "diet": "pesco-mediterranean"
+  },
+  "output": {
+   "calories": 1695,
+   "protein_grams": 98,
+   "fat_grams": 66,
+   "carbs_grams": 177,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "diet": "pesco-mediterranean"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 98,
+   "fat_grams": 53,
+   "carbs_grams": 122,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "goalWeight": 150,
+   "diet": "pesco-mediterranean"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 82,
+   "fat_grams": 53,
+   "carbs_grams": 138,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "gain",
+   "diet": "pesco-mediterranean"
+  },
+  "output": {
+   "calories": 1864,
+   "protein_grams": 98,
+   "fat_grams": 73,
+   "carbs_grams": 204,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "maintain",
+   "diet": "pesco-keto"
+  },
+  "output": {
+   "calories": 1695,
+   "protein_grams": 163,
+   "fat_grams": 107,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "diet": "pesco-keto"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 163,
+   "fat_grams": 69,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "goalWeight": 150,
+   "diet": "pesco-keto"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 136,
+   "fat_grams": 81,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "gain",
+   "diet": "pesco-keto"
+  },
+  "output": {
+   "calories": 1864,
+   "protein_grams": 163,
+   "fat_grams": 126,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "maintain",
+   "diet": "pesco-lowcarb"
+  },
+  "output": {
+   "calories": 1695,
+   "protein_grams": 163,
+   "fat_grams": 107,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "diet": "pesco-lowcarb"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 163,
+   "fat_grams": 69,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "goalWeight": 150,
+   "diet": "pesco-lowcarb"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 136,
+   "fat_grams": 81,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "gain",
+   "diet": "pesco-lowcarb"
+  },
+  "output": {
+   "calories": 1864,
+   "protein_grams": 163,
+   "fat_grams": 126,
+   "carbs_grams": 20,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "maintain",
+   "diet": "pesco-carnivore"
+  },
+  "output": {
+   "calories": 1695,
+   "protein_grams": 163,
+   "fat_grams": 116,
+   "carbs_grams": 0,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "diet": "pesco-carnivore"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 163,
+   "fat_grams": 78,
+   "carbs_grams": 0,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "goalWeight": 150,
+   "diet": "pesco-carnivore"
+  },
+  "output": {
+   "calories": 1356,
+   "protein_grams": 136,
+   "fat_grams": 90,
+   "carbs_grams": 0,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 55,
+   "heightFeet": 5,
+   "heightInches": 5,
+   "weight": 180,
+   "lifestyle": "sedentary",
+   "goal": "gain",
+   "diet": "pesco-carnivore"
+  },
+  "output": {
+   "calories": 1864,
+   "protein_grams": 163,
+   "fat_grams": 135,
+   "carbs_grams": 0,
+   "tdee": 1695,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 40,
+   "heightFeet": 5,
+   "heightInches": 6,
+   "weight": 105,
+   "lifestyle": "light",
+   "goal": "lose",
+   "diet": "pesco-mediterranean"
+  },
+  "output": {
+   "calories": null,
+   "protein_grams": null,
+   "fat_grams": null,
+   "carbs_grams": null,
+   "tdee": 1599,
+   "targetSuppressed": true,
+   "suppressionReason": "underweight_weight_loss",
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 40,
+   "heightFeet": 5,
+   "heightInches": 6,
+   "weight": 105,
+   "lifestyle": "light",
+   "goal": "lose",
+   "diet": "pescatarian"
+  },
+  "output": {
+   "calories": 1279,
+   "protein_grams": 95,
+   "fat_grams": 100,
+   "carbs_grams": 0,
+   "tdee": 1599,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 70,
+   "heightFeet": 4,
+   "heightInches": 11,
+   "weight": 150,
+   "lifestyle": "sedentary",
+   "goal": "lose",
+   "deficit": 25,
+   "diet": "pesco-mediterranean",
+   "goalWeight": 115
+  },
+  "output": {
+   "calories": 1200,
+   "protein_grams": 63,
+   "fat_grams": 47,
+   "carbs_grams": 131,
+   "tdee": 1327,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": true,
+   "requestedDeficitPct": 25,
+   "effectiveDeficitPct": 10
+  }
+ },
+ {
+  "input": {
+   "sex": "male",
+   "age": 62,
+   "heightCm": 178,
+   "weight": 230,
+   "lifestyle": "moderate",
+   "goal": "lose",
+   "diet": "pesco-mediterranean",
+   "goalWeight": 190
+  },
+  "output": {
+   "calories": 2295,
+   "protein_grams": 103,
+   "fat_grams": 89,
+   "carbs_grams": 270,
+   "tdee": 2869,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1500,
+   "floorApplied": false,
+   "requestedDeficitPct": 20,
+   "effectiveDeficitPct": 20
+  }
  }
 ]

@@ -61,7 +61,12 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
   const isLose = goal === 'lose' || goal === 'loss'
   const isGain = goal === 'gain'
   const rawDiet = String(fd.diet || fd.selectedProtocol || 'carnivore')
-  const diet = rawDiet.toLowerCase().trim()
+  const dietIn = rawDiet.toLowerCase().trim()
+  // PescoDial styles (Brew, 2026-10-03). Keto, low carb and carnivore reuse the
+  // existing branches unchanged; only pesco-mediterranean has its own split.
+  const pescoAlias: Record<string, string> = { 'pesco-keto': 'keto', 'pesco-lowcarb': 'lowcarb', 'pesco-carnivore': 'pescatarian' }
+  const isPesco = dietIn.indexOf('pesco-') === 0
+  const diet = pescoAlias[dietIn] || dietIn
   const activityKey = String(fd.lifestyle || fd.exercise || 'moderate').toLowerCase().trim()
 
   const weightKg = weight * 0.453592
@@ -94,6 +99,7 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
   const selfServiceFloor = sex === 'female' ? 1200 : 1500
   let floorApplied = false
   let targetSuppressed = false
+  let suppressionReason = 'maintenance_at_or_below_self_service_floor'
   const requestedDeficitPct = isLose ? deficitPct : 0
   let effectiveDeficitPct = requestedDeficitPct
 
@@ -111,10 +117,41 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
     }
   }
 
+  // PescoDial: an underweight reader (BMI under 18.5) who picks "lose" gets no
+  // deficit target (Brew, 2026-10-03). Suppress, never substitute.
+  if (isLose && isPesco && !targetSuppressed) {
+    const hM = heightCmVal / 100
+    if (weightKg / (hM * hM) < 18.5) {
+      targetSuppressed = true
+      suppressionReason = 'underweight_weight_loss'
+      effectiveDeficitPct = 0
+    }
+  }
+
   let protein: number, fat: number, carbs: number
   const isLowCarbDiet = ['carnivore', 'lion', 'pescatarian', 'keto', 'strict carnivore', 'lowcarb', 'low-carb', 'low carb'].includes(diet)
 
-  if (isLowCarbDiet) {
+  if (diet === 'pesco-mediterranean') {
+    // Pesco-Mediterranean (PescoDial, Brew 2026-10-03, Option A of
+    // PescoDial-Macro-Profile-Proposal-2026-10): protein 1.2 g/kg of the same
+    // goal-weight basis as the low-carb branch, capped at 35% of calories;
+    // fat 35% of calories; carbs fill the rest.
+    const heightM = heightCmVal / 100
+    const bmi = weightKg / (heightM * heightM)
+    const goalLb = Number(fd.goalWeight) || 0
+    const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0
+    let proteinBasisKg: number
+    if (goalKg > 0) {
+      const goalBmi = goalKg / (heightM * heightM)
+      const floorKg = 18.5 * heightM * heightM
+      proteinBasisKg = goalBmi >= 30 ? 25 * heightM * heightM : Math.max(goalKg, floorKg)
+    } else {
+      proteinBasisKg = bmi >= 30 ? 25 * heightM * heightM : weightKg
+    }
+    protein = Math.min(Math.round(proteinBasisKg * 1.2), Math.floor((calories * 0.35) / 4))
+    fat = Math.round((calories * 0.35) / 9)
+    carbs = Math.round((calories - protein * 4 - fat * 9) / 4)
+  } else if (isLowCarbDiet) {
     const heightM = heightCmVal / 100
     const bmi = weightKg / (heightM * heightM)
     // Goal weight, when the reader gives one, is the protein basis. That is the
@@ -164,7 +201,7 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
       carbs: null,
       tdee: Math.round(tdee),
       targetSuppressed: true,
-      suppressionReason: 'maintenance_at_or_below_self_service_floor',
+      suppressionReason,
       selfServiceFloor,
       floorApplied: false,
       requestedDeficitPct,
