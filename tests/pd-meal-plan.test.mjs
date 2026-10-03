@@ -78,4 +78,27 @@ check('E. no usable target, no plan', () => {
   assert.throws(() => buildPescoMedWeek({}));
 });
 
+check('F. sane portions: fish 4 oz or more, one piece of fruit, no food listed twice in a meal', () => {
+  const LIMITS = { salmon: [4, 7], cod: [4, 8], shrimp: [4, 7], trout: [4, 7], tilapia: [4, 7], eggs: [1, 3],
+    apple: [1, 1], orange: [1, 1], pear: [1, 1], hummus: [2, 6], olives: [4, 10], tomato_sauce: [0.5, 1.5] };
+  const restrictions = [() => false, k => k === 'eggs', (k, f) => /shrimp/i.test(k + ' ' + (f.usda || ''))];
+  for (const isEx of restrictions) for (const m of TARGETS) {
+    const w = buildPescoMedWeek(m, isEx);
+    for (const d of w.days) {
+      const t = d.totals, tag = `${m.calories} ${d.day}`;
+      assert.ok(Math.abs(t.kcal - m.calories) <= 0.07 * m.calories, `${tag}: ${t.kcal} kcal under a restriction`);
+      assert.ok(t.protein >= 0.9 * m.protein_grams, `${tag}: protein ${t.protein}/${m.protein_grams} under a restriction`);
+      for (const meal of d.meals) {
+        const seen = new Set();
+        for (const i of meal.items) {
+          assert.ok(!seen.has(i.food), `${tag} ${meal.slot}: ${i.food} listed twice`);
+          seen.add(i.food);
+          const L = LIMITS[i.food];
+          if (L) assert.ok(i.qty >= L[0] && i.qty <= L[1], `${tag} ${meal.slot}: ${i.qty} ${i.food}`);
+        }
+      }
+    }
+  }
+});
+
 process.exit(failed ? 1 : 0);

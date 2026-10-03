@@ -82,6 +82,21 @@ const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 const ROUND_STEP = { oz: 0.5, cup: 0.25, tbsp: 0.5, each: 1, slice: 1, stick: 1, can: 0.5 };
 const FRACTIONAL_EACH = { avocado: 0.25, lemon: 0.5, pita: 0.5 };
 
+// Per-meal portion limits, so scaling never asks for something nobody would eat
+// (three oranges as a snack) or a fish portion under the 4 oz serving the fish page
+// names (FDA/EPA). Whatever a limit takes off or adds is rebalanced by the filler and
+// trim passes below.
+const PORTION_LIMITS = {
+  salmon: [4, 7], cod: [4, 8], shrimp: [4, 7], trout: [4, 7], tilapia: [4, 7],
+  sardines: [1, 1], tuna: [0.5, 1],
+  eggs: [1, 3], apple: [1, 1], orange: [1, 1], pear: [1, 1], avocado: [0.25, 0.5],
+  hummus: [2, 6], olives: [4, 10], tomato_sauce: [0.5, 1.5], walnuts: [1, 3], almonds: [2, 6],
+  almond_butter: [1, 2], greek_yogurt: [0.5, 1.25], feta: [0.5, 2], parmesan: [1, 2],
+  string_cheese: [1, 2], wholegrain_bread: [1, 2], pita: [0.5, 1], dates: [1, 3],
+  chia: [1, 2], oats: [0.5, 1], milk: [0.5, 1], blueberries: [0.5, 1],
+};
+const limit = (key, qty) => (PORTION_LIMITS[key] ? clamp(qty, PORTION_LIMITS[key][0], PORTION_LIMITS[key][1]) : qty);
+
 function food(key) {
   const f = PD_FOODS[key];
   if (!f) throw new Error(`pd-meal-plan: unknown food "${key}"`);
@@ -135,23 +150,16 @@ function pickDish(slot, wantedId, isExcluded, used) {
   return fresh[0] || sameKind[0] || ok[0] || null;
 }
 
-/**
- * Build the 7-day Pescatarian Mediterranean plan.
- * @param {{calories:number, protein_grams:number, fat_grams:number, carbs_grams:number}} macros
- *        the macro set this reader may be fed from (already through applyCalorieGuidance)
- * @param {(key:string, food:object) => boolean} isExcluded  true when a food must not appear
- */
-export function buildPescoMedWeek(macros, isExcluded = () => false) {
-  const cal = Number(macros && macros.calories);
-  const proteinTarget = Number(macros && macros.protein_grams);
-  const fatTarget = Number(macros && macros.fat_grams);
-  if (!Number.isFinite(cal) || !Number.isFinite(proteinTarget) || !Number.isFinite(fatTarget) || cal <= 0) {
-    throw new Error('buildPescoMedWeek: refusing to size a meal plan without a usable calorie, protein and fat target.');
-  }
-  const oil = food('olive_oil');
-  const oilKcalPerTbsp = oil.per100g.kcal * oil.gramsPerUnit / 100;
-  const oilFatPerTbsp = oil.per100g.fat * oil.gramsPerUnit / 100;
+const NO_FISH_WARNING = 'Your food restrictions rule out every fish meal, so we cannot build a pescatarian week for you. Please review your selections or contact us.';
 
+/**
+ * Pick the week's dishes, Mon..Sun, honouring exclusions. No quantities: this is
+ * the whole plan for a reader whose numbers are withheld, and the first step of the
+ * sized plan for everyone else, so both variants always show the same dishes.
+ * Returns { days: [], warnings } (a refusal) when a slot has no allowed dish or
+ * when no fish meal survives the reader's restrictions.
+ */
+export function planPescoMedDishes(isExcluded = () => false) {
   const used = new Set();
   const days = [];
   const warnings = [];
@@ -172,7 +180,53 @@ export function buildPescoMedWeek(macros, isExcluded = () => false) {
         warnings.push(`${DAY_NAMES[d]} ${slot}: a planned fish meal was swapped because of your food restrictions.`);
       }
     });
+    days.push({ day: DAY_NAMES[d], dishes });
+  }
+  // A pescatarian plan with no fish in it is not the plan this reader paid for.
+  // When restrictions rule out every fish dish, refuse rather than ship a
+  // fish-free week under a pescatarian name.
+  if (!days.some(d => d.dishes.some(x => x.dish.fish))) return { days: [], warnings: [NO_FISH_WARNING] };
+  return { days, warnings };
+}
 
+/** The dish-only week (numbers withheld): names and ingredients, never a quantity. */
+export function buildPescoMedDishWeek(isExcluded = () => false) {
+  const plan = planPescoMedDishes(isExcluded);
+  return {
+    warnings: plan.warnings,
+    days: plan.days.map(({ day, dishes }) => ({
+      day,
+      meals: dishes.map(({ slot, dish }) => ({
+        slot, dishId: dish.id, name: dish.name, fish: !!dish.fish,
+        items: dish.items.map(([key]) => ({ food: key, name: displayName(key), section: food(key).section })),
+      })),
+    })),
+  };
+}
+
+/**
+ * Build the 7-day Pescatarian Mediterranean plan.
+ * @param {{calories:number, protein_grams:number, fat_grams:number, carbs_grams:number}} macros
+ *        the macro set this reader may be fed from (already through applyCalorieGuidance)
+ * @param {(key:string, food:object) => boolean} isExcluded  true when a food must not appear
+ */
+export function buildPescoMedWeek(macros, isExcluded = () => false) {
+  const cal = Number(macros && macros.calories);
+  const proteinTarget = Number(macros && macros.protein_grams);
+  const fatTarget = Number(macros && macros.fat_grams);
+  if (!Number.isFinite(cal) || !Number.isFinite(proteinTarget) || !Number.isFinite(fatTarget) || cal <= 0) {
+    throw new Error('buildPescoMedWeek: refusing to size a meal plan without a usable calorie, protein and fat target.');
+  }
+  const oil = food('olive_oil');
+  const oilKcalPerTbsp = oil.per100g.kcal * oil.gramsPerUnit / 100;
+  const oilFatPerTbsp = oil.per100g.fat * oil.gramsPerUnit / 100;
+
+  const plan = planPescoMedDishes(isExcluded);
+  if (!plan.days.length) return plan;
+  const { warnings } = plan;
+  const days = [];
+  for (let d = 0; d < PD_PLAN_DAYS; d++) {
+    const { dishes } = plan.days[d];
     const base = [];
     dishes.forEach(({ slot, dish }) => dish.items.forEach(([key, qty, role]) =>
       base.push({ slot, food: key, qty, role: role || (PROTEIN_KEYS.includes(key) ? 'protein' : 'scale') })));
@@ -201,7 +255,7 @@ export function buildPescoMedWeek(macros, isExcluded = () => false) {
 
     const items = base.map(it => ({
       ...it,
-      qty: roundQty(it.food, it.role === 'veg' ? it.qty : it.qty * (it.role === 'protein' ? best.sP : best.sS)),
+      qty: limit(it.food, roundQty(it.food, it.role === 'veg' ? it.qty : it.qty * (it.role === 'protein' ? best.sP : best.sS))),
     }));
     if (best.o > 0) {
       // Cooking oil goes to lunch and dinner.
@@ -212,58 +266,96 @@ export function buildPescoMedWeek(macros, isExcluded = () => false) {
     }
 
     // Calorie floor/ceiling after rounding. Some days' dishes have little to
-    // scale besides protein; close a shortfall with plain sides (whole-grain
-    // bread with lunch, almonds with the snack, an extra half cup of the day's
-    // grain or beans at dinner), and trim the snack if a day runs long.
+    // scale besides protein; close a shortfall with plain sides (whole-grain bread
+    // with lunch or dinner, almonds with the snack, a little more olive oil), and
+    // trim the plate if a day runs long. Every pass respects PORTION_LIMITS, and a
+    // side added to a meal that already has that food joins it rather than being
+    // listed twice.
+    const stepOf = key => FRACTIONAL_EACH[key] || ROUND_STEP[food(key).unit] || 0.25;
+    const maxOf = key => (PORTION_LIMITS[key] ? PORTION_LIMITS[key][1] : Infinity);
+    const minOf = key => (PORTION_LIMITS[key] ? PORTION_LIMITS[key][0] : stepOf(key));
+    // Fat-heavy sides (almonds, oil) only while the day is still under its fat target.
     const FILLERS = [
-      { slot: 'lunch', food: 'wholegrain_bread', step: 1, max: 2 },
-      { slot: 'dinner', food: 'wholegrain_bread', step: 1, max: 2 },
-      { slot: 'snack', food: 'almonds', step: 1, max: 4 },
+      { slot: 'lunch', food: 'wholegrain_bread', max: 2 },
+      { slot: 'dinner', food: 'wholegrain_bread', max: 2 },
+      { slot: 'snack', food: 'blueberries', max: 1 },
+      { slot: 'dinner', food: 'quinoa', max: 1 },
+      { slot: 'breakfast', food: 'wholegrain_bread', max: 2 },
+      { slot: 'snack', food: 'almonds', max: 6, fat: true },
+      { slot: 'dinner', food: 'olive_oil', max: 2, fat: true },
+      { slot: 'lunch', food: 'olive_oil', max: 2, fat: true },
     ];
-    for (let guard = 0; guard < 16 && sumNutrition(items).kcal < 0.94 * cal; guard++) {
-      const f = FILLERS.find(f => !isExcluded(f.food, food(f.food)) &&
-        items.filter(it => it.slot === f.slot && it.food === f.food && it.role === 'filler').reduce((a, it) => a + it.qty, 0) < f.max);
-      if (!f) break;
-      const cur = items.find(it => it.slot === f.slot && it.food === f.food && it.role === 'filler');
-      if (cur) cur.qty += f.step; else items.push({ slot: f.slot, food: f.food, qty: f.step, role: 'filler' });
-    }
-    for (let guard = 0; guard < 8 && sumNutrition(items).kcal > 1.06 * cal; guard++) {
-      const t = items.filter(it => it.role === 'scale' && it.qty > (FRACTIONAL_EACH[it.food] || ROUND_STEP[food(it.food).unit] || 0.25))
-        .sort((x, y) => itemNutrition(y.food, y.qty).kcal - itemNutrition(x.food, x.qty).kcal)[0];
-      if (!t) break;
-      t.qty = roundQty(t.food, t.qty - (FRACTIONAL_EACH[t.food] || ROUND_STEP[food(t.food).unit] || 0.25));
-    }
-
-    // Protein floor after rounding: never under 90% of target.
-    for (let guard = 0; guard < 12 && sumNutrition(items).protein < 0.9 * proteinTarget; guard++) {
-      const target = items.find(it => it.slot === 'dinner' && it.role === 'protein')
-        || items.find(it => it.role === 'protein');
-      if (!target) break;
-      target.qty = roundQty(target.food, target.qty + (FRACTIONAL_EACH[target.food] || ROUND_STEP[food(target.food).unit] || 1));
-    }
-    // Raising protein can push a day back over the ceiling (a fish-free day whose
-    // protein lives in eggs and cheese). Trim the least protein-dense non-protein
-    // foods first, and only while protein stays at or above the floor.
-    for (let guard = 0; guard < 16 && sumNutrition(items).kcal > 1.06 * cal; guard++) {
-      const cands = items.filter(it => (it.role === 'scale' || it.role === 'filler' || it.role === 'oil') &&
-        it.qty > (FRACTIONAL_EACH[it.food] || ROUND_STEP[food(it.food).unit] || 0.25))
-        .map(it => {
-          const step = FRACTIONAL_EACH[it.food] || ROUND_STEP[food(it.food).unit] || 0.25;
-          const n = itemNutrition(it.food, step);
-          return { it, step, density: n.protein / Math.max(n.kcal, 1) };
-        })
-        .sort((x, y) => x.density - y.density);
+    const inSlot = (slot, key) => items.find(it => it.slot === slot && it.food === key);
+    const fill = () => {
+      for (let guard = 0; guard < 24 && sumNutrition(items).kcal < 0.94 * cal; guard++) {
+        const fatRoom = sumNutrition(items).fat < fatTarget;
+        const f = FILLERS.find(f => (!f.fat || fatRoom) && !isExcluded(f.food, food(f.food)) &&
+          ((inSlot(f.slot, f.food) || { qty: 0 }).qty + stepOf(f.food)) <= Math.min(f.max, maxOf(f.food)));
+        if (!f) break;
+        const cur = inSlot(f.slot, f.food);
+        if (cur) cur.qty += stepOf(f.food);
+        else items.push({ slot: f.slot, food: f.food, qty: stepOf(f.food), role: f.food === 'olive_oil' ? 'oil' : 'filler' });
+      }
+    };
+    fill();
+    // Trim the least protein-dense non-protein food first, never below its limit
+    // and never taking protein under the 90% floor.
+    const trimOnce = () => {
       const totalsNow = sumNutrition(items);
-      const pick = cands.find(c => totalsNow.protein - itemNutrition(c.it.food, c.step).protein >= 0.9 * proteinTarget);
-      if (!pick) break;
-      pick.it.qty = roundQty(pick.it.food, pick.it.qty - pick.step);
+      // Oil and added sides may go to zero; a dish's own foods keep their minimum.
+      const floorOf = it => (it.role === 'oil' || it.role === 'filler' ? 0 : minOf(it.food));
+      const cands = items.filter(it => (it.role === 'scale' || it.role === 'filler' || it.role === 'oil') &&
+        it.qty - stepOf(it.food) >= floorOf(it) - 1e-9)
+        .map(it => { const n = itemNutrition(it.food, stepOf(it.food)); return { it, n, density: n.protein / Math.max(n.kcal, 1) }; })
+        .sort((x, y) => x.density - y.density || y.n.kcal - x.n.kcal);
+      const pick = cands.find(c => totalsNow.protein - c.n.protein >= 0.9 * proteinTarget);
+      if (!pick) return false;
+      const next = pick.it.qty - stepOf(pick.it.food);
+      if (next < stepOf(pick.it.food) - 1e-9) items.splice(items.indexOf(pick.it), 1);
+      else pick.it.qty = roundQty(pick.it.food, next);
+      return true;
+    };
+    for (let guard = 0; guard < 24 && sumNutrition(items).kcal > 1.06 * cal; guard++) if (!trimOnce()) break;
+
+    // Protein floor after rounding: never under 90% of target. Dinner's protein
+    // first, then any other, each only up to its portion limit.
+    for (let guard = 0; guard < 16 && sumNutrition(items).protein < 0.9 * proteinTarget; guard++) {
+      const room = it => it.role === 'protein' && it.qty + stepOf(it.food) <= maxOf(it.food) + 1e-9;
+      let target = items.find(it => it.slot === 'dinner' && room(it)) || items.find(room);
+      if (!target) {
+        // Every protein food is at its limit (a fish-free day): a side of plain
+        // Greek yogurt with the snack, then breakfast, then lunch.
+        const slot = ['snack', 'breakfast', 'lunch'].find(sl => !isExcluded('greek_yogurt', food('greek_yogurt')) &&
+          (inSlot(sl, 'greek_yogurt') || { qty: 0 }).qty + 0.25 <= maxOf('greek_yogurt'));
+        if (!slot) break;
+        target = inSlot(slot, 'greek_yogurt');
+        if (!target) { items.push({ slot, food: 'greek_yogurt', qty: 0.25, role: 'protein' }); continue; }
+      }
+      target.qty = roundQty(target.food, target.qty + stepOf(target.food));
+    }
+    // Raising protein can push a day back over the ceiling.
+    for (let guard = 0; guard < 24 && sumNutrition(items).kcal > 1.06 * cal; guard++) if (!trimOnce()) break;
+    // A fish-free day leans on eggs, cheese, hummus and olives and can run well over
+    // its fat target. Take back oil, then other fat-dense foods, and refill with the
+    // lean sides above.
+    for (let guard = 0; guard < 16 && sumNutrition(items).fat > 1.2 * fatTarget; guard++) {
+      const t = items.filter(it => (it.role === 'oil' || it.role === 'filler' || it.role === 'scale') &&
+        it.qty - stepOf(it.food) >= (it.role === 'oil' || it.role === 'filler' ? 0 : minOf(it.food)) - 1e-9)
+        .map(it => { const n = itemNutrition(it.food, stepOf(it.food)); return { it, fatShare: n.fat * 9 / Math.max(n.kcal, 1) }; })
+        .filter(c => c.fatShare > 0.6)
+        .sort((x, y) => (y.it.role === 'oil') - (x.it.role === 'oil') || y.fatShare - x.fatShare)[0];
+      if (!t) break;
+      const next = t.it.qty - stepOf(t.it.food);
+      if (next < stepOf(t.it.food) - 1e-9) items.splice(items.indexOf(t.it), 1);
+      else t.it.qty = roundQty(t.it.food, next);
+      fill();
     }
 
     const totals = sumNutrition(items);
     days.push({
       day: DAY_NAMES[d],
       meals: dishes.map(({ slot, dish }) => ({
-        slot, name: dish.name, fish: !!dish.fish,
+        slot, dishId: dish.id, name: dish.name, fish: !!dish.fish,
         items: items.filter(it => it.slot === slot).map(it => ({
           food: it.food, name: displayName(it.food), qty: it.qty, unit: food(it.food).unit,
           grams: Math.round(it.qty * food(it.food).gramsPerUnit), section: food(it.food).section,
@@ -271,13 +363,6 @@ export function buildPescoMedWeek(macros, isExcluded = () => false) {
       })),
       totals: Object.fromEntries(Object.entries(totals).map(([k, v]) => [k, Math.round(v)])),
     });
-  }
-  // A pescatarian plan with no fish in it is not the plan this reader paid for.
-  // When restrictions rule out every fish dish, refuse rather than ship a
-  // fish-free week under a pescatarian name.
-  const fishMeals = days.flatMap(d => d.meals).filter(m => m.fish).length;
-  if (fishMeals === 0) {
-    return { days: [], warnings: ['Your food restrictions rule out every fish meal, so we cannot build a pescatarian week for you. Please review your selections or contact us.'] };
   }
   return { days, warnings };
 }
@@ -297,6 +382,17 @@ const DISPLAY_NAMES = {
 };
 export function displayName(key) { return DISPLAY_NAMES[key] || key.replace(/_/g, ' '); }
 
+// Count foods: one form up to a single item ("½ lemon", "1 egg"), plural above it.
+const COUNT_FORMS = {
+  eggs: ['egg', 'eggs'], apple: ['apple', 'apples'], orange: ['orange', 'oranges'], pear: ['pear', 'pears'],
+  dates: ['date', 'dates'], olives: ['olive', 'olives'], avocado: ['avocado', 'avocados'], lemon: ['lemon', 'lemons'],
+  'whole-wheat pita': ['whole-wheat pita', 'whole-wheat pitas'],
+};
+function countNoun(name, qty) {
+  const forms = COUNT_FORMS[name];
+  return forms ? forms[qty > 1 ? 1 : 0] : name;
+}
+
 const FRACTIONS = { 0.25: '¼', 0.5: '½', 0.75: '¾', 0.125: '⅛' };
 /** "1½ cups", "5 oz", "2 eggs", "¼ avocado". */
 export function formatQty(qty, unit, name) {
@@ -304,7 +400,7 @@ export function formatQty(qty, unit, name) {
   const frac = Math.round((qty - whole) * 1000) / 1000;
   const num = (whole ? String(whole) : '') + (FRACTIONS[frac] || (frac ? String(frac).replace(/^0/, '') : ''));
   const shown = num || '0';
-  if (unit === 'each') return `${shown} ${name}`;
+  if (unit === 'each') return `${shown} ${countNoun(name, qty)}`.trim();
   const plural = qty > 1 && !['oz'].includes(unit) ? (unit === 'each' ? '' : unit === 'tbsp' ? '' : 's') : '';
   return `${shown} ${unit}${plural} ${name}`;
 }
@@ -323,6 +419,22 @@ export function groceryFromWeek(week) {
   }
   const sections = {};
   for (const it of byFood.values()) (sections[it.section] = sections[it.section] || []).push(it);
+  for (const list of Object.values(sections)) list.sort((a, b) => a.name.localeCompare(b.name));
+  return sections;
+}
+
+/** Grocery list for the numbers-withheld week: what to buy, grouped by section, no amounts. */
+export function groceryNamesFromWeek(week) {
+  if (!week || !Array.isArray(week.days) || week.days.length === 0) {
+    throw new Error('groceryNamesFromWeek: needs the generated week; it never builds a list on its own.');
+  }
+  const sections = {};
+  const seen = new Set();
+  for (const day of week.days) for (const meal of day.meals) for (const it of meal.items) {
+    if (seen.has(it.food)) continue;
+    seen.add(it.food);
+    (sections[it.section] = sections[it.section] || []).push({ food: it.food, name: it.name, section: it.section });
+  }
   for (const list of Object.values(sections)) list.sort((a, b) => a.name.localeCompare(b.name));
   return sections;
 }

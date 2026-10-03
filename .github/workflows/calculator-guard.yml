@@ -31,6 +31,9 @@ on:
       - 'api/sample-day.js'
       - 'api/pd-meal-plan.js'
       - 'api/pd-foods.js'
+      - 'api/pd-report.js'
+      - 'tests/pd-report.test.mjs'
+      - 'tests/report-diet-fidelity.test.mjs'
       - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
       - 'tests/sample-day-arithmetic.test.mjs'
@@ -90,6 +93,9 @@ on:
       - 'api/sample-day.js'
       - 'api/pd-meal-plan.js'
       - 'api/pd-foods.js'
+      - 'api/pd-report.js'
+      - 'tests/pd-report.test.mjs'
+      - 'tests/report-diet-fidelity.test.mjs'
       - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
       - 'tests/sample-day-arithmetic.test.mjs'
@@ -314,6 +320,12 @@ jobs:
       # dishes, all-fish exclusion is refused, grocery list derived from the week.
       - name: PescoDial meal plan
         run: node tests/pd-meal-plan.test.mjs
+      # PescoDial paid report through the real path: guarded numbers, maintenance for
+      # medication, numbers hidden for kidney disease and blood thinners (dishes only,
+      # no amounts), allergies removed from plan, list, recipes and tips, PD branding,
+      # and the four copy gates on every PD section.
+      - name: PescoDial report
+        run: node tests/pd-report.test.mjs
 
   bundle-builds:
     runs-on: ubuntu-latest
@@ -336,7 +348,7 @@ jobs:
         run: node tests/pd-subscribe-routing.test.mjs
 
       - name: Every diet gets its own report (ISSUE-086)
-        run: node tests/report-diet-fidelity.test.mjs carnivore pescatarian keto lowcarb pesco-carnivore pesco-keto pesco-lowcarb
+        run: node tests/report-diet-fidelity.test.mjs carnivore pescatarian keto lowcarb pesco-carnivore pesco-keto pesco-lowcarb pesco-mediterranean
       # The P0 this batch fixed: dismissing the $29 modal used to leave an
       # invisible full-screen overlay that swallowed every subsequent click,
       # including the buy button. It serves public/ — the COMMITTED bundle, which

@@ -42,7 +42,8 @@ const DIETS = {
   'pesco-carnivore': { title: 'Pescatarian Carnivore', fishOnly: true },
   'pesco-keto': { title: 'Pescatarian Keto', fishOnly: true },
   'pesco-lowcarb': { title: 'Pescatarian Low Carb', fishOnly: true },
-  'pesco-mediterranean': { title: 'Pescatarian Mediterranean', fishOnly: true },
+  // PescoDial's own report (Brew's design): a 7-day plan, not the 30-day calendar.
+  'pesco-mediterranean': { title: 'Pescatarian Mediterranean', fishOnly: true, days: 7 },
 };
 const ONLY = process.argv.slice(2).filter(a => !a.startsWith('-'));
 
@@ -91,8 +92,14 @@ for (const [diet, want] of Object.entries(DIETS)) {
     for (const [k, fn] of quiet) console[k] = fn;
   }
   let ok = true;
-  if (!/day\s*30/i.test(sections[3] || '')) { ok = false; fail(diet, 'A. no 30-day calendar'); }
-  if (!(sections[4] || '').trim()) { ok = false; fail(diet, 'A. no shopping list'); }
+  if (want.days === 7) {
+    const rows = (html.match(/<tr><th scope="row">(Mon|Tue|Wed|Thu|Fri|Sat|Sun)<\/th>/g) || []).length;
+    if (rows !== 7) { ok = false; fail(diet, `A. 7-day plan has ${rows} day rows`); }
+    if (!/data-pd-section="grocery"/.test(html)) { ok = false; fail(diet, 'A. no grocery list'); }
+  } else {
+    if (!/day\s*30/i.test(sections[3] || '')) { ok = false; fail(diet, 'A. no 30-day calendar'); }
+    if (!(sections[4] || '').trim()) { ok = false; fail(diet, 'A. no shopping list'); }
+  }
   if (want.fishOnly) {
     // A fish "steak" (tuna steak, salmon steak) is fish; strip those before matching.
     const text = html.replace(/\b(tuna|salmon|swordfish|halibut|cod|mahi[- ]mahi)\s+steaks?\b/gi, '$1');
