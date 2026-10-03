@@ -19,7 +19,11 @@ SELECT title, slug FROM writer_content
 ```
 
 ## Step 2: Write content
-- Read the writer's agent file `agents/{writer}.md`.
+- **Invoke the writer agent. Never read a persona file and imitate the voice.**
+  Agent tool, `subagent_type`: `sarah` → `sarah-health-coach`, `marcus` → `marcus-performance-coach`,
+  `chloe` → `chloe-community-manager`. Resolved from `.claude/agents/` (the live definitions).
+  "Agent type not found" means the session is in the wrong directory: `cd` to the repo root and retry.
+  `agents/{writer}.md` (no dot prefix) is the retired 2026-06 copy. Do not load it.
 - Body is clean HTML: `<h2>`, `<p>`, `<ul>`, `<strong>`, `<blockquote>` only. No page-level tags, no Jinja2.
 - 1,000-1,500 words. Run the `copy-editor` checks (no em-dashes, no AI tells, contractions, grade 8-10) and `soft-conversion` for any product mention.
 - Cross-links only to posts that are live on that domain. Cross-site links use the full URL.

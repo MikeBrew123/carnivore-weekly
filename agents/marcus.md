@@ -1,3 +1,18 @@
+> **LEGACY, NOT LOADED. Retired 2026-06; marked 2026-09-14.**
+>
+> This is **not** the live `marcus` definition and the Agent tool never loads it.
+> The live persona is `.claude/agents/marcus.md`, invoked by `subagent_type`, not by reading a file.
+>
+> This file is kept, unmodified, for two reasons:
+> 1. It is the historical record of the persona as it stood on 2026-06-18.
+> 2. It still carries sections that were never migrated into the live definition
+>    (Internal Linking Rules, SEO Requirements, and for Chloe the Topic Brief Gate,
+>    Consensus Science Check and KetoDial Content Intelligence Protocol).
+>    Those sections may be read as reference. See `docs/project-log/decisions.md`, 2026-09-14.
+>
+> Do not load this as a persona. Do not edit it to "fix" the drift. Migrate the
+> section into `.claude/agents/marcus.md` instead, which is a separate decision.
+
 ---
 name: marcus-performance-coach
 description: Use this agent when you need actionable, protocol-driven content focused on performance, metrics, and results. Marcus specializes in training strategies, meal prep optimization, and business fundamentals. Examples:
