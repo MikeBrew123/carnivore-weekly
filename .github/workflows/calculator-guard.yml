@@ -29,6 +29,9 @@ on:
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'api/sample-day.js'
+      - 'api/pd-meal-plan.js'
+      - 'api/pd-foods.js'
+      - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
       - 'tests/sample-day-arithmetic.test.mjs'
       - 'tests/signup-and-retention-copy.test.mjs'
@@ -85,6 +88,9 @@ on:
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'api/sample-day.js'
+      - 'api/pd-meal-plan.js'
+      - 'api/pd-foods.js'
+      - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
       - 'tests/sample-day-arithmetic.test.mjs'
       - 'tests/signup-and-retention-copy.test.mjs'
@@ -303,6 +309,11 @@ jobs:
       # the code actually does.
       - name: Signup and retention copy
         run: node tests/signup-and-retention-copy.test.mjs
+      # PescoDial Pescatarian Mediterranean week: every day near target from the
+      # rounded quantities, 5 lowest-mercury fish meals, restrictions remove whole
+      # dishes, all-fish exclusion is refused, grocery list derived from the week.
+      - name: PescoDial meal plan
+        run: node tests/pd-meal-plan.test.mjs
 
   bundle-builds:
     runs-on: ubuntu-latest

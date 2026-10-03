@@ -241,6 +241,23 @@ export function buildPescoMedWeek(macros, isExcluded = () => false) {
       if (!target) break;
       target.qty = roundQty(target.food, target.qty + (FRACTIONAL_EACH[target.food] || ROUND_STEP[food(target.food).unit] || 1));
     }
+    // Raising protein can push a day back over the ceiling (a fish-free day whose
+    // protein lives in eggs and cheese). Trim the least protein-dense non-protein
+    // foods first, and only while protein stays at or above the floor.
+    for (let guard = 0; guard < 16 && sumNutrition(items).kcal > 1.06 * cal; guard++) {
+      const cands = items.filter(it => (it.role === 'scale' || it.role === 'filler' || it.role === 'oil') &&
+        it.qty > (FRACTIONAL_EACH[it.food] || ROUND_STEP[food(it.food).unit] || 0.25))
+        .map(it => {
+          const step = FRACTIONAL_EACH[it.food] || ROUND_STEP[food(it.food).unit] || 0.25;
+          const n = itemNutrition(it.food, step);
+          return { it, step, density: n.protein / Math.max(n.kcal, 1) };
+        })
+        .sort((x, y) => x.density - y.density);
+      const totalsNow = sumNutrition(items);
+      const pick = cands.find(c => totalsNow.protein - itemNutrition(c.it.food, c.step).protein >= 0.9 * proteinTarget);
+      if (!pick) break;
+      pick.it.qty = roundQty(pick.it.food, pick.it.qty - pick.step);
+    }
 
     const totals = sumNutrition(items);
     days.push({
@@ -254,6 +271,13 @@ export function buildPescoMedWeek(macros, isExcluded = () => false) {
       })),
       totals: Object.fromEntries(Object.entries(totals).map(([k, v]) => [k, Math.round(v)])),
     });
+  }
+  // A pescatarian plan with no fish in it is not the plan this reader paid for.
+  // When restrictions rule out every fish dish, refuse rather than ship a
+  // fish-free week under a pescatarian name.
+  const fishMeals = days.flatMap(d => d.meals).filter(m => m.fish).length;
+  if (fishMeals === 0) {
+    return { days: [], warnings: ['Your food restrictions rule out every fish meal, so we cannot build a pescatarian week for you. Please review your selections or contact us.'] };
   }
   return { days, warnings };
 }
