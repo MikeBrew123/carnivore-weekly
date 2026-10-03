@@ -19,6 +19,10 @@ Branch `pescodial-build`. Brew approved everything below; ledger entries are in 
 4. Drip HTML in `data/drip-emails/pd/` from the drafts ([PROMO SLOT] removed until the report ships); workflow step `send_drip.py --site pd`.
 5. Calculator frontend for PD (four styles, spelled-out names) once Brew's site design lands.
 
+## Also on the list (Brew, 2026-10-03)
+- GA4 property, Google Search Console (sc-domain:pescodial.com, DNS-verified) and Bing Webmaster for pescodial.com, wired before launch.
+- Cross-links between PescoDial and CW, KD, mikebrew.ca and whistlerbrew.com, in both directions. Use contextual links and an "our sites" line on About pages rather than identical sitewide footer links (a network of sites all footer-linking each other reads as a link scheme). Do not touch CW pages that are in an open experiment or the control group.
+
 ## Never without Brew's go
 Production worker deploy, DNS changes, any email send, Etsy edits, merging to main.
 Fish: 5 meals/week, lowest-mercury species only. Price $29 USD. Plan length 7 days.
