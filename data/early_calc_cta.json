@@ -1,0 +1,21 @@
+{
+  "_readme": "Early calculator line for high-traffic CW posts whose readers match the buyer (55+, mostly women). Brew approved 2026-10-03. Source: BSM vault reports/blog-to-buyer-analysis-2026-10-03.md. scripts/generate_blog_pages.py inserts the lead plus a calculator link after the 2nd paragraph, and a food list / meal plan guide line after the 5th paragraph. Posts in the electrolyte sweep (read 2026-10-12) are deliberately left out until after that read: adaptation-timeline, night-sweats, fasting-protocols, sleep-insomnia, women-over-40. No em dashes, no health claims in the leads.",
+  "posts": {
+    "2026-04-13-carnivore-2-months-weight-loss-timeline": "Want to know what your own first two months could look like?",
+    "2026-02-09-carnivore-weight-loss-results": "Want to know what's realistic for you?",
+    "2026-08-10-acid-reflux-on-carnivore": "Not sure how much to eat while your stomach settles?",
+    "2026-05-09-carnivore-digestion-transition": "Not sure how much to eat while your gut adjusts?",
+    "2026-08-18-carnivore-diarrhea-timeline": "Not sure how much fat to eat while things settle?",
+    "2026-06-07-two-meal-carnivore-day": "Wondering how much to put on those two plates?",
+    "2026-07-21-carnivore-3am-wakeups": "Not sure if you're eating enough?",
+    "2026-07-20-starting-carnivore-after-60": "Starting after 60? Your numbers depend on your age, weight and goal.",
+    "2026-07-19-carnivore-macros-women-over-45": "Want your own numbers instead of an average?",
+    "2026-06-06-carnivore-hair-loss": "Not sure if you're eating enough?",
+    "2026-08-13-hot-flashes-on-carnivore": "Not sure how much to eat through this stage?",
+    "2026-02-13-carnivore-diabetes-blood-sugar": "Planning meals around blood sugar? Take your numbers to your doctor.",
+    "2026-09-03-blood-pressure-drops-too-low": "Not sure how much to eat while your body adjusts?",
+    "2026-08-28-heart-palpitations-carnivore": "Not sure how much to eat while your body adjusts?",
+    "2026-08-09-carnivore-without-gallbladder": "Not sure how much fat your plate should hold?",
+    "2026-02-09-how-much-protein-carnivore": "Want your exact protein number?"
+  }
+}

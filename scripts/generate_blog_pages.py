@@ -37,6 +37,54 @@ BLOG_DIR.mkdir(parents=True, exist_ok=True)
 DEFAULT_POST_IMAGE_DIMS = (1200, 630)
 
 
+EARLY_CTA_PATH = Path(__file__).resolve().parent.parent / "data" / "early_calc_cta.json"
+GUIDE_LINKS = (
+    ("/blog/2026-02-09-carnivore-food-list-complete.html", "complete carnivore food list"),
+    ("/blog/2026-02-09-carnivore-meal-plan-complete-guide.html", "carnivore meal plan guide"),
+)
+
+
+def load_early_ctas():
+    """Slug -> lead sentence for the early calculator line (data/early_calc_cta.json)."""
+    try:
+        with open(EARLY_CTA_PATH) as fh:
+            return json.load(fh).get("posts", {})
+    except FileNotFoundError:
+        return {}
+
+
+def _insert_after_paragraph(html, n, snippet):
+    """Insert snippet after the nth closing </p>; leave html unchanged if it has fewer."""
+    pos = -1
+    for _ in range(n):
+        pos = html.find("</p>", pos + 1)
+        if pos == -1:
+            return html
+    cut = pos + len("</p>")
+    return html[:cut] + "\n" + snippet + html[cut:]
+
+
+def insert_early_calculator_cta(content, slug, lead):
+    """Early calculator line after paragraph 2, food list / meal plan guide line after paragraph 5.
+
+    The buyer (55+, reading a post first) rarely scrolls to the end-of-post CTA on long
+    symptom posts; the first calculator link sat 1,100 to 1,500 words down (analysis 2026-10-03).
+    """
+    calc = (
+        '<p class="early-calc-cta" style="background:#f8f6f0;border-left:4px solid #2d5016;'
+        'padding:14px 18px;border-radius:0;font-size:1.05rem;line-height:1.6;">'
+        f'{lead} <a href="/calculator.html#calculator-start" style="color:#2d5016;font-weight:600;" '
+        f"onclick=\"try{{gtag('event','calculator_cta_early',{{event_category:'engagement',post:'{slug}'}})}}catch(e){{}}\">"
+        "Get your daily numbers</a>, free, in about two minutes.</p>"
+    )
+    content = _insert_after_paragraph(content, 2, calc)
+    guides = [(href, text) for href, text in GUIDE_LINKS if slug not in href and href not in content]
+    if guides:
+        links = " and our ".join(f'<a href="{href}">{text}</a>' for href, text in guides)
+        content = _insert_after_paragraph(content, 6, f"<p>New to carnivore? Start with our {links}.</p>")
+    return content
+
+
 def get_post_image_dims(image_url):
     """Read the actual pixel dimensions of a post's hero image so the
     HTML width/height attributes match reality (prevents CLS — the CSS
@@ -198,6 +246,9 @@ def find_related_posts(current_post, all_posts, n=3):
     return result[:n]
 
 
+EARLY_CTAS = load_early_ctas()
+
+
 def generate_blog_posts(env, posts, validator=None):
     """Generate individual blog post HTML files."""
     template = env.get_template("blog_post_template_2026.html")
@@ -237,6 +288,11 @@ def generate_blog_posts(env, posts, validator=None):
 
         # Apply auto-linking to blog content (max 5 links per post)
         content = insert_wiki_links(content, max_links=5)
+
+        # Early calculator line for posts whose readers match the buyer (data/early_calc_cta.json)
+        early_lead = EARLY_CTAS.get(post.get("slug"))
+        if early_lead:
+            content = insert_early_calculator_cta(content, post.get("slug"), early_lead)
 
         # Prepare SEO data
         seo = post.get("seo", {})
