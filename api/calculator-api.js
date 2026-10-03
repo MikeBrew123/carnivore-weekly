@@ -2187,8 +2187,13 @@ function buildReportData(session) {
     lifestyle: form.biggestChallenge || '',    // Lifestyle details
     challenges: form.additionalNotes || '',    // Challenges
     healthConditions: form.conditions || [],
-    // diet_type is stored as a SEPARATE COLUMN from Step 2, NOT in form_data.diet
-    selectedProtocol: session.diet_type || form.diet || 'Carnivore'
+    // diet_type is stored as a SEPARATE COLUMN from Step 2, NOT in form_data.diet.
+    // selectedProtocol is the content FAMILY every section branches on (always
+    // capitalised); dietLabel is what the reader sees; dietProfile carries both.
+    ...(() => {
+      const dietProfile = resolveDietProfile(session.diet_type || form.diet);
+      return { dietProfile, dietLabel: dietProfile.label, selectedProtocol: dietProfile.family };
+    })()
   };
 }
 
@@ -2235,6 +2240,36 @@ function checkTargetEligibility(formData) {
   }
 
   return null;
+}
+
+// ===== DIET PROFILES (ISSUE-086, PescoDial 2026-10-03) =====
+// One place that turns a stored diet value into everything the report needs:
+// the reader-facing label, which food-database tags count, and which content
+// family (the existing Carnivore / Pescatarian / Keto / Lion branches) to use.
+// Before this, report sections keyed on "Pescatarian" while the stored value
+// was "pescatarian", so a pescatarian buyer got carnivore copy, and `lowcarb`
+// matched no food at all and crashed the meal plan.
+const DIET_PROFILES = {
+  carnivore: { key: 'carnivore', label: 'Carnivore', family: 'Carnivore', site: 'cw', ketoExtras: false },
+  'strict carnivore': { key: 'carnivore', label: 'Carnivore', family: 'Carnivore', site: 'cw', ketoExtras: false },
+  lion: { key: 'lion', label: 'Lion', family: 'Lion', site: 'cw', ketoExtras: false },
+  pescatarian: { key: 'pescatarian', label: 'Pescatarian', family: 'Pescatarian', site: 'cw', ketoExtras: false },
+  keto: { key: 'keto', label: 'Keto', family: 'Keto', site: 'cw', ketoExtras: true },
+  lowcarb: { key: 'lowcarb', label: 'Low Carb', family: 'Keto', site: 'cw', ketoExtras: true },
+  'pesco-carnivore': { key: 'pesco-carnivore', label: 'Pescatarian Carnivore', family: 'Pescatarian', site: 'pd', ketoExtras: false },
+  'pesco-keto': { key: 'pesco-keto', label: 'Pescatarian Keto', family: 'Pescatarian', site: 'pd', ketoExtras: true },
+  'pesco-lowcarb': { key: 'pesco-lowcarb', label: 'Pescatarian Low Carb', family: 'Pescatarian', site: 'pd', ketoExtras: true },
+  'pesco-mediterranean': { key: 'pesco-mediterranean', label: 'Pescatarian Mediterranean', family: 'Mediterranean', site: 'pd', ketoExtras: false },
+};
+
+function resolveDietProfile(raw) {
+  const k = String(raw || 'carnivore').toLowerCase().trim().replace(/[\s_]+/g, ' ');
+  const alias = { 'low carb': 'lowcarb', 'low-carb': 'lowcarb', 'pesco mediterranean': 'pesco-mediterranean',
+    'pesco keto': 'pesco-keto', 'pesco lowcarb': 'pesco-lowcarb', 'pesco low carb': 'pesco-lowcarb',
+    'pesco carnivore': 'pesco-carnivore' };
+  // Unknown values keep the historical carnivore fallback; every known value,
+  // whatever its capitalisation, now resolves to its own profile.
+  return DIET_PROFILES[alias[k] || k] || DIET_PROFILES.carnivore;
 }
 
 function calculateMacros(formData) {
@@ -3343,7 +3378,7 @@ function generateFullMealPlan(data) {
         // Two meals per day (common for carnivore/keto)
 
         // Meal 1 (Morning): Include eggs if allowed
-        const isKeto = diet.toLowerCase().includes('keto');
+        const isKeto = data.dietProfile ? data.dietProfile.ketoExtras : diet.toLowerCase().includes('keto');
         const extras1 = isKeto ? ', 1/2 Avocado' : ', 1 tbsp Butter';
         const meal1 = generateMealDescription(mainProtein, altProtein, proteinPerMeal, eggsAllowed, extras1);
         meals.push({ name: 'Meal 1', description: meal1.description, items: meal1.items });
@@ -3357,7 +3392,7 @@ function generateFullMealPlan(data) {
 
       } else {
         // Three meals per day - use generateMealDescription for variety on high-calorie plans
-        const isKeto = diet.toLowerCase().includes('keto');
+        const isKeto = data.dietProfile ? data.dietProfile.ketoExtras : diet.toLowerCase().includes('keto');
         const thirdProtein = rotationProteins[(proteinIndex + 2) % rotationProteins.length];
 
         // Breakfast: Include eggs if allowed
@@ -3978,6 +4013,8 @@ function markdownToHTML(markdown) {
  * Wrap markdown report in print-optimized HTML with CSS
  */
 function wrapInPrintHTML(markdownContent, userData = {}) {
+  // Cover names the reader's own diet (ISSUE-086), never a hard-coded one.
+  const reportDietLabel = userData.dietLabel || resolveDietProfile(userData.selectedProtocol).label;
   console.log('[wrapInPrintHTML] userData.firstName:', userData.firstName);
   console.log('[wrapInPrintHTML] userData.lastName:', userData.lastName);
 
@@ -4084,7 +4121,7 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Personalized Carnivore Diet Report</title>
+  <title>Personalized ${reportDietLabel} Diet Report</title>
   <style>${printCSS}</style>
 </head>
 <body>
@@ -4093,7 +4130,7 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
     <div class="cover-logo">
       <img src="https://carnivoreweekly.com/images/logo.png" alt="Carnivore Weekly Logo" />
     </div>
-    <h1 class="cover-title">Your Complete Personalized<br>Carnivore Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${userData.firstName}${userData.lastName ? ' ' + userData.lastName : ''}</span>` : ''}</h1>
+    <h1 class="cover-title">Your Complete Personalized<br>${reportDietLabel} Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${userData.firstName}${userData.lastName ? ' ' + userData.lastName : ''}</span>` : ''}</h1>
     <div class="cover-date">Generated on ${generatedDate}</div>
   </div>
   <div class="content-start report-content">
@@ -4870,7 +4907,7 @@ function getTemplateContent(templateName, dietOrData) {
         travelPacking = `* [ ] Beef jerky (check sugar content)\n* [ ] Macadamia nuts or pecans\n* [ ] Hard cheese\n* [ ] Sardines canned in oil\n* [ ] Salt packets`;
       }
 
-      return `## Report #7: Dining Out & Travel Survival Guide\n\n*For {{firstName}} navigating the world on {{diet}}*\n\n## The Three Golden Rules\n\n### Rule #1: Be "That Person"\n- Your health comes first. Do not apologize for your dietary needs.\n\n### Rule #2: Beware the Seed Oils\n- Always ask: "What fat do you use for cooking?" Request butter, ghee, or olive oil.\n\n### Rule #3: When in Doubt, Order Fish/Steak\n- ${goldenRule3}\n\n## Restaurant Strategy by Cuisine\n\n### Steakhouse / Seafood Restaurant\n- Order: ${steakhouseOrder}\n- Customization: "Cooked in butter, no seed oils"\n\n### Diner\n- Order: ${dinerOrder}\n- Customization: "Cooked in butter, no seed oils"\n\n### Mexican\n- Order: ${mexicanOrder}\n- Customization: "No tortillas, no rice, cooked in butter"\n\n### Asian\n- Order: ${asianOrder}\n- Customization: "Cooked in butter, no sauce"\n\n## Fast Food Emergency Menu\n\n**McDonald's:** ${mcdonaldsOrder}\n**Wendy's:** ${wendysOrder}\n**Chipotle:** ${chipotleOrder}\n**Taco Bell:** ${tacoBellOrder}\n\n## Travel Packing\n${travelPacking}\n\n**Remember: Own your choices. Your health comes first.** 🍽️`;
+      return `## Report #7: Dining Out & Travel Survival Guide\n\n*For {{firstName}} navigating the world on {{diet}}*\n\n## The Three Golden Rules\n\n### Rule #1: Be "That Person"\n- Your health comes first. Do not apologize for your dietary needs.\n\n### Rule #2: Beware the Seed Oils\n- Always ask: "What fat do you use for cooking?" Request butter, ghee, or olive oil.\n\n### Rule #3: When in Doubt, Order ${isPescatarian ? 'Fish' : 'Fish or Steak'}\n- ${goldenRule3}\n\n## Restaurant Strategy by Cuisine\n\n### ${isPescatarian ? 'Seafood Restaurant' : 'Steakhouse / Seafood Restaurant'}\n- Order: ${steakhouseOrder}\n- Customization: "Cooked in butter, no seed oils"\n\n### Diner\n- Order: ${dinerOrder}\n- Customization: "Cooked in butter, no seed oils"\n\n### Mexican\n- Order: ${mexicanOrder}\n- Customization: "No tortillas, no rice, cooked in butter"\n\n### Asian\n- Order: ${asianOrder}\n- Customization: "Cooked in butter, no sauce"\n\n## Fast Food Emergency Menu\n\n**McDonald's:** ${mcdonaldsOrder}\n**Wendy's:** ${wendysOrder}\n**Chipotle:** ${chipotleOrder}\n**Taco Bell:** ${tacoBellOrder}\n\n## Travel Packing\n${travelPacking}\n\n**Remember: Own your choices. Your health comes first.** 🍽️`;
     })(),
 
     // Report #8-13: Appendix Reports (Condensed)
@@ -5004,7 +5041,7 @@ function replacePlaceholders(template, data) {
   //
   // Capitalisation is applied for display only. calculateMacros() keeps its own
   // lower-cased copy for protocol matching, so this cannot affect any calculation.
-  const dietDisplay = String(data.selectedProtocol || 'Carnivore')
+  const dietDisplay = data.dietLabel || String(data.selectedProtocol || 'Carnivore')
     .trim()
     .replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1)) || 'Carnivore';
   result = result.replace(/\{\{diet\}\}/g, () => dietDisplay);
@@ -5490,19 +5527,20 @@ function replacePlaceholders(template, data) {
  * Load static template and replace placeholders
  */
 async function loadAndCustomizeTemplate(templateName, data) {
-  // Template mapping to file names
+  // Template mapping to file names. Every section gets `data`: before ISSUE-086
+  // seven of them were called with no diet and silently rendered carnivore copy.
   const templates = {
     foodGuide: generateDynamicFoodGuide(data.selectedProtocol, data),
-    mealCalendar: getTemplateContent('mealCalendar'),
-    shoppingList: getTemplateContent('shoppingList'),
+    mealCalendar: getTemplateContent('mealCalendar', data),
+    shoppingList: getTemplateContent('shoppingList', data),
     physicianConsult: getTemplateContent('physicianConsult', data),
     restaurant: getTemplateContent('restaurant', data),
-    science: getTemplateContent('science', data.selectedProtocol),
-    labs: getTemplateContent('labs'),
-    electrolytes: getTemplateContent('electrolytes'),
-    timeline: getTemplateContent('timeline'),
-    stallBreaker: getTemplateContent('stallBreaker'),
-    tracker: getTemplateContent('tracker')
+    science: getTemplateContent('science', data),
+    labs: getTemplateContent('labs', data),
+    electrolytes: getTemplateContent('electrolytes', data),
+    timeline: getTemplateContent('timeline', data),
+    stallBreaker: getTemplateContent('stallBreaker', data),
+    tracker: getTemplateContent('tracker', data)
   };
 
   let template = templates[templateName] || '';

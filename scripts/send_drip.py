@@ -159,6 +159,18 @@ SITES = {
         "newsletter_site": "kd",
         "default_subject": "Day {day} — Your Keto Starter",
     },
+    "pd": {
+        "name": "PescoDial",
+        # pescodial.com is Resend-verified (2026-10-03). It has no inbound mail,
+        # so replies ride the @carnivoreweekly.com catch-all, which the daily
+        # writer-inbox check sweeps (same pattern as KD).
+        "from_email": "PescoDial <sarah@pescodial.com>",
+        "reply_to": "pescodial@carnivoreweekly.com",
+        "drip_dir": PROJECT_ROOT / "data" / "drip-emails" / "pd",
+        "sequence": "pd-30day-starter",
+        "newsletter_site": "pd",
+        "default_subject": "Day {day}: Your PescoDial Starter",
+    },
 }
 
 # ===== KD day 1 from Carnivore Weekly, for CW-sourced subscribers =====

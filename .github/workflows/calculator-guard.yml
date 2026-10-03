@@ -323,6 +323,9 @@ jobs:
 
       - name: PescoDial sign-up routing (pesco-* -> pd, CW/KD unchanged)
         run: node tests/pd-subscribe-routing.test.mjs
+
+      - name: Every diet gets its own report (ISSUE-086)
+        run: node tests/report-diet-fidelity.test.mjs carnivore pescatarian keto lowcarb pesco-carnivore pesco-keto pesco-lowcarb
       # The P0 this batch fixed: dismissing the $29 modal used to leave an
       # invisible full-screen overlay that swallowed every subsequent click,
       # including the buy button. It serves public/ — the COMMITTED bundle, which
