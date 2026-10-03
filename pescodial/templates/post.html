@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} | PescoDial{% endblock %}
+{% block description %}{{ post.meta_description or post.excerpt }}{% endblock %}
+{% block head %}<script type="application/ld+json">{{ {"@context":"https://schema.org","@type":"Article","headline":post.title,"datePublished":post.date,"dateModified":post.date_modified or post.date,"author":{"@type":"Person","name":(post.author or "sarah")|title},"publisher":{"@type":"Organization","name":"PescoDial"},"mainEntityOfPage":canonical}|tojson }}</script>{% endblock %}
+{% block main %}<article class="post">
+<h1>{{ post.title }}</h1>
+<p class="byline">By {{ (post.author or "sarah")|title }} · Updated {{ post.date_modified or post.date }}</p>
+{{ post.content|safe }}
+<aside class="calc-cta"><p>Want your own numbers? <a href="/calculator/">Try the free PescoDial calculator</a>.</p></aside>
+</article>{% endblock %}

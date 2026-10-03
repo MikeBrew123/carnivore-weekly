@@ -104,7 +104,7 @@ def get_post_image_dims(image_url):
         return DEFAULT_POST_IMAGE_DIMS
 
 
-SITE_FILTER = None  # Set by --site flag; None means all posts (backwards compat)
+SITE_FILTER = "cw"  # Set by --site flag. Never "all": that rendered KD posts into CW (ISSUE-035)
 
 
 def load_blog_posts():
@@ -618,12 +618,12 @@ def main():
     """Main execution."""
     global SITE_FILTER
     parser = argparse.ArgumentParser(description="Generate blog HTML pages")
-    parser.add_argument("--site", choices=["cw", "kd"], default=None,
-                        help="Filter to a specific site (default: all)")
+    parser.add_argument("--site", choices=["cw", "kd"], default="cw",
+                        help="Site to render (default: cw). PescoDial uses pescodial/scripts/generate_pd_site.py")
     args = parser.parse_args()
     SITE_FILTER = args.site
 
-    site_label = args.site.upper() if args.site else "ALL"
+    site_label = args.site.upper()
     print("=" * 50)
     print(f"🚀 Generating Blog Pages [{site_label}]")
     print("=" * 50)

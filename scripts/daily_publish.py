@@ -16,7 +16,7 @@ import argparse
 import json
 import subprocess
 import sys
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 # ── Paths ────────────────────────────────────────────────────────────────
@@ -29,6 +29,12 @@ TODAY = date.today().isoformat()  # YYYY-MM-DD
 
 # Which site to publish for -- set via --site flag, default 'cw'
 SITE = "cw"
+
+# PescoDial publishes slowly on purpose (Brew, 2026-10-03): a fresh domain that
+# ships volume before it earns links gets shelved, as KetoDial was (ISSUE-068).
+# Nothing else enforces cadence (daily_publish publishes every ready post), so
+# the cap lives here. Rolling window, counted by publish date.
+SITE_WEEKLY_CAP = {"pd": 2}
 
 
 def load_posts():
@@ -87,7 +93,9 @@ def split_missing_images(posts_to_publish):
     is lost — but we never render a page referencing a missing image, which
     previously failed validation and broke the deploy.
     """
-    base = ROOT / "ketodial" / "public" if SITE == "kd" else ROOT / "public"
+    # PD images live in pescodial/static/ because the PD generator re-renders
+    # pescodial/public/ from scratch on every run.
+    base = {"kd": ROOT / "ketodial" / "public", "pd": ROOT / "pescodial" / "static"}.get(SITE, ROOT / "public")
     ok, deferred = [], []
     for post in posts_to_publish:
         img = post.get("image", "")
@@ -110,6 +118,8 @@ def run_generator():
     print("\n🔄 Regenerating site...")
     if SITE == "kd":
         generator_cmd = [sys.executable, str(ROOT / "ketodial" / "scripts" / "generate_kd_blog.py"), "--only-new"]
+    elif SITE == "pd":
+        generator_cmd = [sys.executable, str(ROOT / "pescodial" / "scripts" / "generate_pd_site.py")]
     else:
         generator_cmd = [sys.executable, str(GENERATE_SCRIPT), "--site", SITE]
     result = subprocess.run(
@@ -140,7 +150,7 @@ def run_generator():
             sys.exit(1)
         print("✅ Main pages regenerated")
     else:
-        print("\n⏭️  Skipping main pages regeneration (not applicable for KD)")
+        print(f"\n⏭️  Skipping main pages regeneration (not applicable for {SITE.upper()})")
 
 
 def run_validator():
@@ -159,6 +169,11 @@ def run_validator():
     which caused the daily-publish pipeline to fail and leave posts stuck
     in "ready" status. See docs/project-log/recurring-loops.md Loop 12.
     """
+    if SITE == "pd":
+        # generate_pd_site.py fails on its own broken internal links; the CW
+        # validator only reads public/, which a PD publish never touches.
+        print("\n⏭️  Skipping CW-tree validation (PD generator checks its own links)")
+        return
     if SITE == "kd":
         # validate_before_commit.py checks the CW public/ tree, which a KD
         # publish never touches. Running it here can only produce false
@@ -184,6 +199,28 @@ def run_validator():
         print("✅ Validation passed")
 
 
+def apply_weekly_cap(posts, to_publish, site=None, today=None):
+    """Hold back ready posts beyond the site's rolling 7-day cap.
+
+    Returns (allowed, held). Held posts stay "ready" and go out on a later run.
+    Sites without a cap pass straight through.
+    """
+    site = site or SITE
+    cap = SITE_WEEKLY_CAP.get(site)
+    if not cap:
+        return to_publish, []
+    today = date.fromisoformat(today or TODAY)
+    window_start = (today - timedelta(days=6)).isoformat()
+    recent = sum(
+        1 for p in posts
+        if p.get("site") == site and p.get("status") == "published"
+        and window_start <= (p.get("date") or "") <= today.isoformat()
+    )
+    room = max(cap - recent, 0)
+    ordered = sorted(to_publish, key=lambda p: p.get("publish_date", ""))
+    return ordered[:room], ordered[room:]
+
+
 def get_next_scheduled(posts):
     """Find the next scheduled post date (earliest 'ready' post in the future for this site)."""
     future_ready = [
@@ -200,7 +237,7 @@ def get_next_scheduled(posts):
 def main():
     global SITE
     parser = argparse.ArgumentParser(description="Daily blog publisher")
-    parser.add_argument("--site", choices=["cw", "kd"], default="cw",
+    parser.add_argument("--site", choices=["cw", "kd", "pd"], default="cw",
                         help="Which site to publish for (default: cw)")
     args = parser.parse_args()
     SITE = args.site
@@ -231,6 +268,15 @@ def main():
         for p in untagged[:5]:
             print(f"   - {p.get('slug', 'unknown')}")
         sys.exit(1)
+
+    # Enforce the per-site weekly cap (PescoDial)
+    to_publish, held = apply_weekly_cap(posts, to_publish)
+    if held:
+        print(f"⏸️  Holding {len(held)} post(s) for {SITE.upper()}: weekly cap of {SITE_WEEKLY_CAP[SITE]} reached:")
+        for p in held:
+            print(f"   - {p.get('slug', 'unknown')}")
+        if not to_publish:
+            sys.exit(0)
 
     # Defer posts whose image hasn't been generated/committed yet
     to_publish, deferred = split_missing_images(to_publish)
