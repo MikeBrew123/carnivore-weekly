@@ -44,26 +44,50 @@ const dietConfig: Record<string, {
   label: string
   troubleshooting: string
   socialProof: string
+  // The $29 bridge card, written per diet (Brew, 2026-10-03). Short on purpose: the
+  // buyers are mostly 55+ on a phone, and the 09-13 long card sold 0 of 113.
+  // See reports/offer-card-audience-analysis-2026-10-03.md in the BSM vault.
+  bridge: { headline: string; subline: string; bullets: string[] }
 }> = {
   'carnivore': {
     label: 'Carnivore',
     troubleshooting: 'Fixes for night sweats and digestive stalls',
-    socialProof: 'carnivores'
+    socialProof: 'carnivores',
+    bridge: {
+      headline: 'Meat and salt is the whole plan.',
+      subline: 'We\'ll write down the rest.',
+      bullets: ['30 days of meals at your numbers', 'A grocery list each week', 'What to do when you stall'],
+    },
   },
   'keto': {
     label: 'Keto',
     troubleshooting: 'Strategies for keto flu and electrolyte balance',
-    socialProof: 'keto dieters'
+    socialProof: 'keto dieters',
+    bridge: {
+      headline: 'Your macros are set.',
+      subline: 'Now stop counting carbs.',
+      bullets: ['30 days of meals that already fit', 'A grocery list each week', 'How to beat keto flu and stalls'],
+    },
   },
   'lowcarb': {
     label: 'Low Carb',
     troubleshooting: 'Managing carb cravings and energy dips',
-    socialProof: 'low-carb followers'
+    socialProof: 'low-carb followers',
+    bridge: {
+      headline: 'Low carb, without the rules.',
+      subline: 'Real meals that fit your numbers.',
+      bullets: ['30 days of meals at your numbers', 'A grocery list each week', 'Easy swaps for eating out'],
+    },
   },
   'pescatarian': {
     label: 'Pescatarian',
     troubleshooting: 'Optimizing Omega-3 ratios and mercury safety',
-    socialProof: 'pescatarians'
+    socialProof: 'pescatarians',
+    bridge: {
+      headline: 'Fish and seafood, planned for you.',
+      subline: 'Set to your numbers.',
+      bullets: ['30 days of seafood meals', 'A grocery list each week', 'What to do when you stall'],
+    },
   }
 }
 
@@ -410,38 +434,23 @@ export default function Step3FreeResults({
           Your Next 30 Days
         </p>
         <h3 style={{ ...goldHeading, fontSize: '22px', fontWeight: '700', margin: '0 0 10px 0', lineHeight: '1.3' }}>
-          Your numbers, written into a 30-day plan you can print.
+          {config.bridge.headline}
         </h3>
-        <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.6)', fontSize: '14px', lineHeight: '1.7', margin: '0 0 22px 0' }}>
-          Knowing your numbers is the easy part. What usually ends a diet comes later, in week two or three, when the scale stops moving and there's no plan for what to do next. Your {config.label.toLowerCase()} plan covers that part too.
+        <p style={{ ...bodyFont, color: '#f4e4d4', fontSize: '17px', lineHeight: '1.5', margin: '0 0 20px 0' }}>
+          {config.bridge.subline}
         </p>
 
-        {/* Value bullets — stall troubleshooting leads (EXP-004 signal) */}
-        <div style={{ textAlign: 'left', marginBottom: '24px' }}>
-          {[
-            { icon: '⚖️', text: 'A stall troubleshooting guide: what to check first when the scale stops moving, before you cut calories again' },
-            { icon: '🍽️', text: `30 days of ${config.label.toLowerCase()} meals portioned to your ${macros.calories}-calorie, ${macros.protein}g protein targets, with swaps for anything you don't like. No counting, no guesswork` },
-            { icon: '📅', text: 'A week-by-week guide to your first month, including the rough patches: energy dips, cravings, sleep changes' },
-            { icon: '🛒', text: 'A pantry stock-up list, then a grocery list for each week, ready to take to the store' },
-            { icon: '🩺', text: 'A one-page handout to print and hand to your doctor: the conditions, symptoms and medications you tell us about, and the labs to ask for now and at 8 weeks' },
-          ].map((item, i) => (
-            <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: i < 4 ? '12px' : 0 }}>
-              <span style={{ fontSize: '15px', flexShrink: 0, marginTop: '1px' }}>{item.icon}</span>
-              <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.8)', fontSize: '13.5px', margin: 0, lineHeight: '1.6' }}>
-                {item.text}
+        {/* Three short lines, large and full contrast for older eyes on a phone. */}
+        <div style={{ textAlign: 'left', marginBottom: '22px' }}>
+          {config.bridge.bullets.map((text, i) => (
+            <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: i < config.bridge.bullets.length - 1 ? '10px' : 0 }}>
+              <span style={{ color: '#ffd700', fontSize: '16px', flexShrink: 0, lineHeight: '1.5' }}>✓</span>
+              <p style={{ ...bodyFont, color: '#f4e4d4', fontSize: '16px', margin: 0, lineHeight: '1.5' }}>
+                {text}
               </p>
             </div>
           ))}
         </div>
-
-        {/* The card never said what physically arrives, which is the one thing the
-            bullets cannot tell you. Body copy here is 14px at 0.6 alpha and the
-            bullets 13.5px at 0.8; this line is deliberately 15px at full opacity,
-            because it is the answer to "what am I actually buying". Do not shrink
-            it or drop its opacity to match the copy around it. */}
-        <p style={{ ...bodyFont, color: '#f4e4d4', fontSize: '15px', lineHeight: '1.65', textAlign: 'left' as const, margin: '0 0 22px 0' }}>
-          What arrives: one written report, 13 sections, built after a few more questions about your health and how you cook. It opens in your browser, so you can save it as a PDF or print any page.
-        </p>
 
         <button
           onClick={() => {
@@ -482,7 +491,7 @@ export default function Step3FreeResults({
             colour as each card's body copy (about 5.9:1 here). They were 12px at 0.4
             (about 3.3:1), readable pitch, unreadable reassurance (mobile audit 2026-09-10). */}
         <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.6)', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
-          {alreadyPaid ? 'Already unlocked — no additional charge.' : "One-time purchase, no subscription. If it doesn't help, email us within 30 days for a full refund."}
+          {alreadyPaid ? 'Already unlocked — no additional charge.' : "Print it. One time, no subscription. Money back within 30 days if it doesn't help."}
         </p>
       </div>
 
