@@ -20,7 +20,7 @@ import os
 from urllib.parse import quote
 
 UNSUB_BASE = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
-SITES = ("cw", "kd")
+SITES = ("cw", "kd", "pd")
 
 
 class MissingUnsubscribeSecret(RuntimeError):

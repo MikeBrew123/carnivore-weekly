@@ -6966,6 +6966,9 @@ function getCorsOrigin(request, env) {
     'https://carnivoreweekly.com',
     'https://ketodial.com',       // KD pages call this worker for the shared refund endpoint
     'https://www.ketodial.com',
+    'https://pescodial.com',      // PescoDial calculator (Brew, 2026-10-03)
+    'https://www.pescodial.com',
+    'https://pescodial.pages.dev',
     env.FRONTEND_URL
   ].filter(Boolean);
 
@@ -7127,12 +7130,17 @@ async function subscribeCore(env, cleanEmail, sourceValue, diet_type, site) {
     // (no home yet) is held on the CW newsletter, no drip. Unknown/absent diet falls
     // back to the carnivore drip, the safe default on a carnivore site. Homepage
     // forms pass an explicit `site`: each enrolls its own site's newsletter + drip.
+    // PescoDial styles (pesco-*) belong to PescoDial: its newsletter and drip
+    // (Brew, 2026-10-03). Plain 'pescatarian' from the CW calculator stays put.
     let newsletterSite = 'cw';
     let enrollDrip = true;
     let sendKdWelcome = false;
     const diet = (diet_type || '').toLowerCase().replace(/[^a-z]/g, '');
     if (diet_type) {
-      if (diet === 'keto' || diet === 'lowcarb') {
+      if (diet.indexOf('pesco') === 0) {
+        newsletterSite = 'pd';
+        enrollDrip = true;
+      } else if (diet === 'keto' || diet === 'lowcarb') {
         newsletterSite = 'kd';
         enrollDrip = true;
       } else if (diet === 'pescatarian') {
@@ -7143,7 +7151,7 @@ async function subscribeCore(env, cleanEmail, sourceValue, diet_type, site) {
         enrollDrip = true;
       }
     } else {
-      newsletterSite = (site === 'kd') ? 'kd' : 'cw';
+      newsletterSite = (site === 'kd' || site === 'pd') ? site : 'cw';
       enrollDrip = true;
     }
     const dripSite = newsletterSite;
@@ -7293,7 +7301,7 @@ async function handleFeedback(request, env) {
 // Questions are config rows in drip_survey_questions; responses are anonymous
 // (fingerprint + IP for dedup only, never identity). See journey-checkin.html.
 
-const DRIP_SURVEY_SITES = ['cw', 'kd'];
+const DRIP_SURVEY_SITES = ['cw', 'kd', 'pd'];
 
 function dripSurveyHeaders(env, minimal = false) {
   return {
@@ -9662,7 +9670,7 @@ async function handleUnsubscribe(url, env) {
     // Best effort, as before: a failure here leaves the exit answer anonymous.
   }
 
-  const siteName = site === 'kd' ? 'KetoDial' : 'Carnivore Weekly';
+  const siteName = site === 'kd' ? 'KetoDial' : site === 'pd' ? 'PescoDial' : 'Carnivore Weekly';
   // Exit survey (Brew, 2026-08-30). The unsubscribe is already committed above,
   // so answering (or ignoring) this can never affect it. Answers land in the
   // drip survey tables at day=0 / source=unsubscribe — day 0 is reserved for
@@ -9839,7 +9847,9 @@ async function handleResendWebhook(request, env) {
     const evTags = Array.isArray(rawTags)
       ? Object.fromEntries(rawTags.map(t => [t.name, t.value]))
       : rawTags;
-    const evSite = (evFrom.includes('ketodial@') || evFrom.includes('coach@')
+    const evSite = (evFrom.includes('pescodial') || String(evTags.sequence || '').startsWith('pd')
+      || evTags.site === 'pd') ? 'pd'
+      : (evFrom.includes('ketodial@') || evFrom.includes('coach@')
       || String(evTags.sequence || '').startsWith('kd')
       || evTags.site === 'kd') ? 'kd' : 'cw';
 
