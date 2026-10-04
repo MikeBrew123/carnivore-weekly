@@ -571,6 +571,8 @@ SOURCE_SPEC = [
     ('ga4_kd', 'GA4 · KetoDial', ('traffic', 'kd')),
     ('gsc_cw', 'Search Console · CW', ('search', 'cw')),
     ('gsc_kd', 'Search Console · KD', ('search', 'kd')),
+    ('ga4_pd', 'GA4 · PescoDial', ('traffic', 'pd')),
+    ('gsc_pd', 'Search Console · PD', ('search', 'pd')),
     ('bing_cw', 'Bing Webmaster · CW', ('search', 'bing_cw')),
     ('supabase', 'Supabase', ('funnels',)),
     ('stripe', 'Stripe', ('revenue',)),
