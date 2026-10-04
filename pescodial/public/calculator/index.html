@@ -220,6 +220,67 @@
 
         <div class="btn-row"><button class="btn-link" type="button" data-restart="">Start over</button></div>
       </div>
+
+      <!-- PAID PLAN (after Stripe). Behaviour: /js/calculator.js (paid flow) -->
+      <div data-state="checkout-wait" class="state-panel" hidden="">
+        <h2 tabindex="-1">Taking you to secure checkout</h2>
+        <p>Payment is handled by Stripe. You'll come straight back here afterwards.</p>
+      </div>
+
+      <div data-state="paid-wait" class="state-panel" hidden="">
+        <h2 tabindex="-1">Thank you, we're confirming your payment</h2>
+        <p data-paid-wait-msg="">This usually takes a few seconds.</p>
+      </div>
+
+      <form data-step="5" novalidate="" hidden="">
+        <p class="step-label">Your 7-day plan</p>
+        <h2 class="step-title" tabindex="-1">A few questions so your plan fits you</h2>
+        <div class="notice notice-doctor"><p>Your answers stay private. They decide which foods we leave out and whether it's safe to print numbers in your plan.</p></div>
+
+        <div class="field"><label for="pd-first">First name</label><input class="input" id="pd-first" name="firstName" autocomplete="given-name"></div>
+
+        <fieldset class="field">
+          <legend class="label" style="font:700 1.125rem var(--f-ui);margin-bottom:6px;">Do any of these apply to you?</legend>
+          <span class="hint">Tick all that apply.</span>
+          <div class="choices compact">
+            <label class="choice"><input type="checkbox" name="conditions" value="diabetes"><span class="choice-body"><span class="choice-title">Diabetes, or medicine that lowers blood sugar</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="heart-disease"><span class="choice-body"><span class="choice-title">Heart disease or high blood pressure</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="kidney-disease"><span class="choice-body"><span class="choice-title">Kidney disease</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="liver-disease"><span class="choice-body"><span class="choice-title">Liver disease</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="thyroid"><span class="choice-body"><span class="choice-title">Thyroid condition</span></span></label>
+            <label class="choice"><input type="checkbox" name="bloodthinner" value="yes"><span class="choice-body"><span class="choice-title">I take a blood thinner (for example warfarin)</span></span></label>
+            <label class="choice"><input type="checkbox" name="pregnant" value="yes"><span class="choice-body"><span class="choice-title">Pregnant or breastfeeding</span></span></label>
+          </div>
+        </fieldset>
+
+        <div class="field"><label for="pd-meds">Medicines you take</label><span class="hint">Leave blank if none.</span><textarea class="input" id="pd-meds" name="medications" rows="2"></textarea></div>
+        <div class="field"><label for="pd-other">Anything else about your health we should know?</label><textarea class="input" id="pd-other" name="otherConditions" rows="2"></textarea></div>
+        <div class="field"><label for="pd-allergies">Food allergies</label><span class="hint">For example shellfish, eggs, nuts.</span><input class="input" id="pd-allergies" name="allergies"></div>
+        <div class="field"><label for="pd-avoid">Foods you won't eat</label><input class="input" id="pd-avoid" name="avoidFoods"></div>
+
+        <button class="btn btn-primary btn-block" type="submit">Build my plan</button>
+        <p class="field-error" data-plan-error="" role="alert"></p>
+      </form>
+
+      <div data-state="building" class="state-panel" hidden="">
+        <h2 tabindex="-1">Building your plan</h2>
+        <p>This takes up to a minute. Please keep this page open.</p>
+      </div>
+
+      <div data-state="report" hidden="">
+        <h2 class="step-title" tabindex="-1">Your 7-day plan is ready</h2>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button" data-report-print="">Print or save as PDF</button>
+          <button class="btn btn-secondary" type="button" data-report-email="">Email me a copy</button>
+        </div>
+        <p class="hint" data-report-email-msg="" role="status"></p>
+        <iframe title="Your 7-day plan" data-report-frame="" style="width:100%;min-height:80vh;border:1px solid var(--line,#ddd);border-radius:12px;background:#fff;"></iframe>
+      </div>
+
+      <div data-state="paid-error" class="state-panel" hidden="">
+        <h2 tabindex="-1">Something went wrong on our side</h2>
+        <p data-paid-error-msg="">Your payment is safe. Reply to your receipt email and we'll send your plan by hand.</p>
+      </div>
     </div>
   </section>
 </main>
