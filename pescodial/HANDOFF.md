@@ -20,7 +20,7 @@ Branch `pescodial-build`. Brew approved everything below; ledger entries are in 
 - Guard suite 29/29 plus the PD drip test, all in calculator-guard CI.
 
 ## Waiting on Brew
-- CLAUDE.md still says declared medication means no numbers; Brew's 2026-10-04 call (numbers plus a warning) overrides it for PD. Update CLAUDE.md if that should be the rule everywhere.
+- CW paid report: check its medical banner names each concern the way the PD warning box does (CLAUDE.md rule, 2026-10-04).
 - Report photos: cover and recipe photo slots are a plain pattern for now.
 - PD abandon-recovery copy (Sarah) and the go to send it.
 - Flip `PD_DRIP_ENABLED` when the drip may send.
