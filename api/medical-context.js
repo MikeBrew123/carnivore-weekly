@@ -620,7 +620,7 @@ export function buildSymptomDisclosure(ctx) {
  * ("that is one for the clinician who treats it") and the provenance headings
  * ("Symptoms and concerns you reported: ...") do not trip it.
  */
-const CLAIM_FRAME_DIET = /\b(carnivore|pescatarian|keto(genic)?|lion|low[- ]carb|protocol|regimen|this diet|the diet|dietary (change|protocol|intervention)|meal plan|this plan|this report|eating this way|way of eating)\b/i;
+const CLAIM_FRAME_DIET = /\b(carnivore|pescatarian|pesco[- ]?\w*|mediterranean|keto(genic)?|lion|low[- ]carb|protocol|regimen|this diet|the diet|dietary (change|protocol|intervention)|meal plan|this plan|this report|eating this way|way of eating)\b/i;
 const CLAIM_FRAME_VERB = /\b(to address|addresses|addressing|address(?=[:\s])|to treat|treats|treating|treatment for|to heal|heals|healing|to repair|repairs|repairing|to reverse|reverses|reversing|to cure|cures|to fix|fixes|resolves?|restores?|rebuilds?|regenerates?|strengthens?|supports? the|improves?)\b/i;
 const CLAIM_FRAME_ABSOLUTE = /\b(therapeutic|metabolic therapy|evidence[- ]based (therapy|treatment|metabolic))\b/i;
 

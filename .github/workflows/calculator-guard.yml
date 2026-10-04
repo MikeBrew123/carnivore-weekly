@@ -33,6 +33,7 @@ on:
       - 'api/pd-foods.js'
       - 'api/pd-report.js'
       - 'tests/pd-report.test.mjs'
+      - 'tests/brand-attribution-isolation.test.mjs'
       - 'tests/report-diet-fidelity.test.mjs'
       - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
@@ -95,6 +96,7 @@ on:
       - 'api/pd-foods.js'
       - 'api/pd-report.js'
       - 'tests/pd-report.test.mjs'
+      - 'tests/brand-attribution-isolation.test.mjs'
       - 'tests/report-diet-fidelity.test.mjs'
       - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
@@ -326,6 +328,10 @@ jobs:
       # and the four copy gates on every PD section.
       - name: PescoDial report
         run: node tests/pd-report.test.mjs
+      # Which brand a paid-report email goes out under: CW stays CW, a PescoDial
+      # report goes out as PescoDial, and suppression stays site-scoped.
+      - name: Brand isolation for report and lifecycle email
+        run: node tests/brand-attribution-isolation.test.mjs
 
   bundle-builds:
     runs-on: ubuntu-latest

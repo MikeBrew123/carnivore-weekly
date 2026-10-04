@@ -66,7 +66,7 @@ function signed(bodyObj) {
  * Drive one request through the real worker and hand back every outbound call it
  * made, split by destination. `history` is the row list the bounce-history walk sees.
  */
-async function drive(request, { history = [] } = {}) {
+async function drive(request, { history = [], reportHtml = '<html><body>' + 'x'.repeat(200) + '</body></html>' } = {}) {
   const realFetch = globalThis.fetch;
   const resendSends = [];
   const patches = [];
@@ -93,7 +93,7 @@ async function drive(request, { history = [] } = {}) {
       // this file's Group D would be asserting on a denial, not on brand.
       return { ok: true, status: 200, json: async () => ([{
         email: 'buyer@domain.com',
-        report_html: '<html><body>' + 'x'.repeat(200) + '</body></html>',
+        report_html: reportHtml,
       }]), text: async () => '' };
     }
     if (u.includes('/rest/v1/cw_assessment_sessions')) {
@@ -185,6 +185,22 @@ const bounceEvent = (from, extraTags = []) => ({
   const { res, patches } = await drive(unsigned);
   check('E', 'unsigned webhook is rejected 401', res.status === 401, 'status ' + res.status);
   check('E', 'unsigned webhook suppresses nobody', patches.length === 0, 'patches=' + patches.length);
+}
+
+// ── GROUP F: a PescoDial report goes out as PescoDial, never Carnivore Weekly ──
+{
+  const req = new Request('https://w.dev/api/v1/calculator/email-report', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ session_id: '11111111-2222-3333-4444-555555555555', email: 'buyer@domain.com' }),
+  });
+  const pdHtml = '<html><body><section class="page" data-pd-section="cover">' + 'x'.repeat(200) + '</section></body></html>';
+  const { res, resendSends } = await drive(req, { reportHtml: pdHtml });
+  const b = resendSends[0]?.body || {};
+  check('F', 'PD report endpoint returns 200', res.status === 200, 'status ' + res.status);
+  check('F', 'PD report sends from pescodial.com', /^PescoDial <reports@pescodial\.com>$/.test(b.from || ''), String(b.from));
+  check('F', 'PD report subject is PescoDial, not carnivore', /PescoDial/.test(b.subject || '') && !/carnivore/i.test(b.subject || ''), String(b.subject));
+  check('F', 'PD report replies to the catch-all', b.reply_to === 'pescodial@carnivoreweekly.com', String(b.reply_to));
 }
 
 // ── Report ─────────────────────────────────────────────────────────────────────

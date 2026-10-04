@@ -202,4 +202,54 @@ await check('F. copy gates run on PD sections (outcome claim in the name is reje
   ok(err && /PD Report #/.test(err.message), `expected a PD copy-gate rejection, got ${err ? err.message.split('\n')[0] : 'no error'}`);
 });
 
+// G. Lifecycle email branding. Supabase and Resend are stubbed; nothing is sent.
+async function lifecycle(fnName, diet, obj) {
+  const sends = [];
+  const saved = globalThis.fetch;
+  globalThis.fetch = async (url, opts = {}) => {
+    const u = String(url);
+    if (u.includes('api.resend.com')) { sends.push(JSON.parse(opts.body)); return { ok: true, status: 200, json: async () => ({ id: 'x' }), text: async () => '' }; }
+    if (u.includes('cw_assessment_sessions?id=')) return { ok: true, status: 200, json: async () => ([{ id: obj.client_reference_id, email: 'b@example.com', payment_status: 'pending', form_data: { diet } }]), text: async () => '' };
+    return { ok: true, status: 200, json: async () => ([]), text: async () => '' };
+  };
+  for (const [k] of quiet) console[k] = () => {};
+  try {
+    const env = { SUPABASE_URL: 'https://stub', SUPABASE_SERVICE_ROLE_KEY: 'k', RESEND_API_KEY: 'k', CW_ABANDON_RECOVERY_ENABLED: 'true', UNSUBSCRIBE_SECRET: 's' };
+    const result = await api[fnName](env, obj);
+    return { result, sends };
+  } finally { globalThis.fetch = saved; for (const [k, fn] of quiet) console[k] = fn; }
+}
+const ASSESS = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+const paidObj = { id: 'cs_test_1', client_reference_id: ASSESS, payment_status: 'paid', customer_email: 'b@example.com', created: 1893456000 };
+
+await check('G1. PD resume email: PescoDial sender, pescodial.com link, PescoDial signature', async () => {
+  const { sends } = await lifecycle('__test_sendResumeEmailIfOwed', 'pesco-mediterranean', paidObj);
+  ok(sends.length === 1, `sends=${sends.length}`);
+  const m = sends[0];
+  ok(m.from === 'PescoDial <reports@pescodial.com>', m.from);
+  ok(m.reply_to === 'pescodial@carnivoreweekly.com', m.reply_to);
+  ok(m.html.includes('https://pescodial.com/calculator/?payment=success&session_id=' + ASSESS), 'resume link not on pescodial.com');
+  ok(!/carnivore\s*weekly|carnivoreweekly\.com\/calculator/i.test(m.html + m.text), 'Carnivore Weekly in a PD resume email');
+});
+
+await check('G2. CW resume email unchanged', async () => {
+  const { sends } = await lifecycle('__test_sendResumeEmailIfOwed', 'carnivore', paidObj);
+  ok(sends[0].from === 'Carnivore Weekly <reports@carnivoreweekly.com>' && sends[0].reply_to === 'sarah@carnivoreweekly.com', sends[0].from);
+  ok(sends[0].html.includes('https://carnivoreweekly.com/calculator.html?payment=success'), 'CW link changed');
+});
+
+await check('G3. CW abandon-recovery copy never goes to a PD reader', async () => {
+  const { result, sends } = await lifecycle('__test_sendAbandonRecoveryIfOwed', 'pesco-keto', { ...paidObj, payment_status: 'unpaid' });
+  ok(sends.length === 0, `sent ${sends.length}`);
+  ok(result.skipped === 'pd-recovery-not-approved', JSON.stringify(result));
+});
+
+await check('G4. claim gate knows the PD diet words', async () => {
+  const ctx = deriveMedicalContext({ conditions: ['type 2 diabetes'] });
+  const { assertNoConditionClaimFrames } = await import('../api/medical-context.js');
+  let threw = false;
+  try { assertNoConditionClaimFrames('x', 'The Mediterranean pattern reverses type 2 diabetes.', ctx); } catch { threw = true; }
+  ok(threw, 'Mediterranean claim frame not caught');
+});
+
 process.exit(failed ? 1 : 0);

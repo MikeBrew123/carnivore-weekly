@@ -2121,6 +2121,10 @@ async function handleEmailReport(request, env) {
       return createErrorResponse('EMAIL_NOT_CONFIGURED', 'Email service not available', 500);
     }
 
+    // Branded by what the report IS: the PD document carries data-pd-section markers
+    // (api/pd-report.js), so the email can never disagree with the plan it delivers.
+    const reportBrand = /data-pd-section="/.test(report.report_html) ? REPORT_BRANDS.pd : REPORT_BRANDS.cw;
+
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -2128,10 +2132,11 @@ async function handleEmailReport(request, env) {
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
+        from: reportBrand.from,
         // The stored owner, never the request body. See the authorization note above.
         to: [ownerEmail],
-        subject: 'Your Personalized Carnivore Protocol',
+        ...(reportBrand === REPORT_BRANDS.pd ? { reply_to: reportBrand.replyTo } : {}),
+        subject: reportBrand.reportSubject,
         html: report.report_html,
       }),
     });
@@ -8617,10 +8622,34 @@ async function ensureAssessmentPaid(env, assessmentId, patchHeaders) {
 }
 
 const RESUME_LINK_BASE = 'https://carnivoreweekly.com/calculator.html';
+
+// Who a paid-report email comes from. PescoDial readers (any pesco-* diet) get
+// PescoDial throughout: sender, reply-to, subject, resume link and signature.
+// pescodial.com is Resend-verified (2026-10-03) and has no inbound mail, so replies
+// go to the carnivoreweekly.com catch-all like the PD drip (scripts/send_drip.py).
+const REPORT_BRANDS = {
+  cw: {
+    from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
+    replyTo: 'sarah@carnivoreweekly.com',
+    reportSubject: 'Your Personalized Carnivore Protocol',
+    resumeBase: RESUME_LINK_BASE,
+    signature: 'Carnivore Weekly',
+  },
+  pd: {
+    from: 'PescoDial <reports@pescodial.com>',
+    replyTo: 'pescodial@carnivoreweekly.com',
+    reportSubject: 'Your PescoDial 7-day plan is ready', // Sarah, gap-copy.md
+    resumeBase: 'https://pescodial.com/calculator/',
+    signature: 'PescoDial',
+  },
+};
+function brandSiteForDiet(diet) {
+  return String(diet || '').toLowerCase().trim().indexOf('pesco') === 0 ? 'pd' : 'cw';
+}
 const resumeEmailMarkerId = checkoutSessionId => `cw-resume-email:${checkoutSessionId}`;
 
-function buildResumeLink(assessmentId) {
-  return `${RESUME_LINK_BASE}?payment=success&session_id=${encodeURIComponent(assessmentId)}#payment-success`;
+function buildResumeLink(assessmentId, site = 'cw') {
+  return `${(REPORT_BRANDS[site] || REPORT_BRANDS.cw).resumeBase}?payment=success&session_id=${encodeURIComponent(assessmentId)}#payment-success`;
 }
 
 /**
@@ -8631,7 +8660,8 @@ function buildResumeLink(assessmentId) {
  */
 const RESUME_EMAIL_SUBJECT = 'Your payment went through. One step left.';
 
-function buildResumeEmailBody(resumeLink) {
+function buildResumeEmailBody(resumeLink, site = 'cw') {
+  const signature = (REPORT_BRANDS[site] || REPORT_BRANDS.cw).signature;
   const paragraphs = [
     'Thanks, your payment went through.',
     'There\'s one short step left before your report can be built: the health profile. ' +
@@ -8646,7 +8676,7 @@ function buildResumeEmailBody(resumeLink) {
     'If anything goes wrong, just reply to this email and I\'ll help.',
   ];
 
-  const text = [...paragraphs, resumeLink, ...closing, 'Sarah', 'Carnivore Weekly'].join('\n\n');
+  const text = [...paragraphs, resumeLink, ...closing, 'Sarah', signature].join('\n\n');
 
   const html =
     '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Georgia,serif;' +
@@ -8657,7 +8687,7 @@ function buildResumeEmailBody(resumeLink) {
     'text-decoration:none;display:inline-block;font-weight:600;">Finish your health profile</a></p>' +
     `<p style="font-size:14px;word-break:break-all;color:#5c4433;">${escapeHTML(resumeLink)}</p>` +
     closing.map(p => `<p>${escapeHTML(p)}</p>`).join('') +
-    '<p style="margin-top:24px;">Sarah<br>Carnivore Weekly</p>' +
+    `<p style="margin-top:24px;">Sarah<br>${escapeHTML(signature)}</p>` +
     '</div>';
 
   return { text, html };
@@ -8695,7 +8725,7 @@ async function sendResumeEmailIfOwed(env, obj) {
   }
 
   const sessionLookup = await fetch(
-    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(assessmentId)}&select=id,email`,
+    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(assessmentId)}&select=id,email,form_data`,
     { headers }
   );
   if (!sessionLookup.ok) return { failed: true, reason: `session lookup failed (${sessionLookup.status})` };
@@ -8712,8 +8742,10 @@ async function sendResumeEmailIfOwed(env, obj) {
 
   if (!env.RESEND_API_KEY) return { failed: true, reason: 'RESEND_API_KEY not configured' };
 
-  const link = buildResumeLink(assessmentId);
-  const { text, html } = buildResumeEmailBody(link);
+  const site = brandSiteForDiet(sessions[0].form_data && sessions[0].form_data.diet);
+  const brand = REPORT_BRANDS[site];
+  const link = buildResumeLink(assessmentId, site);
+  const { text, html } = buildResumeEmailBody(link, site);
 
   const send = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -8725,9 +8757,9 @@ async function sendResumeEmailIfOwed(env, obj) {
       'Idempotency-Key': `cw-resume/${obj.id}`,
     },
     body: JSON.stringify({
-      from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
+      from: brand.from,
       to: [to],
-      reply_to: 'sarah@carnivoreweekly.com',
+      reply_to: brand.replyTo,
       subject: RESUME_EMAIL_SUBJECT,
       html,
       text,
@@ -8971,7 +9003,7 @@ async function sendAbandonRecoveryIfOwed(env, obj) {
   if (Array.isArray(markerRows) && markerRows.length > 0) return { skipped: 'already-sent' };
 
   const sessionLookup = await fetch(
-    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(assessmentId)}&select=id,email,payment_status`,
+    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(assessmentId)}&select=id,email,payment_status,form_data`,
     { headers }
   );
   if (!sessionLookup.ok) return { failed: true, reason: `session lookup failed (${sessionLookup.status})` };
@@ -8987,6 +9019,13 @@ async function sendAbandonRecoveryIfOwed(env, obj) {
   // here rather than trusted from the expired Session.
   const status = sessions[0].payment_status;
   if (status === 'completed' || status === 'success') return { skipped: 'already-paid' };
+
+  // This copy sells the CW report (30 days of meals, weekly grocery lists) under the
+  // CW name. A PescoDial reader gets nothing until PD recovery copy is written and
+  // Brew approves sending it. Not sending is the safe default for a sales email.
+  if (brandSiteForDiet(sessions[0].form_data && sessions[0].form_data.diet) === 'pd') {
+    return { skipped: 'pd-recovery-not-approved' };
+  }
 
   const to = obj.customer_email || obj.customer_details?.email || obj.metadata?.email || sessions[0].email;
   if (!to) return { skipped: 'no-buyer-email' };
@@ -10212,6 +10251,7 @@ export {
   buildResumeLink as __test_buildResumeLink,
   buildResumeEmailBody as __test_buildResumeEmailBody,
   RESUME_EMAIL_SUBJECT as __test_RESUME_EMAIL_SUBJECT,
+  REPORT_BRANDS as __test_REPORT_BRANDS,
   sendAbandonRecoveryIfOwed as __test_sendAbandonRecoveryIfOwed,
   buildRecoveryLink as __test_buildRecoveryLink,
   buildAbandonEmailBody as __test_buildAbandonEmailBody,
