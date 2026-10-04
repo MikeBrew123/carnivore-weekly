@@ -109,10 +109,14 @@ NAS_BASE_URL = 'http://100.117.74.5:8087'
 SUPABASE_PROJECT_ID = 'kwtdpvnjewtahuxjyltn'
 CW_GA4 = 'properties/517632328'
 KD_GA4 = 'properties/539655784'
+PD_GA4 = 'properties/557125657'  # PescoDial, launched 2026-10-03 21:42 PDT
 GSC_CW = 'sc-domain:carnivoreweekly.com'
 GSC_KD = 'https://ketodial.com/'
+GSC_PD = 'sc-domain:pescodial.com'
 BING_CW = 'https://carnivoreweekly.com'
 BING_KD = 'https://ketodial.com'
+BING_PD = 'https://www.pescodial.com'
+PD_LAUNCH = '2026-10-03'
 NET_TARGET_MONTHLY = 1000.0  # CW goal: $1k/month NET profit
 CW_DEMO_BASELINE = {'45_plus_share': 66, 'female_share': 53, 'weight_loss_share': 84}
 
@@ -124,7 +128,8 @@ NOW_STR = datetime.now().strftime('%Y-%m-%d %H:%M')
 # (see memory feedback-plus-addressing-not-junk).
 TEST_EMAIL_MARKERS = ('iambrew@gmail.com', 'iambrew+', '@test.ketodial.com', '@example.com',
                       'mbrew@telus.net', 'shoptest@', 'qa+hermes@', 'm@e.com',
-                      'brew+calctest@', 'mctestface', '@test123.com', '@test.com')
+                      'brew+calctest@', 'mctestface', '@test123.com', '@test.com',
+                      'qa-checkout-probe@')
 
 # Our own sending addresses. Mail FROM these is our own send looping back
 # through the inbound catch-all (e.g. newsletter to a subscriber address on
@@ -451,6 +456,38 @@ def fetch_offer_events(property_id, days=28):
             'metric_note': 'sessions = GA4 sessions containing the event; events = raw fires'}
 
 
+# PescoDial calculator runs client-side, so it writes no calculator_sessions_v2
+# row until checkout. GA4 events are its funnel (pescodial/public/js/calculator.js).
+PD_EVENTS = (('calc_style_chosen', 'Picked a style'), ('calc_numbers_entered', 'Entered numbers'),
+             ('calc_results_viewed', 'Saw free results'), ('generate_lead', 'Gave email'),
+             ('upgrade_click', 'Clicked $29 plan'), ('begin_checkout', 'Began checkout'),
+             ('payment_returned', 'Paid and returned'), ('plan_viewed', 'Opened plan'))
+
+
+def fetch_pescodial():
+    """PescoDial since launch: GA4 calculator events (sessions containing each
+    event) plus paid PD orders. Traffic, search and email live in their own blocks."""
+    from google.analytics.data_v1beta.types import (
+        DateRange, Dimension, Filter, FilterExpression, Metric, RunReportRequest)
+    names = [e for e, _ in PD_EVENTS]
+    f = FilterExpression(filter=Filter(field_name='eventName', string_filter=Filter.StringFilter(
+        match_type=Filter.StringFilter.MatchType.FULL_REGEXP, value='|'.join(names))))
+    resp = ga4_client().run_report(RunReportRequest(
+        property=PD_GA4, dimensions=[Dimension(name='eventName')],
+        metrics=[Metric(name='sessions'), Metric(name='eventCount')],
+        date_ranges=[DateRange(start_date=PD_LAUNCH, end_date='today')], dimension_filter=f))
+    got = {r.dimension_values[0].value: int(r.metric_values[0].value) for r in resp.rows}
+    paid = supa_fetch('calculator_sessions_v2', select='amount_paid_cents,email',
+                      filters=f'diet_type=like.pesco*&amount_paid_cents=gt.0&created_at=gte.{PD_LAUNCH}',
+                      limit=500)
+    paid = [r for r in paid if not is_test_email(r.get('email'))]
+    return {'since': PD_LAUNCH,
+            'events': [{'name': n, 'label': l, 'sessions': got.get(n, 0)} for n, l in PD_EVENTS],
+            'paid_orders': len(paid),
+            'paid_usd': round(sum(r['amount_paid_cents'] for r in paid) / 100, 2),
+            'note': 'GA4 sessions containing each event since launch; launch-night QA visits are in here.'}
+
+
 # ── Google Search Console ────────────────────────────────────────────
 
 _gsc_api = None
@@ -625,7 +662,7 @@ def fetch_funnels():
         }
 
     # Drip funnels, one per site (CW 30-day Carnivore Starter, KD 30-day Keto Starter)
-    for site in ['cw', 'kd']:
+    for site in ['cw', 'kd', 'pd']:
         s = f'site=eq.{site}&{SUBSCRIBER_TEST_FILTER}'
         last_sent = supa_fetch('drip_subscribers', select='last_sent_at',
                                filters=f'{s}&unsubscribed=eq.false&completed=eq.false&last_sent_at=not.is.null',
@@ -648,7 +685,7 @@ def fetch_funnels():
             out[f'drip_{site}']['stalled_days'] = None
 
     # Newsletter per site
-    for site in ['cw', 'kd']:
+    for site in ['cw', 'kd', 'pd']:
         ns = f'site=eq.{site}&{SUBSCRIBER_TEST_FILTER}'
         out[f'newsletter_{site}'] = {
             'active': supa_count('newsletter_subscribers', f'{ns}&unsubscribed_at=is.null'),
@@ -1786,12 +1823,15 @@ def collect(use_model=True):
 
     print('  GA4 traffic...')
     data['traffic'] = {'cw': guarded('GA4 CW', fetch_traffic, CW_GA4),
-                       'kd': guarded('GA4 KD', fetch_traffic, KD_GA4)}
+                       'kd': guarded('GA4 KD', fetch_traffic, KD_GA4),
+                       'pd': guarded('GA4 PD', fetch_traffic, PD_GA4)}
     print('  Search Console...')
     data['search'] = {'cw': guarded('GSC CW', fetch_gsc, GSC_CW),
                       'kd': guarded('GSC KD', fetch_gsc, GSC_KD),
                       'bing_cw': guarded('Bing CW', fetch_bing, BING_CW, CW_GA4),
-                      'bing_kd': guarded('Bing KD', fetch_bing, BING_KD, KD_GA4)}
+                      'bing_kd': guarded('Bing KD', fetch_bing, BING_KD, KD_GA4),
+                      'pd': guarded('GSC PD', fetch_gsc, GSC_PD),
+                      'bing_pd': guarded('Bing PD', fetch_bing, BING_PD, PD_GA4)}
     print('  Funnels...')
     data['funnels'] = guarded('Funnels', fetch_funnels)
     print('  Demographics...')
@@ -1816,6 +1856,8 @@ def collect(use_model=True):
     data['yesterday'] = guarded('Yesterday', fetch_yesterday)
     print('  Paid-funnel events (GA4)...')
     data['offer_events'] = guarded('Offer events', fetch_offer_events, CW_GA4)
+    print('  PescoDial...')
+    data['pescodial'] = guarded('PescoDial', fetch_pescodial)
     data['decisions'] = load_open_decisions()
 
     # ── Executive layer (deterministic; see dashboard/command_center_exec.py) ──
@@ -2213,6 +2255,51 @@ def matters_html(d):
 # ── Scorecards ───────────────────────────────────────────────────────
 
 SCORE_GROUPS = ('Traffic', 'Audience', 'Buying intent', 'Revenue', 'Email')
+
+
+def pescodial_html(d):
+    """PescoDial launch card: one place for its traffic, calculator, email and money."""
+    pd = d.get('pescodial') or {}
+    t = (d.get('traffic') or {}).get('pd') or {}
+    f = d.get('funnels') or {}
+    if pd.get('error') and (not t or t.get('error')):
+        return f'<section class="card site-pd"><h2>PescoDial</h2>{err_note(pd, "PescoDial")}</section>'
+    stats = []
+    if t and not t.get('error'):
+        w = t['week']
+        stats += [(f'{w["sessions"]["current"]:.0f}', 'sessions 7d'),
+                  (f'{w["totalUsers"]["current"]:.0f}', 'users 7d'),
+                  (f'{w["engagedSessions"]["current"]:.0f}', 'engaged 7d'),
+                  (f'{t.get("active_now", 0) or 0}', 'active now')]
+    drip, nl = f.get('drip_pd') or {}, f.get('newsletter_pd') or {}
+    if drip and not f.get('error'):
+        stats += [(drip.get('active', 0), 'in drip'), (nl.get('new_7d', 0), 'signups 7d')]
+    # A failed read must never render as zero sales.
+    if 'paid_usd' in pd:
+        stats += [(pd['paid_orders'], 'paid plans'), (f'${pd["paid_usd"]:,.2f}', 'revenue')]
+    else:
+        stats += [('n/a', 'paid plans (read failed)')]
+    srow = ''.join(f'<div class="stat"><b>{esc(v)}</b><span>{esc(k)}</span></div>' for v, k in stats)
+    ev = pd.get('events') or []
+    top = max([e['sessions'] for e in ev] + [1])
+    bars = ''.join(
+        f'<div class="kv"><span>{esc(e["label"])}</span><b>{e["sessions"]}</b></div>'
+        f'<div class="pdbar"><i style="width:{e["sessions"] / top * 100:.0f}%;background:var(--pd)"></i></div>'
+        for e in ev)
+    src = ''.join(f'<div class="kv"><span>{esc(s["source"])}</span><b>{s["sessions"]}</b></div>'
+                  for s in (t.get('sources_7d') or [])[:5]) if t and not t.get('error') else ''
+    g = (d.get('search') or {}).get('pd') or {}
+    gl = ''
+    if g and not g.get('error'):
+        c = g.get('current') or {}
+        gl = (f'<p class="muted small">Google: {c.get("clicks", 0)} clicks, {c.get("impressions", 0)} '
+              f'impressions ({esc(g.get("window", ""))}). Search data lags about 3 days.</p>')
+    return (f'<section class="card site-pd" id="pescodial"><h2>PescoDial'
+            f'<span class="h2sub">since launch {esc(pd.get("since", PD_LAUNCH))}</span></h2>'
+            f'<div class="statrow">{srow}</div>'
+            f'<div class="fgrid"><div><h3>Calculator <span class="muted small">(GA4 sessions)</span></h3>{bars}</div>'
+            f'<div><h3>Top sources <span class="muted small">(7d)</span></h3>{src or "<p class=muted>none yet</p>"}</div></div>'
+            f'{gl}<p class="muted small">{esc(pd.get("note", ""))}</p></section>')
 
 
 def scorecard_html(d, site, label, ident):
@@ -2974,7 +3061,7 @@ def render_html(d):
       --line-soft:#22252d;
       --text:#e9ecf2; --dim:#8d95a6; --faint:#5d6474;
       --ok:#5ec97f; --warn:#e5a93c; --crit:#e5594f; --info:#7aa2f7;
-      --cw:#e8833a; --kd:#46b3a4;
+      --cw:#e8833a; --kd:#46b3a4; --pd:#c9734f;
       --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
       --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
       --gap:14px;
@@ -3097,7 +3184,7 @@ def render_html(d):
     .site-title{display:flex;align-items:center;gap:9px;font:600 13px/1 var(--sans)!important;
       text-transform:none!important;letter-spacing:-.01em!important;color:var(--text)!important}
     .site-title .rule{width:3px;height:15px;border-radius:2px;display:block}
-    .site-cw .rule{background:var(--cw)} .site-kd .rule{background:var(--kd)}
+    .site-cw .rule{background:var(--cw)} .site-kd .rule{background:var(--kd)} .site-pd{border-top:2px solid var(--pd)}
     .score table{width:100%;border-collapse:collapse}
     .score th{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;
       color:var(--faint);text-align:left;padding:0 0 7px;font-weight:400;
@@ -3288,6 +3375,8 @@ def render_html(d):
       vertical-align:top;word-break:break-word}
     details.inner{margin-top:9px}
     details.inner summary{cursor:pointer;color:var(--dim);font-size:12px}
+    .pdbar{height:4px;background:var(--line);border-radius:2px;margin:0 0 6px}
+    .pdbar i{display:block;height:100%;border-radius:2px}
     .kv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:4px 0;
       border-bottom:1px solid var(--line-soft)}
     .kv span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -3453,6 +3542,8 @@ def render_html(d):
 {scorecard_html(d, 'kd', 'KetoDial', 'kd')}
 </div>
 
+{pescodial_html(d)}
+
 <div class="row3" id="funnel">
 {paid_funnel_html(d)}
 <div class="stack" id="measuring">{experiments_html(d)}</div>
@@ -3488,6 +3579,7 @@ def render_html(d):
 <div class="fgrid">
 {traffic_card('Carnivore Weekly', d['traffic'].get('cw'), 'var(--cw)')}
 {traffic_card('KetoDial', d['traffic'].get('kd'), 'var(--kd)')}
+{traffic_card('PescoDial', d['traffic'].get('pd'), 'var(--pd)')}
 </div></div>
 
 <div class="panel" id="panel-search" role="tabpanel" hidden>
@@ -3496,6 +3588,8 @@ def render_html(d):
 {search_card('Google &middot; KetoDial', d['search'].get('kd'), 'var(--kd)')}
 {bing_card('Bing &middot; Carnivore Weekly', d['search'].get('bing_cw'))}
 {bing_card('Bing &middot; KetoDial', d['search'].get('bing_kd'))}
+{search_card('Google &middot; PescoDial', d['search'].get('pd'), 'var(--pd)')}
+{bing_card('Bing &middot; PescoDial', d['search'].get('bing_pd'))}
 </div></div>
 
 <div class="panel" id="panel-audience" role="tabpanel" hidden>
