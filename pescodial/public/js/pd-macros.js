@@ -86,13 +86,13 @@ var PDMacros = (() => {
       }
     }
     let protein, fat, carbs;
+    let proteinBasisKg = null;
     const isLowCarbDiet = ["carnivore", "lion", "pescatarian", "keto", "strict carnivore", "lowcarb", "low-carb", "low carb"].includes(diet);
     if (diet === "pesco-mediterranean") {
       const heightM = heightCmVal / 100;
       const bmi = weightKg / (heightM * heightM);
       const goalLb = Number(fd.goalWeight) || 0;
       const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0;
-      let proteinBasisKg;
       if (goalKg > 0) {
         const goalBmi = goalKg / (heightM * heightM);
         const floorKg = 18.5 * heightM * heightM;
@@ -108,7 +108,6 @@ var PDMacros = (() => {
       const bmi = weightKg / (heightM * heightM);
       const goalLb = Number(fd.goalWeight) || 0;
       const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0;
-      let proteinBasisKg;
       if (goalKg > 0) {
         const goalBmi = goalKg / (heightM * heightM);
         const floorKg = 18.5 * heightM * heightM;
@@ -157,7 +156,8 @@ var PDMacros = (() => {
       selfServiceFloor,
       floorApplied,
       requestedDeficitPct,
-      effectiveDeficitPct
+      effectiveDeficitPct,
+      proteinBasisKg
     };
   }
   return __toCommonJS(pd_calc_entry_exports);

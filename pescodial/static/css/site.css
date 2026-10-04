@@ -289,7 +289,7 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 
 /* Header band + scallop */
 .site-header { background: var(--sea); color: var(--cream); }
-.site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 68px; }
+.site-header .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 16px; min-height: 68px; }
 .wordmark { font: 400 1.75rem/1 var(--f-display); color: var(--cream); text-decoration: none; letter-spacing: .2px; }
 .wordmark span { color: var(--olive-light); }
 .wordmark:hover { color: var(--cream); }
@@ -342,6 +342,8 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 
 .choices { display: grid; gap: 12px; }
 .choice { position: relative; display: block; cursor: pointer; }
+/* Equal-height cards in every choice grid (review #16, #17). */
+.choices .choice-body { height: 100%; align-content: start; }
 .choice input { position: absolute; opacity: 0; inset: 0; }
 .choice-body {
   display: grid; grid-template-columns: 28px 1fr; gap: 2px 14px; align-items: start;
@@ -361,15 +363,25 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 
 .choices.compact .choice-body { min-height: 56px; padding: 12px 14px; }
 .choices.compact .choice-body::before { grid-row: auto; }
-.choices.two { grid-template-columns: 1fr 1fr; }
+/* Two short choices sit side by side only when both labels fit on one line;
+   on narrow phones and at large text sizes they stack (review #10, #16). */
+.choices.two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+.choices.two .choice-body { align-items: center; }
 
 /* Segmented toggle */
-.toggle { display: inline-flex; border: 2px solid var(--sea); border-radius: 999px; padding: 3px; background: #fff; margin-bottom: 18px; }
+.toggle { display: inline-flex; flex-wrap: wrap; max-width: 100%; border: 2px solid var(--sea); border-radius: 28px; padding: 3px; background: #fff; margin-bottom: 18px; }
 .toggle label { position: relative; }
 .toggle input { position: absolute; opacity: 0; inset: 0; }
-.toggle span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; font-weight: 700; color: var(--sea); cursor: pointer; }
+.toggle span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; font-weight: 700; color: var(--sea); cursor: pointer; white-space: nowrap; }
 .toggle input:checked + span { background: var(--sea); color: #fff; }
 .toggle input:focus-visible + span { outline: 3px solid var(--terra); outline-offset: 2px; }
+/* Narrow phones: the toggle spans the card and the two labels share it, so it never
+   breaks into two rows (review #10). It still wraps whole labels at very large text. */
+@media (max-width: 400px) {
+  .toggle { display: flex; }
+  .toggle label { flex: 1 1 auto; }
+  .toggle span { width: 100%; justify-content: center; padding: 0 12px; }
+}
 
 /* Fields */
 .field { margin-bottom: 20px; }
@@ -388,6 +400,8 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .field.has-error .input, .field.has-error .choice-body { border-color: var(--error); }
 .field-error { display: none; color: var(--error); font-weight: 700; font-size: 1.0625rem; margin-top: 6px; }
 .field.has-error .field-error { display: block; }
+/* Checkout and plan errors live outside a .field: show them whenever they have text. */
+.field-error[role="alert"]:not(:empty) { display: block; }
 .error-summary { border: 2px solid var(--error); background: var(--error-tint); border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
 .error-summary h3 { color: var(--error); font-family: var(--f-ui); font-size: 1.125rem; margin: 0 0 4px; }
 .error-summary ul { margin: 0; padding-left: 20px; }
@@ -397,17 +411,23 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .notice { border-radius: 12px; padding: 16px 18px; margin-bottom: 22px; }
 .notice-doctor { background: var(--olive-tint); border: 2px solid var(--olive); }
 .notice-doctor p { margin: 0; font-weight: 700; color: var(--sea-ink); }
+.notice-light { padding: 12px 16px; border-width: 1px; margin-bottom: 18px; }
+.notice-light p { font-weight: 400; font-size: 1rem; }
+.privacy-note { font-size: 1rem; color: var(--muted); margin-top: -6px; }
 .state-panel { text-align: left; }
 .state-panel h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.75rem; }
 
 /* Results */
 .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 12px; }
+.results-grid dd { margin: 0; }
+/* No fiber guide (Low Carb, Keto, Carnivore): carbs take the free slot (review #19). */
+.results-grid.no-fiber > .stat:nth-child(4) { grid-column: 1 / -1; }
 .stat { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
 .stat-wide { grid-column: 1 / -1; background: var(--sea); border-color: var(--sea); color: var(--cream); }
 .stat-label { font-weight: 700; font-size: 1rem; color: var(--muted); display: block; }
 .stat-wide .stat-label { color: var(--olive-light); }
 .stat-value { font: 400 2.1rem/1.1 var(--f-display); color: var(--sea-ink); display: block; margin-top: 4px; }
-.stat-value small { font: 700 1rem var(--f-ui); color: var(--muted); margin-left: 3px; }
+.stat-value small { font: 700 1rem var(--f-ui); color: var(--muted); }
 .stat-wide .stat-value { font-size: 2.75rem; color: #fff; }
 .stat-wide .stat-value small { color: var(--cream); }
 .results-basis { font-size: 1rem; color: var(--muted); }
@@ -505,6 +525,8 @@ blockquote.not-doctor cite { font: normal 700 1rem var(--f-ui); color: var(--mut
   h1 { font-size: 2.9rem; }
   .hero { padding-top: 32px; }
   .results-grid { grid-template-columns: repeat(4, 1fr); }
+  .results-grid.no-fiber { grid-template-columns: repeat(3, 1fr); }
+  .results-grid.no-fiber > .stat:nth-child(4) { grid-column: auto; }
   .calc { padding: 28px 30px 32px; }
   .choices.style-cards { grid-template-columns: 1fr 1fr; }
 }
