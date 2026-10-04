@@ -249,7 +249,7 @@ await check('G1. PD resume email: PescoDial sender, pescodial.com link, PescoDia
   const m = sends[0];
   ok(m.from === 'PescoDial <reports@pescodial.com>', m.from);
   ok(m.reply_to === 'pescodial@carnivoreweekly.com', m.reply_to);
-  ok(m.html.includes('https://pescodial.com/calculator/?payment=success&session_id=' + ASSESS), 'resume link not on pescodial.com');
+  ok(m.html.includes('https://www.pescodial.com/calculator/?payment=success&session_id=' + ASSESS), 'resume link not on www.pescodial.com');
   ok(!/carnivore\s*weekly|carnivoreweekly\.com\/calculator/i.test(m.html + m.text), 'Carnivore Weekly in a PD resume email');
 });
 

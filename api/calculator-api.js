@@ -1756,6 +1756,12 @@ async function handleReportInit(request, env) {
 
     const session = sessions[0];
     console.log('[handleReportInit] Processing report for session:', session.id || session_id);
+
+    // A report is something someone paid for. Before 2026-10-03 this endpoint built
+    // one for any session id it was handed, paid or not.
+    if (!['completed', 'success'].includes(String(session.payment_status || '').toLowerCase())) {
+      return createErrorResponse('PAYMENT_REQUIRED', 'This plan has not been paid for yet.', 402);
+    }
     console.log('[handleReportInit] Session form_data keys:', session.form_data ? Object.keys(session.form_data) : 'NULL');
     console.log('[handleReportInit] Session form_data sample:', JSON.stringify({
       weight: session.form_data?.weight,
@@ -6309,6 +6315,9 @@ async function handleCreateCheckout(request, env) {
     // Same typo correction as the calculator, so the receipt and report go where step 1 saved.
     const email = rawEmail ? correctEmailTypo(rawEmail).email : rawEmail;
     const finalFormData = form_data || formData;
+    // PescoDial orders (pesco-* diet) come back to PescoDial, priced the same but
+    // named for PescoDial on Stripe's page (Brew, 2026-10-03: $29 USD).
+    const orderSite = brandSiteForDiet(finalFormData && finalFormData.diet);
 
     // Map tier_id to Stripe price_id
     const tierPriceMap = {
@@ -6520,7 +6529,9 @@ async function handleCreateCheckout(request, env) {
       // Return success response with direct redirect (no Stripe)
       return createSuccessResponse({
         success: true,
-        checkout_url: `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`,
+        checkout_url: orderSite === 'pd'
+          ? `${pdReturnBase(request)}/calculator/?payment=success&session_id=${sessionUUID}#payment-success`
+          : `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`,
         session_uuid: sessionUUID,
         message: 'Free checkout completed (100% discount)',
       }, 200);
@@ -6539,8 +6550,12 @@ async function handleCreateCheckout(request, env) {
       console.log('[Worker] Detected localhost - using request origin:', baseDomain);
     }
 
-    const successUrlWithId = `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`;
-    const cancelUrlWithId = `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}#upgrade-cta`;
+    const successUrlWithId = orderSite === 'pd'
+      ? `${pdReturnBase(request)}/calculator/?payment=success&session_id=${sessionUUID}#payment-success`
+      : `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`;
+    const cancelUrlWithId = orderSite === 'pd'
+      ? `${pdReturnBase(request)}/calculator/?payment=cancelled&session_id=${sessionUUID}`
+      : `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}#upgrade-cta`;
 
     console.log('Sending to Stripe:');
     console.log('  success_url:', successUrlWithId);
@@ -6569,7 +6584,16 @@ async function handleCreateCheckout(request, env) {
     // Build form-encoded body with proper Stripe format
     const formBody = new URLSearchParams();
     formBody.append('payment_method_types[]', 'card');
-    formBody.append('line_items[0][price]', stripePriceId);
+    if (orderSite === 'pd') {
+      // Same server-side price ($29 USD), PescoDial name on Stripe's checkout page.
+      // The amount is a constant here, never read from the request.
+      formBody.append('line_items[0][price_data][currency]', 'usd');
+      formBody.append('line_items[0][price_data][unit_amount]', String(PD_PLAN_PRICE_CENTS));
+      formBody.append('line_items[0][price_data][product_data][name]', 'Your Full 7-Day Plan (PescoDial)');
+      formBody.append('line_items[0][price_data][product_data][description]', 'Personal pescatarian 7-day plan: meal plan, grocery list, recipes, fish plan.');
+    } else {
+      formBody.append('line_items[0][price]', stripePriceId);
+    }
     formBody.append('line_items[0][quantity]', '1');
     formBody.append('mode', 'payment');
 
@@ -8662,10 +8686,21 @@ const REPORT_BRANDS = {
     from: 'PescoDial <reports@pescodial.com>',
     replyTo: 'pescodial@carnivoreweekly.com',
     reportSubject: 'Your PescoDial 7-day plan is ready', // Sarah, gap-copy.md
-    resumeBase: 'https://pescodial.com/calculator/',
+    // www, not the apex: the apex is a GoDaddy forward that drops path and query.
+    resumeBase: 'https://www.pescodial.com/calculator/',
     signature: 'PescoDial',
   },
 };
+const PD_PLAN_PRICE_CENTS = 2900; // $29 USD, same as the CW report (Brew, 2026-10-03)
+const PD_RETURN_ORIGINS = ['https://www.pescodial.com', 'https://pescodial.pages.dev'];
+// Where a PescoDial buyer comes back to after Stripe. Only known PescoDial origins
+// (or localhost for testing) are honoured; anything else gets the live site.
+function pdReturnBase(request) {
+  const origin = (request && request.headers && request.headers.get('origin')) || '';
+  if (origin === 'https://pescodial.com') return 'https://www.pescodial.com';
+  if (PD_RETURN_ORIGINS.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
+  return 'https://www.pescodial.com';
+}
 function brandSiteForDiet(diet) {
   return String(diet || '').toLowerCase().trim().indexOf('pesco') === 0 ? 'pd' : 'cw';
 }
