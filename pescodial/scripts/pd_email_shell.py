@@ -191,6 +191,24 @@ def calculator_box(heading, text, button, utm=None, url=CALC_URL):
   </tr>"""
 
 
+def reply_block(lead, question):
+    """One easy question the reader answers by hitting reply (replies reach the PD inbox)."""
+    return f"""  <!-- REPLY QUESTION -->
+  <tr>
+    <td class="px" style="padding:28px 32px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="bg-paper t-ink" bgcolor="#fffbf4" style="background:#fffbf4;border:2px solid {OLIVE};border-radius:12px;padding:18px 20px;font-family:{SANS};font-size:18px;line-height:27px;mso-line-height-rule:exactly;color:{INK};">
+            <strong class="t-olive" style="font-size:14px;color:{OLIVE};text-transform:uppercase;letter-spacing:1px;">Your turn</strong><br>
+            {e(lead)}<br>
+            <span class="t-sea" style="font-family:{SERIF};font-size:21px;line-height:29px;font-weight:bold;color:{NAVY_DEEP};">{e(question)}</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>"""
+
+
 def footer(reason, unsubscribe):
     return f"""  <!-- FOOTER -->
   <tr>
@@ -275,7 +293,7 @@ def render_email(*, title, preheader, header_label, header_sub, sections, footer
 
 def render_newsletter(issue, unsubscribe=NEWSLETTER_UNSUBSCRIBE):
     """Full weekly-guide layout. Required: title, preheader, date, intro{h1, paragraphs}.
-    Optional sections: question, recipe, tip, calculator. Anything absent is omitted."""
+    Optional sections: question, recipe, tip, reply, calculator. Anything absent is omitted."""
     for k in ("title", "preheader", "date", "intro"):
         if not issue.get(k):
             raise ValueError(f"newsletter issue is missing {k!r}")
@@ -295,6 +313,8 @@ def render_newsletter(issue, unsubscribe=NEWSLETTER_UNSUBSCRIBE):
         blocks.append(tip_section(t["title"], t["text"], t.get("kicker", "Shopping tip")))
     for i, b in enumerate(blocks):
         rows.append(b if i == 0 else divider() + "\n" + b)
+    if r := issue.get("reply"):
+        rows.append(reply_block(r["lead"], r["question"]))
     if c := issue.get("calculator"):
         rows.append(calculator_box(c["heading"], c.get("text"), c["button"], utm))
     return render_email(

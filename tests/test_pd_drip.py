@@ -20,6 +20,7 @@ import os
 import re
 import subprocess
 import sys
+from html import unescape as html_unescape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -161,9 +162,20 @@ def test_shell():
     check("D. link checker accepts #calc on the homepage", pd_page_exists("https://www.pescodial.com/?utm_source=x#calc"))
 
 
+def test_engagement():
+    """Brew 2026-10-03: every email asks one reply question and sells the 7-day plan."""
+    import json
+    boxes = json.loads((ROOT / "pescodial/drafts/drip/cta-boxes.json").read_text())
+    for p in sorted((ROOT / "data/drip-emails/pd").glob("day-*.html")):
+        h = html_unescape(p.read_text()); day = p.stem.split("-")[1]; box = boxes["drip"][day]
+        check(f"E. {p.stem} asks Sarah's reply question", "Your turn" in h and box["reply"]["question"] in h)
+        check(f"E. {p.stem} plan box sells the 7-day plan", box["heading"] in h and "7-Day Plan" in h)
+
+
 if __name__ == "__main__":
     test_generated_and_fresh()
     test_content()
     test_promo_days_plain()
     test_shell()
+    test_engagement()
     sys.exit(1 if FAILED else 0)

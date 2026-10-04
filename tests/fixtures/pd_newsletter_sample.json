@@ -27,7 +27,11 @@
   },
   "calculator": {
     "heading": "Haven't tried the calculator yet?",
-    "text": "Work out your daily calories, protein and fish meals in about two minutes. It's free.",
-    "button": "Try the calculator"
+    "text": "In about two minutes, get your daily calories, protein and fish meals per week. It's free. If you want meals built from it, there's a 7-day plan too.",
+    "button": "Find my numbers"
+  },
+  "reply": {
+    "lead": "Hit reply and tell me:",
+    "question": "What usually stops you from eating fish more often?"
   }
 }

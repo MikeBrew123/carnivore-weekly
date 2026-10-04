@@ -1,0 +1,78 @@
+{
+  "drip": {
+    "1": {
+      "heading": "When you want more than numbers",
+      "text": "Your free numbers are a good start. If you'd rather not plan meals around them yourself, Your Full 7-Day Plan turns them into a week of meals and a grocery list.",
+      "button": "See my 7-day plan",
+      "reply": {"lead": "Hit reply and tell me:", "question": "What made you curious about eating more fish?"}
+    },
+    "2": {
+      "heading": "Want some of that done for you?",
+      "text": "Five easy recipes, a grocery list and a fish plan for the week are already in Your Full 7-Day Plan, built from your calculator answers. $29 USD, one time.",
+      "button": "Show me the plan",
+      "reply": {"lead": "Hit reply and tell me:", "question": "What would help you most from PescoDial right now? One line is plenty."}
+    },
+    "3": {
+      "heading": "Your fish week, already planned",
+      "text": "This email gives you a starting week. Your Full 7-Day Plan maps out your own fish meals from lowest-mercury choices, sizes every meal to your numbers, and adds the grocery list.",
+      "button": "Get my 7-day plan",
+      "reply": {"lead": "Hit reply and tell me:", "question": "What's your home base fish, the one you could cook without thinking?"}
+    },
+    "4": {
+      "heading": "Eggs and shrimp, in sensible amounts",
+      "text": "Wondering how eggs and shrimp fit your week? Your Full 7-Day Plan sizes seven days of meals to your numbers and leaves out any foods you tell us you avoid.",
+      "button": "Show me my week",
+      "reply": {"lead": "Hit reply and tell me:", "question": "Were you raised to steer clear of eggs or shrimp? Which one?"}
+    },
+    "5": {
+      "heading": "Skip the mercury chart homework",
+      "text": "Your Full 7-Day Plan builds your fish week from lowest-mercury choices, so the sorting is done before you shop. Seven days of meals and a grocery list come with it.",
+      "button": "Plan my fish week",
+      "reply": {"lead": "Hit reply and tell me:", "question": "Which fish on today's lists surprised you most?"}
+    },
+    "7": {
+      "heading": "From grams to a plate you can cook",
+      "text": "Turning a fat number into spoons takes practice. Your Full 7-Day Plan does that math for you: seven days of meals sized to your numbers, plus five easy recipes.",
+      "button": "Do the math for me",
+      "reply": {"lead": "Hit reply and tell me:", "question": "How do you use olive oil most: for cooking, for drizzling, or hardly at all?"}
+    },
+    "10": {
+      "heading": "A week of meals, one shopping trip",
+      "text": "Your Full 7-Day Plan comes with a grocery list matched to seven days of meals, so you buy what you'll use. Print it or save it as a PDF for the store.",
+      "button": "Get my plan and list",
+      "reply": {"lead": "Hit reply and tell me:", "question": "What's your go-to canned fish, or the one you've never dared to open?"}
+    },
+    "14": {
+      "heading": "Protein in every meal, worked out",
+      "text": "Spreading protein through the day is easier when the meals are already sized. Your Full 7-Day Plan gives you seven days of them, built from your numbers. $29 USD, one time.",
+      "button": "Build my week",
+      "reply": {"lead": "Hit reply and tell me:", "question": "Which meal is hardest to get protein into for you: breakfast, lunch or dinner?"}
+    },
+    "21": {
+      "heading": "A plan that travels with you",
+      "text": "Your Full 7-Day Plan prints or saves as a PDF, you can email it to yourself, and the link works for a full year. Handy on the road or at the store.",
+      "button": "Take my plan along",
+      "reply": {"lead": "Hit reply and tell me:", "question": "Where is it hardest for you to eat well: restaurants, road trips or family dinners?"}
+    },
+    "28": {
+      "heading": "Ready for a week that's planned?",
+      "text": "If time or ideas got in the way this month, Your Full 7-Day Plan may help: a fish plan, seven days of meals, a grocery list and five recipes. $29 USD, once.",
+      "button": "Plan my next week",
+      "reply": {"lead": "Hit reply and tell me:", "question": "After a month, what's the one thing that would make eating more fish easier for you?"}
+    }
+  },
+  "newsletter": {
+    "new_reader": {
+      "heading": "Haven't tried the calculator yet?",
+      "text": "In about two minutes, get your daily calories, protein and fish meals per week. It's free. If you want meals built from it, there's a 7-day plan too.",
+      "button": "Find my numbers",
+      "reply": {"lead": "Hit reply and tell me:", "question": "What usually stops you from eating fish more often?"}
+    },
+    "existing_reader": {
+      "heading": "Turn your numbers into a week of meals",
+      "text": "Your Full 7-Day Plan gives you a lowest-mercury fish plan, seven days of meals sized to your numbers, a grocery list and five easy recipes. $29 USD, one time.",
+      "button": "Get my 7-day plan",
+      "reply": {"lead": "Hit reply and tell me:", "question": "What fish dinner would you make this week if someone handed you the recipe?"}
+    }
+  }
+}
