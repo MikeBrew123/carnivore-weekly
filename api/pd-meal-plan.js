@@ -459,33 +459,45 @@ function pickDish(pool, wantedId, isExcluded, used) {
 }
 
 const NO_FISH_WARNING = 'Your food restrictions rule out every fish meal, so we cannot build a pescatarian week for you. Please review your selections or contact us.';
+const NO_MEAL_WARNING = 'Your food restrictions rule out every option for at least one meal. Please review your selections.';
 
 /**
  * Pick the week's dishes for a style, Mon..Sun, honouring exclusions. No quantities:
  * this is the whole plan for a reader whose numbers are withheld, and the first step
  * of the sized plan for everyone else, so both variants always show the same dishes.
- * Returns { days: [], warnings } (a refusal) when a slot has no allowed dish or
- * when no fish meal survives the reader's restrictions.
+ * Returns { days: [], warnings, refusal } (a refusal) when a slot has no allowed dish
+ * (refusal 'no-meal') or when no fish meal survives the reader's restrictions
+ * (refusal 'no-fish'). The two are different problems and get different messages.
+ *
+ * opts.maxFishMeals caps the week's fish meals (pregnancy: the report's own pregnancy
+ * box allows 2 to 3 servings a week). Once the cap is reached, later fish slots take
+ * the slot's non-fish alternative, the same swap an exclusion makes. That swap is not
+ * a restriction swap, so it adds no "swapped because of your restrictions" warning.
  */
-export function planPescoDishes(style, isExcluded = () => false) {
+export function planPescoDishes(style, isExcluded = () => false, opts = {}) {
   const S = styleOf(style);
+  const maxFish = Number.isFinite(opts.maxFishMeals) ? opts.maxFishMeals : Infinity;
   const used = new Set();
   const days = [];
   const warnings = [];
+  let fishCount = 0;
   for (let d = 0; d < PD_PLAN_DAYS; d++) {
     const dishes = SLOTS.map((slot, i) => {
-      const dish = pickDish(S.dishes[slot], S.week[d][i], isExcluded, used);
-      if (dish) used.add(dish.id);
+      let dish = pickDish(S.dishes[slot], S.week[d][i], isExcluded, used);
+      if (dish && dish.fish && fishCount >= maxFish) {
+        dish = pickDish(S.dishes[slot].filter(x => !x.fish), null, isExcluded, used);
+      }
+      if (dish) { used.add(dish.id); if (dish.fish) fishCount++; }
       return { slot, dish };
     });
     if (dishes.some(x => !x.dish)) {
-      return { days: [], warnings: ['Your food restrictions rule out every option for at least one meal. Please review your selections.'] };
+      return { days: [], warnings: [NO_MEAL_WARNING], refusal: 'no-meal' };
     }
     // Only warn when a restriction removed a planned fish meal, not on the
-    // days the week deliberately has none.
+    // days the week deliberately has none, and not for the fish cap.
     dishes.forEach(({ slot, dish }, i) => {
       const planned = S.dishes[slot].find(x => x.id === S.week[d][i]);
-      if (planned && planned.fish && !dish.fish) {
+      if (planned && planned.fish && !dish.fish && dishExcluded(planned, isExcluded)) {
         warnings.push(`${DAY_NAMES[d]} ${slot}: a planned fish meal was swapped because of your food restrictions.`);
       }
     });
@@ -494,16 +506,17 @@ export function planPescoDishes(style, isExcluded = () => false) {
   // A pescatarian plan with no fish in it is not the plan this reader paid for.
   // When restrictions rule out every fish dish, refuse rather than ship a
   // fish-free week under a pescatarian name.
-  if (!days.some(d => d.dishes.some(x => x.dish.fish))) return { days: [], warnings: [NO_FISH_WARNING] };
+  if (!days.some(d => d.dishes.some(x => x.dish.fish))) return { days: [], warnings: [NO_FISH_WARNING], refusal: 'no-fish' };
   return { days, warnings };
 }
 export const planPescoMedDishes = isExcluded => planPescoDishes('pesco-mediterranean', isExcluded);
 
 /** The dish-only week (numbers withheld): names and ingredients, never a quantity. */
-export function buildPescoDishWeek(style, isExcluded = () => false) {
-  const plan = planPescoDishes(style, isExcluded);
+export function buildPescoDishWeek(style, isExcluded = () => false, opts = {}) {
+  const plan = planPescoDishes(style, isExcluded, opts);
   return {
     warnings: plan.warnings,
+    refusal: plan.refusal || null,
     days: plan.days.map(({ day, dishes }) => ({
       day,
       meals: dishes.map(({ slot, dish }) => ({

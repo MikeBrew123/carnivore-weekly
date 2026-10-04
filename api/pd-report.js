@@ -28,6 +28,19 @@ const fmtInt = n => Math.round(n).toLocaleString('en-US');
 export const PD_REPORT_STYLE = 'Pescatarian Mediterranean';
 const DAY_LONG = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
 const COUNT_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five'];
+const SECTION_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+
+/**
+ * Fixed copy that names a food the reader excluded (allergy, avoid list, medical
+ * exclusion), sentence by sentence (red team 2026-10-03). A sentence that names one is
+ * left out, never reworded here; an approved alternate, where one exists, is passed by
+ * the caller. Returns '' when nothing is left.
+ */
+function keepSentences(v, text) {
+  if (!text) return '';
+  if (!v.isTextExcluded || !v.isTextExcluded(text)) return text;
+  return text.split(/(?<=[.!?])\s+/).filter(t => !v.isTextExcluded(t)).join(' ');
+}
 
 // ---------------------------------------------------------------------------
 // Copy (Sarah, pescodial/drafts/report/)
@@ -122,6 +135,13 @@ const COPY = {
   footer: 'This plan is general education based on the answers you gave. It is not medical advice and it does not replace care from your doctor.',
   howMade: 'This plan was put together by software from the answers you gave, with meals and portions calculated using nutrition values from USDA FoodData Central. No AI wrote any part of it, and it was not written by a doctor or a dietitian.',
 };
+
+// No meal plan (kidney disease on Keto or Carnivore): Sarah's numbers-hidden note
+// without its last sentence, which points at a plate guide and grocery list this
+// variant does not have. Dropped, not reworded. TODO(Sarah): a closing line for this
+// variant (for example, sending the reader to the questions at the back).
+const NUMBERS_HIDDEN_NO_PLAN = COPY.numbersHidden.replace(/\s*Until then, use the fish plan[^.]*\.$/, '');
+if (NUMBERS_HIDDEN_NO_PLAN === COPY.numbersHidden) throw new Error('pd-report: numbersHidden copy changed; update NUMBERS_HIDDEN_NO_PLAN.');
 
 // Doctor questions (doctor-questions.md). `when` narrows who sees a question; it only
 // ever sharpens what the reader is told and never decides whether a number prints.
@@ -388,7 +408,7 @@ function renderCover(v) {
       <div class="cover-style">
         <div class="label">Your eating style</div>
         <div class="style-name">${esc(v.label)}</div>
-        <p>${v.hidden ? COPY.coverSubHidden : COPY.coverSub}</p>
+        ${v.noPlan ? '' /* TODO(Sarah): a cover line for a plan with no meal week (kidney disease on Keto or Carnivore) */ : `<p>${v.hidden ? COPY.coverSubHidden : COPY.coverSub}</p>`}
       </div>
     </div>
     <dl class="cover-meta">
@@ -408,13 +428,16 @@ function renderNumbers(v) {
       </div>
     </div>`;
   const sp = v.sc.plate;
-  const plate = sp ? `
+  // Plate lines that name an excluded food are left out (no alternate wording yet).
+  const plateLines = sp ? sp.lines.filter(([, b, t]) => !(v.isTextExcluded && v.isTextExcluded(`${b} ${t}`)))
+    : COPY.plate.filter(([, b, t]) => !(v.isTextExcluded && v.isTextExcluded(`${b} ${t}`)));
+  const plate = v.noPlan ? '' : sp ? `
       <div class="plate">
         <div class="plate-disc" role="img" aria-label="${sp.aria}" style="background:${sp.disc}"></div>
         <div>
           <h3>Build every plate the same way</h3>
           <ul>
-            ${sp.lines.map(([c, b, t]) => `<li>${c ? `<i class="dot" style="background:${c}"></i>` : ''}${b ? `<b>${b}</b> ` : ''}${t}</li>`).join('\n            ')}
+            ${plateLines.map(([c, b, t]) => `<li>${c ? `<i class="dot" style="background:${c}"></i>` : ''}${b ? `<b>${b}</b> ` : ''}${t}</li>`).join('\n            ')}
           </ul>
         </div>
       </div>` : `
@@ -423,7 +446,7 @@ function renderNumbers(v) {
         <div>
           <h3>Build every plate the same way</h3>
           <ul>
-            ${COPY.plate.map(([c, b, t]) => `<li><i class="dot" style="background:${c}"></i><b>${b}</b> ${t}</li>`).join('\n            ')}
+            ${plateLines.map(([c, b, t]) => `<li><i class="dot" style="background:${c}"></i><b>${b}</b> ${t}</li>`).join('\n            ')}
             <li>${COPY.plateFinish}</li>
           </ul>
         </div>
@@ -437,7 +460,8 @@ function renderNumbers(v) {
       <div class="calm-note" role="note" style="display:grid">
         <div class="calm-mark" aria-hidden="true">~</div>
         <div>
-          <p>${COPY.numbersHidden}</p>
+          <p>${v.noPlan ? NUMBERS_HIDDEN_NO_PLAN : COPY.numbersHidden}</p>
+          ${v.ctx.glucoseLowering ? `<p data-pd-hidden-reason="diabetes">${COPY.warn.diabetes}</p>` : ''}
           ${v.ctx.anticoagulant ? `<p>${COPY.bloodThinner}</p>` : ''}
         </div>
       </div>${plate}
@@ -450,6 +474,7 @@ function renderNumbers(v) {
   const tot = kc.p + kc.f + kc.c;
   let pp = Math.round(100 * kc.p / tot), fp = Math.round(100 * kc.f / tot);
   const cp = 100 - pp - fp;
+  const notes = Object.fromEntries(Object.entries(v.sc.cardNotes).map(([k, t]) => [k, keepSentences(v, t)]));
   const card = (cls, label, value, unit, note) => `
         <div class="num-card ${cls}">
           <div class="num-label">${label}</div>
@@ -463,8 +488,8 @@ function renderNumbers(v) {
       <div class="numbers">
         <div class="num-card cal">
           <div><div class="num-label">Calories per day</div><div class="num-value">${fmtInt(m.calories)}</div></div>
-          <div class="num-note">${v.sc.cardNotes.cal}</div>
-        </div>${card('pro', 'Protein', fmtInt(m.protein_grams), 'g', v.sc.cardNotes.pro)}${card('fat', 'Fat', fmtInt(m.fat_grams), 'g', v.sc.cardNotes.fat)}${card('carb', 'Carbs', fmtInt(m.carbs_grams), 'g', v.sc.cardNotes.carb)}${card('fib', 'Fiber', fmtInt(v.avgFiber), 'g', 'Your 7-day plan averages this. ' + v.sc.cardNotes.fib)}
+          <div class="num-note">${notes.cal}</div>
+        </div>${card('pro', 'Protein', fmtInt(m.protein_grams), 'g', notes.pro)}${card('fat', 'Fat', fmtInt(m.fat_grams), 'g', notes.fat)}${card('carb', 'Carbs', fmtInt(m.carbs_grams), 'g', notes.carb)}${card('fib', 'Fiber', fmtInt(v.avgFiber), 'g', ('Your 7-day plan averages this. ' + notes.fib).trim())}
       </div>
       ${renderWarningBox(v)}
       <div class="split">
@@ -522,7 +547,31 @@ function seafoodOf(meal) {
   return it ? it.food : null;
 }
 
+/**
+ * Every kind of seafood the week actually serves, and on how many meals: the fish
+ * meals and also any other meal carrying seafood (smoked salmon at breakfast or as a
+ * side on Keto and Carnivore). Red team 2026-10-03: the fish page counted fish meals
+ * only, so seafood the plan served elsewhere went uncounted.
+ */
+export function pdSeafoodCounts(week) {
+  const counts = new Map();
+  for (const d of week.days) for (const m of d.meals) {
+    for (const sp of new Set(m.items.map(i => i.food).filter(f => SEAFOOD_NAMES[f]))) counts.set(sp, (counts.get(sp) || 0) + 1);
+  }
+  return counts;
+}
+
+/** Smallest and largest seafood portion (oz, before cooking) on the week's fish meals. */
+function fishPortionRange(week) {
+  const oz = [];
+  for (const d of week.days) for (const m of d.meals) if (m.fish) {
+    for (const i of m.items) if (SEAFOOD_NAMES[i.food] && Number.isFinite(i.grams)) oz.push(Math.round(i.grams / 28.35));
+  }
+  return oz.length ? [Math.min(...oz), Math.max(...oz)] : null;
+}
+
 function renderFishPlan(v) {
+  if (v.noPlan) return renderFishGuideOnly(v);
   const strip = v.week.days.map(d => {
     const fishMeal = d.meals.find(m => m.fish);
     if (fishMeal) {
@@ -534,13 +583,18 @@ function renderFishPlan(v) {
     const anchor = foods.includes('eggs') ? 'Eggs' : foods.some(f => LEGUMES.includes(f)) ? 'Beans' : 'Vegetables';
     return `<div class="day"><div class="d">${d.day}</div><div class="f">${anchor}</div><div class="m">Fish-free</div></div>`;
   }).join('\n        ');
-  const counts = new Map();
-  for (const d of v.week.days) for (const m of d.meals) if (m.fish) {
-    const sp = seafoodOf(m);
-    if (sp) counts.set(sp, (counts.get(sp) || 0) + 1);
-  }
+  const counts = pdSeafoodCounts(v.week);
   const cards = [...counts.entries()].map(([sp, n]) =>
-    `<div class="fish-card"><div class="times">${n}<small>a week</small></div><div><h4>${esc(SEAFOOD_NAMES[sp])}</h4><p>${v.sc.fishCards[sp] || ''}</p></div></div>`).join('\n        ');
+    `<div class="fish-card"><div class="times">${n}<small>a week</small></div><div><h4>${esc(SEAFOOD_NAMES[sp])}</h4><p>${keepSentences(v, v.sc.fishCards[sp] || '')}</p></div></div>`).join('\n        ');
+  // Keto and Carnivore serve fish meals well over the 4 oz FDA serving: say what the
+  // plan actually serves. TODO(Sarah): engineering wording, modelled on fishIntro.
+  let intro = COPY.fishIntro;
+  const range = !v.hidden && ['pesco-keto', 'pesco-carnivore'].includes(v.style) ? fishPortionRange(v.week) : null;
+  if (range) intro += range[0] === range[1]
+    ? ` The fish meals in your plan are about ${range[0]} ounces before cooking.`
+    : ` The fish meals in your plan are about ${range[0]} to ${range[1]} ounces before cooking.`;
+  const fishStyle = keepSentences(v, v.sc.fishStyle);
+  const howOften = COPY.fishHowOften.map(p => keepSentences(v, p)).filter(Boolean);
   const tier = (cls, title, sub, items) => `
           <div class="tier ${cls}">
             <div class="tier-head"><h4>${title}</h4><div class="tier-sub">${sub}</div></div>
@@ -548,7 +602,7 @@ function renderFishPlan(v) {
           </div>`;
   return `
   <section class="page" data-pd-section="fish">
-    ${opener('02', 'two', 'olive', 'Your weekly fish plan', COPY.fishIntro)}
+    ${opener('02', 'two', 'olive', 'Your weekly fish plan', intro)}
     <div class="page-body">
       <div class="week-strip">
         ${strip}
@@ -556,10 +610,10 @@ function renderFishPlan(v) {
       <div class="fish-list">
         ${cards}
       </div>
-      <p class="fineprint">${v.sc.fishStyle}</p>
+      ${fishStyle ? `<p class="fineprint">${fishStyle}</p>` : ''}
       <div style="display:grid;gap:12px">
         <h3>How often to eat fish</h3>
-        ${COPY.fishHowOften.map(p => `<p>${p}</p>`).join('\n        ')}
+        ${howOften.map(p => `<p>${p}</p>`).join('\n        ')}
       </div>
       <div style="display:grid;gap:12px">
         <h3>Low-mercury guide</h3>
@@ -577,7 +631,41 @@ function renderFishPlan(v) {
   </section>`;
 }
 
+const mercuryTiers = () => {
+  const tier = (cls, title, sub, items) => `
+          <div class="tier ${cls}">
+            <div class="tier-head"><h4>${title}</h4><div class="tier-sub">${sub}</div></div>
+            <ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>
+          </div>`;
+  return `${tier('best', 'Best choices', '2 to 3 servings a week', COPY.mercury.best)}${tier('good', 'Good choices', '1 serving a week, in place of Best Choices', COPY.mercury.good)}${tier('avoid', 'Avoid', 'Highest in mercury', COPY.mercury.avoid)}`;
+};
+
+/**
+ * No meal plan (kidney disease on Keto or Carnivore): the low-mercury guide and the
+ * pregnancy box only. No week strip, no fish counts, and no "how often" advice, whose
+ * weekly ounces are a protein amount for a reader whose protein is their doctor's call.
+ */
+function renderFishGuideOnly(v) {
+  return `
+  <section class="page" data-pd-section="fish">
+    ${opener('02', 'two', 'olive', 'Low-mercury guide', COPY.mercuryIntro)}
+    <div class="page-body">
+      <div style="display:grid;gap:12px">
+        <div class="mercury">${mercuryTiers()}
+        </div>
+        <p class="fineprint">${COPY.watchNames}</p>
+        <p class="fineprint">${COPY.familyFish}</p>
+      </div>
+      <div class="calm-note" role="note" style="display:grid">
+        <div class="calm-mark" aria-hidden="true">~</div>
+        <div><h3>If you're pregnant, breastfeeding or might become pregnant</h3><p>${COPY.pregnancy}</p></div>
+      </div>
+    </div>
+  </section>`;
+}
+
 function renderMealPlan(v) {
+  if (v.noPlan) return '';
   const rows = v.week.days.map(d => {
     const cells = ['breakfast', 'lunch', 'dinner', 'snack'].map(slot => {
       const m = d.meals.find(x => x.slot === slot);
@@ -603,6 +691,7 @@ function renderMealPlan(v) {
 }
 
 function renderGrocery(v) {
+  if (v.noPlan) return '';
   const aisles = AISLES.filter(([sec]) => v.grocery[sec] && v.grocery[sec].length).map(([sec, color, label, sub]) => {
     const items = v.grocery[sec].map(it => {
       const qty = v.hidden ? '' : esc(formatQty(it.qty, it.unit, '').trim());
@@ -627,7 +716,11 @@ function renderGrocery(v) {
 }
 
 function renderRecipes(v) {
-  const kept = v.sc.recipes.filter(r => !v.isRecipeExcluded(r));
+  if (v.noPlan) return '';
+  // Pregnancy caps the week's fish meals, so only the recipes for dishes the week
+  // serves are shown; five fish recipes would undo the cap.
+  const inWeek = id => v.week.days.some(d => d.meals.some(m => m.dishId === id));
+  const kept = v.sc.recipes.filter(r => !v.isRecipeExcluded(r) && (!v.ctx.pregnancy || inWeek(r.dish)));
   if (!kept.length) return '';
   const firstUse = dishId => {
     for (const d of v.week.days) for (const m of d.meals) if (m.dishId === dishId) return `${DAY_LONG[d.day]} ${m.slot}`;
@@ -673,7 +766,7 @@ function renderEatingOut(v) {
         <div class="out-card menu"><h3>Easy menu picks</h3><ul>${picks.map(([k, t]) => `<li><b>${k}:</b> ${t}</li>`).join('')}</ul></div>
         <div class="out-card travel"><h3>When you travel</h3><ul>${travel.map(l => `<li>${l}</li>`).join('')}</ul></div>
       </div>
-      <p>${v.sc.eatingOutStyle}</p>
+      ${(() => { const t = v.noPlan ? '' : keepSentences(v, v.sc.eatingOutStyle); return t ? `<p>${t}</p>` : ''; })()}
       <div style="display:grid;gap:14px">
         <h3>What to say when you order</h3>
         <div class="say-wrap">${COPY.sayLines.filter(ok).map(l => `<div class="say">${esc(l)}</div>`).join('')}</div>
@@ -743,7 +836,9 @@ export function renderPescoMedSections(v) {
   if (!v.hidden && !(v.macros && Number.isFinite(Number(v.macros.calories)))) {
     throw new Error('renderPescoMedSections: numbers are shown but there is no usable macro set.');
   }
-  if (v.hidden && v.week.days.some(d => d.meals.some(m => m.items.some(i => i.qty != null)))) {
+  if (v.noPlan && !v.hidden) throw new Error('renderPescoMedSections: no meal plan but numbers shown.');
+  if (v.noPlan && (v.week || v.grocery)) throw new Error('renderPescoMedSections: no meal plan but a week or grocery list was passed.');
+  if (v.hidden && v.week && v.week.days.some(d => d.meals.some(m => m.items.some(i => i.qty != null)))) {
     throw new Error('renderPescoMedSections: numbers are hidden but the week carries quantities.');
   }
   const sections = {
@@ -758,6 +853,16 @@ export function renderPescoMedSections(v) {
     9: renderSources(v),
   };
   for (const k of Object.keys(sections)) if (!sections[k]) delete sections[k];
+  // Number the section openers in the order they print, so a dropped section (no
+  // recipes left, or no meal plan) leaves no gap. Unchanged when all are present.
+  let n = 0;
+  for (const k of Object.keys(sections)) {
+    if (!/<div class="sec-num">\d+<\/div>/.test(sections[k])) continue;
+    n++;
+    sections[k] = sections[k]
+      .replace(/<div class="sec-num">\d+<\/div>/, `<div class="sec-num">${String(n).padStart(2, '0')}</div>`)
+      .replace(/<div class="eyebrow">Section [a-z]+<\/div>/, `<div class="eyebrow">Section ${SECTION_WORDS[n]}</div>`);
+  }
   return sections;
 }
 

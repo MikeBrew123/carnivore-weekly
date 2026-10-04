@@ -2212,10 +2212,25 @@ function buildReportData(session) {
     // selectedProtocol is the content FAMILY every section branches on (always
     // capitalised); dietLabel is what the reader sees; dietProfile carries both.
     ...(() => {
-      const dietProfile = resolveDietProfile(session.diet_type || form.diet);
+      const dietProfile = resolveDietProfile(pickReportDiet(session.diet_type, form.diet));
       return { dietProfile, dietLabel: dietProfile.label, selectedProtocol: dietProfile.family };
     })()
   };
+}
+
+/**
+ * Which diet the report is for, from the two places it is stored: the session's
+ * diet_type column (Step 2) and the form's own diet field. diet_type wins, as before,
+ * EXCEPT that a PescoDial style (pesco-*) in either one wins over a non-PescoDial
+ * diet in the other (red team 2026-10-03): a mismatch must never send a PescoDial
+ * buyer to the CW report. Two different PescoDial styles: diet_type still wins.
+ */
+function pickReportDiet(sessionDiet, formDiet) {
+  const isPd = d => String(d || '').toLowerCase().trim().indexOf('pesco-') === 0
+    || /^pesco /.test(String(d || '').toLowerCase().trim());
+  if (isPd(sessionDiet)) return sessionDiet;
+  if (isPd(formDiet)) return formDiet;
+  return sessionDiet || formDiet;
 }
 
 /**
@@ -4210,9 +4225,14 @@ const PD_REPORT_STYLES = ['pesco-mediterranean', 'pesco-lowcarb', 'pesco-keto', 
 
 /** The reader's PescoDial style key, or null for any other diet. */
 function pescoStyleOf(data) {
-  const key = (data && data.dietProfile && data.dietProfile.key)
-    || resolveDietProfile((data && (data.diet_type || data.diet)) || '').key;
-  return PD_REPORT_STYLES.includes(key) ? key : null;
+  // EITHER source naming a PescoDial style routes to the PescoDial report, so a
+  // diet_type / form.diet mismatch can never hand a PD buyer the CW AI report.
+  const d = data || {};
+  const keys = [
+    d.dietProfile && d.dietProfile.key,
+    resolveDietProfile(pickReportDiet(d.diet_type, d.diet) || '').key,
+  ];
+  return keys.find(k => PD_REPORT_STYLES.includes(k)) || null;
 }
 // Name kept: every PescoDial style now takes this branch, not only Mediterranean.
 function isPescoMedReport(data) {
@@ -4240,9 +4260,33 @@ const PD_FOOD_CATEGORY = {
  * a warning box that says why there is a concern and to talk to a professional.
  * Only those readers see it (renderPescoMedSections, pdConcerns).
  */
-function pdNumbersHidden(ctx, macros) {
+function pdNumbersHidden(ctx, macros, style) {
   return ctx.calorieGuidance === 'suppressed' || !!ctx.restrictProteinTarget
-    || !!(macros && macros.targetSuppressed);
+    || !!(macros && macros.targetSuppressed)
+    // Pregnancy or breastfeeding (Brew, 2026-10-03): no numbers, no deficit, no
+    // sized plan, in every style.
+    || !!ctx.pregnancy
+    // A glucose-lowering medicine (or declared diabetes) on Keto or Carnivore (Brew,
+    // 2026-10-03): cutting carbs that far on insulin, an SGLT2 or a sulfonylurea is a
+    // prescriber's call. Mediterranean and Low Carb keep their numbers at maintenance.
+    || (!!ctx.glucoseLowering && PD_VERY_LOW_CARB.includes(style));
+}
+const PD_VERY_LOW_CARB = ['pesco-keto', 'pesco-carnivore'];
+// Pregnancy: the report's own pregnancy box (FDA/EPA) allows 2 to 3 servings of fish a
+// week, and less for a reader under about 165 pounds, so the dish week shows 2.
+const PD_PREGNANCY_FISH_MEALS = 2;
+
+/**
+ * Kidney disease on Keto or Carnivore: no meal calendar, no grocery list and no sized
+ * recipes, the CW rule for a renal reader. A dish week for these styles is every meal
+ * built on fish, eggs or cheese, and the carnivore plate says to add more if still
+ * hungry. Substituting the Mediterranean week instead would be choosing a different
+ * diet for a kidney patient (it brings beans and potatoes), which is clinical
+ * judgement; suppress, never substitute. The protein question goes to their doctor
+ * or renal dietitian through the numbers-hidden note and the doctor questions.
+ */
+function pdNoMealPlan(ctx, style) {
+  return !!ctx.renal && PD_VERY_LOW_CARB.includes(style);
 }
 
 function generatePescoMedReport(data, { now = new Date() } = {}) {
@@ -4254,31 +4298,45 @@ function generatePescoMedReport(data, { now = new Date() } = {}) {
   const isExcluded = (key, f) => shouldFilterOutFood(
     { name: `${key.replace(/_/g, ' ')} ${(f && f.usda) || ''}`, category: PD_FOOD_CATEGORY[key] || '' },
     allergies, restrictions);
-  const isTextExcluded = text => shouldFilterOutFood({ name: String(text), category: '' }, allergies, restrictions);
+  // Copy that says "shellfish" outright is shellfish copy, so a shellfish allergy
+  // drops it as it drops "shrimp" (shouldFilterOutFood matches the category).
+  const isTextExcluded = text => shouldFilterOutFood(
+    { name: String(text), category: /\bshellfish\b/i.test(String(text)) ? 'shellfish' : '' }, allergies, restrictions);
   const isRecipeExcluded = r =>
     r.foods.some(k => isExcluded(k, PD_FOODS[k])) ||
     (r.shellfish && isExcluded('shrimp', PD_FOODS.shrimp)) ||
     r.lines.some(line => shouldFilterOutFood({ name: line, category: '' }, allergies, restrictions));
 
-  const hidden = pdNumbersHidden(ctx, data.macros);
+  const hidden = pdNumbersHidden(ctx, data.macros, style);
+  const noPlan = pdNoMealPlan(ctx, style);
   // Never sized from a withheld value: the hidden variant is built with no macro set at all.
   const macros = hidden ? null : applyCalorieGuidance(data.macros || {}, ctx);
-  const week = hidden ? buildPescoDishWeek(style, isExcluded) : buildPescoWeek(style, macros, isExcluded);
+  const dishOpts = ctx.pregnancy ? { maxFishMeals: PD_PREGNANCY_FISH_MEALS } : {};
+  const week = hidden ? buildPescoDishWeek(style, isExcluded, dishOpts) : buildPescoWeek(style, macros, isExcluded);
   if (!week.days.length) {
+    // Two different refusals (red team 2026-10-03): every fish ruled out, or every
+    // option for one meal ruled out. Each says what actually happened.
+    // TODO(Sarah): PD_MEAL_NOT_POSSIBLE wording is engineering's, modelled on her
+    // "No fish possible message" (gap-copy.md); needs her pass before launch.
+    const noMeal = week.refusal === 'no-meal';
     throw new ReportValidationError({
-      code: 'PD_PLAN_NOT_POSSIBLE',
+      code: noMeal ? 'PD_MEAL_NOT_POSSIBLE' : 'PD_PLAN_NOT_POSSIBLE',
       field: 'allergies',
-      message: "Your answers about allergies and foods to avoid rule out every fish we build our plans around, so we haven't made your pescatarian week. Please reply to the email that came with your order or contact us, and we'll work it out with you and make it right.",
+      message: noMeal
+        ? "Your answers about allergies and foods to avoid rule out every option we have for at least one of your meals, so we haven't made your pescatarian week. Please reply to the email that came with your order or contact us, and we'll work it out with you and make it right."
+        : "Your answers about allergies and foods to avoid rule out every fish we build our plans around, so we haven't made your pescatarian week. Please reply to the email that came with your order or contact us, and we'll work it out with you and make it right.",
       warnings: week.warnings,
     });
   }
-  const grocery = hidden ? groceryNamesFromWeek(week) : groceryFromWeek(week);
+  const grocery = noPlan ? null : hidden ? groceryNamesFromWeek(week) : groceryFromWeek(week);
   const avgFiber = hidden ? null : week.days.reduce((a, d) => a + d.totals.fiber, 0) / week.days.length;
   const name = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || 'You';
   const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Los_Angeles' });
 
   const sections = renderPescoSections({
-    style, hidden, maintenance: !hidden && !!macros.deficitNeutralized, macros, week, grocery, ctx,
+    style, hidden, noPlan, maintenance: !hidden && !!macros.deficitNeutralized, macros,
+    // No meal plan: the week is not passed at all, so nothing can render from it.
+    week: noPlan ? null : week, grocery, ctx,
     avgFiber, name, date, isRecipeExcluded, isTextExcluded,
   });
   // The same render-time claim gate as every CW section, on the visible text.
