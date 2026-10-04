@@ -912,3 +912,10 @@ Attempts:
 - 2026-09-26 — 14 dead hrefs in 4 live posts (deli-meat-keto-lunch-trap, keto-staples-never-run-out, ribeye-bacon-calories-count, boring-keto-meals-week-6). Fixed in blog_posts.json and surgically in ketodial/public HTML (href-only regex, no regen); all 10 targets curl 200. Prevention, three layers: (1) prompts: link rule added to `kd-blog-content-generation` step 4b/4c and `content-queue-review` step 3 (~/.claude/scheduled-tasks); (2) `content_review.py` flags any dated KD link as CRITICAL (KD-relative, or any ketodial.com/blog/ link incl. from CW posts); (3) `generate_kd_blog.py::fix_dated_kd_links()` rewrites them at render time as a backstop. Both guards tested against positive and negative cases.
 - 2026-09-26 — side note: `kd-regen-guard.sh` also blocks read-only commands (grep, heredoc text) that merely mention the generator filename, same class as ISSUE-082. Worked around with Read/Write; not fixed here.
 If recurs: a path renders KD HTML without `generate_post_html` (newsletter, Pinterest, drip) or emits dated KD links elsewhere. Reuse `fix_dated_kd_links` there rather than hand-patching.
+
+## ISSUE-086 — Paid report falls back to carnivore for non-carnivore diets
+Status: 🔴 OPEN (fix in progress on branch `pescodial-build`)
+Pattern: the paid report keys several lookups on capitalised diet names ("Pescatarian") while the stored value is lowercase, and the meal plan matches food tags exactly with no LowCarb tag. Result: a real pescatarian buyer's $29 report (2026-08-10) mentioned beef 40x, steak 29x, pork 8x under a "Carnivore Diet Report" title; any `lowcarb` (or new `pesco-*`) buyer would get a 500 ("expected 30 days, got 0"). No lowcarb buyer has paid yet.
+Attempts:
+- 2026-10-03 — found while mapping the report for PescoDial (agent map + SQL on calculator_reports). Fix: one canonical diet profile (key, label, food tags, family) resolved once and used by every section, plus report tests per diet.
+If recurs: grep the rendered HTML of a test report per diet for another diet's proteins; never trust a lookup keyed on a display label.

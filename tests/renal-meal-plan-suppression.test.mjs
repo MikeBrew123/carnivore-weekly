@@ -310,8 +310,10 @@ const renalProteinTarget = renalData.macros.protein_grams;
   const ANTICOAG_ONLY = { ...BASE, medications: 'Warfarin 5mg daily', conditions: ['none'], otherConditions: '' };
   const { reports: anticoagOnly } = await build(ANTICOAG_ONLY);
   const flatOnly = Object.values(anticoagOnly).join('\n').replace(/\n>?\s*/g, ' ');
-  check('E', 'an anticoagulant reader WITH a meal plan still gets the original wording',
-    /meal plan has had those items left out/i.test(flatOnly), '');
+  // Wording replaced 2026-10-04 (Sarah): only organ meats are removed, and keto and
+  // low-carb plans schedule broccoli, so "those items left out" was not true for them.
+  check('E', 'an anticoagulant reader WITH a meal plan gets the plan wording',
+    /Organ meats have been left out of your meal plan/i.test(flatOnly) && /keep the amount you eat steady from week to week/i.test(flatOnly), '');
   check('E', 'and still gets the meal-plan exclusion note in Report #3',
     /leaves out organ/i.test(String(anticoagOnly[3] || '').replace(/\n>?\s*/g, ' ')), '');
 }

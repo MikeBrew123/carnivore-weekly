@@ -1,0 +1,50 @@
+name: Deploy PescoDial
+
+# pescodial.com is served by Cloudflare Pages (project "pescodial"), not GitHub
+# Pages, so it gets real 301s via _redirects. The site is rendered from
+# templates + data/blog_posts.json on every deploy; output is never hand-edited.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pescodial/**'
+      - 'data/blog_posts.json'
+      - '.github/workflows/pescodial-deploy.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: pescodial-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Jinja2
+        run: pip install jinja2
+
+      - name: Isolation and cadence tests
+        run: python3 tests/test_pd_site_isolation.py
+
+      - name: Render site (fails on broken links or foreign posts)
+        run: python3 pescodial/scripts/generate_pd_site.py
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@3 pages deploy pescodial/public --project-name pescodial --branch main --commit-dirty=true
+
+      - name: Liveness check
+        run: |
+          sleep 10
+          code=$(curl -s -o /dev/null -w "%{http_code}" https://pescodial.pages.dev/)
+          echo "pescodial.pages.dev -> $code"
+          test "$code" = "200"

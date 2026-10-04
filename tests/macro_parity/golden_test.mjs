@@ -141,6 +141,23 @@ export function grid() {
     { sex: 'female', age: 45, heightFeet: 5, heightInches: 6, weight: 190, lifestyle: 'moderate', goal: 'lose', deficit: 20, diet: 'carnivore' },
   ];
   cases.push(...guardrail);
+
+  // PescoDial styles (2026-10-03). All NEW cases appended after every existing
+  // one, so the sampled grid and the pre-existing golden entries do not move.
+  const pd = { sex: 'female', age: 55, heightFeet: 5, heightInches: 5, weight: 180, lifestyle: 'sedentary' };
+  const pesco = [];
+  for (const diet of ['pesco-mediterranean', 'pesco-keto', 'pesco-lowcarb', 'pesco-carnivore'])
+    for (const g of [{ goal: 'maintain' }, { goal: 'lose' }, { goal: 'lose', goalWeight: 150 }, { goal: 'gain' }])
+      pesco.push({ ...pd, ...g, diet });
+  pesco.push(
+    // underweight + lose: suppressed on pesco styles, untouched on CW's pescatarian
+    { sex: 'female', age: 40, heightFeet: 5, heightInches: 6, weight: 105, lifestyle: 'light', goal: 'lose', diet: 'pesco-mediterranean' },
+    { sex: 'female', age: 40, heightFeet: 5, heightInches: 6, weight: 105, lifestyle: 'light', goal: 'lose', diet: 'pescatarian' },
+    // small sedentary woman: protein cap at 35% of calories and the 1200 floor
+    { sex: 'female', age: 70, heightFeet: 4, heightInches: 11, weight: 150, lifestyle: 'sedentary', goal: 'lose', deficit: 25, diet: 'pesco-mediterranean', goalWeight: 115 },
+    { sex: 'male', age: 62, heightCm: 178, weight: 230, lifestyle: 'moderate', goal: 'lose', diet: 'pesco-mediterranean', goalWeight: 190 },
+  );
+  cases.push(...pesco);
   return cases;
 }
 

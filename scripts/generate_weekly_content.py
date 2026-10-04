@@ -344,7 +344,7 @@ WAIT FOR ALL WRITERS TO COMPLETE before proceeding to Phase 4.
             self.log("[DRY RUN] Would generate HTML pages")
             return True
 
-        os.system("python3 scripts/generate_blog_pages.py")
+        os.system("python3 scripts/generate_blog_pages.py --site cw")
         return True
 
     def phase_6_content_validation(self):
@@ -376,7 +376,7 @@ WAIT FOR ALL WRITERS TO COMPLETE before proceeding to Phase 4.
 
         self.log("Regenerating blog pages, sitemap, and blog index...")
         if not self.dry_run:
-            os.system("python3 scripts/generate_blog_pages.py")
+            os.system("python3 scripts/generate_blog_pages.py --site cw")
 
         self.log("Updating homepage...")
         if not self.dry_run:

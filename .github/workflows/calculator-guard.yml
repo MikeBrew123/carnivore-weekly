@@ -29,6 +29,19 @@ on:
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'api/sample-day.js'
+      - 'api/pd-meal-plan.js'
+      - 'api/pd-foods.js'
+      - 'api/pd-report.js'
+      - 'tests/pd-report.test.mjs'
+      - 'tests/brand-attribution-isolation.test.mjs'
+      - 'tests/cw-report-warning.test.mjs'
+      - 'tests/test_pd_drip.py'
+      - 'scripts/send_drip.py'
+      - 'pescodial/drafts/drip/**'
+      - 'pescodial/scripts/build_pd_drip.py'
+      - 'data/drip-emails/pd/**'
+      - 'tests/report-diet-fidelity.test.mjs'
+      - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
       - 'tests/sample-day-arithmetic.test.mjs'
       - 'tests/signup-and-retention-copy.test.mjs'
@@ -85,6 +98,19 @@ on:
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'api/sample-day.js'
+      - 'api/pd-meal-plan.js'
+      - 'api/pd-foods.js'
+      - 'api/pd-report.js'
+      - 'tests/pd-report.test.mjs'
+      - 'tests/brand-attribution-isolation.test.mjs'
+      - 'tests/cw-report-warning.test.mjs'
+      - 'tests/test_pd_drip.py'
+      - 'scripts/send_drip.py'
+      - 'pescodial/drafts/drip/**'
+      - 'pescodial/scripts/build_pd_drip.py'
+      - 'data/drip-emails/pd/**'
+      - 'tests/report-diet-fidelity.test.mjs'
+      - 'tests/pd-meal-plan.test.mjs'
       - 'tests/calorie-guardrail.test.mjs'
       - 'tests/sample-day-arithmetic.test.mjs'
       - 'tests/signup-and-retention-copy.test.mjs'
@@ -303,6 +329,32 @@ jobs:
       # the code actually does.
       - name: Signup and retention copy
         run: node tests/signup-and-retention-copy.test.mjs
+      # PescoDial Pescatarian Mediterranean week: every day near target from the
+      # rounded quantities, 5 lowest-mercury fish meals, restrictions remove whole
+      # dishes, all-fish exclusion is refused, grocery list derived from the week.
+      - name: PescoDial meal plan
+        run: node tests/pd-meal-plan.test.mjs
+      # PescoDial paid report through the real path: guarded numbers, maintenance for
+      # medication, numbers hidden for kidney disease and blood thinners (dishes only,
+      # no amounts), allergies removed from plan, list, recipes and tips, PD branding,
+      # and the four copy gates on every PD section.
+      # CLAUDE.md (Brew, 2026-10-04): a CW reader who declared a medicine or a
+      # condition sees the warning in Report #1, above the numbers; nobody else does;
+      # the blood-thinner line stays true to every diet's plan.
+      - name: CW report warning placement and blood-thinner line
+        run: node tests/cw-report-warning.test.mjs
+      - name: PescoDial report
+        run: node tests/pd-report.test.mjs
+      # Which brand a paid-report email goes out under: CW stays CW, a PescoDial
+      # report goes out as PescoDial, and suppression stays site-scoped.
+      - name: Brand isolation for report and lifecycle email
+        run: node tests/brand-attribution-isolation.test.mjs
+      # PescoDial drip: HTML is generated from Sarah's drafts and not stale, carries
+      # no other brand, and PD promo days mint no Stripe code.
+      - name: PescoDial drip
+        run: |
+          python3 -m pip install --quiet requests
+          python3 tests/test_pd_drip.py
 
   bundle-builds:
     runs-on: ubuntu-latest
@@ -320,6 +372,12 @@ jobs:
           npx vite build --outDir /tmp/calc2-ci-build --emptyOutDir
       - name: Client-vs-worker macro parity
         run: node tests/macro_parity/parity_test.mjs
+
+      - name: PescoDial sign-up routing (pesco-* -> pd, CW/KD unchanged)
+        run: node tests/pd-subscribe-routing.test.mjs
+
+      - name: Every diet gets its own report (ISSUE-086)
+        run: node tests/report-diet-fidelity.test.mjs carnivore pescatarian keto lowcarb pesco-carnivore pesco-keto pesco-lowcarb pesco-mediterranean
       # The P0 this batch fixed: dismissing the $29 modal used to leave an
       # invisible full-screen overlay that swallowed every subsequent click,
       # including the buy button. It serves public/ — the COMMITTED bundle, which

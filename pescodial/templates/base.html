@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}PescoDial{% endblock %}</title>
+<meta name="description" content="{% block description %}Pescatarian eating for heart health, with a free calculator.{% endblock %}">
+<link rel="canonical" href="{{ canonical }}">
+{% if prelaunch %}<meta name="robots" content="noindex, nofollow">{% endif %}
+<link rel="stylesheet" href="/css/site.css">
+{% block head %}{% endblock %}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="/">PescoDial</a>
+<nav><a href="/calculator/">Calculator</a> <a href="/guides/">Guides</a> <a href="/about/">About</a></nav></header>
+<main id="main">{% block main %}{% endblock %}</main>
+<footer class="site-footer"><nav><a href="/about/">About</a> <a href="/privacy/">Privacy</a> <a href="/contact/">Contact</a></nav>
+<p>PescoDial shares general information, not medical advice. Talk to your doctor before starting a new diet or changing the one you're on.</p></footer>
+</body>
+</html>
