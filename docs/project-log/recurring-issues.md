@@ -919,3 +919,12 @@ Pattern: the paid report keys several lookups on capitalised diet names ("Pescat
 Attempts:
 - 2026-10-03 — found while mapping the report for PescoDial (agent map + SQL on calculator_reports). Fix: one canonical diet profile (key, label, food tags, family) resolved once and used by every section, plus report tests per diet.
 If recurs: grep the rendered HTML of a test report per diet for another diet's proteins; never trust a lookup keyed on a display label.
+
+## ISSUE-087 — Cloudflare deploys fail: "Headers.append ... is an invalid header value"
+**Status:** 🔴 OPEN (needs Brew to re-save the secret)
+**Pattern:** GitHub secret `CLOUDFLARE_API_TOKEN` holds two non-empty lines (the log masks it as `***` newline `***`). Wrangler puts it in an HTTP header and dies before any API call. Hits every workflow using it: `pescodial-deploy.yml` (never succeeded) and `deploy-calculator-worker.yml`.
+**Attempts:**
+- 2026-10-04: first runs of both workflows failed with it; the paid-report safety suites passed before the deploy step. Added a preflight to both workflows that names the problem instead of the wrangler stack.
+**Fix:** Repo Settings > Secrets > Actions > `CLOUDFLARE_API_TOKEN` > paste only the token, one line. Token needs Workers Scripts:Edit (calculator worker) and Pages:Edit (PescoDial). Then re-run `deploy-calculator-worker`.
+**If recurs:** check the secret first (`wc -l`-style preflight message), then the token's permissions; never strip lines in the workflow, the second line may be the real token.
+
