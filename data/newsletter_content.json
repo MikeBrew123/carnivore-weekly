@@ -1,45 +1,45 @@
 {
-  "date": "2026-09-27",
-  "subject_line": "Why you keep waking up on Day One",
-  "opening": "<p style='margin:0;'>Hey, happy Sunday. This week we're tackling something that doesn't get talked about enough: the restart loop that keeps you stuck, what your numbers actually mean on a plate, and how to show up at a potluck without eating off-plan or explaining yourself to Aunt Linda. Grab your coffee. Let's get into it.</p>",
+  "date": "2026-10-04",
+  "subject_line": "The 'friendly' swap that's stalling your weight loss",
+  "opening": "<p style='margin:0;'>Happy Sunday! We've got a packed issue this week, and honestly, one of these stories made our whole community stop and rethink something they eat almost every day. We're also answering some of the most common questions people have been asking lately, and at least one of the answers will surprise you. Let's get into it.</p>",
   "hero": {
-    "slug": "2026-09-22-day-one-stop-restarting",
-    "title": "Day One Again: How to Stop Restarting",
-    "writer": "Chloe",
-    "teaser": "If Monday has lost its meaning, you're not broken. You've just been handed a plan that was never going to work from the start. Most people think the problem is willpower or commitment, but Chloe says it's something much simpler, and much easier to fix. The answer isn't a stricter rule. It's a smaller door.",
-    "cta": "Read before Monday rolls around"
+    "slug": "2026-10-03-keto-bread-wraps-stall-weight-loss",
+    "title": "Can Keto Bread and Wraps Stall Your Weight Loss?",
+    "writer": "Sarah",
+    "teaser": "You're doing everything right. You cut the carbs, you're eating clean, and you even swapped regular bread for the 'approved' keto version. So why isn't the scale moving? Sarah looked into what's actually inside most keto breads and wraps, and what she found explains a lot. It turns out the thing you thought was helping might be the thing holding you back.",
+    "cta": "Read before your next grocery run"
   },
   "supporting": [
     {
-      "slug": "2026-09-26-carnivore-potluck-what-to-bring",
-      "title": "What to Bring to a Potluck When You Eat Carnivore",
-      "teaser": "Chloe shares the one dish that never comes home with leftovers, and exactly how to handle the questions that follow."
+      "slug": "2026-10-02-only-down-3-pounds-week-one",
+      "title": "Only Down 3 Pounds in Week One? Why That's Normal",
+      "teaser": "Sarah explains why the number on the scale in week one is almost always misleading, and what it actually tells you about what's happening inside your body."
     },
     {
-      "slug": "2026-09-24-carnivore-macro-results-explained",
-      "title": "Your Carnivore Macro Results, Explained Line by Line",
-      "teaser": "Marcus takes your numbers off the spreadsheet and shows you what they actually look like on a plate come Monday morning."
+      "slug": "2026-10-01-leg-cramps-night-carnivore",
+      "title": "Leg Cramps at Night on Carnivore: What Helps",
+      "teaser": "If you've been jolted awake by a calf cramp lately, Sarah pinpoints the simple reason it keeps happening in the early weeks and what usually makes it stop."
     },
     {
-      "slug": "2026-09-23-resting-heart-rate-up-carnivore",
-      "title": "Resting Heart Rate Went Up on Carnivore: Why",
-      "teaser": "Your watch is showing a number you don't like, and Sarah explains what's usually behind it, plus the one sign that means you shouldn't wait."
+      "slug": "2026-09-30-tell-doctor-eating-carnivore",
+      "title": "How to Tell Your Doctor You're Eating Carnivore",
+      "teaser": "Chloe shares exactly how to start this conversation without dreading the look on your doctor's face, and why having it sooner matters more than most people think."
     }
   ],
   "community_pulse": [
     {
-      "question": "My gut has actually felt better since I started, but everyone online says this way of eating will wreck your digestion. Am I missing something?",
-      "answer": "You're not missing anything. Many people find that removing fiber and plant compounds clears up bloating, cramps, and unpredictable digestion, sometimes within the first two weeks. Community members report improvements in gut symptoms regularly, so trust what your body is telling you over what the comment section says."
+      "question": "I've been on this for less than a week and only lost 3 pounds. Everyone online seems to drop 7 or 8 pounds right away. Am I doing something wrong?",
+      "answer": "You're not doing anything wrong at all. Many people find that early weight loss varies a lot depending on how much water and glycogen your body was storing before you started. Sarah covers exactly this in 'Only Down 3 Pounds in Week One? Why That's Normal' this week, and her take might genuinely make you feel a lot better about where you are."
     },
     {
-      "question": "I've been eating this way for a while and I'm doing well, but I slipped back into keto snacks and sweets for a bit and now I've put weight back on. Is it really that easy to stall yourself?",
-      "answer": "It really can be that fast. Many people find that even foods marketed as 'keto-friendly' stall fat loss and bring cravings back stronger than before. The straightforward fix is returning to basics: meat, fat, salt, and time. The weight that came back is mostly water and inflammation, and it tends to leave just as quickly."
+      "question": "People keep telling me that cutting out grains and eating this way will wreck my gut. But honestly, my digestion has never felt this good. What's going on?",
+      "answer": "A lot of people in the community report the same thing, better digestion and less bloating once they remove processed foods and grains. The science on this is still evolving, so it's worth keeping your doctor in the loop, but your personal experience is worth paying attention to and tracking over time."
     },
     {
-      "question": "I'm only a week in and I feel like I haven't lost as much as I expected. How do I know if it's actually working?",
-      "answer": "The first week is almost never the whole picture. Community members consistently report that early loss is mostly water, and the real shift in how you feel and look tends to show up in weeks two through four. Give it a full month before you judge the results."
+      "question": "I came back to carnivore after a year and a half away, and I feel dramatically better already after just one week. Why does it seem to work faster the second time around?",
+      "answer": "Many returning carnivore eaters say the same thing, that the transition feels smoother and the benefits kick in faster the second time. One possible reason is that your body has done this before and adapts more quickly. It's also possible that having a year away gave you a very clear comparison point, so you notice the difference more sharply this time."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Write down your single non-negotiable meal for the week.</strong> Not a full plan, just one meal you will absolutely hit no matter what. Marcus says building consistency starts with one anchor, not a perfect spreadsheet. Pick your meal, set your time, and make it happen before anything else changes.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week, Sarah gets into something a lot of women quietly Google but rarely ask out loud: unexpected physical changes in the first month, and which ones mean your body is shifting in the right direction.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pull out your keto staples and read the labels this week.</strong> Pick up any keto bread, wrap, or packaged product you've been eating regularly and look at the ingredient list. If you see modified wheat starch, oat fiber, or a long list of gums and fillers, that product might be worth setting aside for a couple of weeks to see if your results change. Just plain meat, fat, salt, and water for seven days is a clean test that tells you a lot.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something that confuses a lot of people who are losing weight but constantly freezing cold, and the answer has nothing to do with what you'd expect.</p>"
 }

@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-09-30",
+  "last_updated": "2026-10-04",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
-      "rank": 1,
-      "appearances": 12,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Carnivore Quest",
-      "rank": 2,
-      "appearances": 9,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
-    },
-    {
-      "name": "Chris Cooking Nashville",
-      "rank": 3,
-      "appearances": 4,
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
-    },
-    {
       "name": "Carnivore Claire",
-      "rank": 4,
+      "rank": 1,
       "appearances": 2,
       "channel_id": "UCeHelmNzByVLRNMgZDCeRxQ"
     },
     {
-      "name": "Carnivore Teacher Alpha",
-      "rank": 5,
-      "appearances": 6,
-      "channel_id": "UCLoe46vokIWT50lOoqcr5kg"
-    },
-    {
-      "name": "The Carnivore Fix",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCPBh5cCjq7tbNKWw6RifUmg"
-    },
-    {
-      "name": "Haircafe",
-      "rank": 7,
-      "appearances": 2,
-      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
-    },
-    {
-      "name": "Laura Spath",
-      "rank": 8,
+      "name": "Chris Cooking Nashville",
+      "rank": 2,
       "appearances": 5,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
+    },
+    {
+      "name": "Shawn Baker MD",
+      "rank": 3,
+      "appearances": 8,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
+      "name": "Meet Carnivore",
+      "rank": 4,
+      "appearances": 10,
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+    },
+    {
+      "name": "Bill and Daisy Alaska",
+      "rank": 5,
+      "appearances": 3,
+      "channel_id": "UCrbUnn2d4aBmdULbsrgLNXw"
+    },
+    {
+      "name": "No Carb Life",
+      "rank": 6,
+      "appearances": 11,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     },
     {
       "name": "BBC",
-      "rank": 9,
+      "rank": 7,
       "appearances": 1,
       "channel_id": "UCCj956IF62FbT7Gouszaj9w"
     },
     {
-      "name": "Captain Carnivore",
-      "rank": 10,
+      "name": "CarnivoreDoctor",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCklE8NA93P7aU3bxM2BJlOg"
+    },
+    {
+      "name": "Max German",
+      "rank": 9,
       "appearances": 2,
-      "channel_id": "UCDbCkyHd5afWkqGWngqk5gQ"
+      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
+    },
+    {
+      "name": "Carnivore Quest",
+      "rank": 10,
+      "appearances": 9,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     }
   ]
 }
