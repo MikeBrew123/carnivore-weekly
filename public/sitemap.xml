@@ -1596,4 +1596,10 @@
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-10-04-what-to-eat-instead-of-potatoes-beans.html</loc>
+        <lastmod>2026-10-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
 </urlset>
