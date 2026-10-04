@@ -919,3 +919,13 @@ Pattern: the paid report keys several lookups on capitalised diet names ("Pescat
 Attempts:
 - 2026-10-03 — found while mapping the report for PescoDial (agent map + SQL on calculator_reports). Fix: one canonical diet profile (key, label, food tags, family) resolved once and used by every section, plus report tests per diet.
 If recurs: grep the rendered HTML of a test report per diet for another diet's proteins; never trust a lookup keyed on a display label.
+
+## ISSUE-087 — Cloudflare deploys fail: "Headers.append ... is an invalid header value"
+**Status:** 🟢 FIXED 2026-10-04
+**Pattern:** GitHub secret `CLOUDFLARE_API_TOKEN` holds two non-empty lines (log masks it as `***` newline `***`). Wrangler puts it in an HTTP header and dies before any API call. Hits every workflow using it: `pescodial-deploy.yml` (never succeeded) and `deploy-calculator-worker.yml`.
+**Attempts:**
+- 2026-10-04: first runs of both workflows failed with it; the paid-report safety suites passed before the deploy step. Preflight added to both workflows on branch pescodial-build-sr4qkr to name the problem.
+- 2026-10-03 19:00 PT (2026-10-04 UTC): calculator worker deployed by hand from main b5fe0226 with `wrangler deploy --env production` (version e024babb-f461-48c0-a230-f30c62f1fd41, 100%), after the 11 safety suites passed. Secret NOT fixed: no Cloudflare API token is stored on this machine (`secrets/api-keys.json` cloudflare block has account id only; wrangler here uses short-lived OAuth, unsuitable for CI). The token Brew created 10-03 (`pescodial-pages-deploy`) has Pages:Edit only, not Workers Scripts:Edit. Re-ran `pescodial-deploy.yml` (run 37169822931): same header error.
+- 2026-10-04 02:07 UTC: Brew created token `cw-worker-and-pescodial-deploy` (Workers Scripts:Edit + Cloudflare Pages:Edit, his account only) and re-saved the secret on one line. Re-runs passed: Deploy PescoDial run 37170128422 (pescodial.pages.dev 200), deploy-calculator-worker run 37170129905 (production version 5e54b8e9-3775-4b49-b7ac-52d9d0390bdf, same main b5fe0226). Old `pescodial-pages-deploy` token can be deleted.
+**Fix:** Cloudflare > My Profile > API Tokens: edit `pescodial-pages-deploy` (or create one) to add Account > Workers Scripts > Edit alongside Cloudflare Pages > Edit. Then GitHub repo Settings > Secrets > Actions > `CLOUDFLARE_API_TOKEN` > paste only the token, one line. Re-run both workflows.
+**If recurs:** check the secret first (preflight message), then the token's permissions; never strip lines in the workflow, the second line may be the real token.
