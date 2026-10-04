@@ -96,7 +96,9 @@
     if (wBad) errs.push(['weight', 'Current weight']);
 
     var goal = val(f2, 'goal');
-    var gBad = !(gw >= lo && gw <= hi), gMsg = 'Enter your goal weight in ' + u + '.';
+    // Maintain: no goal weight to ask for, the current weight is the goal (Brew 2026-10-04).
+    if (goal !== 'lose') gw = w;
+    var gBad = goal === 'lose' && !(gw >= lo && gw <= hi), gMsg = 'Enter your goal weight in ' + u + '.';
     if (!gBad && goal === 'lose' && !wBad && gw >= w) { gBad = true; gMsg = 'For a weight-loss goal, your goal weight should be lower than your current weight. Or choose Maintain.'; }
     if (!gBad && !hBad && goal === 'lose') {
       var gBmi = (gw * k) / Math.pow(cm / 100, 2);
@@ -125,6 +127,15 @@
     sum.hidden = true;
     return { errs: [], age: age, sex: sex, cm: cm, kg: w * k, goalKg: gw * k, goal: goal, act: Number(act) };
   }
+
+  // The goal weight box only shows for a weight-loss goal.
+  function syncGoalWeight() {
+    var lose = val(f2, 'goal') === 'lose';
+    f2.querySelector('[data-field="goalweight"]').hidden = !lose;
+    if (!lose) setError('goalweight', false);
+  }
+  f2.querySelectorAll('input[name="goal"]').forEach(function (r) { r.addEventListener('change', syncGoalWeight); });
+  syncGoalWeight();
 
   f2.addEventListener('submit', function (e) {
     e.preventDefault();

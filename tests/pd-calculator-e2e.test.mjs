@@ -78,5 +78,33 @@ await page.click('form[data-step="2"] button[type="submit"]');
 // no path reaches the email step or a weight-loss number.
 const blocked = (await page.isVisible('[data-state="underweight"]')) || (await page.isVisible('#goalweight-err'));
 check('D. underweight + lose cannot reach a weight-loss target', blocked && !(await page.isVisible('form[data-step="3"]')));
+// Brew 2026-10-04: Maintain must not ask for a goal weight; the current weight is the goal.
+{
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.route('**/api/v1/subscribe', r => r.fulfill({ status: 200, body: '{"success":true}' }));
+  await page.goto(base + '/');
+  await page.check('input[name="style"][value="med"]', { force: true });
+  await page.click('form[data-step="1"] button[type="submit"]');
+  const hiddenAtStart = await page.isVisible("#goalweight"); // Lose is the default, so the box starts visible
+  await page.check('input[name="goal"][value="lose"]', { force: true });
+  const shownForLose = await page.isVisible('#goalweight');
+  await page.fill('#goalweight', '150'); // typed for Lose, then changed her mind: must be ignored
+  await page.check('input[name="goal"][value="maintain"]', { force: true });
+  const hiddenForMaintain = !(await page.isVisible('#goalweight'));
+  check('H. goal weight box shows only for Lose', hiddenAtStart && shownForLose && hiddenForMaintain, JSON.stringify({ hiddenAtStart, shownForLose, hiddenForMaintain }));
+  check('H2. no "enter your current weight" hint', !(await page.content()).includes('enter your current weight'));
+  await page.check('input[name="sex"][value="f"]', { force: true });
+  await page.fill('#age', '58'); await page.fill('#ft', '5'); await page.fill('#in', '5'); await page.fill('#weight', '180');
+  await page.check('input[name="activity"][value="1.2"]', { force: true });
+  await page.click('form[data-step="2"] button[type="submit"]');
+  await page.fill('form[data-step="3"] input[type="email"]', 'maintain@example.com');
+  await page.click('form[data-step="3"] button[type="submit"]');
+  await page.waitForSelector('[data-step="4"]:not([hidden])', { timeout: 5000 }).catch(() => {});
+  const want = engine({ diet: 'pesco-mediterranean', sex: 'female', age: 58, weight: 180, heightCm: 165.1, lifestyle: 'sedentary', goal: 'maintain', goalWeight: 180 });
+  const got = await page.evaluate(() => (document.querySelector('[data-step="4"]')?.innerText || ''));
+  check('H3. Maintain reaches results with maintenance calories', got.replace(/,/g, '').includes(String(want.calories)), `want ${want.calories}`);
+  check('H4. Maintain protein uses current weight, not a leftover goal weight', got.includes(String(want.protein)), `want ${want.protein}`);
+  await page.close();
+}
 await browser.close(); server.close();
 process.exit(failed ? 1 : 0);
