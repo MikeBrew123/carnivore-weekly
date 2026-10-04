@@ -1,0 +1,33 @@
+{
+  "_note": "TEST FIXTURE ONLY. Sample copy from Brew's design mock (2026-10-03), not reviewed by Sarah and never default content. The design's /guides/canned-tuna and /recipes/... links are dropped because those pages do not exist, and there is no hosted recipe photo, so the image is omitted.",
+  "title": "PescoDial weekly guide",
+  "preheader": "This week: how often you can eat canned tuna, a 20-minute salmon tray bake, and a frozen fish tip.",
+  "date": "October 8, 2026",
+  "intro": {
+    "h1": "Canned tuna, a quick tray bake and the freezer aisle",
+    "greeting": "Hi there,",
+    "paragraphs": [
+      "This week I looked into a question a lot of you ask: how often is it fine to eat canned tuna? There's also a salmon dinner that takes 20 minutes and one shopping tip."
+    ],
+    "signoff": "Sarah"
+  },
+  "question": {
+    "question": "How often can I eat canned tuna?",
+    "answer": "Canned light tuna is low in mercury, and the FDA lists it as a best choice: 2 to 3 servings a week. Albacore (white) tuna has more mercury, so keep it to about 1 serving a week."
+  },
+  "recipe": {
+    "title": "Salmon and green bean tray bake",
+    "meta": "20 minutes · Serves 2 · Pescatarian Mediterranean",
+    "method": "Toss green beans and cherry tomatoes in olive oil on a tray. Add 2 salmon fillets, season with lemon, garlic and black pepper, and bake at 400°F (200°C) for 12 to 15 minutes.",
+    "image_alt": "Salmon and green beans on a baking tray"
+  },
+  "tip": {
+    "title": "Frozen fish is worth a look",
+    "text": "Fish frozen soon after it's caught keeps its nutrients well, and it's often cheaper than the fresh counter. Look for plain fillets with nothing on the ingredients list but the fish, and maybe salt."
+  },
+  "calculator": {
+    "heading": "Haven't tried the calculator yet?",
+    "text": "Work out your daily calories, protein and fish meals in about two minutes. It's free.",
+    "button": "Try the calculator"
+  }
+}
