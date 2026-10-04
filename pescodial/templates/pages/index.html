@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}PescoDial: Free pescatarian calorie and protein calculator{% endblock %}
 {% block description %}A free calculator for pescatarian daily calories, protein and fish meals, for Pescatarian Mediterranean, Low Carb, Keto and Carnivore styles. About two minutes.{% endblock %}
+{% block head %}<script type="application/ld+json">{{ {"@context":"https://schema.org","@graph":[
+ {"@type":"Organization","@id":domain ~ "/#org","name":"PescoDial","url":domain ~ "/","logo":domain ~ "/apple-touch-icon.png","sameAs":["https://carnivoreweekly.com","https://ketodial.com"]},
+ {"@type":"WebSite","@id":domain ~ "/#site","name":"PescoDial","url":domain ~ "/","publisher":{"@id":domain ~ "/#org"}},
+ {"@type":"WebApplication","name":"PescoDial calculator","url":domain ~ "/","applicationCategory":"HealthApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@id":domain ~ "/#org"}}
+]}|tojson }}</script>{% endblock %}
 {% block main %}
 {% include "_calculator.html" %}
 {% include "_how_it_works.html" %}
