@@ -239,6 +239,8 @@ def render_email(*, title, preheader, header_label, header_sub, sections, footer
   @media (max-width:620px) {{
     .px {{ padding-left:20px !important; padding-right:20px !important; }}
     .h1 {{ font-size:30px !important; line-height:36px !important; }}
+    .wm {{ font-size:25px !important; line-height:30px !important; }}
+    .hl {{ font-size:12px !important; line-height:17px !important; }}
   }}
   @media (prefers-color-scheme: dark) {{
     .bg-cream {{ background:#2a2620 !important; }}
@@ -265,10 +267,10 @@ def render_email(*, title, preheader, header_label, header_sub, sections, footer
     <td bgcolor="{NAVY}" class="px" style="background:{NAVY};padding:22px 32px 18px;border-radius:14px 14px 0 0;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="font-family:{SERIF};font-size:30px;line-height:34px;mso-line-height-rule:exactly;color:{CREAM};">
-            <a href="{attr(home)}" style="color:{CREAM};text-decoration:none;">Pesco<span style="color:{OLIVE_LIGHT};">Dial</span></a>
+          <td class="wm" style="font-family:{SERIF};font-size:30px;line-height:34px;mso-line-height-rule:exactly;color:{CREAM};white-space:nowrap;padding-right:12px;">
+            <a href="{attr(home)}" style="color:{CREAM};text-decoration:none;white-space:nowrap;">Pesco<span style="color:{OLIVE_LIGHT};">Dial</span></a>
           </td>
-          <td align="right" style="font-family:{SANS};font-size:14px;line-height:20px;color:{OLIVE_LIGHT};font-weight:bold;">
+          <td align="right" class="hl" style="font-family:{SANS};font-size:14px;line-height:20px;color:{OLIVE_LIGHT};font-weight:bold;">
             {e(header_label)}{f'<br><span style="color:{CREAM};font-weight:normal;">{e(header_sub)}</span>' if header_sub else ''}
           </td>
         </tr>

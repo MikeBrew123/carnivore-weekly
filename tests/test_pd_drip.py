@@ -172,10 +172,18 @@ def test_engagement():
         check(f"E. {p.stem} plan box sells the 7-day plan", box["heading"] in h and "7-Day Plan" in h)
 
 
+def test_header_fits_phone():
+    """Brew 2026-10-03: on an iPhone the wordmark wrapped to 'PescoDi / al'."""
+    for p in sorted((ROOT / "data/drip-emails/pd").glob("day-*.html")):
+        h = p.read_text()
+        check(f"F. {p.stem} wordmark never wraps", 'class="wm"' in h and "white-space:nowrap" in h and ".wm {" in h)
+
+
 if __name__ == "__main__":
     test_generated_and_fresh()
     test_content()
     test_promo_days_plain()
     test_shell()
     test_engagement()
+    test_header_fits_phone()
     sys.exit(1 if FAILED else 0)
