@@ -326,7 +326,7 @@
         }
         if (res.j.report_html) return showReport(res.j.report_html, res.j.access_token);
         if (res.j.access_token) {
-          return fetch(API + '/report/' + res.j.access_token + '/content').then(function (r) { return r.text(); })
+          return fetch(API + '/api/v1/calculator/report/' + res.j.access_token + '/content').then(function (r) { return r.text(); })
             .then(function (html) { showReport(html, res.j.access_token); });
         }
         throw new Error('no report');
@@ -343,7 +343,7 @@
     root.querySelector('[data-report-email]').onclick = function () {
       var msg = root.querySelector('[data-report-email-msg]');
       fetch(API + '/api/v1/calculator/email-report', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: assessmentId, email: data.email || '' }) })
+        body: JSON.stringify({ session_id: assessmentId }) })
         .then(function (r) { msg.textContent = r.ok ? 'Sent. Check your inbox in a minute or two.' : 'We could not send it just now. Your plan is saved; try again later.'; })
         .catch(function () { msg.textContent = 'We could not send it just now.'; });
     };

@@ -8,7 +8,7 @@
 //  B. after the redirect the page polls get-session until paid, then asks the questions;
 //  C. step/4 sends assessment_id + answers (blood thinner and pregnancy folded into text);
 //  D. report/init is called with the assessment id and the report HTML is shown;
-//  E. email-report uses the order's email from the server, not page memory;
+//  E. email-report sends only the session id (the worker emails the stored owner address);
 //  F. a 422 refusal from checkout keeps the reader on results with the message;
 //  G. the deployed render (no --paid-preview) has no upgrade card;
 //  H. a valid code is sent as coupon_code (no price); an invalid one stops before checkout.
@@ -86,7 +86,7 @@ const frameText = await page.frameLocator('[data-report-frame]').locator('#t').t
 check('D. report/init called and report shown', (calls.init[0] || {}).session_id === '11111111-2222-3333-4444-555555555555' && frameText === 'PD REPORT FIXTURE');
 await page.click('[data-report-email]');
 await page.waitForTimeout(300);
-check('E. email copy uses the order email', (calls.email[0] || {}).email === 'buyer@example.com', JSON.stringify(calls.email));
+check('E. email copy sends only the session id', (calls.email[0] || {}).session_id === '11111111-2222-3333-4444-555555555555' && !('email' in (calls.email[0] || {})), JSON.stringify(calls.email));
 await page.close();
 
 const p2 = await browser.newPage({ viewport: { width: 390, height: 844 } });

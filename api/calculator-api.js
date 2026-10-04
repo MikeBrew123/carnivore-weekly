@@ -1559,15 +1559,28 @@ async function handleStep4Submission(request, env) {
       return createErrorResponse('PAYMENT_REQUIRED', 'Payment required to access step 4', 403);
     }
 
-    // Merge Step 4 data with existing form data
+    // Once a report exists its answers are final: a later write could otherwise erase
+    // a declared medicine and unlock numbers the report withheld.
+    const existingReport = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_reports?session_id=eq.${encodeURIComponent(session.id)}&select=id&limit=1`,
+      { headers: { 'apikey': env.SUPABASE_SERVICE_ROLE_KEY, 'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` } }
+    );
+    if (existingReport.ok) {
+      const rows = await existingReport.json().catch(() => []);
+      if (Array.isArray(rows) && rows.length) {
+        return createErrorResponse('ANSWERS_LOCKED', 'Your plan has already been built from your answers.', 409);
+      }
+    }
+
+    // Merge only step-4 answers over the stored form data (allowlist).
     const existingFormData = session.form_data || {};
+    const step4Answers = {};
+    for (const [k, v] of Object.entries(formData || {})) if (STEP4_FIELDS.has(k)) step4Answers[k] = v;
     const updatedFormData = {
       ...existingFormData,
-      ...formData,
+      ...step4Answers,
     };
-
     console.log('[handleStep4Submission] Updating session with Step 4 data');
-    console.log('[handleStep4Submission] Step 4 firstName:', formData.firstName, 'Step 4 lastName:', formData.lastName);
 
     // Prepare update payload - include first_name and last_name if provided
     const updatePayload = {
@@ -1804,11 +1817,11 @@ async function handleReportInit(request, env) {
     // Call COMPREHENSIVE generator for full 60-80 page report (13 sections)
     console.log('=== FORM DATA FOR PERSONALIZATION ===');
     console.log('Session ID:', session.id);
-    console.log('Email:', session.email);
-    console.log('Form Data:', JSON.stringify(session.form_data, null, 2));
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
     console.log('Selected Protocol:', session.selectedProtocol);
-    console.log('Allergies:', session.allergies);
-    console.log('Avoid Foods:', session.avoidFoods);
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
     console.log('Health Conditions:', session.healthConditions);
     console.log('=====================================');
 
@@ -1841,9 +1854,9 @@ async function handleReportInit(request, env) {
     correctedData.macros = macros;
 
     console.log('=== CORRECTED DATA MAPPING ===');
-    console.log('Corrected firstName:', correctedData.firstName);
-    console.log('Corrected allergies:', correctedData.allergies);
-    console.log('Corrected avoidFoods:', correctedData.avoidFoods);
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
     console.log('Calculated macros:', macros);
     console.log('=================================');
 
@@ -1982,17 +1995,6 @@ async function handleReportInit(request, env) {
       status: 'generated',
       report_html: finalReportHTML,
       message: 'Report generated successfully. Download your protocol below.',
-      DEBUG: {
-        form_data_keys: session.form_data ? Object.keys(session.form_data) : null,
-        weight_from_session: session.form_data?.weight,
-        age_from_session: session.form_data?.age,
-        session_form_data_type: typeof session.form_data,
-        has_fallback_template: reportHTML.includes('Your personalized report is being generated'),
-        has_claude_content: reportHTML.includes('claude-3-5-sonnet'),
-        report_html_length: reportHTML.length,
-        report_includes_recommendations: reportHTML.includes('<div class=\"recommendations\">'),
-        claude_api_error: session._claude_api_error || null,
-      },
     }, 200);
   } catch (err) {
     // The detail stays server side, where it is useful. It does not go to the reader.
@@ -2044,8 +2046,10 @@ async function handleEmailReport(request, env) {
     const body = await parseJsonBody(request);
     const { session_id, email } = body;
 
-    if (!session_id || !email) {
-      return createErrorResponse('MISSING_PARAMS', 'session_id and email are required', 400);
+    // email may be omitted: the copy always goes to the stored owner address, so
+    // the page never has to hold or echo it (security red team 2026-10-03).
+    if (!session_id) {
+      return createErrorResponse('MISSING_PARAMS', 'session_id is required', 400);
     }
 
     // Fetch report from calculator_reports table (reports are stored there, not on session)
@@ -2076,7 +2080,7 @@ async function handleEmailReport(request, env) {
     // NOT NULL), so a blank one means the row is malformed and we refuse rather
     // than guess. Everything below compares against this, never against the body.
     const ownerEmail = String(report.email || '').trim().toLowerCase();
-    const requested = String(email).trim().toLowerCase();
+    const requested = email ? String(email).trim().toLowerCase() : String(report.email || '').trim().toLowerCase();
     if (!ownerEmail) {
       console.error(`[Email Report] DENIED session=${session_id}: report row has no owner email`);
       return createErrorResponse('NOT_AUTHORIZED', 'Report not available for this request', 403);
@@ -4160,7 +4164,7 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
     <div class="cover-logo">
       <img src="https://carnivoreweekly.com/images/logo.png" alt="Carnivore Weekly Logo" />
     </div>
-    <h1 class="cover-title">Your Complete Personalized<br>${reportDietLabel} Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${userData.firstName}${userData.lastName ? ' ' + userData.lastName : ''}</span>` : ''}</h1>
+    <h1 class="cover-title">Your Complete Personalized<br>${reportDietLabel} Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${escHtml(userData.firstName)}${userData.lastName ? ' ' + escHtml(userData.lastName) : ''}</span>` : ''}</h1>
     <div class="cover-date">Generated on ${generatedDate}</div>
   </div>
   <div class="content-start report-content">
@@ -6230,6 +6234,9 @@ async function handleGetSession(request, env) {
   try {
     const url = new URL(request.url);
     const sessionId = url.searchParams.get('id');
+    if (sessionId && !UUID_RE.test(sessionId)) {
+      return createErrorResponse('INVALID_SESSION_ID', 'Invalid session id', 400);
+    }
 
     console.log('[handleGetSession] Fetching session:', sessionId);
 
@@ -6277,14 +6284,17 @@ async function handleGetSession(request, env) {
     }
 
     const session = sessions[0];
-    console.log('[handleGetSession] Session retrieved:', { id: session.id, email: session.email });
+    // The calculator needs its own inputs back after Stripe; it never needs the
+    // health answers, which are written after this point and stay server-side.
+    const publicFormData = { ...(session.form_data || {}) };
+    for (const k of HEALTH_FIELDS) delete publicFormData[k];
 
     return createSuccessResponse({
       success: true,
       id: session.id,
       email: session.email,
       first_name: session.first_name,
-      form_data: session.form_data,
+      form_data: publicFormData,
       payment_status: session.payment_status,
       created_at: session.created_at,
     }, 200);
@@ -6556,7 +6566,7 @@ async function handleCreateCheckout(request, env) {
     let baseDomain = 'https://carnivoreweekly.com';
 
     // For localhost testing only, use the request origin
-    if (requestOrigin && requestOrigin.includes('localhost')) {
+    if (requestOrigin && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(requestOrigin)) {
       baseDomain = requestOrigin;
       console.log('[Worker] Detected localhost - using request origin:', baseDomain);
     }
@@ -8702,6 +8712,20 @@ const REPORT_BRANDS = {
     signature: 'PescoDial',
   },
 };
+// Step-4 answers a client may write (CW Step4HealthProfile + PescoDial health form).
+// Anything else (diet, numbers, email) was fixed at checkout and cannot be changed
+// through step 4 (security red team 2026-10-03).
+const STEP4_FIELDS = new Set([
+  'firstName', 'lastName', 'medications', 'conditions', 'otherConditions', 'symptoms', 'otherSymptoms',
+  'allergies', 'avoidFoods', 'dairyTolerance', 'previousDiets', 'whatWorked', 'carnivoreExperience',
+  'cookingSkill', 'mealPrepTime', 'budget', 'familySituation', 'workTravel', 'goals', 'biggestChallenge',
+  'additionalNotes', 'primaryGoalConfirmed', 'primaryGoalConfirmedAt', 'mealsPerDay',
+]);
+// Health answers never leave the server through /get-session.
+const HEALTH_FIELDS = ['medications', 'conditions', 'healthConditions', 'otherConditions', 'symptoms',
+  'otherSymptoms', 'allergies', 'avoidFoods', 'additionalNotes', 'biggestChallenge', 'lastName'];
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const escHtml = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const PD_PLAN_PRICE_CENTS = 2900; // $29 USD, same as the CW report (Brew, 2026-10-03)
 const PD_RETURN_ORIGINS = ['https://www.pescodial.com', 'https://pescodial.pages.dev'];
 // Where a PescoDial buyer comes back to after Stripe. Only known PescoDial origins
