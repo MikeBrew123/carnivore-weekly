@@ -10,7 +10,8 @@
 //  D. report/init is called with the assessment id and the report HTML is shown;
 //  E. email-report uses the order's email from the server, not page memory;
 //  F. a 422 refusal from checkout keeps the reader on results with the message;
-//  G. the deployed render (no --paid-preview) has no upgrade card.
+//  G. the deployed render (no --paid-preview) has no upgrade card;
+//  H. a valid code is sent as coupon_code (no price); an invalid one stops before checkout.
 // Run: node tests/pd-paid-flow-e2e.test.mjs
 import http from 'node:http';
 import { readFileSync, existsSync, statSync, mkdtempSync } from 'node:fs';
@@ -96,6 +97,18 @@ await p2.click('[data-checkout]');
 await p2.waitForTimeout(500);
 check('F. checkout refusal shows the message on results', (await p2.isVisible('[data-step="4"]')) && /cannot generate/.test(await p2.textContent('[data-checkout-error]')));
 await p2.close();
+
+const p3 = await browser.newPage({ viewport: { width: 390, height: 844 } });
+const co3 = [];
+await p3.route('**/api/v1/subscribe', r => r.fulfill({ status: 200, body: '{}' }));
+await p3.route('**/validate-coupon', r => { const b = JSON.parse(r.request().postData()); r.fulfill({ status: b.code === 'ETSY50' ? 200 : 400, contentType: 'application/json', body: JSON.stringify(b.code === 'ETSY50' ? { code: 'ETSY50', percent: 50 } : { code: 'INVALID_COUPON' }) }); });
+await p3.route('**/create-checkout', r => { co3.push(JSON.parse(r.request().postData())); r.fulfill({ status: 422, contentType: 'application/json', body: '{"message":"stop here"}' }); });
+await toResults(p3);
+await p3.fill('[data-coupon]', 'nope'); await p3.click('[data-checkout]'); await p3.waitForTimeout(400);
+const invalidStopped = co3.length === 0 && /not valid/.test(await p3.textContent('[data-checkout-error]'));
+await p3.fill('[data-coupon]', 'etsy50'); await p3.click('[data-checkout]'); await p3.waitForTimeout(400);
+check('H. codes: valid sent as coupon_code without a price, invalid stops', invalidStopped && co3.length === 1 && co3[0].coupon_code === 'ETSY50' && !('amount' in co3[0]) && !('discount_percent' in co3[0]), JSON.stringify(co3));
+await p3.close();
 
 const live = readFileSync(path.join(repo, 'pescodial/public/index.html'), 'utf8');
 check('G. deployed render has no upgrade card', !live.includes('data-checkout'));

@@ -239,9 +239,22 @@
   if (checkoutBtn) checkoutBtn.addEventListener('click', function () {
     var err = root.querySelector('[data-checkout-error]');
     if (err) err.textContent = '';
+    var codeEl = root.querySelector('[data-coupon]');
+    var code = codeEl ? codeEl.value.trim().toUpperCase() : '';
+    // A code is checked by the worker (/validate-coupon) and applied by the worker
+    // at checkout; the page never sets a price. discount_percent is sent only so
+    // the worker can take its own Stripe-verified free path for a 100% code.
+    var check = code
+      ? fetch(API + '/validate-coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code }) })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      : Promise.resolve(null);
     show('checkout-wait');
-    fetch(API + '/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: data.email, form_data: formData(data), tier_id: 'bundle', site: 'pd' }) })
+    check.then(function (c) {
+      if (c && !c.ok) { var e = new Error('coupon'); e.userMsg = 'That code is not valid. Check it, or leave the box empty.'; throw e; }
+      var body = { email: data.email, form_data: formData(data), tier_id: 'bundle', site: 'pd' };
+      if (c) { body.coupon_code = code; if (Number(c.j.percent) === 100) body.discount_percent = 100; }
+      return fetch(API + '/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
         var url = res.j && (res.j.url || res.j.checkout_url);
@@ -249,7 +262,7 @@
         show('4');
         if (err) err.textContent = (res.j && res.j.message) || 'We could not start checkout. Please try again in a minute.';
       })
-      .catch(function () { show('4'); if (err) err.textContent = 'We could not reach checkout. Please check your connection and try again.'; });
+      .catch(function (e) { show('4'); if (err) err.textContent = (e && e.userMsg) || 'We could not reach checkout. Please check your connection and try again.'; });
   });
 
   var params = new URLSearchParams(window.location.search);
