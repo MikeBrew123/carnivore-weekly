@@ -46,11 +46,16 @@ check('A. PD order returns to www.pescodial.com/calculator/', r.stripe && r.stri
   && r.stripe.get('cancel_url').startsWith('https://www.pescodial.com/calculator/?payment=cancelled'), r.stripe && r.stripe.get('success_url'));
 check('B. PD priced on server at 2900 with PescoDial name', r.stripe && r.stripe.get('line_items[0][price_data][unit_amount]') === '2900'
   && /PescoDial/.test(r.stripe.get('line_items[0][price_data][product_data][name]')) && !r.stripe.get('line_items[0][price]'));
+check('B2. PD checkout page shows PescoDial name, logo and colours', r.stripe && r.stripe.get('branding_settings[display_name]') === 'PescoDial'
+  && r.stripe.get('branding_settings[logo][url]') === 'https://www.pescodial.com/stripe-logo.png'
+  && r.stripe.get('branding_settings[button_color]') === '#b04f2c');
+check('B3. PD card statement carries the PESCODIAL suffix', r.stripe && r.stripe.get('payment_intent_data[statement_descriptor_suffix]') === 'PESCODIAL');
 r = await checkout('pesco-mediterranean', 'https://pescodial.pages.dev');
 check('A2. PD order from pages.dev returns to pages.dev', r.stripe && r.stripe.get('success_url').startsWith('https://pescodial.pages.dev/calculator/'));
 r = await checkout('carnivore', 'https://carnivoreweekly.com');
 check('C. CW order unchanged', r.stripe && r.stripe.get('success_url').startsWith('https://carnivoreweekly.com/calculator.html?payment=success')
   && r.stripe.get('line_items[0][price]') === 'price_1T5CZkEVDfkpGz8wnvZEnZH7');
+check('C2. CW order keeps account branding and statement', r.stripe && ![...r.stripe.keys()].some(k => k.startsWith('branding_settings') || k.includes('statement_descriptor')));
 r = await checkout('pesco-keto', 'https://evil.example');
 check('D. unknown origin cannot steer the return URL', r.stripe && r.stripe.get('success_url').startsWith('https://www.pescodial.com/'));
 
