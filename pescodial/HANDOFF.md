@@ -12,7 +12,20 @@ Branch `pescodial-build`. Brew approved everything below; ledger entries are in 
 - Report copy (Sarah) in `pescodial/drafts/report/`; Brew's design in `pescodial/design/report-v2/plan.html`
 - Meal engine `api/pd-meal-plan.js` + USDA table `api/pd-foods.js`
 
-## Next, in order
+## Done 2026-10-04 (branch `pescodial-build-sr4qkr`)
+- Meal engine: all checks pass; per-meal portion limits (fish 4 oz+, one fruit, eggs <=3); zero-fish week refused.
+- Paid report for `pesco-mediterranean` inside `generateAllReports` (`api/pd-report.js` renders only). Numbers hidden for kidney disease and blood thinners; medication/diabetes get maintenance numbers. `tests/pd-report.test.mjs`.
+- PD branding: report email from `reports@pescodial.com`, resume link on pescodial.com, CW abandon email never sent to PD readers, claim gate covers pesco/Mediterranean.
+- Drip HTML in `data/drip-emails/pd/` (generator `pescodial/scripts/build_pd_drip.py`), workflow step behind `vars.PD_DRIP_ENABLED` (off). `tests/test_pd_drip.py`.
+- Guard suite 29/29 plus the PD drip test, all in calculator-guard CI.
+
+## Waiting on Brew
+- Blood-thinner readers get the numbers-hidden plan (session call, logged in decisions.md). Hide numbers for every declared medication too? One line in `pdNumbersHidden`.
+- Report photos: cover and recipe photo slots are a plain pattern for now.
+- PD abandon-recovery copy (Sarah) and the go to send it.
+- Flip `PD_DRIP_ENABLED` when the drip may send.
+
+## Next, in order (original list; 1-4 done)
 1. `tests/pd-meal-plan.test.mjs`: fix 2 failures (2300 kcal Sun +7.3%; excluding all fish must refuse, not build a fish-free week).
 2. Wire `buildPescoMedWeek` into the report for `pesco-mediterranean`; PD section set per the design (numbers, fish plan, 7-day table, grocery, recipes, eating out, doctor questions, sources); numbers-hidden variant when medical-context suppresses calorie guidance (meal table shows dishes only, grocery list no quantities); PD theme in `wrapInPrintHTML` (fonts + CSS from the design); add pesco-mediterranean to the fidelity test + CI.
 3. PD brand: report email from reports@pescodial.com, resume link pescodial.com/calculator/, no "Carnivore Weekly" text in PD reports (extend brand-attribution test). Extend CLAIM_FRAME_DIET with pesco/mediterranean.
