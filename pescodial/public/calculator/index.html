@@ -47,7 +47,7 @@
         <p class="hint" style="margin:0 0 12px;">General information, not medical advice. If you take medicine, are pregnant or have a heart, kidney or other condition, check with your doctor first.</p>
         <p class="step-label">Step 1 of 4</p>
         <fieldset>
-          <legend>Choose your eating style</legend>
+          <legend tabindex="-1">Choose your eating style</legend>
           <div class="choices style-cards">
             <label class="choice">
               <input type="radio" name="style" value="med" checked="">
@@ -100,7 +100,7 @@
 
         <div class="field" data-field="age">
           <label for="age">Age</label>
-          <div class="unit-wrap"><input class="input" id="age" name="age" type="number" inputmode="numeric" min="1" max="120" aria-describedby="age-err"><span class="unit">years</span></div>
+          <div class="unit-wrap"><input class="input" id="age" name="age" type="number" inputmode="numeric" min="1" max="120"><span class="unit">years</span></div>
           <p class="field-error" id="age-err">Enter your age in years, for example 58.</p>
         </div>
 
@@ -111,24 +111,24 @@
             <label class="choice"><input type="radio" name="sex" value="f"><span class="choice-body"><span class="choice-title">Female</span></span></label>
             <label class="choice"><input type="radio" name="sex" value="m"><span class="choice-body"><span class="choice-title">Male</span></span></label>
           </div>
-          <p class="field-error">Choose female or male.</p>
+          <p class="field-error" id="sex-err">Choose female or male.</p>
         </fieldset>
 
         <div class="field" data-field="height">
           <span class="label" id="height-label">Height</span>
           <div class="input-group" data-units="imp">
-            <div class="unit-wrap"><input class="input" id="ft" name="ft" type="number" inputmode="numeric" aria-labelledby="height-label" aria-describedby="height-err"><span class="unit">ft</span></div>
+            <div class="unit-wrap"><input class="input" id="ft" name="ft" type="number" inputmode="numeric" aria-labelledby="height-label"><span class="unit">ft</span></div>
             <div class="unit-wrap"><input class="input" id="in" name="in" type="number" inputmode="numeric" aria-label="Height, inches"><span class="unit">in</span></div>
           </div>
           <div data-units="met" hidden="">
-            <div class="unit-wrap"><input class="input" id="cm" name="cm" type="number" inputmode="numeric" aria-labelledby="height-label" aria-describedby="height-err"><span class="unit">cm</span></div>
+            <div class="unit-wrap"><input class="input" id="cm" name="cm" type="number" inputmode="numeric" aria-labelledby="height-label"><span class="unit">cm</span></div>
           </div>
           <p class="field-error" id="height-err">Enter your height, for example 5 ft 4 in.</p>
         </div>
 
         <div class="field" data-field="weight">
           <label for="weight">Current weight</label>
-          <div class="unit-wrap"><input class="input" id="weight" name="weight" type="number" inputmode="decimal" aria-describedby="weight-err"><span class="unit" data-wunit="">lb</span></div>
+          <div class="unit-wrap"><input class="input" id="weight" name="weight" type="number" inputmode="decimal"><span class="unit" data-wunit="">lb</span></div>
           <p class="field-error" id="weight-err">Enter your current weight.</p>
         </div>
 
@@ -138,24 +138,24 @@
             <label class="choice"><input type="radio" name="goal" value="lose" checked=""><span class="choice-body"><span class="choice-title">Lose weight</span></span></label>
             <label class="choice"><input type="radio" name="goal" value="maintain"><span class="choice-body"><span class="choice-title">Maintain</span></span></label>
           </div>
-          <p class="field-error">Choose a goal.</p>
+          <p class="field-error" id="goal-err">Choose a goal.</p>
         </fieldset>
 
         <div class="field" data-field="goalweight" hidden>
           <label for="goalweight">Goal weight</label>
-          <div class="unit-wrap"><input class="input" id="goalweight" name="goalweight" type="number" inputmode="decimal" aria-describedby="goalweight-err"><span class="unit" data-wunit="">lb</span></div>
+          <div class="unit-wrap"><input class="input" id="goalweight" name="goalweight" type="number" inputmode="decimal"><span class="unit" data-wunit="">lb</span></div>
           <p class="field-error" id="goalweight-err">Enter your goal weight.</p>
         </div>
 
         <fieldset class="field" data-field="activity">
           <legend class="label" style="font:700 1.125rem var(--f-ui);margin-bottom:6px;">How active are you?</legend>
           <div class="choices compact">
-            <label class="choice"><input type="radio" name="activity" value="1.2"><span class="choice-body"><span class="choice-title">Mostly sitting</span></span></label>
-            <label class="choice"><input type="radio" name="activity" value="1.375"><span class="choice-body"><span class="choice-title">Lightly active</span><span class="choice-desc">Walks or light exercise 1 to 3 days a week</span></span></label>
+            <label class="choice"><input type="radio" name="activity" value="1.2"><span class="choice-body"><span class="choice-title">Mostly sitting</span><span class="choice-desc">Desk job or home most of the day, little planned exercise</span></span></label>
+            <label class="choice"><input type="radio" name="activity" value="1.375"><span class="choice-body"><span class="choice-title">Lightly active</span><span class="choice-desc">Gentle walks or light exercise most days</span></span></label>
             <label class="choice"><input type="radio" name="activity" value="1.55"><span class="choice-body"><span class="choice-title">Moderately active</span><span class="choice-desc">Exercise 3 to 5 days a week</span></span></label>
             <label class="choice"><input type="radio" name="activity" value="1.725"><span class="choice-body"><span class="choice-title">Very active</span><span class="choice-desc">Hard exercise most days</span></span></label>
           </div>
-          <p class="field-error">Choose the line that fits you best.</p>
+          <p class="field-error" id="activity-err">Choose the line that fits you best.</p>
         </fieldset>
 
         <div class="btn-row">
@@ -181,21 +181,22 @@
       </div>
 
       <div data-state="nottarget" class="state-panel" hidden="">
-        <h2 tabindex="-1">We can't give a self-guided target</h2>
-        <p>Your estimated daily needs are at or below the lowest amount we use for a self-guided plan, so a calculator is the wrong tool here. Your doctor or a registered dietitian can set numbers that fit you.</p>
+        <h2 tabindex="-1">We can't suggest a weight-loss target</h2>
+        <p>Your body already uses about as few calories as the lowest amount we'll suggest without a doctor. Cutting below that isn't something a calculator should set for you. Your doctor or a registered dietitian can work out numbers that fit you.</p>
         <div class="btn-row"><button class="btn-link" type="button" data-back="2">Check my answers</button></div>
       </div>
 
       <!-- STEP 3 -->
       <form data-step="3" novalidate="" hidden="">
         <p class="step-label">Step 3 of 4</p>
-        <h2 class="step-title" tabindex="-1">Where should we send your results?</h2>
+        <h2 class="step-title" tabindex="-1">Almost there. What's your email?</h2>
         <div class="field" data-field="email">
           <label for="email">Email address</label>
           <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="email-note email-err">
           <p class="field-error" id="email-err">Enter an email address like name@example.com.</p>
         </div>
-        <p id="email-note">We'll email your results and a short weekly guide. Unsubscribe anytime.</p>
+        <p id="email-note">Your results show on the next screen. We'll also send a short welcome series that explains what the numbers mean. Unsubscribe anytime.</p>
+        <p class="privacy-note">We never share your email. <a href="/privacy/">Privacy policy</a></p>
         <div class="btn-row">
           <button class="btn btn-primary btn-block" type="submit">Show my results</button>
           <button class="btn-link" type="button" data-back="2">Back</button>
@@ -204,37 +205,35 @@
 
       <!-- STEP 4 -->
       <div data-step="4" hidden="">
-        <p class="step-label">Step 4 of 4</p>
         <h2 class="step-title" tabindex="-1">Your daily numbers</h2>
 
-        <div class="notice notice-doctor" role="note">
-          <p>Talk to your doctor before starting a new diet or changing the one you're on, especially if you take medication.</p>
-          <p>These numbers are for generally healthy adults.</p>
+        <div class="notice notice-doctor notice-light" role="note">
+          <p>These numbers are for generally healthy adults, so check with your doctor first if you take medicine or have a health condition.</p>
         </div>
 
-        <div class="results-grid">
-          <div class="stat stat-wide"><span class="stat-label">Calories</span><span class="stat-value"><span data-r="kcal">–</span><small>a day</small></span></div>
-          <div class="stat"><span class="stat-label">Protein</span><span class="stat-value"><span data-r="protein">–</span><small>g</small></span></div>
-          <div class="stat"><span class="stat-label">Fat</span><span class="stat-value"><span data-r="fat">–</span><small>g</small></span></div>
-          <div class="stat"><span class="stat-label">Carbs</span><span class="stat-value"><span data-r="carbs">–</span><small data-r="carbsunit">g</small></span></div>
-          <div class="stat"><span class="stat-label">Fiber</span><span class="stat-value"><span data-r="fiber">–</span><small data-r="fiberunit">g</small></span></div>
-        </div>
+        <dl class="results-grid">
+          <div class="stat stat-wide"><dt class="stat-label">Calories</dt><dd class="stat-value"><span data-r="kcal">–</span> <small>a day</small></dd></div>
+          <div class="stat"><dt class="stat-label">Protein</dt><dd class="stat-value"><span data-r="protein">–</span> <small>g</small></dd></div>
+          <div class="stat"><dt class="stat-label">Fat</dt><dd class="stat-value"><span data-r="fat">–</span> <small>g</small></dd></div>
+          <div class="stat"><dt class="stat-label">Carbs</dt><dd class="stat-value"><span data-r="carbs">–</span> <small data-r="carbsunit">g</small></dd></div>
+          <div class="stat"><dt class="stat-label">Fiber</dt><dd class="stat-value"><span data-r="fiber">–</span> <small data-r="fiberunit">g</small></dd></div>
+        </dl>
         <p class="results-basis" data-r="basis">Based on Pescatarian Mediterranean, aiming to lose weight slowly.</p>
 
         <div class="fish-box">
-          <h3>About 5 fish meals a week</h3>
-          <p>Build about 5 meals a week around fish or seafood. Make at least 2 of them oily fish such as salmon, sardines, trout or Atlantic mackerel. Canned and frozen fish count.</p>
+          <h3 data-r="fishhead">About 5 fish meals a week</h3>
+          <p data-r="fishbody">Build about 5 meals a week around fish or seafood. Make at least 2 of them oily fish such as salmon, sardines, trout or Atlantic mackerel. Canned and frozen fish count.</p>
           <h3 style="font-family:var(--f-serif);font-weight:600;font-size:1.25rem;margin-top:18px;">A sample day</h3>
           <ul class="sample-day" data-r="sample"></ul>
         </div>
 
         <section class="upgrade" aria-labelledby="up-title">
-          <h3 id="up-title">Your Full 7-Day Plan</h3>
+          <h3 id="up-title">Your full 7-day plan</h3>
           <p class="price">$29 USD, one-time</p>
           <p>Built on your numbers: a 7-day meal plan, grocery list, recipes, a weekly fish plan, an eating-out guide and questions to take to your doctor.</p>
-          <div class="field" style="margin:0 0 12px;"><label for="pd-code">Have a discount code?</label><input class="input" id="pd-code" name="coupon" autocomplete="off" autocapitalize="characters" data-coupon=""></div>
+          <div class="field" style="margin:0 0 12px;"><label for="pd-code">Have a discount code?</label><input class="input" id="pd-code" name="coupon" autocomplete="off" autocapitalize="characters" data-coupon="" aria-describedby="pd-code-err"></div>
           <button class="btn btn-primary btn-block" type="button" data-checkout="">Get my 7-day plan</button>
-          <p class="field-error" data-checkout-error="" role="alert"></p>
+          <p class="field-error" id="pd-code-err" data-checkout-error="" role="alert"></p>
           <p class="guarantee">If it isn't useful, email us within 30 days for a full refund.</p>
         </section>
 
@@ -306,9 +305,9 @@
 
 <section class="section wrap prose" id="how-it-works">
 <h2>How this calculator works</h2>
-<p>This calculator estimates how many calories your body uses in a day with the Mifflin-St Jeor equation. It starts with your age, sex, height and weight, then multiplies by your activity level: 1.2 if you're sedentary, 1.375 for light activity, 1.55 for moderate activity and 1.725 if you're very active.</p>
+<p>This calculator estimates how many calories your body uses in a day with the Mifflin-St Jeor equation. It starts with your age, sex, height and weight, then multiplies by your activity level: 1.2 if you mostly sit, 1.375 for light activity, 1.55 for moderate activity and 1.725 if you're very active.</p>
 <p>If you choose weight loss, the calculator sets your daily target 20% below your estimated needs. It never goes below 1,200 calories a day for women or 1,500 for men. If your needs are already at or below that floor, or you're already under a healthy weight, it won't give you a weight-loss target. Instead, it suggests talking with your doctor or a registered dietitian.</p>
-<p>Protein is set from your goal weight. Pescatarian Mediterranean aims for about 1.2 grams of protein per kilogram of goal weight. Pescatarian Low Carb, Pescatarian Keto and Pescatarian Carnivore aim for about 2 grams per kilogram of goal weight.</p>
+<p>Protein is set from your goal weight, or your current weight if you chose to maintain. Pescatarian Mediterranean aims for about 1.2 grams of protein per kilogram, and Pescatarian Low Carb, Keto and Carnivore aim for about 2 grams per kilogram. If that weight is well above the healthy range for your height, we use a weight in the healthy range instead, so protein doesn't come out higher than you need. On Pescatarian Mediterranean, protein also stays at or below about 35% of your calories.</p>
 <p>Carbs depend on the eating style you pick. Pescatarian Mediterranean sets fat at about 35% of your calories, and carbs make up the rest. Pescatarian Low Carb allows up to about 100 grams of carbs a day, Pescatarian Keto about 20 grams, and Pescatarian Carnivore close to zero.</p>
 <p>These numbers are estimates for generally healthy adults, not medical advice. If you take any medicine, are pregnant or breastfeeding, or have a heart, kidney or other health condition, please talk to your doctor before you change how you eat.</p>
 <p>Source: Mifflin MD, St Jeor ST, et al. A new predictive equation for resting energy expenditure in healthy individuals. American Journal of Clinical Nutrition. 1990;51(2):241-247.</p>

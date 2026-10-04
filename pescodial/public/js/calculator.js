@@ -14,26 +14,34 @@
 
   var STYLES = {
     med: { name: 'Pescatarian Mediterranean', protein: 1.2,
+      fish: ['About 5 fish meals a week', 'Build about 5 meals a week around fish or seafood. Make at least 2 of them oily fish such as salmon, sardines, trout or Atlantic mackerel. Canned and frozen fish count.'],
       sample: [['Breakfast', 'Greek yogurt with berries and a few walnuts'], ['Lunch', 'Lentil and vegetable soup, wholegrain bread'], ['Snack', 'An apple and a small handful of almonds'], ['Dinner', 'Baked salmon, roasted vegetables in olive oil, brown rice']] },
     lowcarb: { name: 'Pescatarian Low Carb', protein: 1.4,
+      fish: ['About 5 fish meals a week', 'Build about 5 meals a week around fish or seafood. Make at least 2 of them oily fish such as salmon, sardines, trout or Atlantic mackerel. Canned and frozen fish count.'],
       sample: [['Breakfast', 'Two eggs scrambled with spinach and feta'], ['Lunch', 'Tuna salad with olive oil, cucumber and chickpeas'], ['Snack', 'Cheese and cherry tomatoes'], ['Dinner', 'Grilled cod, green beans and a small baked sweet potato']] },
     keto: { name: 'Pescatarian Keto', protein: 1.4,
+      fish: ['Fish or seafood every day', 'Have fish or seafood at least once every day. Try to make oily fish such as salmon, sardines, trout or Atlantic mackerel part of at least 2 or 3 of those days. Canned and frozen fish count.'],
       sample: [['Breakfast', 'Eggs cooked in butter with avocado'], ['Lunch', 'Sardines on salad leaves with olive oil'], ['Snack', 'A few olives and some cheese'], ['Dinner', 'Pan-fried salmon with broccoli and garlic butter']] },
     carn: { name: 'Pescatarian Carnivore', protein: 1.6,
-      sample: [['Breakfast', 'Three eggs and smoked salmon'], ['Lunch', 'Canned mackerel or sardines'], ['Snack', 'Hard-boiled eggs'], ['Dinner', 'Seared scallops or shrimp cooked in butter']] }
+      fish: ['Fish or seafood every day', 'Have fish or seafood at least once every day. Try to make oily fish such as salmon, sardines, trout or Atlantic mackerel part of at least 2 or 3 of those days. Canned and frozen fish count.'],
+      sample: [['Breakfast', 'Three eggs and smoked salmon'], ['Lunch', 'Canned mackerel or sardines'], ['Snack', 'Hard-boiled eggs'], ['Dinner', 'Seared scallops or shrimp with a fried egg']] }
   };
 
+  var barRow = root.querySelector('.steps');
   function show(name) {
     steps.forEach(function (el) {
       el.hidden = el.getAttribute('data-step') !== name && el.getAttribute('data-state') !== name;
     });
     var n = parseInt(name, 10) || 2;
     bars.forEach(function (b, i) { b.classList.toggle('on', i < n); });
+    // The results are the payoff, not a step: no progress bar there (review #22).
+    if (barRow) barRow.hidden = name === '4';
     var active = root.querySelector('[data-step="' + name + '"], [data-state="' + name + '"]');
     var h = active && active.querySelector('[tabindex="-1"]');
-    if (h && name !== '1') h.focus({ preventScroll: true });
+    if (h) h.focus({ preventScroll: true });
+    // Every step change, Back included, brings the top of the calculator into view (review #12).
     var top = root.getBoundingClientRect().top + window.pageYOffset - 12;
-    if (name !== '1' && window.pageYOffset > top) window.scrollTo(0, top);
+    window.scrollTo(0, Math.max(0, top));
   }
 
   function val(form, n) {
@@ -42,20 +50,58 @@
   }
   function num(form, n) { var v = val(form, n); return v === '' ? NaN : Number(v); }
 
+  // Screen readers hear the error only while it is showing (review #26).
+  function describe(input, id, on) {
+    var ids = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter(function (x) { return x && x !== id; });
+    if (on) ids.push(id);
+    if (ids.length) input.setAttribute('aria-describedby', ids.join(' ')); else input.removeAttribute('aria-describedby');
+  }
   function setError(field, on, msg) {
     var el = f2.querySelector('[data-field="' + field + '"]') || f3.querySelector('[data-field="' + field + '"]');
     el.classList.toggle('has-error', on);
-    if (msg) el.querySelector('.field-error').textContent = msg;
+    var errEl = el.querySelector('.field-error');
+    if (msg) errEl.textContent = msg;
+    if (!errEl.id) errEl.id = field + '-err';
+    if (el.tagName === 'FIELDSET') { if (on) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid'); }
+    el.querySelectorAll('input').forEach(function (i) {
+      describe(i, errEl.id, on);
+      if (i.type !== 'radio') { if (on) i.setAttribute('aria-invalid', 'true'); else i.removeAttribute('aria-invalid'); }
+    });
+  }
+  function clearErrors() {
+    ['age', 'sex', 'height', 'weight', 'goalweight', 'activity'].forEach(function (f) { setError(f, false); });
+    f2.querySelector('.error-summary').hidden = true;
   }
 
   function units() { return val(f2, 'units') || 'imp'; }
 
+  // The unit UI always follows the checked radio: one place, used by the toggle and by Start over (review #1).
+  function applyUnits() {
+    var m = units() === 'met';
+    f2.querySelector('[data-units="imp"]').hidden = m;
+    f2.querySelector('[data-units="met"]').hidden = !m;
+    f2.querySelectorAll('[data-wunit]').forEach(function (u) { u.textContent = m ? 'kg' : 'lb'; });
+    shownUnits = units();
+  }
+  var shownUnits = 'imp';
+  function trim1(n) { return String(Math.round(n * 10) / 10); }
+  // Switching units converts what she already typed instead of relabelling it (review #6).
+  function convertUnits(to) {
+    var e = f2.elements;
+    if (to === 'met') {
+      var ft = num(f2, 'ft'), inch = num(f2, 'in');
+      if (!isNaN(ft)) e.cm.value = String(Math.round((ft * 12 + (isNaN(inch) ? 0 : inch)) * 2.54));
+      ['weight', 'goalweight'].forEach(function (n) { var v = num(f2, n); if (!isNaN(v)) e[n].value = trim1(v * 0.45359237); });
+    } else {
+      var cm = num(f2, 'cm');
+      if (!isNaN(cm)) { var tot = Math.round(cm / 2.54); e.ft.value = String(Math.floor(tot / 12)); e['in'].value = String(tot % 12); }
+      ['weight', 'goalweight'].forEach(function (n) { var v = num(f2, n); if (!isNaN(v)) e[n].value = String(Math.round(v / 0.45359237)); });
+    }
+  }
   f2.querySelectorAll('input[name="units"]').forEach(function (r) {
     r.addEventListener('change', function () {
-      var m = units() === 'met';
-      f2.querySelector('[data-units="imp"]').hidden = m;
-      f2.querySelector('[data-units="met"]').hidden = !m;
-      f2.querySelectorAll('[data-wunit]').forEach(function (u) { u.textContent = m ? 'kg' : 'lb'; });
+      if (units() !== shownUnits) convertUnits(units());
+      applyUnits();
     });
   });
 
@@ -80,13 +126,17 @@
     var cm;
     if (met) { cm = num(f2, 'cm'); }
     else {
-      var ft = num(f2, 'ft'), inch = num(f2, 'in'); if (isNaN(inch)) inch = 0;
+      var ft = num(f2, 'ft'), inch = num(f2, 'in');
+      // A blank inches box is not 0: ask for it (review #15). A typed 0 is fine.
+      var inchBlank = !isNaN(ft) && isNaN(inch);
       cm = (ft * 12 + inch) * 2.54;
       if (inch < 0 || inch > 11) cm = NaN;
     }
     var hBad = !(cm >= 120 && cm <= 230);
-    setError('height', hBad, met ? 'Enter your height in centimetres, between 120 and 230.' : 'Enter your height in feet and inches, for example 5 ft 4 in.');
-    if (hBad) errs.push([met ? 'cm' : 'ft', 'Height']);
+    var hMsg = met ? 'Enter your height in centimetres, between 120 and 230.' : 'Enter your height in feet and inches, for example 5 ft 4 in.';
+    if (!met && inchBlank) hMsg = "Enter inches too, even if it's 0.";
+    setError('height', hBad, hMsg);
+    if (hBad) errs.push([met ? 'cm' : (inchBlank ? 'in' : 'ft'), 'Height']);
 
     var k = met ? 1 : 0.45359237;
     var lo = met ? 30 : 70, hi = met ? 320 : 700, u = met ? 'kg' : 'lb';
@@ -98,9 +148,13 @@
     var goal = val(f2, 'goal');
     // Maintain: no goal weight to ask for, the current weight is the goal (Brew 2026-10-04).
     if (goal !== 'lose') gw = w;
-    var gBad = goal === 'lose' && !(gw >= lo && gw <= hi), gMsg = 'Enter your goal weight in ' + u + '.';
-    if (!gBad && goal === 'lose' && !wBad && gw >= w) { gBad = true; gMsg = 'For a weight-loss goal, your goal weight should be lower than your current weight. Or choose Maintain.'; }
-    if (!gBad && !hBad && goal === 'lose') {
+    // Already under BMI 18.5 and choosing Lose: no goal-weight check at all. She goes to the
+    // underweight panel, never to a "lowest goal" above her current weight (review #2).
+    var underweight = goal === 'lose' && !hBad && !wBad && (w * k) / Math.pow(cm / 100, 2) < 18.5;
+    var gBad = goal === 'lose' && !underweight && !(gw >= lo && gw <= hi), gMsg = 'Enter your goal weight in ' + u + '.';
+    if (underweight) gw = w;
+    if (!gBad && goal === 'lose' && !underweight && !wBad && gw >= w) { gBad = true; gMsg = 'For a weight-loss goal, your goal weight should be lower than your current weight. Or choose Maintain.'; }
+    if (!gBad && !hBad && goal === 'lose' && !underweight) {
       var gBmi = (gw * k) / Math.pow(cm / 100, 2);
       var minW = 18.5 * Math.pow(cm / 100, 2) / k;
       if (gBmi < 18.5) { gBad = true; gMsg = 'That goal is below the healthy weight range for your height. The lowest goal we can use is ' + Math.ceil(minW) + ' ' + u + '.'; }
@@ -125,7 +179,8 @@
       return { errs: errs, age: age };
     }
     sum.hidden = true;
-    return { errs: [], age: age, sex: sex, cm: cm, kg: w * k, goalKg: gw * k, goal: goal, act: Number(act) };
+    return { errs: [], age: age, sex: sex, cm: cm, kg: w * k, goalKg: gw * k, goal: goal, act: Number(act),
+             underweight: underweight, units: u, weightShown: w, goalShown: gw };
   }
 
   // The goal weight box only shows for a weight-loss goal.
@@ -144,15 +199,22 @@
     if (r.errs.length) { var s = f2.querySelector('.error-summary'); s.focus && s.setAttribute('tabindex', '-1'); s.focus(); return; }
     Object.assign(data, r);
     if (window.pdTrack) window.pdTrack('calc_numbers_entered', { style: data.style, goal: data.goal });
-    var bmi = r.kg / Math.pow(r.cm / 100, 2);
-    if (r.goal === 'lose' && bmi < 18.5) { show('underweight'); return; }
+    if (r.underweight) { show('underweight'); return; }
+    // Run the engine now: a suppressed target is shown here, before any email is asked
+    // for, so nobody signs up for results that never come (review #3).
+    var c = compute(data);
+    if (c.suppressed) {
+      if (window.pdTrack) window.pdTrack('calc_no_target', { style: data.style });
+      show(c.suppressed === 'underweight_weight_loss' ? 'underweight' : 'nottarget');
+      return;
+    }
     show('3');
   });
 
   root.querySelector('[data-maintain]').addEventListener('click', function () {
     f2.querySelector('input[name="goal"][value="maintain"]').checked = true;
     f2.elements.goalweight.value = f2.elements.weight.value;
-    data.goal = 'maintain'; data.goalKg = data.kg;
+    data.goal = 'maintain'; data.goalKg = data.kg; data.goalShown = data.weightShown;
     show('3');
   });
 
@@ -163,6 +225,9 @@
     setError('email', bad);
     if (bad) { f3.elements.email.focus(); return; }
     data.email = em;
+    // Belt and braces: the target was checked at step 2; if it is somehow suppressed now,
+    // show the refusal and do NOT sign her up.
+    if (compute(data).suppressed) { renderResults(); if (window.pdTrack) window.pdTrack('calc_no_target', { style: data.style }); return; }
     // Sign-up goes to the shared worker: pesco-* routes to the PescoDial
     // newsletter + drip (tests/pd-subscribe-routing). Results show either way;
     // a failed sign-up never blocks someone's numbers.
@@ -171,7 +236,7 @@
         body: JSON.stringify({ email: em, site: 'pd', source: 'calculator', diet_type: DIET[data.style] || DIET.med }) })
         .catch(function () {});
     } catch (err) { /* offline */ }
-    if (renderResults() === false) { if (window.pdTrack) window.pdTrack('calc_no_target', { style: data.style }); return; }
+    renderResults();
     show('4');
     if (window.pdTrack) window.pdTrack('calc_results_viewed', { style: data.style, goal: data.goal });
     if (window.pdTrack) window.pdTrack('generate_lead', { method: 'calculator', style: data.style });
@@ -199,7 +264,31 @@
     // Fiber guide only where it is sourced (Pescatarian Mediterranean: 14 g per 1,000 kcal).
     var fiber = d.style === 'med' ? Math.round(m.calories / 1000 * 14) : null;
     return { kcal: m.calories, protein: m.protein, fat: m.fat, carbs: m.carbs, carbsUnit: 'g',
-             fiber: fiber, fiberUnit: fiber === null ? '' : 'g', floorApplied: m.floorApplied, style: s };
+             fiber: fiber, fiberUnit: fiber === null ? '' : 'g', floorApplied: m.floorApplied, style: s,
+             tdee: m.tdee, deficitPct: m.requestedDeficitPct, floor: m.selfServiceFloor, proteinBasisKg: m.proteinBasisKg };
+  }
+
+  // Results explainer (Sarah, pescodial/drafts/pages/calculator-copy-fixes.md #7). Every number
+  // comes from the engine result: tdee, the floor, and the weight protein was actually set from.
+  function basisText(r, d) {
+    var u = d.units || 'lb';
+    var typedKg = d.goalKg || d.kg;
+    var basisKg = r.proteinBasisKg;
+    // The engine swaps in a BMI-25 or BMI-18.5 reference weight in some cases; then say so.
+    var swapped = typeof basisKg === 'number' && Math.abs(basisKg - typedKg) > 0.05;
+    var shown = d.goal === 'lose' ? d.goalShown : d.weightShown;
+    var protein;
+    if (swapped) {
+      var b = u === 'kg' ? Math.round(basisKg) : Math.round(basisKg / 0.453592);
+      protein = 'Your protein is based on ' + fmt(b) + ' ' + u + ', a weight in the healthy range for your height.';
+    } else {
+      protein = 'Your protein is based on your ' + (d.goal === 'lose' ? 'goal' : 'current') + ' weight of ' + fmt(shown) + ' ' + u + '.';
+    }
+    var lead = 'Based on ' + r.style.name + '. You burn about ' + fmt(r.tdee) + ' calories a day';
+    if (d.goal !== 'lose') return lead + ", so that's your target for keeping your weight steady. " + protein;
+    if (r.floorApplied) return lead + '. A ' + r.deficitPct + '% cut would take you under ' + fmt(r.floor) + ", the lowest we'll suggest without a doctor, so we kept you at " + fmt(r.floor) + '. ' + protein;
+    if (swapped) return lead + '. Your target of ' + fmt(r.kcal) + ' is ' + r.deficitPct + '% less than that. ' + protein;
+    return lead + '. Your target of ' + fmt(r.kcal) + ' is ' + r.deficitPct + '% less than that, and your protein is based on your goal weight of ' + fmt(shown) + ' ' + u + '.';
   }
 
   function renderResults() {
@@ -210,10 +299,12 @@
     set('carbs', r.carbs); set('carbsunit', r.carbsUnit);
     set('fiber', r.fiber); set('fiberunit', r.fiberUnit);
     var fiberVal = root.querySelector('[data-r="fiber"]');
-    var fiberCard = fiberVal && fiberVal.closest('.stat, .card, li, div');
+    var fiberCard = fiberVal && fiberVal.closest('.stat');
     if (fiberCard) fiberCard.hidden = r.fiber === null;
+    root.querySelector('.results-grid').classList.toggle('no-fiber', r.fiber === null);
     root.querySelector('[data-r="carbs"]').style.fontSize = typeof r.carbs === 'string' ? '1.6rem' : '';
-    set('basis', 'Based on ' + r.style.name + ', ' + (data.goal === 'lose' ? 'aiming to lose weight slowly' + (r.floorApplied ? ', held at the lowest daily amount we use for a self-guided plan.' : '.') : 'aiming to keep your weight steady.'));
+    set('basis', basisText(r, data));
+    set('fishhead', r.style.fish[0]); set('fishbody', r.style.fish[1]);
     root.querySelector('[data-r="sample"]').innerHTML = r.style.sample.map(function (m) {
       return '<li><b>' + m[0] + '</b><span>' + m[1] + '</span></li>';
     }).join('');
@@ -223,13 +314,16 @@
     b.addEventListener('click', function () { show(b.getAttribute('data-back')); });
   });
   root.querySelector('[data-restart]').addEventListener('click', function () {
-    f2.reset(); f3.reset(); f1.reset(); data = {}; show('1');
+    f2.reset(); f3.reset(); f1.reset(); data = {};
+    applyUnits(); clearErrors(); syncGoalWeight();
+    var ce = root.querySelector('[data-checkout-error]'); if (ce) ce.textContent = '';
+    show('1');
   });
 
   // Demo states for review
   var demo = new URLSearchParams(location.search).get('demo');
   if (demo) {
-    data = { style: 'med', age: 58, sex: 'f', cm: 163, kg: 77, goalKg: 68, goal: 'lose', act: 1.375 };
+    data = { style: 'med', age: 58, sex: 'f', cm: 163, kg: 77, goalKg: 68, goal: 'lose', act: 1.375, units: 'kg', weightShown: 77, goalShown: 68 };
     if (demo === 'results') { renderResults(); show('4'); }
     else if (demo === 'under18') show('under18');
     else if (demo === 'underweight') show('underweight');
@@ -251,34 +345,48 @@
   }
 
   var checkoutBtn = root.querySelector('[data-checkout]');
+  // A checkout problem keeps her on the results, next to the box or button that caused it,
+  // with the message visible and focus on the place to fix it (review #11).
+  function checkoutProblem(msg, target) {
+    var err = root.querySelector('[data-checkout-error]');
+    if (root.querySelector('[data-step="4"]').hidden) show('4');
+    if (err) err.textContent = msg;
+    var codeEl = root.querySelector('[data-coupon]');
+    if (codeEl) { if (target === codeEl) codeEl.setAttribute('aria-invalid', 'true'); else codeEl.removeAttribute('aria-invalid'); }
+    checkoutBtn.disabled = false;
+    (target || checkoutBtn).scrollIntoView({ block: 'center' });
+    (target || checkoutBtn).focus({ preventScroll: true });
+  }
   if (checkoutBtn) checkoutBtn.addEventListener('click', function () {
     var err = root.querySelector('[data-checkout-error]');
     if (err) err.textContent = '';
     if (window.pdTrack) window.pdTrack('upgrade_click', { style: data.style });
     var codeEl = root.querySelector('[data-coupon]');
     var code = codeEl ? codeEl.value.trim().toUpperCase() : '';
+    checkoutBtn.disabled = true;
     // A code is checked by the worker (/validate-coupon) and applied by the worker
     // at checkout; the page never sets a price. discount_percent is sent only so
     // the worker can take its own Stripe-verified free path for a 100% code.
+    // The code is checked BEFORE the checkout panel shows, so a bad code never
+    // flashes "Taking you to secure checkout" and jumps her to the top.
     var check = code
       ? fetch(API + '/validate-coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code }) })
           .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       : Promise.resolve(null);
-    show('checkout-wait');
     check.then(function (c) {
-      if (c && !c.ok) { var e = new Error('coupon'); e.userMsg = 'That code is not valid. Check it, or leave the box empty.'; throw e; }
+      if (c && !c.ok) { checkoutProblem('That code is not valid. Check it, or leave the box empty.', codeEl); return; }
+      if (codeEl) codeEl.removeAttribute('aria-invalid');
+      show('checkout-wait');
       var body = { email: data.email, form_data: formData(data), tier_id: 'bundle', site: 'pd' };
       if (c) { body.coupon_code = code; if (Number(c.j.percent) === 100) body.discount_percent = 100; }
-      return fetch(API + '/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    })
-      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (res) {
-        var url = res.j && (res.j.url || res.j.checkout_url);
-        if (res.ok && url) { if (res.j.session_uuid) store(res.j.session_uuid); if (window.pdTrack) window.pdTrack('begin_checkout', { value: 29, currency: 'USD' }); window.location.assign(url); return; }
-        show('4');
-        if (err) err.textContent = (res.j && res.j.message) || 'We could not start checkout. Please try again in a minute.';
-      })
-      .catch(function (e) { show('4'); if (err) err.textContent = (e && e.userMsg) || 'We could not reach checkout. Please check your connection and try again.'; });
+      return fetch(API + '/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          var url = res.j && (res.j.url || res.j.checkout_url);
+          if (res.ok && url) { if (res.j.session_uuid) store(res.j.session_uuid); if (window.pdTrack) window.pdTrack('begin_checkout', { value: 29, currency: 'USD' }); window.location.assign(url); return; }
+          checkoutProblem((res.j && res.j.message) || 'We could not start checkout. Please try again in a minute.');
+        });
+    }).catch(function () { checkoutProblem('We could not reach checkout. Please check your connection and try again.'); });
   });
 
   var params = new URLSearchParams(window.location.search);

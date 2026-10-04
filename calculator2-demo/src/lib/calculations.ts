@@ -28,6 +28,8 @@ export interface CanonicalMacros {
   fat: number | null
   carbs: number | null
   tdee: number
+  /** Weight (kg) protein was set from, when the branch uses one; explanation only. */
+  proteinBasisKg?: number | null
   /** True when maintenance is at or below the self-service floor: no deficit target. */
   targetSuppressed: boolean
   suppressionReason?: string
@@ -129,6 +131,11 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
   }
 
   let protein: number, fat: number, carbs: number
+  // The weight protein was actually set from (kg): the goal or current weight, or
+  // the BMI-25 / BMI-18.5 reference when one is substituted. Pescatarian and
+  // low-carb branches only; null elsewhere. Read-only output for explanations
+  // (PescoDial results line); it changes no number.
+  let proteinBasisKg: number | null = null
   const isLowCarbDiet = ['carnivore', 'lion', 'pescatarian', 'keto', 'strict carnivore', 'lowcarb', 'low-carb', 'low carb'].includes(diet)
 
   if (diet === 'pesco-mediterranean') {
@@ -140,7 +147,6 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
     const bmi = weightKg / (heightM * heightM)
     const goalLb = Number(fd.goalWeight) || 0
     const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0
-    let proteinBasisKg: number
     if (goalKg > 0) {
       const goalBmi = goalKg / (heightM * heightM)
       const floorKg = 18.5 * heightM * heightM
@@ -164,7 +170,6 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
     // means the old path, unchanged, so existing sessions price identically.
     const goalLb = Number(fd.goalWeight) || 0
     const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0
-    let proteinBasisKg: number
     if (goalKg > 0) {
       const goalBmi = goalKg / (heightM * heightM)
       const floorKg = 18.5 * heightM * heightM
@@ -227,6 +232,7 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
     floorApplied,
     requestedDeficitPct,
     effectiveDeficitPct,
+    proteinBasisKg,
   }
 }
 
