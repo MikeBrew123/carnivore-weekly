@@ -45,7 +45,16 @@ const COPY = {
   cardNotes: { cal: 'Three meals and a snack', pro: 'Fish, eggs, yogurt, beans', fat: 'Olive oil, nuts, fish', carb: 'Vegetables, fruit, grains, beans', fib: 'Beans, vegetables, whole grains' },
   numbersHidden: "Based on your health answers, we've left the daily numbers out of your plan. That isn't a judgment about your health. Your doctor or a registered dietitian can see your full picture, and they're the right people to set your numbers. Until then, use the fish plan, the plate guide and the grocery list, and take the questions at the back of this plan to your next visit.",
   bloodThinner: 'Because you told us you take a blood thinner, try to keep the amount of leafy greens you eat about the same from week to week. Ask your prescriber before you change how much of them you eat.',
-  qualified: "Based on your health answers, we've set your calories at about what your body uses now, not the lower weight-loss number you picked. If you'd like to eat less to lose weight, make that decision with your doctor first.",
+  // Medical warning box (Sarah, gap-copy.md, Brew 2026-10-04). One line per concern.
+  warn: {
+    heading: "Why we're flagging your numbers",
+    intro: "These numbers are a starting point, and your health answers mean there are a few things to check with a professional before you use them.",
+    bloodThinner: "Your meal plan has leafy greens like spinach, salad greens and broccoli in different amounts on different days, and the vitamin K in those foods can change how warfarin-type blood thinners work. Try to keep the greens you eat about the same from week to week, and ask your prescriber before you change how much of them you eat.",
+    diabetes: "On some diabetes medicines, eating less than usual or eating fewer carbs can make your blood sugar drop too low. This plan may change both, so talk to your doctor or pharmacist before you start.",
+    otherMedicine: "What you eat can change how some medicines work, including some blood pressure medicines. Ask your doctor or pharmacist whether anything in this plan could affect the medicine you take.",
+    maintenance: "Because of your health answers, we set your calories at about what your body uses now, not the lower weight-loss number you picked. Eating less to lose weight is a decision for you and your doctor to make together, not one this plan makes for you.",
+    close: "Before you start, bring this page and the questions at the back of this plan to your doctor, pharmacist or a registered dietitian.",
+  },
   plate: [
     ['var(--olive-2)', 'Half the plate:', 'vegetables or salad'],
     ['var(--sea-2)', 'A quarter:', 'fish, eggs or other protein, about the size of your palm'],
@@ -279,7 +288,7 @@ function renderNumbers(v) {
           <div class="num-note">${COPY.cardNotes.cal}</div>
         </div>${card('pro', 'Protein', fmtInt(m.protein_grams), 'g', COPY.cardNotes.pro)}${card('fat', 'Fat', fmtInt(m.fat_grams), 'g', COPY.cardNotes.fat)}${card('carb', 'Carbs', fmtInt(m.carbs_grams), 'g', COPY.cardNotes.carb)}${card('fib', 'Fiber', fmtInt(v.avgFiber), 'g', 'Your 7-day plan averages this. ' + COPY.cardNotes.fib)}
       </div>
-      ${v.qualified ? `<div class="calm-note" role="note" style="display:grid"><div class="calm-mark" aria-hidden="true">~</div><div><p>${COPY.qualified}</p></div></div>` : ''}
+      ${renderWarningBox(v)}
       <div class="split">
         <h4>Where your calories come from</h4>
         <div class="split-bar" role="img" aria-label="Protein ${pp} percent, fat ${fp} percent, carbs ${cp} percent">
@@ -297,6 +306,37 @@ function renderNumbers(v) {
       </div>${plate}
     </div>
   </section>`;
+}
+
+/**
+ * Which concerns this reader's answers raise (Brew, 2026-10-04). Empty for a reader
+ * who told us nothing that needs one, and then no warning box renders at all.
+ * Keyword flags here only choose what the reader is told; they never decide whether
+ * a number prints (pdNumbersHidden does that, from the blunt signals).
+ */
+export function pdConcerns(v) {
+  const ctx = v.ctx || {};
+  const c = [];
+  if (ctx.anticoagulant) c.push('bloodThinner');
+  if (ctx.glucoseLowering) c.push('diabetes');
+  if (ctx.hasDeclaredMedications && !ctx.anticoagulant && !ctx.glucoseLowering) c.push('otherMedicine');
+  if (v.maintenance) c.push('maintenance');
+  return c;
+}
+
+function renderWarningBox(v) {
+  const concerns = pdConcerns(v);
+  if (!concerns.length) return '';
+  return `
+      <div class="warn-box" role="note" data-pd-warning>
+        <div class="notice-icon" aria-hidden="true">!</div>
+        <div>
+          <h3>${COPY.warn.heading}</h3>
+          <p>${COPY.warn.intro}</p>
+          <ul>${concerns.map(k => `<li data-concern="${k}">${COPY.warn[k]}</li>`).join('')}</ul>
+          <p>${COPY.warn.close}</p>
+        </div>
+      </div>`;
 }
 
 function seafoodOf(meal) {
@@ -508,7 +548,7 @@ function renderSources(v) {
  * Render the PD report sections, in order, as HTML fragments keyed 1..9.
  * The caller decides everything that matters for safety and passes it in:
  *   v.hidden           numbers withheld (no cards, no portions, no amounts)
- *   v.qualified        numbers shown at maintenance, with the note
+ *   v.maintenance      numbers shown at maintenance (deficit removed); adds that line to the warning box
  *   v.macros           the macro set this reader may be shown (null when hidden)
  *   v.week / v.grocery the week and list built for this variant
  *   v.ctx              the medical context (only narrows doctor questions and notes)
@@ -594,6 +634,9 @@ p{margin:0;text-wrap:pretty}ul,ol{margin:0;padding-left:1.2em}li+li{margin-top:.
 .notice-icon{width:52px;height:52px;border-radius:50%;background:var(--terra);color:#fff;display:grid;place-items:center;font:400 1.9rem var(--display)}
 .notice .kicker{font:700 .78rem var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--terra);margin-bottom:4px}
 .notice p{font:700 1.1rem/1.45 var(--sans);color:var(--ink)}
+.warn-box{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;background:var(--terra-soft);border:2px solid var(--terra);border-radius:10px;padding:22px 24px;break-inside:avoid}
+.warn-box h3{font:400 1.6rem/1.1 var(--display);color:var(--terra);margin-bottom:10px}
+.warn-box p{font-size:1.05rem}.warn-box ul{margin:12px 0;padding-left:1.2em}.warn-box li{font-size:1.05rem}
 .numbers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .num-card{border-radius:10px;padding:18px 18px 20px;display:grid;gap:6px;align-content:start;background:var(--bg);border-top:6px solid var(--bar)}
 .num-card.cal{grid-column:1/-1;background:var(--sea);color:#fff;border:0;grid-template-columns:1fr auto;align-items:center;padding:24px 26px}

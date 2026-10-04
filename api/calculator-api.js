@@ -4208,15 +4208,14 @@ const PD_FOOD_CATEGORY = {
  * When the PD report withholds numbers. One function, read by the report and by its
  * tests, so the trigger cannot drift between them.
  *  - calorieGuidance 'suppressed' (declared kidney disease): the CW rule, inherited.
- *  - a declared blood thinner: a sized plan schedules different amounts of leafy
- *    greens on different days, and vitamin K is the prescriber's call (CLAUDE.md,
- *    "Suppress, never substitute"). No numbers, dishes only, and a note to keep
- *    greens steady and ask the prescriber.
- * Everyone else gets numbers; 'qualified' readers get them at maintenance through
- * applyCalorieGuidance(), exactly as on the CW report.
+ * Everyone else gets numbers. Brew, 2026-10-04: readers with a medical concern
+ * (blood thinner, diabetes medicine, any other medicine, a heart or blood-pressure
+ * condition) SEE their numbers, at maintenance through applyCalorieGuidance(), with
+ * a warning box that says why there is a concern and to talk to a professional.
+ * Only those readers see it (renderPescoMedSections, pdConcerns).
  */
 function pdNumbersHidden(ctx, macros) {
-  return ctx.calorieGuidance === 'suppressed' || !!ctx.restrictProteinTarget || !!ctx.anticoagulant
+  return ctx.calorieGuidance === 'suppressed' || !!ctx.restrictProteinTarget
     || !!(macros && macros.targetSuppressed);
 }
 
@@ -4251,7 +4250,7 @@ function generatePescoMedReport(data, { now = new Date() } = {}) {
   const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Los_Angeles' });
 
   const sections = renderPescoMedSections({
-    hidden, qualified: !hidden && !!macros.deficitNeutralized, macros, week, grocery, ctx,
+    hidden, maintenance: !hidden && !!macros.deficitNeutralized, macros, week, grocery, ctx,
     avgFiber, name, date, isRecipeExcluded, isTextExcluded,
   });
   // The same render-time claim gate as every CW section, on the visible text.

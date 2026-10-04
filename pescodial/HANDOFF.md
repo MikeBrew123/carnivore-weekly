@@ -14,13 +14,13 @@ Branch `pescodial-build`. Brew approved everything below; ledger entries are in 
 
 ## Done 2026-10-04 (branch `pescodial-build-sr4qkr`)
 - Meal engine: all checks pass; per-meal portion limits (fish 4 oz+, one fruit, eggs <=3); zero-fish week refused.
-- Paid report for `pesco-mediterranean` inside `generateAllReports` (`api/pd-report.js` renders only). Numbers hidden for kidney disease and blood thinners; medication/diabetes get maintenance numbers. `tests/pd-report.test.mjs`.
+- Paid report for `pesco-mediterranean` inside `generateAllReports` (`api/pd-report.js` renders only). Numbers hidden for kidney disease only; medicine, diabetes and blood thinners get maintenance numbers plus a warning box that says why (Brew 2026-10-04). `tests/pd-report.test.mjs`.
 - PD branding: report email from `reports@pescodial.com`, resume link on pescodial.com, CW abandon email never sent to PD readers, claim gate covers pesco/Mediterranean.
 - Drip HTML in `data/drip-emails/pd/` (generator `pescodial/scripts/build_pd_drip.py`), workflow step behind `vars.PD_DRIP_ENABLED` (off). `tests/test_pd_drip.py`.
 - Guard suite 29/29 plus the PD drip test, all in calculator-guard CI.
 
 ## Waiting on Brew
-- Blood-thinner readers get the numbers-hidden plan (session call, logged in decisions.md). Hide numbers for every declared medication too? One line in `pdNumbersHidden`.
+- CLAUDE.md still says declared medication means no numbers; Brew's 2026-10-04 call (numbers plus a warning) overrides it for PD. Update CLAUDE.md if that should be the rule everywhere.
 - Report photos: cover and recipe photo slots are a plain pattern for now.
 - PD abandon-recovery copy (Sarah) and the go to send it.
 - Flip `PD_DRIP_ENABLED` when the drip may send.

@@ -70,8 +70,9 @@ async function check(name, fn) {
 const ok = (cond, msg) => { if (!cond) throw new Error(msg); };
 
 const HIDDEN_NOTE = "we've left the daily numbers out of your plan";
-const QUALIFIED_NOTE = "we've set your calories at about what your body uses now";
 const BLOOD_THINNER_NOTE = 'keep the amount of leafy greens you eat about the same';
+// The warning box (Brew, 2026-10-04): one line per concern, only for readers who have one.
+const concerns = html => [...html.matchAll(/data-concern="([a-zA-Z]+)"/g)].map(m => m[1]);
 const Q_CALORIES = 'What daily calories and protein should I aim for?';
 const Q_DIABETES = 'could any of my diabetes medicines make my blood sugar drop too low?';
 const Q_THINNER = 'I take a blood thinner.';
@@ -85,7 +86,8 @@ await check('A1. healthy reader sees the guarded numbers, not raw ones', async (
   ok(nums.includes(`Protein ${m.protein_grams} g`), `protein card does not show ${m.protein_grams} g`);
   ok(nums.includes(`Fat ${m.fat_grams} g`), 'fat card wrong');
   ok(nums.includes(`Carbs ${m.carbs_grams} g`), 'carb card wrong');
-  ok(!nums.includes(QUALIFIED_NOTE) && !nums.includes(HIDDEN_NOTE), 'a healthy reader got a medical note');
+  ok(!/data-pd-warning/.test(healthy.html) && !nums.includes(HIDDEN_NOTE), 'a healthy reader got a medical warning');
+  ok(!/WARN_[A-Z]/.test(healthy.html), 'warning copy placeholder in the report');
 });
 
 await check('A2. 7-day table has portions and the grocery list has amounts', async () => {
@@ -115,25 +117,44 @@ await check('A4. five fish meals, five recipes, each recipe labelled with its da
   ok(/Recipe 1 · Monday dinner/.test(r) && /Recipe 2 · Tuesday lunch/.test(r), 'recipe day labels');
 });
 
-await check('B1. medication declared: maintenance numbers and the qualified note', async () => {
+await check('B1. medication declared: maintenance numbers and a warning saying why', async () => {
   const r = await render({ medications: 'lisinopril' });
   const m = calculateMacros({ ...BASE, medications: 'lisinopril' });
   const nums = text(section(r.html, 'numbers'));
   ok(nums.includes(`Calories per day ${m.tdee.toLocaleString('en-US')}`), `calories should be maintenance ${m.tdee}`);
   ok(!nums.includes(`Calories per day ${m.calories.toLocaleString('en-US')}`), 'deficit target still printed');
-  ok(nums.includes(QUALIFIED_NOTE), 'qualified note missing');
+  ok(JSON.stringify(concerns(r.html)) === '["otherMedicine","maintenance"]', `concerns ${concerns(r.html)}`);
   ok(!r.html.includes(HIDDEN_NOTE), 'medication alone must not hide the numbers');
 });
 
-await check('B2. diabetes medicine adds the low-blood-sugar question', async () => {
+await check('B2. diabetes medicine: warning names low blood sugar, plus the question', async () => {
   const r = await render({ medications: 'metformin' });
   ok(r.html.includes(Q_DIABETES), 'diabetes question missing');
-  ok(text(section(r.html, 'numbers')).includes(QUALIFIED_NOTE), 'qualified note missing');
+  ok(JSON.stringify(concerns(r.html)) === '["diabetes","maintenance"]', `concerns ${concerns(r.html)}`);
+});
+
+await check('B3. blood thinner: numbers shown, warning names leafy greens, plus the question', async () => {
+  const r = await render({ medications: 'warfarin' });
+  const nums = text(section(r.html, 'numbers'));
+  ok(/Calories per day \d/.test(nums) && !nums.includes(HIDDEN_NOTE), 'numbers hidden for a blood thinner');
+  ok((section(r.html, 'meals').match(/class="portion"/g) || []).length === 28, 'portions missing');
+  ok(JSON.stringify(concerns(r.html)) === '["bloodThinner","maintenance"]', `concerns ${concerns(r.html)}`);
+  ok(r.html.includes(Q_THINNER), 'blood thinner question missing');
+});
+
+await check('B4. heart condition, no medicine: maintenance line only, no medicine line', async () => {
+  const r = await render({ otherConditions: 'high blood pressure' });
+  ok(JSON.stringify(concerns(r.html)) === '["maintenance"]', `concerns ${concerns(r.html)}`);
+});
+
+await check('B5. medication with a maintain goal: warning without the calorie line', async () => {
+  const r = await render({ medications: 'lisinopril', goal: 'maintain', deficit: 0 });
+  ok(JSON.stringify(concerns(r.html)) === '["otherMedicine"]', `concerns ${concerns(r.html)}`);
 });
 
 for (const [label, over, extraNote, extraQ] of [
   ['C. kidney disease', { otherConditions: 'CKD stage 3' }, null, null],
-  ['D. blood thinner', { medications: 'warfarin' }, BLOOD_THINNER_NOTE, Q_THINNER],
+  ['D. kidney disease and a blood thinner', { otherConditions: 'CKD stage 3', medications: 'warfarin' }, BLOOD_THINNER_NOTE, Q_THINNER],
 ]) {
   await check(`${label}: numbers hidden everywhere, dishes only`, async () => {
     const r = await render(over);

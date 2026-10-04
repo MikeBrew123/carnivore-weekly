@@ -59,3 +59,49 @@ Because you told us you take a blood thinner, try to keep the amount of leafy gr
 - **Mexican:** grilled mahi-mahi or the fish of the day, fajita-style with the vegetables, salsa and guacamole.
 - **Steakhouse:** the fish of the day or grilled salmon, with a vegetable side.
 - **When you travel:** Grocery stores sell smoked salmon, hard-boiled eggs and ready-made salads.
+
+## Medical warning box (Brew 2026-10-04)
+
+<!-- Shown under the number cards ONLY when the reader declared a medicine. Healthy readers see nothing. Each bullet renders only when its trigger applies, so each stands alone. -->
+
+### Warning box heading
+
+<!-- No factual claim needing a source. -->
+
+Why we're flagging your numbers
+
+### Warning box intro
+
+<!-- No factual claim needing a source. -->
+
+These numbers are a starting point, and your health answers mean there are a few things to check with a professional before you use them.
+
+### Warning: blood thinner
+
+<!-- Source 5: MedlinePlus "Taking warfarin" (vitamin K in leafy greens and similar foods can change how warfarin works; keep these foods steady; talk to your provider before changing your diet). The claim that the plan varies greens day to day describes the meal plan output; engineering to confirm before print. -->
+
+Your meal plan has leafy greens like spinach, salad greens and broccoli in different amounts on different days, and the vitamin K in those foods can change how warfarin-type blood thinners work. Try to keep the greens you eat about the same from week to week, and ask your prescriber before you change how much of them you eat.
+
+### Warning: diabetes medicine
+
+<!-- Source 7: MedlinePlus "Low blood sugar" (some diabetes medicines can cause low blood sugar; eating less or fewer carbohydrates than usual is a listed cause). -->
+
+On some diabetes medicines, eating less than usual or eating fewer carbs can make your blood sugar drop too low. This plan may change both, so talk to your doctor or pharmacist before you start.
+
+### Warning: other medicine
+
+<!-- Sources 5 and 6: MedlinePlus "Taking warfarin" (food can change how some medicines work) and FDA "Grapefruit Juice and Some Drugs Don't Mix" (includes some blood pressure medicines). -->
+
+What you eat can change how some medicines work, including some blood pressure medicines. Ask your doctor or pharmacist whether anything in this plan could affect the medicine you take.
+
+### Warning: calories at maintenance
+
+<!-- No factual claim needing a source. Describes what the software did with the reader's answers. Overlaps "Qualified numbers note" above; render one or the other, not both. -->
+
+Because of your health answers, we set your calories at about what your body uses now, not the lower weight-loss number you picked. Eating less to lose weight is a decision for you and your doctor to make together, not one this plan makes for you.
+
+### Warning box close
+
+<!-- No factual claim needing a source. Points to doctor-questions.md at the back of the report. -->
+
+Before you start, bring this page and the questions at the back of this plan to your doctor, pharmacist or a registered dietitian.
