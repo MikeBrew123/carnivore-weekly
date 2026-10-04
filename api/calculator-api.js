@@ -56,9 +56,9 @@ import {
   applyCalorieGuidance,
 } from './medical-context.js';
 import { resolveGoal, detectGoalConflict } from './goal-semantics.js';
-import { buildPescoMedWeek, buildPescoMedDishWeek, groceryFromWeek, groceryNamesFromWeek } from './pd-meal-plan.js';
+import { buildPescoWeek, buildPescoDishWeek, groceryFromWeek, groceryNamesFromWeek } from './pd-meal-plan.js';
 import { PD_FOODS } from './pd-foods.js';
-import { renderPescoMedSections, pdSectionText, wrapPdReportHTML } from './pd-report.js';
+import { renderPescoSections, pdSectionText, wrapPdReportHTML, pdStyleLabel } from './pd-report.js';
 
 // Version marker for deployment verification
 const DEPLOY_VERSION = "v2026-06-07-resend-webhook";
@@ -1559,15 +1559,28 @@ async function handleStep4Submission(request, env) {
       return createErrorResponse('PAYMENT_REQUIRED', 'Payment required to access step 4', 403);
     }
 
-    // Merge Step 4 data with existing form data
+    // Once a report exists its answers are final: a later write could otherwise erase
+    // a declared medicine and unlock numbers the report withheld.
+    const existingReport = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_reports?session_id=eq.${encodeURIComponent(session.id)}&select=id&limit=1`,
+      { headers: { 'apikey': env.SUPABASE_SERVICE_ROLE_KEY, 'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` } }
+    );
+    if (existingReport.ok) {
+      const rows = await existingReport.json().catch(() => []);
+      if (Array.isArray(rows) && rows.length) {
+        return createErrorResponse('ANSWERS_LOCKED', 'Your plan has already been built from your answers.', 409);
+      }
+    }
+
+    // Merge only step-4 answers over the stored form data (allowlist).
     const existingFormData = session.form_data || {};
+    const step4Answers = {};
+    for (const [k, v] of Object.entries(formData || {})) if (STEP4_FIELDS.has(k)) step4Answers[k] = v;
     const updatedFormData = {
       ...existingFormData,
-      ...formData,
+      ...step4Answers,
     };
-
     console.log('[handleStep4Submission] Updating session with Step 4 data');
-    console.log('[handleStep4Submission] Step 4 firstName:', formData.firstName, 'Step 4 lastName:', formData.lastName);
 
     // Prepare update payload - include first_name and last_name if provided
     const updatePayload = {
@@ -1756,6 +1769,12 @@ async function handleReportInit(request, env) {
 
     const session = sessions[0];
     console.log('[handleReportInit] Processing report for session:', session.id || session_id);
+
+    // A report is something someone paid for. Before 2026-10-03 this endpoint built
+    // one for any session id it was handed, paid or not.
+    if (!['completed', 'success'].includes(String(session.payment_status || '').toLowerCase())) {
+      return createErrorResponse('PAYMENT_REQUIRED', 'This plan has not been paid for yet.', 402);
+    }
     console.log('[handleReportInit] Session form_data keys:', session.form_data ? Object.keys(session.form_data) : 'NULL');
     console.log('[handleReportInit] Session form_data sample:', JSON.stringify({
       weight: session.form_data?.weight,
@@ -1798,11 +1817,11 @@ async function handleReportInit(request, env) {
     // Call COMPREHENSIVE generator for full 60-80 page report (13 sections)
     console.log('=== FORM DATA FOR PERSONALIZATION ===');
     console.log('Session ID:', session.id);
-    console.log('Email:', session.email);
-    console.log('Form Data:', JSON.stringify(session.form_data, null, 2));
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
     console.log('Selected Protocol:', session.selectedProtocol);
-    console.log('Allergies:', session.allergies);
-    console.log('Avoid Foods:', session.avoidFoods);
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
     console.log('Health Conditions:', session.healthConditions);
     console.log('=====================================');
 
@@ -1835,9 +1854,9 @@ async function handleReportInit(request, env) {
     correctedData.macros = macros;
 
     console.log('=== CORRECTED DATA MAPPING ===');
-    console.log('Corrected firstName:', correctedData.firstName);
-    console.log('Corrected allergies:', correctedData.allergies);
-    console.log('Corrected avoidFoods:', correctedData.avoidFoods);
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
+    // (removed: health/PII logging, security red team 2026-10-03)
     console.log('Calculated macros:', macros);
     console.log('=================================');
 
@@ -1976,17 +1995,6 @@ async function handleReportInit(request, env) {
       status: 'generated',
       report_html: finalReportHTML,
       message: 'Report generated successfully. Download your protocol below.',
-      DEBUG: {
-        form_data_keys: session.form_data ? Object.keys(session.form_data) : null,
-        weight_from_session: session.form_data?.weight,
-        age_from_session: session.form_data?.age,
-        session_form_data_type: typeof session.form_data,
-        has_fallback_template: reportHTML.includes('Your personalized report is being generated'),
-        has_claude_content: reportHTML.includes('claude-3-5-sonnet'),
-        report_html_length: reportHTML.length,
-        report_includes_recommendations: reportHTML.includes('<div class=\"recommendations\">'),
-        claude_api_error: session._claude_api_error || null,
-      },
     }, 200);
   } catch (err) {
     // The detail stays server side, where it is useful. It does not go to the reader.
@@ -2038,8 +2046,10 @@ async function handleEmailReport(request, env) {
     const body = await parseJsonBody(request);
     const { session_id, email } = body;
 
-    if (!session_id || !email) {
-      return createErrorResponse('MISSING_PARAMS', 'session_id and email are required', 400);
+    // email may be omitted: the copy always goes to the stored owner address, so
+    // the page never has to hold or echo it (security red team 2026-10-03).
+    if (!session_id) {
+      return createErrorResponse('MISSING_PARAMS', 'session_id is required', 400);
     }
 
     // Fetch report from calculator_reports table (reports are stored there, not on session)
@@ -2070,7 +2080,7 @@ async function handleEmailReport(request, env) {
     // NOT NULL), so a blank one means the row is malformed and we refuse rather
     // than guess. Everything below compares against this, never against the body.
     const ownerEmail = String(report.email || '').trim().toLowerCase();
-    const requested = String(email).trim().toLowerCase();
+    const requested = email ? String(email).trim().toLowerCase() : String(report.email || '').trim().toLowerCase();
     if (!ownerEmail) {
       console.error(`[Email Report] DENIED session=${session_id}: report row has no owner email`);
       return createErrorResponse('NOT_AUTHORIZED', 'Report not available for this request', 403);
@@ -2202,10 +2212,25 @@ function buildReportData(session) {
     // selectedProtocol is the content FAMILY every section branches on (always
     // capitalised); dietLabel is what the reader sees; dietProfile carries both.
     ...(() => {
-      const dietProfile = resolveDietProfile(session.diet_type || form.diet);
+      const dietProfile = resolveDietProfile(pickReportDiet(session.diet_type, form.diet));
       return { dietProfile, dietLabel: dietProfile.label, selectedProtocol: dietProfile.family };
     })()
   };
+}
+
+/**
+ * Which diet the report is for, from the two places it is stored: the session's
+ * diet_type column (Step 2) and the form's own diet field. diet_type wins, as before,
+ * EXCEPT that a PescoDial style (pesco-*) in either one wins over a non-PescoDial
+ * diet in the other (red team 2026-10-03): a mismatch must never send a PescoDial
+ * buyer to the CW report. Two different PescoDial styles: diet_type still wins.
+ */
+function pickReportDiet(sessionDiet, formDiet) {
+  const isPd = d => String(d || '').toLowerCase().trim().indexOf('pesco-') === 0
+    || /^pesco /.test(String(d || '').toLowerCase().trim());
+  if (isPd(sessionDiet)) return sessionDiet;
+  if (isPd(formDiet)) return formDiet;
+  return sessionDiet || formDiet;
 }
 
 /**
@@ -4035,7 +4060,7 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
   // Carnivore Weekly branding anywhere in the document.
   if (isPescoMedReport(userData)) {
     const name = [userData.firstName, userData.lastName].filter(Boolean).join(' ').trim() || 'You';
-    return wrapPdReportHTML(markdownContent, { name });
+    return wrapPdReportHTML(markdownContent, { name, label: pdStyleLabel(pescoStyleOf(userData)) });
   }
   // Cover names the reader's own diet (ISSUE-086), never a hard-coded one.
   const reportDietLabel = userData.dietLabel || resolveDietProfile(userData.selectedProtocol).label;
@@ -4154,7 +4179,7 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
     <div class="cover-logo">
       <img src="https://carnivoreweekly.com/images/logo.png" alt="Carnivore Weekly Logo" />
     </div>
-    <h1 class="cover-title">Your Complete Personalized<br>${reportDietLabel} Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${userData.firstName}${userData.lastName ? ' ' + userData.lastName : ''}</span>` : ''}</h1>
+    <h1 class="cover-title">Your Complete Personalized<br>${reportDietLabel} Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${escHtml(userData.firstName)}${userData.lastName ? ' ' + escHtml(userData.lastName) : ''}</span>` : ''}</h1>
     <div class="cover-date">Generated on ${generatedDate}</div>
   </div>
   <div class="content-start report-content">
@@ -4191,15 +4216,27 @@ class ReportValidationError extends Error {
   }
 }
 
-// ===== PescoDial: Pescatarian Mediterranean report (Brew, 2026-10-03) =====
-// The 7-day plan, fish plan, grocery list and fixed copy from Brew's design. This is
-// a branch of generateAllReports(), not a second generator: same input gate, same
-// medical context, same calorie guidance, same four copy gates, same delivery path.
+// ===== PescoDial report, all four styles (Brew, 2026-10-03) =====
+// The 7-day plan, fish plan, grocery list and fixed copy from Brew's design, for
+// Pescatarian Mediterranean, Low Carb, Keto and Carnivore. This is a branch of
+// generateAllReports(), not a second generator: same input gate, same medical
+// context, same calorie guidance, same four copy gates, same delivery path.
+const PD_REPORT_STYLES = ['pesco-mediterranean', 'pesco-lowcarb', 'pesco-keto', 'pesco-carnivore'];
 
+/** The reader's PescoDial style key, or null for any other diet. */
+function pescoStyleOf(data) {
+  // EITHER source naming a PescoDial style routes to the PescoDial report, so a
+  // diet_type / form.diet mismatch can never hand a PD buyer the CW AI report.
+  const d = data || {};
+  const keys = [
+    d.dietProfile && d.dietProfile.key,
+    resolveDietProfile(pickReportDiet(d.diet_type, d.diet) || '').key,
+  ];
+  return keys.find(k => PD_REPORT_STYLES.includes(k)) || null;
+}
+// Name kept: every PescoDial style now takes this branch, not only Mediterranean.
 function isPescoMedReport(data) {
-  const key = (data && data.dietProfile && data.dietProfile.key)
-    || resolveDietProfile((data && (data.diet_type || data.diet)) || '').key;
-  return key === 'pesco-mediterranean';
+  return pescoStyleOf(data) !== null;
 }
 
 // Plan foods carry a category so the existing allergy rules in shouldFilterOutFood()
@@ -4209,6 +4246,8 @@ const PD_FOOD_CATEGORY = {
   shrimp: 'shellfish',
   greek_yogurt: 'dairy', milk: 'dairy', feta: 'dairy', parmesan: 'dairy', string_cheese: 'dairy',
   eggs: 'eggs',
+  mackerel: 'fish', smoked_salmon: 'fish', halibut: 'fish', scallops: 'shellfish',
+  butter: 'dairy', cheddar: 'dairy', cream_cheese: 'dairy', heavy_cream: 'dairy', whole_greek_yogurt: 'dairy',
 };
 
 /**
@@ -4221,43 +4260,83 @@ const PD_FOOD_CATEGORY = {
  * a warning box that says why there is a concern and to talk to a professional.
  * Only those readers see it (renderPescoMedSections, pdConcerns).
  */
-function pdNumbersHidden(ctx, macros) {
+function pdNumbersHidden(ctx, macros, style) {
   return ctx.calorieGuidance === 'suppressed' || !!ctx.restrictProteinTarget
-    || !!(macros && macros.targetSuppressed);
+    || !!(macros && macros.targetSuppressed)
+    // Pregnancy or breastfeeding (Brew, 2026-10-03): no numbers, no deficit, no
+    // sized plan, in every style.
+    || !!ctx.pregnancy
+    // A glucose-lowering medicine (or declared diabetes) on Keto or Carnivore (Brew,
+    // 2026-10-03): cutting carbs that far on insulin, an SGLT2 or a sulfonylurea is a
+    // prescriber's call. Mediterranean and Low Carb keep their numbers at maintenance.
+    || (!!ctx.glucoseLowering && PD_VERY_LOW_CARB.includes(style));
+}
+const PD_VERY_LOW_CARB = ['pesco-keto', 'pesco-carnivore'];
+// Pregnancy: the report's own pregnancy box (FDA/EPA) allows 2 to 3 servings of fish a
+// week, and less for a reader under about 165 pounds, so the dish week shows 2.
+const PD_PREGNANCY_FISH_MEALS = 2;
+
+/**
+ * Kidney disease on Keto or Carnivore: no meal calendar, no grocery list and no sized
+ * recipes, the CW rule for a renal reader. A dish week for these styles is every meal
+ * built on fish, eggs or cheese, and the carnivore plate says to add more if still
+ * hungry. Substituting the Mediterranean week instead would be choosing a different
+ * diet for a kidney patient (it brings beans and potatoes), which is clinical
+ * judgement; suppress, never substitute. The protein question goes to their doctor
+ * or renal dietitian through the numbers-hidden note and the doctor questions.
+ */
+function pdNoMealPlan(ctx, style) {
+  return !!ctx.renal && PD_VERY_LOW_CARB.includes(style);
 }
 
 function generatePescoMedReport(data, { now = new Date() } = {}) {
+  const style = pescoStyleOf(data);
+  if (!style) throw new Error('generatePescoMedReport: not a PescoDial style.');
   const ctx = deriveMedicalContext(data);
   const allergies = (data.allergies || '').toLowerCase();
   const restrictions = withMedicalFoodExclusions((data.avoidFoods || data.foodRestrictions || '').toLowerCase(), ctx);
   const isExcluded = (key, f) => shouldFilterOutFood(
     { name: `${key.replace(/_/g, ' ')} ${(f && f.usda) || ''}`, category: PD_FOOD_CATEGORY[key] || '' },
     allergies, restrictions);
-  const isTextExcluded = text => shouldFilterOutFood({ name: String(text), category: '' }, allergies, restrictions);
+  // Copy that says "shellfish" outright is shellfish copy, so a shellfish allergy
+  // drops it as it drops "shrimp" (shouldFilterOutFood matches the category).
+  const isTextExcluded = text => shouldFilterOutFood(
+    { name: String(text), category: /\bshellfish\b/i.test(String(text)) ? 'shellfish' : '' }, allergies, restrictions);
   const isRecipeExcluded = r =>
     r.foods.some(k => isExcluded(k, PD_FOODS[k])) ||
     (r.shellfish && isExcluded('shrimp', PD_FOODS.shrimp)) ||
     r.lines.some(line => shouldFilterOutFood({ name: line, category: '' }, allergies, restrictions));
 
-  const hidden = pdNumbersHidden(ctx, data.macros);
+  const hidden = pdNumbersHidden(ctx, data.macros, style);
+  const noPlan = pdNoMealPlan(ctx, style);
   // Never sized from a withheld value: the hidden variant is built with no macro set at all.
   const macros = hidden ? null : applyCalorieGuidance(data.macros || {}, ctx);
-  const week = hidden ? buildPescoMedDishWeek(isExcluded) : buildPescoMedWeek(macros, isExcluded);
+  const dishOpts = ctx.pregnancy ? { maxFishMeals: PD_PREGNANCY_FISH_MEALS } : {};
+  const week = hidden ? buildPescoDishWeek(style, isExcluded, dishOpts) : buildPescoWeek(style, macros, isExcluded);
   if (!week.days.length) {
+    // Two different refusals (red team 2026-10-03): every fish ruled out, or every
+    // option for one meal ruled out. Each says what actually happened.
+    // TODO(Sarah): PD_MEAL_NOT_POSSIBLE wording is engineering's, modelled on her
+    // "No fish possible message" (gap-copy.md); needs her pass before launch.
+    const noMeal = week.refusal === 'no-meal';
     throw new ReportValidationError({
-      code: 'PD_PLAN_NOT_POSSIBLE',
+      code: noMeal ? 'PD_MEAL_NOT_POSSIBLE' : 'PD_PLAN_NOT_POSSIBLE',
       field: 'allergies',
-      message: "Your answers about allergies and foods to avoid rule out every fish we build our plans around, so we haven't made your pescatarian week. Please reply to the email that came with your order or contact us, and we'll work it out with you and make it right.",
+      message: noMeal
+        ? "Your answers about allergies and foods to avoid rule out every option we have for at least one of your meals, so we haven't made your pescatarian week. Please reply to the email that came with your order or contact us, and we'll work it out with you and make it right."
+        : "Your answers about allergies and foods to avoid rule out every fish we build our plans around, so we haven't made your pescatarian week. Please reply to the email that came with your order or contact us, and we'll work it out with you and make it right.",
       warnings: week.warnings,
     });
   }
-  const grocery = hidden ? groceryNamesFromWeek(week) : groceryFromWeek(week);
+  const grocery = noPlan ? null : hidden ? groceryNamesFromWeek(week) : groceryFromWeek(week);
   const avgFiber = hidden ? null : week.days.reduce((a, d) => a + d.totals.fiber, 0) / week.days.length;
   const name = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || 'You';
   const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Los_Angeles' });
 
-  const sections = renderPescoMedSections({
-    hidden, maintenance: !hidden && !!macros.deficitNeutralized, macros, week, grocery, ctx,
+  const sections = renderPescoSections({
+    style, hidden, noPlan, maintenance: !hidden && !!macros.deficitNeutralized, macros,
+    // No meal plan: the week is not passed at all, so nothing can render from it.
+    week: noPlan ? null : week, grocery, ctx,
     avgFiber, name, date, isRecipeExcluded, isTextExcluded,
   });
   // The same render-time claim gate as every CW section, on the visible text.
@@ -4350,8 +4429,8 @@ async function generateAllReports(data, apiKey) {
   // Fail closed before a single section is written or a single token is spent.
   assertReportInputsCoherent(data);
 
-  // PescoDial Pescatarian Mediterranean: its own section set (Brew's design), built
-  // inside this generator so it passes the same gates as every other report.
+  // PescoDial (all four styles): its own section set (Brew's design), built inside
+  // this generator so it passes the same gates as every other report.
   if (isPescoMedReport(data)) return generatePescoMedReport(data);
 
   // CRITICAL VALIDATION: Force diet to lowercase and log source
@@ -6213,6 +6292,9 @@ async function handleGetSession(request, env) {
   try {
     const url = new URL(request.url);
     const sessionId = url.searchParams.get('id');
+    if (sessionId && !UUID_RE.test(sessionId)) {
+      return createErrorResponse('INVALID_SESSION_ID', 'Invalid session id', 400);
+    }
 
     console.log('[handleGetSession] Fetching session:', sessionId);
 
@@ -6260,14 +6342,17 @@ async function handleGetSession(request, env) {
     }
 
     const session = sessions[0];
-    console.log('[handleGetSession] Session retrieved:', { id: session.id, email: session.email });
+    // The calculator needs its own inputs back after Stripe; it never needs the
+    // health answers, which are written after this point and stay server-side.
+    const publicFormData = { ...(session.form_data || {}) };
+    for (const k of HEALTH_FIELDS) delete publicFormData[k];
 
     return createSuccessResponse({
       success: true,
       id: session.id,
       email: session.email,
       first_name: session.first_name,
-      form_data: session.form_data,
+      form_data: publicFormData,
       payment_status: session.payment_status,
       created_at: session.created_at,
     }, 200);
@@ -6309,6 +6394,9 @@ async function handleCreateCheckout(request, env) {
     // Same typo correction as the calculator, so the receipt and report go where step 1 saved.
     const email = rawEmail ? correctEmailTypo(rawEmail).email : rawEmail;
     const finalFormData = form_data || formData;
+    // PescoDial orders (pesco-* diet) come back to PescoDial, priced the same but
+    // named for PescoDial on Stripe's page (Brew, 2026-10-03: $29 USD).
+    const orderSite = brandSiteForDiet(finalFormData && finalFormData.diet);
 
     // Map tier_id to Stripe price_id
     const tierPriceMap = {
@@ -6520,7 +6608,9 @@ async function handleCreateCheckout(request, env) {
       // Return success response with direct redirect (no Stripe)
       return createSuccessResponse({
         success: true,
-        checkout_url: `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`,
+        checkout_url: orderSite === 'pd'
+          ? `${pdReturnBase(request)}/calculator/?payment=success&session_id=${sessionUUID}#payment-success`
+          : `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`,
         session_uuid: sessionUUID,
         message: 'Free checkout completed (100% discount)',
       }, 200);
@@ -6534,13 +6624,17 @@ async function handleCreateCheckout(request, env) {
     let baseDomain = 'https://carnivoreweekly.com';
 
     // For localhost testing only, use the request origin
-    if (requestOrigin && requestOrigin.includes('localhost')) {
+    if (requestOrigin && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(requestOrigin)) {
       baseDomain = requestOrigin;
       console.log('[Worker] Detected localhost - using request origin:', baseDomain);
     }
 
-    const successUrlWithId = `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`;
-    const cancelUrlWithId = `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}#upgrade-cta`;
+    const successUrlWithId = orderSite === 'pd'
+      ? `${pdReturnBase(request)}/calculator/?payment=success&session_id=${sessionUUID}#payment-success`
+      : `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`;
+    const cancelUrlWithId = orderSite === 'pd'
+      ? `${pdReturnBase(request)}/calculator/?payment=cancelled&session_id=${sessionUUID}`
+      : `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}#upgrade-cta`;
 
     console.log('Sending to Stripe:');
     console.log('  success_url:', successUrlWithId);
@@ -6569,7 +6663,16 @@ async function handleCreateCheckout(request, env) {
     // Build form-encoded body with proper Stripe format
     const formBody = new URLSearchParams();
     formBody.append('payment_method_types[]', 'card');
-    formBody.append('line_items[0][price]', stripePriceId);
+    if (orderSite === 'pd') {
+      // Same server-side price ($29 USD), PescoDial name on Stripe's checkout page.
+      // The amount is a constant here, never read from the request.
+      formBody.append('line_items[0][price_data][currency]', 'usd');
+      formBody.append('line_items[0][price_data][unit_amount]', String(PD_PLAN_PRICE_CENTS));
+      formBody.append('line_items[0][price_data][product_data][name]', 'Your Full 7-Day Plan (PescoDial)');
+      formBody.append('line_items[0][price_data][product_data][description]', 'Personal pescatarian 7-day plan: meal plan, grocery list, recipes, fish plan.');
+    } else {
+      formBody.append('line_items[0][price]', stripePriceId);
+    }
     formBody.append('line_items[0][quantity]', '1');
     formBody.append('mode', 'payment');
 
@@ -8662,10 +8765,35 @@ const REPORT_BRANDS = {
     from: 'PescoDial <reports@pescodial.com>',
     replyTo: 'pescodial@carnivoreweekly.com',
     reportSubject: 'Your PescoDial 7-day plan is ready', // Sarah, gap-copy.md
-    resumeBase: 'https://pescodial.com/calculator/',
+    // www, not the apex: the apex is a GoDaddy forward that drops path and query.
+    resumeBase: 'https://www.pescodial.com/calculator/',
     signature: 'PescoDial',
   },
 };
+// Step-4 answers a client may write (CW Step4HealthProfile + PescoDial health form).
+// Anything else (diet, numbers, email) was fixed at checkout and cannot be changed
+// through step 4 (security red team 2026-10-03).
+const STEP4_FIELDS = new Set([
+  'firstName', 'lastName', 'medications', 'conditions', 'otherConditions', 'symptoms', 'otherSymptoms',
+  'allergies', 'avoidFoods', 'dairyTolerance', 'previousDiets', 'whatWorked', 'carnivoreExperience',
+  'cookingSkill', 'mealPrepTime', 'budget', 'familySituation', 'workTravel', 'goals', 'biggestChallenge',
+  'additionalNotes', 'primaryGoalConfirmed', 'primaryGoalConfirmedAt', 'mealsPerDay',
+]);
+// Health answers never leave the server through /get-session.
+const HEALTH_FIELDS = ['medications', 'conditions', 'healthConditions', 'otherConditions', 'symptoms',
+  'otherSymptoms', 'allergies', 'avoidFoods', 'additionalNotes', 'biggestChallenge', 'lastName'];
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const escHtml = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const PD_PLAN_PRICE_CENTS = 2900; // $29 USD, same as the CW report (Brew, 2026-10-03)
+const PD_RETURN_ORIGINS = ['https://www.pescodial.com', 'https://pescodial.pages.dev'];
+// Where a PescoDial buyer comes back to after Stripe. Only known PescoDial origins
+// (or localhost for testing) are honoured; anything else gets the live site.
+function pdReturnBase(request) {
+  const origin = (request && request.headers && request.headers.get('origin')) || '';
+  if (origin === 'https://pescodial.com') return 'https://www.pescodial.com';
+  if (PD_RETURN_ORIGINS.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
+  return 'https://www.pescodial.com';
+}
 function brandSiteForDiet(diet) {
   return String(diet || '').toLowerCase().trim().indexOf('pesco') === 0 ? 'pd' : 'cw';
 }

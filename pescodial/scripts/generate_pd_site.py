@@ -40,8 +40,12 @@ PAGES = {
     "about.html": "about/",
     "privacy.html": "privacy/",
     "contact.html": "contact/",
+    "404.html": "404.html",
 }
-NOINDEX_PAGES = set()
+# Pages kept out of the sitemap. /calculator/ duplicates the homepage tool, so it
+# points its canonical at / (CANONICAL_TO) instead of competing with it.
+NOINDEX_PAGES = {"404.html", "calculator.html"}
+CANONICAL_TO = {"calculator.html": ""}
 
 # Foreign domains that must never appear as same-site links in PD output.
 FOREIGN_HOSTS = ("carnivoreweekly.com", "ketodial.com")
@@ -49,6 +53,10 @@ FOREIGN_HOSTS = ("carnivoreweekly.com", "ketodial.com")
 # Until Brew approves launch, every page is noindex and robots.txt disallows all,
 # so the *.pages.dev preview can never be indexed ahead of the real domain.
 PRELAUNCH = True
+
+# The $29 upgrade card stays hidden until Brew approves selling (Stripe test buy
+# done, every style's report verified). Tests render with --paid-preview.
+PAID_REPORT_LIVE = True
 
 
 def is_published(post):
@@ -67,14 +75,14 @@ def load_pd_posts(data_path):
     return pd
 
 
-def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT):
+def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT, paid_preview=False):
     out_dir = Path(out_dir)
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES)),
         autoescape=select_autoescape(["html", "xml"]),
     )
     posts = load_pd_posts(data_path)
-    ctx = {"domain": DOMAIN, "posts": posts, "build_date": date.today().isoformat(), "prelaunch": PRELAUNCH}
+    ctx = {"domain": DOMAIN, "posts": posts, "build_date": date.today().isoformat(), "prelaunch": PRELAUNCH, "paid_report_live": PAID_REPORT_LIVE or paid_preview}
 
     if out_dir.exists():
         shutil.rmtree(out_dir)
@@ -84,9 +92,9 @@ def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT):
 
     urls = []
     for tpl, path in PAGES.items():
-        dest = out_dir / path / "index.html" if path else out_dir / "index.html"
+        dest = out_dir / path if path.endswith(".html") else (out_dir / path / "index.html" if path else out_dir / "index.html")
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(env.get_template(f"pages/{tpl}").render(**ctx, canonical=f"{DOMAIN}/{path}"), encoding="utf-8")
+        dest.write_text(env.get_template(f"pages/{tpl}").render(**ctx, canonical=f"{DOMAIN}/{CANONICAL_TO.get(tpl, path)}"), encoding="utf-8")
         if tpl not in NOINDEX_PAGES:
             urls.append((f"{DOMAIN}/{path}", ctx["build_date"]))
 
@@ -101,7 +109,10 @@ def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT):
     guides = out_dir / "guides" / "index.html"
     guides.parent.mkdir(parents=True, exist_ok=True)
     guides.write_text(env.get_template("guides.html").render(**ctx, canonical=f"{DOMAIN}/guides/"), encoding="utf-8")
-    urls.append((f"{DOMAIN}/guides/", ctx["build_date"]))
+    # An empty guides index is thin content: keep it out of the sitemap (and noindex,
+    # see guides.html) until the first guide is published.
+    if posts:
+        urls.append((f"{DOMAIN}/guides/", ctx["build_date"]))
 
     (out_dir / "sitemap.xml").write_text(env.get_template("sitemap.xml").render(urls=urls), encoding="utf-8")
     robots = "User-agent: *\nDisallow: /\n" if PRELAUNCH else f"User-agent: *\nAllow: /\n\nSitemap: {DOMAIN}/sitemap.xml\n"
@@ -130,8 +141,9 @@ def main():
     ap = argparse.ArgumentParser(description="Render pescodial.com")
     ap.add_argument("--data", default=str(DEFAULT_DATA))
     ap.add_argument("--out", default=str(DEFAULT_OUT))
+    ap.add_argument("--paid-preview", action="store_true", help="show the upgrade card (tests only; never deploy)")
     args = ap.parse_args()
-    posts, urls = render_site(args.data, args.out)
+    posts, urls = render_site(args.data, args.out, paid_preview=args.paid_preview)
     problems = check_output(args.out, posts)
     if problems:
         print("❌ PescoDial output check failed:")

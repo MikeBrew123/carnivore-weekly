@@ -318,7 +318,7 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .btn-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 24px; }
 
 /* Sections */
-.section { padding: 40px 0; }
+.section { padding-block: 40px; }
 .section + .section { border-top: 1px solid var(--line); }
 .eyebrow { font: 700 .9375rem/1.3 var(--f-ui); color: var(--olive); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
 .lead { font: 400 1.25rem/1.5 var(--f-serif); color: var(--muted); }

@@ -62,6 +62,7 @@
   f1.addEventListener('submit', function (e) {
     e.preventDefault();
     data.style = val(f1, 'style') || 'med';
+    if (window.pdTrack) window.pdTrack('calc_style_chosen', { style: data.style });
     show('2');
   });
 
@@ -131,6 +132,7 @@
     if (!isNaN(r.age) && r.age >= 1 && r.age < 18) { show('under18'); return; }
     if (r.errs.length) { var s = f2.querySelector('.error-summary'); s.focus && s.setAttribute('tabindex', '-1'); s.focus(); return; }
     Object.assign(data, r);
+    if (window.pdTrack) window.pdTrack('calc_numbers_entered', { style: data.style, goal: data.goal });
     var bmi = r.kg / Math.pow(r.cm / 100, 2);
     if (r.goal === 'lose' && bmi < 18.5) { show('underweight'); return; }
     show('3');
@@ -158,8 +160,10 @@
         body: JSON.stringify({ email: em, site: 'pd', source: 'calculator', diet_type: DIET[data.style] || DIET.med }) })
         .catch(function () {});
     } catch (err) { /* offline */ }
-    if (renderResults() === false) return;
+    if (renderResults() === false) { if (window.pdTrack) window.pdTrack('calc_no_target', { style: data.style }); return; }
     show('4');
+    if (window.pdTrack) window.pdTrack('calc_results_viewed', { style: data.style, goal: data.goal });
+    if (window.pdTrack) window.pdTrack('generate_lead', { method: 'calculator', style: data.style });
   });
 
   function round(n, to) { return Math.max(0, Math.round(n / to) * to); }
@@ -220,6 +224,138 @@
     else if (demo === 'underweight') show('underweight');
     else if (demo === 'errors') { show('2'); f2.elements.age.value = '5x'; f2.elements.weight.value = '40'; validate2(); }
   }
+
+  // ===== PAID PLAN =====
+  // Contract: same worker endpoints as the CW calculator. Price is set on the
+  // server; form_data.diet (pesco-*) is what makes the worker treat this as a
+  // PescoDial order (return URL, emails, report design). Never send a price.
+  var KEY = 'pd_assessment';
+  function store(v) { try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch (e) {} }
+  function stored() { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } }
+
+  function formData(d) {
+    var f = engineInput(d);
+    return { diet: f.diet, sex: f.sex, age: f.age, weight: Math.round(f.weight * 10) / 10, heightCm: Math.round(f.heightCm * 10) / 10,
+             lifestyle: f.lifestyle, goal: f.goal, goalWeight: Math.round(f.goalWeight * 10) / 10, email: d.email, site: 'pd' };
+  }
+
+  var checkoutBtn = root.querySelector('[data-checkout]');
+  if (checkoutBtn) checkoutBtn.addEventListener('click', function () {
+    var err = root.querySelector('[data-checkout-error]');
+    if (err) err.textContent = '';
+    if (window.pdTrack) window.pdTrack('upgrade_click', { style: data.style });
+    var codeEl = root.querySelector('[data-coupon]');
+    var code = codeEl ? codeEl.value.trim().toUpperCase() : '';
+    // A code is checked by the worker (/validate-coupon) and applied by the worker
+    // at checkout; the page never sets a price. discount_percent is sent only so
+    // the worker can take its own Stripe-verified free path for a 100% code.
+    var check = code
+      ? fetch(API + '/validate-coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code }) })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      : Promise.resolve(null);
+    show('checkout-wait');
+    check.then(function (c) {
+      if (c && !c.ok) { var e = new Error('coupon'); e.userMsg = 'That code is not valid. Check it, or leave the box empty.'; throw e; }
+      var body = { email: data.email, form_data: formData(data), tier_id: 'bundle', site: 'pd' };
+      if (c) { body.coupon_code = code; if (Number(c.j.percent) === 100) body.discount_percent = 100; }
+      return fetch(API + '/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        var url = res.j && (res.j.url || res.j.checkout_url);
+        if (res.ok && url) { if (res.j.session_uuid) store(res.j.session_uuid); if (window.pdTrack) window.pdTrack('begin_checkout', { value: 29, currency: 'USD' }); window.location.assign(url); return; }
+        show('4');
+        if (err) err.textContent = (res.j && res.j.message) || 'We could not start checkout. Please try again in a minute.';
+      })
+      .catch(function (e) { show('4'); if (err) err.textContent = (e && e.userMsg) || 'We could not reach checkout. Please check your connection and try again.'; });
+  });
+
+  var params = new URLSearchParams(window.location.search);
+  var payState = params.get('payment');
+  var assessmentId = params.get('session_id') || params.get('assessment_id') || stored();
+
+  function waitForPayment(tries) {
+    fetch(API + '/get-session?id=' + encodeURIComponent(assessmentId))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var st = j && (j.payment_status || (j.session && j.session.payment_status));
+        if (st === 'completed' || st === 'success') {
+          var fd = (j.form_data || (j.session && j.session.form_data)) || {};
+          // The page reloaded after Stripe: the order's email comes back from the server,
+          // and email-report only sends to that stored address.
+          data.email = j.email || fd.email || data.email;
+          var first = root.querySelector('#pd-first'); if (first && fd.firstName) first.value = fd.firstName;
+          show('5'); return;
+        }
+        if (tries > 20) {
+          root.querySelector('[data-paid-wait-msg]').textContent = 'This is taking longer than usual. Your payment is safe: we have emailed you a link to come back and finish.';
+          return;
+        }
+        setTimeout(function () { waitForPayment(tries + 1); }, 3000);
+      })
+      .catch(function () { setTimeout(function () { waitForPayment(tries + 1); }, 4000); });
+  }
+
+  if (assessmentId && (payState === 'success' || payState === 'resume' || payState === 'free')) {
+    store(assessmentId);
+    if (window.pdTrack) window.pdTrack('payment_returned', { state: payState });
+    show('paid-wait');
+    waitForPayment(0);
+  } else if (payState === 'cancelled') {
+    store(null);
+  }
+
+  var f5 = root.querySelector('[data-step="5"]');
+  if (f5) f5.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var g = function (n) { var el = f5.elements[n]; return el ? String(el.value || '').trim() : ''; };
+    var conditions = Array.prototype.slice.call(f5.querySelectorAll('input[name="conditions"]:checked')).map(function (c) { return c.value; });
+    var meds = g('medications');
+    if (f5.querySelector('input[name="bloodthinner"]:checked')) meds = (meds ? meds + '; ' : '') + 'blood thinner';
+    var other = g('otherConditions');
+    if (f5.querySelector('input[name="pregnant"]:checked')) other = (other ? other + '; ' : '') + 'pregnant or breastfeeding';
+    var payload = { firstName: g('firstName'), medications: meds, conditions: conditions.length ? conditions : ['none'],
+                    otherConditions: other, allergies: g('allergies'), avoidFoods: g('avoidFoods') };
+    var err = f5.querySelector('[data-plan-error]'); err.textContent = '';
+    show('building');
+    if (window.pdTrack) window.pdTrack('plan_answers_submitted', {});
+    fetch(API + '/api/v1/calculator/step/4', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assessment_id: assessmentId, data: payload }) })
+      .then(function (r) { if (!r.ok) throw new Error('step4 ' + r.status); return r.json(); })
+      .then(function () {
+        return fetch(API + '/api/v1/calculator/report/init', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: assessmentId }) });
+      })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) {
+          show('5'); err.textContent = (res.j && res.j.message) || 'We could not build your plan. Please try again.'; return;
+        }
+        if (res.j.report_html) return showReport(res.j.report_html, res.j.access_token);
+        if (res.j.access_token) {
+          return fetch(API + '/api/v1/calculator/report/' + res.j.access_token + '/content').then(function (r) { return r.text(); })
+            .then(function (html) { showReport(html, res.j.access_token); });
+        }
+        throw new Error('no report');
+      })
+      .catch(function () { show('paid-error'); });
+  });
+
+  function showReport(html, token) {
+    var frame = root.querySelector('[data-report-frame]');
+    frame.srcdoc = html;
+    show('report');
+    if (window.pdTrack) window.pdTrack('plan_viewed', {});
+    store(null);
+    root.querySelector('[data-report-print]').onclick = function () { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch (e) {} };
+    root.querySelector('[data-report-email]').onclick = function () {
+      var msg = root.querySelector('[data-report-email-msg]');
+      fetch(API + '/api/v1/calculator/email-report', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: assessmentId }) })
+        .then(function (r) { if (r.ok) if (window.pdTrack) window.pdTrack('plan_emailed', {}); msg.textContent = r.ok ? 'Sent. Check your inbox in a minute or two.' : 'We could not send it just now. Your plan is saved; try again later.'; })
+        .catch(function () { msg.textContent = 'We could not send it just now.'; });
+    };
+  }
 })();
 
 /* Newsletter sign-up (homepage). Same worker endpoint; site 'pd'. */
@@ -236,6 +372,7 @@
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: em, site: 'pd', source: 'homepage' })
     }).catch(function () {});
+    if (window.pdTrack) window.pdTrack('sign_up', { method: 'newsletter' });
     var ok = form.querySelector('[data-ok]'); if (ok) ok.hidden = false;
   });
 })();

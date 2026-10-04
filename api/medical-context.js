@@ -106,10 +106,29 @@ const RENAL_CONDITION_TERMS = [
 /** Anticoagulants and antiplatelets: vitamin K intake and bleeding risk matter. */
 const ANTICOAGULANT_DRUG_TERMS = [
   'warfarin', 'coumadin', 'jantoven',
+  // Common misspellings (red team 2026-10-03). Wording only: hasDeclaredMedications
+  // is the gate, and it fires on any medication text at all.
+  'cumadin', 'coumidin', 'coumadine', 'warferin', 'warfrin',
   'apixaban', 'eliquis', 'rivaroxaban', 'xarelto', 'dabigatran', 'pradaxa', 'edoxaban', 'savaysa',
   'clopidogrel', 'plavix', 'ticagrelor', 'brilinta', 'prasugrel',
   'heparin', 'enoxaparin', 'lovenox', 'anticoagulant', 'blood thinner'
 ];
+
+/**
+ * Pregnancy or breastfeeding (Brew, 2026-10-03: a relevant condition). The PescoDial
+ * health form appends "pregnant or breastfeeding" to otherConditions; readers also
+ * type it free-hand. Condition blobs have hyphens turned into spaces, so both
+ * spellings of breast-feed are listed. Over-matching ("nursing") costs a hidden
+ * number, never a printed one.
+ */
+const PREGNANCY_TERMS = ['pregnan', 'breastfeed', 'breast-feed', 'breast feed', 'nursing', 'lactat'];
+
+/**
+ * Removed from a pregnant or breastfeeding reader's plan: smoked (cold-smoked) and raw
+ * fish. Removals only, never a swap or an amount. The report's own pregnancy box
+ * (FDA/EPA advice) already says to skip raw fish and cook fish all the way through.
+ */
+const PREGNANCY_EXCLUDED_FOOD_TERMS = ['smoked salmon', 'smoked trout', 'smoked fish', 'cold-smoked', 'lox', 'sushi', 'sashimi', 'ceviche', 'raw fish', 'raw oyster'];
 
 const NONE_VALUES = new Set(['', 'none', 'n/a', 'na', 'no', 'nothing', 'no medications', 'no conditions']);
 
@@ -217,6 +236,7 @@ function matchesAny(haystack, terms) {
  *   symptomMaskingDrug: boolean,
  *   anticoagulant: boolean,
  *   renal: boolean,
+ *   pregnancy: boolean,
  *   restrictElectrolyteTargets: boolean,
  *   restrictProteinTarget: boolean,
  *   calorieGuidance: 'normal'|'qualified'|'suppressed',
@@ -257,6 +277,8 @@ export function deriveMedicalContext(data = {}) {
   // Kidney disease is searched across every blob. There is no kidney checkbox, so it
   // arrives as free text, and readers put it wherever the form let them type.
   const renal = matchesAny(clinicalBlob, RENAL_CONDITION_TERMS);
+  // Pregnancy or breastfeeding, searched everywhere the reader can type.
+  const pregnancy = matchesAny(clinicalBlob, PREGNANCY_TERMS);
 
   // FAILS CLOSED. Any declared medication at all, or any cardiac / renal / hepatic /
   // blood-pressure condition, withholds the quantitative electrolyte protocol.
@@ -305,7 +327,11 @@ export function deriveMedicalContext(data = {}) {
   // them through assertNoConditionClaimFrames.
   const calorieGuidance =
     restrictProteinTarget ? 'suppressed'
-    : (restrictElectrolyteTargets || glucoseLowering) ? 'qualified'
+    // Pregnancy or breastfeeding: never an unsupervised deficit (Brew, 2026-10-03).
+    // 'qualified' removes the deficit and keeps the maintenance figure, the same
+    // treatment a reader on a blood-pressure tablet gets. The PescoDial report goes
+    // further and hides its numbers (pdNumbersHidden in api/calculator-api.js).
+    : (restrictElectrolyteTargets || glucoseLowering || pregnancy) ? 'qualified'
     : 'normal';
 
   // Foods withheld from the generated plan for a medical reason. These are removals,
@@ -318,6 +344,9 @@ export function deriveMedicalContext(data = {}) {
   // anticoagulation is a prescriber's call about their INR and their dose. The
   // software's move is to leave the item out and say so.
   const excludedFoodTerms = anticoagulant ? ['liver', 'organ'] : [];
+  // Kept apart from excludedFoodTerms on purpose: that list drives the anticoagulant
+  // notes ("this meal plan leaves out organ meats"), which must not fire for pregnancy.
+  const pregnancyExcludedFoodTerms = pregnancy ? [...PREGNANCY_EXCLUDED_FOOD_TERMS] : [];
 
   // CLAIM SCOPE — a separate axis from the restrictions above, on purpose.
   //
@@ -352,10 +381,12 @@ export function deriveMedicalContext(data = {}) {
     symptomMaskingDrug,
     anticoagulant,
     renal,
+    pregnancy,
     restrictElectrolyteTargets,
     restrictProteinTarget,
     calorieGuidance,
     excludedFoodTerms,
+    pregnancyExcludedFoodTerms,
     hasAnyMedicalContext: hasDeclaredConditions || hasDeclaredMedications || hasDeclaredSymptoms
   };
 }
@@ -447,7 +478,7 @@ export function applyCalorieGuidance(macros = {}, ctx = {}) {
  * @returns {string} a comma-separated restriction list for shouldFilterOutFood()
  */
 export function withMedicalFoodExclusions(foodRestrictions, ctx) {
-  const terms = (ctx && ctx.excludedFoodTerms) || [];
+  const terms = [...((ctx && ctx.excludedFoodTerms) || []), ...((ctx && ctx.pregnancyExcludedFoodTerms) || [])];
   if (!terms.length) return foodRestrictions || '';
   const existing = (foodRestrictions || '').trim();
   return existing ? `${existing}, ${terms.join(', ')}` : terms.join(', ');

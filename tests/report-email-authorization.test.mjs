@@ -140,8 +140,9 @@ for (const status of ['pending', 'failed', null]) {
 }
 {
   const { res, sends } = await request({ bodyEmail: '' });
-  check('E', 'missing email in body is rejected 400', res.status === 400, 'status ' + res.status);
-  check('E', 'missing email sends nothing', sends.length === 0, 'sends=' + sends.length);
+  // Since 2026-10-03 an omitted email means "send to the stored owner": the page
+  // no longer holds or echoes the address. It can only ever reach the owner.
+  check('E', 'missing email sends to the stored owner only', res.status === 200 && sends.length === 1 && sends[0]?.to?.[0] === OWNER, 'status ' + res.status + ' to=' + JSON.stringify(sends[0]?.to));
 }
 {
   const { res, sends } = await request({ sessionId: '' });

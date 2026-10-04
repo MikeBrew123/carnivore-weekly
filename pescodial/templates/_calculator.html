@@ -8,6 +8,7 @@
 
       <!-- STEP 1 -->
       <form data-step="1" novalidate="">
+        <p class="hint" style="margin:0 0 12px;">General information, not medical advice. If you take medicine, are pregnant or have a heart, kidney or other condition, check with your doctor first.</p>
         <p class="step-label">Step 1 of 4</p>
         <fieldset>
           <legend>Choose your eating style</legend>
@@ -133,7 +134,7 @@
         <h2 tabindex="-1">This calculator is for adults</h2>
         <p>PescoDial's calculator is not available for anyone under 18. Growing bodies need different amounts of food, and a general calculator can't account for that.</p>
         <p>If you're under 18 and thinking about changing how you eat, a doctor or school nurse is a good person to talk to first.</p>
-        <div class="btn-row"><a class="btn btn-secondary" href="/guides/">Read our guides</a><button class="btn-link" type="button" data-back="2">Change my age</button></div>
+        <div class="btn-row">{% if posts %}<a class="btn btn-secondary" href="/guides/">Read our guides</a>{% endif %}<button class="btn-link" type="button" data-back="2">Change my age</button></div>
       </div>
 
       <!-- UNDERWEIGHT -->
@@ -173,14 +174,15 @@
 
         <div class="notice notice-doctor" role="note">
           <p>Talk to your doctor before starting a new diet or changing the one you're on, especially if you take medication.</p>
+          <p>These numbers are for generally healthy adults.</p>
         </div>
 
         <div class="results-grid">
-          <div class="stat stat-wide"><span class="stat-label">Calories</span><span class="stat-value"><span data-r="kcal">1,600</span><small>a day</small></span></div>
-          <div class="stat"><span class="stat-label">Protein</span><span class="stat-value"><span data-r="protein">85</span><small>g</small></span></div>
-          <div class="stat"><span class="stat-label">Fat</span><span class="stat-value"><span data-r="fat">62</span><small>g</small></span></div>
-          <div class="stat"><span class="stat-label">Carbs</span><span class="stat-value"><span data-r="carbs">175</span><small data-r="carbsunit">g</small></span></div>
-          <div class="stat"><span class="stat-label">Fiber</span><span class="stat-value"><span data-r="fiber">25</span><small data-r="fiberunit">g</small></span></div>
+          <div class="stat stat-wide"><span class="stat-label">Calories</span><span class="stat-value"><span data-r="kcal">–</span><small>a day</small></span></div>
+          <div class="stat"><span class="stat-label">Protein</span><span class="stat-value"><span data-r="protein">–</span><small>g</small></span></div>
+          <div class="stat"><span class="stat-label">Fat</span><span class="stat-value"><span data-r="fat">–</span><small>g</small></span></div>
+          <div class="stat"><span class="stat-label">Carbs</span><span class="stat-value"><span data-r="carbs">–</span><small data-r="carbsunit">g</small></span></div>
+          <div class="stat"><span class="stat-label">Fiber</span><span class="stat-value"><span data-r="fiber">–</span><small data-r="fiberunit">g</small></span></div>
         </div>
         <p class="results-basis" data-r="basis">Based on Pescatarian Mediterranean, aiming to lose weight slowly.</p>
 
@@ -195,11 +197,74 @@
           <h3 id="up-title">Your Full 7-Day Plan</h3>
           <p class="price">$29 USD, one-time</p>
           <p>Built on your numbers: a 7-day meal plan, grocery list, recipes, a weekly fish plan, an eating-out guide and questions to take to your doctor.</p>
-          <a class="btn btn-primary btn-block" href="{{ checkout_url }}">Get my 7-day plan</a>
+          <div class="field" style="margin:0 0 12px;"><label for="pd-code">Have a discount code?</label><input class="input" id="pd-code" name="coupon" autocomplete="off" autocapitalize="characters" data-coupon=""></div>
+          <button class="btn btn-primary btn-block" type="button" data-checkout="">Get my 7-day plan</button>
+          <p class="field-error" data-checkout-error="" role="alert"></p>
           <p class="guarantee">If it isn't useful, email us within 30 days for a full refund.</p>
         </section>{% endif %}
 
         <div class="btn-row"><button class="btn-link" type="button" data-restart="">Start over</button></div>
+      </div>
+
+      <!-- PAID PLAN (after Stripe). Behaviour: /js/calculator.js (paid flow) -->
+      <div data-state="checkout-wait" class="state-panel" hidden="">
+        <h2 tabindex="-1">Taking you to secure checkout</h2>
+        <p>Payment is handled by Stripe. You'll come straight back here afterwards.</p>
+      </div>
+
+      <div data-state="paid-wait" class="state-panel" hidden="">
+        <h2 tabindex="-1">Thank you, we're confirming your payment</h2>
+        <p data-paid-wait-msg="">This usually takes a few seconds.</p>
+      </div>
+
+      <form data-step="5" novalidate="" hidden="">
+        <p class="step-label">Your 7-day plan</p>
+        <h2 class="step-title" tabindex="-1">A few questions so your plan fits you</h2>
+        <div class="notice notice-doctor"><p>Your answers stay private. They decide which foods we leave out and whether it's safe to print numbers in your plan.</p></div>
+
+        <div class="field"><label for="pd-first">First name</label><input class="input" id="pd-first" name="firstName" autocomplete="given-name"></div>
+
+        <fieldset class="field">
+          <legend class="label" style="font:700 1.125rem var(--f-ui);margin-bottom:6px;">Do any of these apply to you?</legend>
+          <span class="hint">Tick all that apply.</span>
+          <div class="choices compact">
+            <label class="choice"><input type="checkbox" name="conditions" value="diabetes"><span class="choice-body"><span class="choice-title">Diabetes, or medicine that lowers blood sugar</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="heart-disease"><span class="choice-body"><span class="choice-title">Heart disease or high blood pressure</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="kidney-disease"><span class="choice-body"><span class="choice-title">Kidney disease</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="liver-disease"><span class="choice-body"><span class="choice-title">Liver disease</span></span></label>
+            <label class="choice"><input type="checkbox" name="conditions" value="thyroid"><span class="choice-body"><span class="choice-title">Thyroid condition</span></span></label>
+            <label class="choice"><input type="checkbox" name="bloodthinner" value="yes"><span class="choice-body"><span class="choice-title">I take a blood thinner (for example warfarin)</span></span></label>
+            <label class="choice"><input type="checkbox" name="pregnant" value="yes"><span class="choice-body"><span class="choice-title">Pregnant or breastfeeding</span></span></label>
+          </div>
+        </fieldset>
+
+        <div class="field"><label for="pd-meds">Medicines you take</label><span class="hint">Leave blank if none.</span><textarea class="input" id="pd-meds" name="medications" rows="2"></textarea></div>
+        <div class="field"><label for="pd-other">Anything else about your health we should know?</label><textarea class="input" id="pd-other" name="otherConditions" rows="2"></textarea></div>
+        <div class="field"><label for="pd-allergies">Food allergies</label><span class="hint">For example shellfish, eggs, nuts.</span><input class="input" id="pd-allergies" name="allergies"></div>
+        <div class="field"><label for="pd-avoid">Foods you won't eat</label><input class="input" id="pd-avoid" name="avoidFoods"></div>
+
+        <button class="btn btn-primary btn-block" type="submit">Build my plan</button>
+        <p class="field-error" data-plan-error="" role="alert"></p>
+      </form>
+
+      <div data-state="building" class="state-panel" hidden="">
+        <h2 tabindex="-1">Building your plan</h2>
+        <p>This takes up to a minute. Please keep this page open.</p>
+      </div>
+
+      <div data-state="report" hidden="">
+        <h2 class="step-title" tabindex="-1">Your 7-day plan is ready</h2>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button" data-report-print="">Print or save as PDF</button>
+          <button class="btn btn-secondary" type="button" data-report-email="">Email me a copy</button>
+        </div>
+        <p class="hint" data-report-email-msg="" role="status"></p>
+        <iframe title="Your 7-day plan" data-report-frame="" sandbox="allow-modals allow-same-origin" style="width:100%;min-height:80vh;border:1px solid var(--line,#ddd);border-radius:12px;background:#fff;"></iframe>
+      </div>
+
+      <div data-state="paid-error" class="state-panel" hidden="">
+        <h2 tabindex="-1">Something went wrong on our side</h2>
+        <p data-paid-error-msg="">Your payment is safe. Reply to your receipt email and we'll send your plan by hand.</p>
       </div>
     </div>
   </section>
