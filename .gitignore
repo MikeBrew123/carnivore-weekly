@@ -156,6 +156,8 @@ reports/etsy-snapshots/
 # Coach launch send ledger — subscriber addresses, keep OUT of this public repo.
 # The SCRIPT (scripts/send_coach_launch.py) is committed; the ledger DATA is not.
 reports/coach-launch-send-ledger*.jsonl
+# Same rule for the CW -> PescoDial invite (scripts/send_pd_invite.py).
+reports/pd-invite-send-ledger*.jsonl
 
 # Subscriber list backups — full dumps of newsletter_subscribers + drip_subscribers.
 # The SCRIPT (scripts/backup_subscribers.py) is committed; the subscriber DATA never is.
