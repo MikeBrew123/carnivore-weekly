@@ -35,6 +35,7 @@ on:
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
       - 'tests/cw-report-warning.test.mjs'
+      - 'tests/feedback-writer-inbox.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
       - 'pescodial/drafts/drip/**'
@@ -107,6 +108,7 @@ on:
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
       - 'tests/cw-report-warning.test.mjs'
+      - 'tests/feedback-writer-inbox.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
       - 'pescodial/drafts/drip/**'
@@ -389,6 +391,9 @@ jobs:
 
       - name: PescoDial sign-up routing (pesco-* -> pd, CW/KD unchanged)
         run: node tests/pd-subscribe-routing.test.mjs
+
+      - name: Site feedback form also lands in writer_inbox (daily sweep), form survives insert failure
+        run: node tests/feedback-writer-inbox.test.mjs
 
       - name: PescoDial checkout returns to PescoDial, priced on server; report/init needs payment
         run: node tests/pd-checkout-contract.test.mjs

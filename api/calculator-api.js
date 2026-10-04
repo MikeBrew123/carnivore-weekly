@@ -7488,9 +7488,64 @@ async function subscribeCore(env, cleanEmail, sourceValue, diet_type, site) {
 }
 
 // ===== FEEDBACK HANDLER =====
+// Site for a feedback submission: explicit body.site wins, else the page origin.
+const FEEDBACK_SITES = ['cw', 'kd', 'pd'];
+function feedbackSite(request, bodySite) {
+  if (FEEDBACK_SITES.includes(bodySite)) return bodySite;
+  const origin = (request.headers.get('Origin') || request.headers.get('Referer') || '').toLowerCase();
+  if (origin.includes('ketodial.com')) return 'kd';
+  if (origin.includes('pescodial')) return 'pd';
+  return 'cw';
+}
+
+// The daily writer-inbox-daily-check sweep reads writer_inbox as its ledger of
+// people who reached out. Feedback-form messages never arrive by email, so they
+// get a ledger row here (Brew, 2026-10-03, after a 2026-09-27 question went
+// unseen). writer_inbox has no body column: the message text stays in
+// content_feedback, and resend_inbound_id = 'feedback:<content_feedback id>'
+// points the sweep at it. Never throws: a failed insert must not fail the form.
+const FEEDBACK_TO_ADDRESS = {
+  cw: 'feedback@carnivoreweekly.com',
+  kd: 'feedback@ketodial.com',
+  pd: 'pescodial@carnivoreweekly.com',
+};
+async function logFeedbackToWriterInbox(env, { site, email, feedbackId }) {
+  try {
+    const ref = feedbackId || (globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+    const res = await fetch(`${env.SUPABASE_URL}/rest/v1/writer_inbox`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Prefer': 'return=minimal,resolution=ignore-duplicates',
+      },
+      body: JSON.stringify({
+        site,
+        resend_inbound_id: `feedback:${ref}`,
+        message_id: feedbackId ? `content_feedback:${feedbackId}` : null,
+        from_email: email,
+        from_name: null,
+        to_writer: 'sarah',
+        to_address: FEEDBACK_TO_ADDRESS[site] || FEEDBACK_TO_ADDRESS.cw,
+        subject: 'Site feedback',
+        received_at: new Date().toISOString(),
+        status: 'new',
+        needs_reply: true,
+      }),
+    });
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      console.error('[Feedback] writer_inbox insert failed:', res.status, t);
+    }
+  } catch (err) {
+    console.error('[Feedback] writer_inbox insert error:', err);
+  }
+}
+
 async function handleFeedback(request, env) {
   try {
-    const { request_text, email } = await request.json();
+    const { request_text, email, site: bodySite } = await request.json();
 
     if (!email || !isValidEmail(email)) {
       return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
@@ -7510,7 +7565,7 @@ async function handleFeedback(request, env) {
           'Content-Type': 'application/json',
           'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
           'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-          'Prefer': 'return=minimal',
+          'Prefer': 'return=representation',
         },
         body: JSON.stringify({
           request_text: request_text.trim(),
@@ -7522,6 +7577,18 @@ async function handleFeedback(request, env) {
     );
 
     if (response.ok || response.status === 201) {
+      let feedbackId = null;
+      try {
+        const rows = await response.json();
+        feedbackId = (Array.isArray(rows) ? rows[0] : rows)?.id || null;
+      } catch (_) { /* id is optional; the ledger row still goes in */ }
+
+      await logFeedbackToWriterInbox(env, {
+        site: feedbackSite(request, bodySite),
+        email: email.trim(),
+        feedbackId,
+      });
+
       // Notify Brew via Resend so feedback doesn't just sit in the DB unseen
       if (env.RESEND_API_KEY) {
         try {
