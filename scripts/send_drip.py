@@ -354,7 +354,10 @@ def apply_promo(html, day, email, stripe_key, buyers=None):
     half-price code to someone who paid full price. If we cannot tell, we
     suppress the offer. `buyers=None` means the lookup failed, not "no buyers".
     """
-    if day not in PROMO_DAYS:
+    # A site with no offer copy (PescoDial until its report ships and Brew approves
+    # an offer) sends its promo days as ordinary emails: no Stripe code is minted
+    # and no promo copy is looked up.
+    if day not in PROMO_DAYS or SITE not in PROMO_COPY:
         return strip_markers(html)
     if buyers is None or norm_email(email) in buyers:
         if buyers is None:
