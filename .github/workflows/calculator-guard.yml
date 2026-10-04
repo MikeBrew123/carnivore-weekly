@@ -34,6 +34,7 @@ on:
       - 'api/pd-report.js'
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
+      - 'tests/cw-report-warning.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
       - 'pescodial/drafts/drip/**'
@@ -102,6 +103,7 @@ on:
       - 'api/pd-report.js'
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
+      - 'tests/cw-report-warning.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
       - 'pescodial/drafts/drip/**'
@@ -336,6 +338,11 @@ jobs:
       # medication, numbers hidden for kidney disease and blood thinners (dishes only,
       # no amounts), allergies removed from plan, list, recipes and tips, PD branding,
       # and the four copy gates on every PD section.
+      # CLAUDE.md (Brew, 2026-10-04): a CW reader who declared a medicine or a
+      # condition sees the warning in Report #1, above the numbers; nobody else does;
+      # the blood-thinner line stays true to every diet's plan.
+      - name: CW report warning placement and blood-thinner line
+        run: node tests/cw-report-warning.test.mjs
       - name: PescoDial report
         run: node tests/pd-report.test.mjs
       # Which brand a paid-report email goes out under: CW stays CW, a PescoDial

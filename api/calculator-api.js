@@ -4322,6 +4322,23 @@ function assertReportCopyIsClean(sectionLabel, text, ctx) {
   assertNoAdvocacy(sectionLabel, text);
 }
 
+/**
+ * Brew, 2026-10-04 (CLAUDE.md, paid health reports): a reader who declared a medicine
+ * or a condition sees why there is a concern BESIDE their numbers, not sections later.
+ * Report #1 is where the numbers first appear, and it is model-written, so the fixed
+ * warning (the same banner Reports #5/#9/#10 carry) goes in deterministically, under
+ * the section heading and above anything the model wrote. Readers who declared
+ * nothing, or only symptoms, get Report #1 unchanged.
+ */
+function withConcernWarningFirst(summary, ctx) {
+  if (!summary || !(ctx.hasDeclaredMedications || ctx.hasDeclaredConditions)) return summary;
+  const banner = buildMedicalContextBanner(ctx);
+  const m = String(summary).match(/^(\s*#{1,3} [^\n]*\n)/);
+  return m
+    ? m[1] + '\n' + banner + '\n\n' + summary.slice(m[1].length).replace(/^\n+/, '')
+    : banner + '\n\n' + summary;
+}
+
 async function generateAllReports(data, apiKey) {
   // Fail closed before a single section is written or a single token is spent.
   assertReportInputsCoherent(data);
@@ -4355,7 +4372,7 @@ async function generateAllReports(data, apiKey) {
     // Section 1: Executive Summary (AI)
     console.log('>>> Section 1: Executive Summary - STARTING');
     const aiReports = await generateAIReports(data, apiKey);
-    reports[1] = aiReports.summary;
+    reports[1] = withConcernWarningFirst(aiReports.summary, deriveMedicalContext(data));
     console.log('<<< Section 1: Executive Summary - DONE, length:', reports[1]?.length || 'NULL');
 
     // Section 2: Food Guide (Template)
@@ -10233,6 +10250,7 @@ export {
   resolveSignupEmail as __test_resolveSignupEmail,
   buildReportData as __test_buildReportData,
   generateAllReports as __test_generateAllReports,
+  withConcernWarningFirst as __test_withConcernWarningFirst,
   generatePescoMedReport as __test_generatePescoMedReport,
   pdNumbersHidden as __test_pdNumbersHidden,
   calculateMacros as __test_calculateMacros,

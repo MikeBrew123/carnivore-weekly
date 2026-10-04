@@ -249,8 +249,13 @@ for (const [name, bad] of Object.entries(VIOLATION)) {
   cap.restore();
   check('D', 'a template section is still gated on the finished report',
     templateThrow !== null, 'the assembled report was accepted with banned copy in a template section');
-  check('D', 'the failure names a TEMPLATE section, not a model-written one',
-    templateThrow !== null && /Report #(?!1:|6:)\d+:/.test(templateThrow.message),
+  // Since 2026-10-04 Report #1 also carries the FIXED medical banner (CLAUDE.md:
+  // the warning sits beside the numbers), and that banner echoes the reader's
+  // conditions, so the first section to fail can be #1. What matters is unchanged:
+  // the banned text came from fixed copy, so it was caught by the final read-back,
+  // never by the model retry (which would say "after 3 attempts").
+  check('D', 'the failure comes from the final read-back of fixed copy, not the model retry',
+    templateThrow !== null && /Report #\d+:/.test(templateThrow.message) && !/after 3 attempts/.test(templateThrow.message),
     templateThrow ? templateThrow.message.slice(0, 160) : '');
   check('D', 'and it names the gate that caught it',
     templateThrow !== null && /advocacy rather than patient education/.test(templateThrow.message),

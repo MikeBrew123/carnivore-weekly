@@ -543,11 +543,15 @@ export function buildMedicalContextBanner(ctx) {
         '> conversation for your prescriber or pharmacist.'
       ]
       : [
-        '> You reported a blood thinner. Large changes in what you eat, organ meats and',
-        '> leafy greens in particular, can affect how some of these medications behave.',
-        '> **Your meal plan has had those items left out of it**, and the plan as a whole',
-        '> should still be reviewed with your prescriber or pharmacist before you start it,',
-        '> along with whether your monitoring schedule should change.'
+        // Sarah, 2026-10-04, verbatim. The old line said leafy greens had been left out
+        // of the plan; only organ meats are, and keto and low-carb plans schedule
+        // broccoli several times a week. This is true for every diet's plan.
+        '> You reported a blood thinner. **Organ meats have been left out of your meal plan.**',
+        '> Leafy greens and vegetables like broccoli are high in vitamin K, which can change',
+        '> how warfarin and similar blood thinners work, so if your plan includes them, keep',
+        '> the amount you eat steady from week to week. Before you start, go over the plan',
+        '> with your prescriber or pharmacist, along with whether your monitoring schedule',
+        '> should change.'
       ]));
   }
 

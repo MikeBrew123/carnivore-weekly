@@ -20,9 +20,7 @@ Branch `pescodial-build`. Brew approved everything below; ledger entries are in 
 - Guard suite 29/29 plus the PD drip test, all in calculator-guard CI.
 
 ## Waiting on Brew
-- CW paid report checked 2026-10-04 against the new CLAUDE.md rule. Names each concern: yes (banner in Reports #5/#9/#10, calorie note in #3). Gaps, fixes not made yet:
-  1. Numbers first appear in Report #1 (model-written); the fixed warning first appears in #3/#5, not beside them.
-  2. Keto/low-carb + blood thinner: banner says organ meats and leafy greens were left out of the plan, but the plan schedules broccoli (high vitamin K) about 35 times. Needs Sarah's wording, like PD's keep-greens-steady line.
+- CW paid report brought in line with the 2026-10-04 rule (done): the warning now sits at the top of Report #1, above the numbers, for readers who declared a medicine or condition; the blood-thinner line no longer claims greens were removed (Sarah). `tests/cw-report-warning.test.mjs`. Not deployed.
 - Report photos: cover and recipe photo slots are a plain pattern for now.
 - PD abandon-recovery copy (Sarah) and the go to send it.
 - Flip `PD_DRIP_ENABLED` when the drip may send.
