@@ -56,7 +56,7 @@ PRELAUNCH = True
 
 # The $29 upgrade card stays hidden until Brew approves selling (Stripe test buy
 # done, every style's report verified). Tests render with --paid-preview.
-PAID_REPORT_LIVE = False
+PAID_REPORT_LIVE = True
 
 
 def is_published(post):

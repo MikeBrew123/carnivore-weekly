@@ -6,7 +6,7 @@
 //  B. the doctor line sits above the numbers;
 //  C. sign-up posts {site:'pd', diet_type:'pesco-...'} (intercepted, nothing sent);
 //  D. underweight + lose never reaches a weight-loss target (panel or goal error);
-//  E. the paid upgrade card is hidden until the paid flow ships.
+//  E. the paid upgrade card shows exactly when PAID_REPORT_LIVE is on.
 // Run: python3 pescodial/scripts/generate_pd_site.py && node tests/pd-calculator-e2e.test.mjs
 import http from 'node:http';
 import { readFileSync, existsSync, statSync } from 'node:fs';
@@ -16,6 +16,7 @@ import { chromium } from 'playwright';
 
 const repo = new URL('..', import.meta.url).pathname;
 const pub = path.join(repo, 'pescodial/public');
+const PAID_LIVE = /^PAID_REPORT_LIVE = True/m.test(readFileSync(path.join(repo, 'pescodial/scripts/generate_pd_site.py'), 'utf8'));
 const server = http.createServer((req, res) => {
   let p = path.join(pub, decodeURIComponent(req.url.split('?')[0]));
   if (existsSync(p) && statSync(p).isDirectory()) p = path.join(p, 'index.html');
@@ -57,7 +58,7 @@ for (const [style, diet] of Object.entries(STYLES)) {
   const order = await page.evaluate(() => { const s4 = document.querySelector('[data-step="4"]').innerHTML; return s4.indexOf('Talk to your doctor') < s4.indexOf('data-r="kcal"'); });
   check(`B. ${style} doctor line above numbers`, order);
   check(`C. ${style} sign-up is PescoDial`, posts.length === 1 && posts[0].site === 'pd' && posts[0].diet_type === diet, JSON.stringify(posts));
-  check(`E. ${style} upgrade card hidden prelaunch`, (await page.locator('.upgrade').count()) === 0);
+  check(`E. ${style} upgrade card ${PAID_LIVE ? 'shown' : 'hidden'} per PAID_REPORT_LIVE`, ((await page.locator('.upgrade').count()) > 0) === PAID_LIVE);
   await page.close();
 }
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });

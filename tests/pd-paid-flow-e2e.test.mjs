@@ -10,7 +10,7 @@
 //  D. report/init is called with the assessment id and the report HTML is shown;
 //  E. email-report sends only the session id (the worker emails the stored owner address);
 //  F. a 422 refusal from checkout keeps the reader on results with the message;
-//  G. the deployed render (no --paid-preview) has no upgrade card;
+//  G. the deployed render (no --paid-preview) has the upgrade card only when PAID_REPORT_LIVE is on;
 //  H. a valid code is sent as coupon_code (no price); an invalid one stops before checkout.
 // Run: node tests/pd-paid-flow-e2e.test.mjs
 import http from 'node:http';
@@ -111,6 +111,7 @@ check('H. codes: valid sent as coupon_code without a price, invalid stops', inva
 await p3.close();
 
 const live = readFileSync(path.join(repo, 'pescodial/public/index.html'), 'utf8');
-check('G. deployed render has no upgrade card', !live.includes('data-checkout'));
+const PAID_LIVE = /^PAID_REPORT_LIVE = True/m.test(readFileSync(path.join(repo, 'pescodial/scripts/generate_pd_site.py'), 'utf8'));
+check('G. deployed render has the upgrade card only when PAID_REPORT_LIVE', live.includes('data-checkout') === PAID_LIVE);
 await browser.close(); server.close();
 process.exit(failed ? 1 : 0);
