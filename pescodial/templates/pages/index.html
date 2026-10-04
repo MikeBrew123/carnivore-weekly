@@ -1,4 +1,37 @@
 {% extends "base.html" %}
-{% block title %}Eat more fish, for your heart | PescoDial{% endblock %}
-{% block main %}<h1>Eat more fish, for your heart</h1>
-<p>Coming soon.</p>{% endblock %}
+{% block title %}PescoDial: Free pescatarian calorie and protein calculator{% endblock %}
+{% block description %}A free calculator for pescatarian daily calories, protein and fish meals, for Pescatarian Mediterranean, Low Carb, Keto and Carnivore styles. About two minutes.{% endblock %}
+{% block main %}
+{% include "_calculator.html" %}
+{% if posts %}
+  <section class="section wrap" aria-labelledby="start-title">
+    <h2 id="start-title">Start here</h2>
+    <ul class="link-list">
+      {% for p in posts[:4] %}<li><a href="/guides/{{ p.slug }}/"><span class="t">{{ p.title }}</span><span class="d">{{ p.excerpt }}</span></a></li>
+      {% endfor %}
+    </ul>
+    <p><a href="/guides/">See all guides</a></p>
+  </section>
+{% endif %}
+<section class="section wrap" aria-labelledby="who-title">
+    <h2 id="who-title" class="eyebrow" style="font-family:var(--f-ui);">Who writes this</h2>
+    <div class="author-line">
+      <div class="avatar-ph" aria-hidden="true">Photo</div>
+      <p style="margin:0;">PescoDial is written by Sarah, a health writer who reads the research so you don't have to. <a href="/about/">More about Sarah</a></p>
+    </div>
+  </section>
+<section class="wrap" aria-labelledby="signup-title">
+    <form class="signup" novalidate="" data-signup="">
+      <h2 id="signup-title">A short weekly guide</h2>
+      <p>One email a week with a fish recipe, a shopping tip and one question answered in plain words.</p>
+      <div class="field" style="margin-bottom:12px;">
+        <label for="signup-email">Email address</label>
+        <input class="input" id="signup-email" type="email" autocomplete="email">
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Sign up</button>
+      <p class="small">Unsubscribe anytime. We don't share your email.</p>
+      <p class="small" data-ok="" hidden="" role="status" style="color:#fff;font-weight:700;">Thanks. Check your inbox to confirm.</p>
+    </form>
+  </section>
+{% endblock %}
+{% block scripts %}<script src="/js/pd-macros.js" defer></script><script src="/js/calculator.js" defer></script>{% endblock %}

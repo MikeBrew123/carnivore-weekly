@@ -10,6 +10,8 @@ on:
     paths:
       - 'pescodial/**'
       - 'data/blog_posts.json'
+      - 'calculator2-demo/src/lib/calculations.ts'
+      - 'tests/pd-*.test.mjs'
       - '.github/workflows/pescodial-deploy.yml'
   workflow_dispatch:
 
@@ -35,6 +37,15 @@ jobs:
 
       - name: Render site (fails on broken links or foreign posts)
         run: python3 pescodial/scripts/generate_pd_site.py
+
+      - name: Calculator bundle matches the worker (shared engine)
+        run: node tests/pd-macros-bundle.test.mjs
+
+      - name: Calculator end to end (real browser, sign-up intercepted)
+        run: |
+          npm install --no-audit --no-fund --no-save playwright@$(node -p "require('./package.json').devDependencies.playwright || 'latest'")
+          npx playwright install --with-deps chromium
+          node tests/pd-calculator-e2e.test.mjs
 
       - name: Deploy to Cloudflare Pages
         env:

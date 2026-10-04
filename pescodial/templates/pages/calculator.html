@@ -1,4 +1,7 @@
 {% extends "base.html" %}
-{% block title %}PescoDial calculator | PescoDial{% endblock %}
-{% block main %}<h1>PescoDial calculator</h1>
-<p>Coming soon.</p>{% endblock %}
+{% block title %}Pescatarian calorie and protein calculator | PescoDial{% endblock %}
+{% block description %}Work out your daily calories, protein and fish meals for a pescatarian diet. Free, about two minutes.{% endblock %}
+{% block main %}
+{% include "_calculator.html" %}
+{% endblock %}
+{% block scripts %}<script src="/js/pd-macros.js" defer></script><script src="/js/calculator.js" defer></script>{% endblock %}
