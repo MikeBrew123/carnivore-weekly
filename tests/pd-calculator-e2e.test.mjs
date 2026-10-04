@@ -42,6 +42,9 @@ for (const [style, diet] of Object.entries(STYLES)) {
   await page.goto(base + '/');
   await page.check(`input[name="style"][value="${style}"]`, { force: true });
   await page.click('form[data-step="1"] button[type="submit"]');
+  // Brew 2026-10-04: activity descriptions wrapped one word per line (desc in the radio column).
+  const descW = await page.evaluate(() => [...document.querySelectorAll('[data-field="activity"] .choice-desc')].map(e => e.getBoundingClientRect().width));
+  check(`G. ${style} activity descriptions use the wide column`, descW.length === 3 && descW.every(w => w > 150), descW.join(','));
   await page.check('input[name="sex"][value="f"]', { force: true });
   await page.fill('#age', '58'); await page.fill('#ft', '5'); await page.fill('#in', '5');
   await page.fill('#weight', '180'); await page.fill('#goalweight', '150');
