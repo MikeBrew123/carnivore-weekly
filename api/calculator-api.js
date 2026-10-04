@@ -6670,6 +6670,9 @@ async function handleCreateCheckout(request, env) {
       formBody.append('line_items[0][price_data][unit_amount]', String(PD_PLAN_PRICE_CENTS));
       formBody.append('line_items[0][price_data][product_data][name]', 'Your Full 7-Day Plan (PescoDial)');
       formBody.append('line_items[0][price_data][product_data][description]', 'Personal pescatarian 7-day plan: meal plan, grocery list, recipes, fish plan.');
+      // PescoDial look on Stripe's page and on the card statement, this order only;
+      // CW orders keep the account defaults (Brew, 2026-10-03).
+      for (const [k, v] of Object.entries(PD_STRIPE_BRANDING)) formBody.append(k, v);
     } else {
       formBody.append('line_items[0][price]', stripePriceId);
     }
@@ -8785,6 +8788,20 @@ const HEALTH_FIELDS = ['medications', 'conditions', 'healthConditions', 'otherCo
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const escHtml = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const PD_PLAN_PRICE_CENTS = 2900; // $29 USD, same as the CW report (Brew, 2026-10-03)
+// Per-session Checkout branding for PescoDial orders (Brew, 2026-10-03). Stripe
+// joins the suffix to the account's statement prefix (22 characters in all).
+const PD_STRIPE_BRANDING = {
+  'branding_settings[display_name]': 'PescoDial',
+  'branding_settings[background_color]': '#f7f0e3',
+  'branding_settings[button_color]': '#b04f2c',
+  'branding_settings[border_style]': 'rounded',
+  'branding_settings[font_family]': 'lora',
+  'branding_settings[icon][type]': 'url',
+  'branding_settings[icon][url]': 'https://www.pescodial.com/apple-touch-icon.png',
+  'branding_settings[logo][type]': 'url',
+  'branding_settings[logo][url]': 'https://www.pescodial.com/stripe-logo.png',
+  'payment_intent_data[statement_descriptor_suffix]': 'PESCODIAL',
+};
 const PD_RETURN_ORIGINS = ['https://www.pescodial.com', 'https://pescodial.pages.dev'];
 // Where a PescoDial buyer comes back to after Stripe. Only known PescoDial origins
 // (or localhost for testing) are honoured; anything else gets the live site.
