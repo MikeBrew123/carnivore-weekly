@@ -2472,3 +2472,12 @@ Brew, 14:06: "Go.. Also look at our best performing blogs.. if the demographics 
 Shipped: `scripts/generate_blog_pages.py` now reads `data/early_calc_cta.json` (force-added, `data/*.json` is gitignored) and, for the 16 listed posts, inserts one plain callout after paragraph 2 ("<lead> Get your daily numbers, free, in about two minutes.", GA4 event `calculator_cta_early` with the post slug) and a "New to carnivore? Start with our complete carnivore food list and our carnivore meal plan guide." line after paragraph 6, to give those two buyer pages (Google position about 39) internal links. Regeneration diff touched exactly the 16 posts; nothing else drifted.
 Held back until after the electrolyte sweep read on 2026-10-12, to keep that read clean: adaptation-timeline (105 clicks, the biggest of them), night-sweats, fasting-protocols, sleep-insomnia, women-over-40. Add them to `data/early_calc_cta.json` after the read.
 Measure: calculator starts by referring post (`calculator_sessions_v2.referrer`) for these 16, 28 days before vs after 2026-10-04. This changes traffic into the diet-card test, not the card, so that test stays clean.
+
+## 2026-10-03/04: PescoDial launch decisions
+- PescoDial asks for email at step 3 (after the questions), CW/KD ask first; kept as a natural comparison (Brew). Do not move without Brew.
+- Paid report live, then PRELAUNCH off after Claude's live e2e pass (Brew: "go, lift the block").
+- Stripe checkout branded PescoDial per order (branding_settings + statement suffix PESCODIAL); CW untouched.
+- PD drip turned on with Sarah's per-day reply question and plan box (Brew: CTA was a weak sell, no engagement).
+- PESCO50 for the CW pescatarian invite: 50%, no expiry, max 50 uses; copy makes no deadline claim.
+- Customer brhuizenga (Aug-10 label buyer) is closed: do not contact (Brew).
+- Feedback form already reaches the writer-inbox sweep via content_feedback; PR #90 closed.
