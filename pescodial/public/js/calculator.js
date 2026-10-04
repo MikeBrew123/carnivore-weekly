@@ -343,7 +343,9 @@
 
   function showReport(html, token) {
     var frame = root.querySelector('[data-report-frame]');
-    frame.srcdoc = html;
+    // The sandboxed frame runs no scripts, so the report's own print button would be dead;
+    // the page's button above prints instead.
+    frame.srcdoc = String(html).replace('</head>', '<style>.toolbar{display:none}</style></head>');
     show('report');
     if (window.pdTrack) window.pdTrack('plan_viewed', {});
     store(null);
