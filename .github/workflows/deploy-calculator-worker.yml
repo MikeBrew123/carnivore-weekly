@@ -1,0 +1,44 @@
+# Deploy the calculator worker (carnivore-report-api) to PRODUCTION, by hand.
+#
+# Manual only (Actions tab -> Run workflow), and only from main, so production
+# never runs code main does not have. Same command as `npm run deploy:production`
+# in api/ (a bare `wrangler deploy` hits the dev worker; docs/guides/deployment.md).
+# The paid-report safety suites run first; a red suite stops the deploy.
+# Worker secrets already live in Cloudflare and are not touched.
+name: deploy-calculator-worker
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-calculator-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Paid-report safety suites (must pass before deploy)
+        run: |
+          set -e
+          for t in report-safety kd-report-safety report-integrity health-context-flow \
+                   report-copy-gate-retry renal-meal-plan-suppression report-email-authorization \
+                   deploy-tripwire goal-conflict-flow calorie-guardrail pd-meal-plan pd-report \
+                   cw-report-warning brand-attribution-isolation; do
+            echo "== $t"; node tests/$t.test.mjs
+          done
+          node tests/report-diet-fidelity.test.mjs
+          node tests/macro_parity/golden_test.mjs
+      - name: Deploy to production
+        working-directory: api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@3 deploy --env production
