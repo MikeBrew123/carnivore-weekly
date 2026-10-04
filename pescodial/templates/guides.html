@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Guides | PescoDial{% endblock %}
+{% block description %}Plain-language PescoDial guides to eating fish and seafood for heart health.{% endblock %}
+{% block head %}{% if not posts %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
 {% block main %}<h1>Guides</h1>
 {% if posts %}<ul class="guide-list">{% for p in posts %}<li><a href="/guides/{{ p.slug }}/">{{ p.title }}</a><p>{{ p.excerpt }}</p></li>{% endfor %}</ul>
 {% else %}<p>The first guides are on their way.</p>{% endif %}{% endblock %}

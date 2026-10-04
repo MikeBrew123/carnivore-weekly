@@ -40,8 +40,9 @@ PAGES = {
     "about.html": "about/",
     "privacy.html": "privacy/",
     "contact.html": "contact/",
+    "404.html": "404.html",
 }
-NOINDEX_PAGES = set()
+NOINDEX_PAGES = {"404.html"}
 
 # Foreign domains that must never appear as same-site links in PD output.
 FOREIGN_HOSTS = ("carnivoreweekly.com", "ketodial.com")
@@ -88,7 +89,7 @@ def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT, paid_preview=False)
 
     urls = []
     for tpl, path in PAGES.items():
-        dest = out_dir / path / "index.html" if path else out_dir / "index.html"
+        dest = out_dir / path if path.endswith(".html") else (out_dir / path / "index.html" if path else out_dir / "index.html")
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(env.get_template(f"pages/{tpl}").render(**ctx, canonical=f"{DOMAIN}/{path}"), encoding="utf-8")
         if tpl not in NOINDEX_PAGES:
@@ -105,7 +106,10 @@ def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT, paid_preview=False)
     guides = out_dir / "guides" / "index.html"
     guides.parent.mkdir(parents=True, exist_ok=True)
     guides.write_text(env.get_template("guides.html").render(**ctx, canonical=f"{DOMAIN}/guides/"), encoding="utf-8")
-    urls.append((f"{DOMAIN}/guides/", ctx["build_date"]))
+    # An empty guides index is thin content: keep it out of the sitemap (and noindex,
+    # see guides.html) until the first guide is published.
+    if posts:
+        urls.append((f"{DOMAIN}/guides/", ctx["build_date"]))
 
     (out_dir / "sitemap.xml").write_text(env.get_template("sitemap.xml").render(urls=urls), encoding="utf-8")
     robots = "User-agent: *\nDisallow: /\n" if PRELAUNCH else f"User-agent: *\nAllow: /\n\nSitemap: {DOMAIN}/sitemap.xml\n"
