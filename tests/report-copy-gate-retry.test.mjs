@@ -301,7 +301,8 @@ for (const [name, bad] of Object.entries(VIOLATION)) {
       return { ok: true, status: 200, json: async () => ({ content: [{ text: VIOLATION.clearance }] }) };
     }
     if (u.includes('/rest/v1/cw_assessment_sessions')) {
-      return { ok: true, status: 200, json: async () => [SESSION], text: async () => '' };
+      // A paid session: report/init only builds reports for paid orders (2026-10-03).
+      return { ok: true, status: 200, json: async () => [{ payment_status: 'completed', ...SESSION }], text: async () => '' };
     }
     if (u.includes('/rest/v1/calculator_reports')) {
       return { ok: true, status: 200, json: async () => [], text: async () => '' };
