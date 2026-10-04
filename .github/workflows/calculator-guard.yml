@@ -373,6 +373,9 @@ jobs:
       - name: Client-vs-worker macro parity
         run: node tests/macro_parity/parity_test.mjs
 
+      - name: PescoDial browser bundle matches the worker (rebuild with pescodial/scripts/build_pd_calc.mjs)
+        run: node tests/pd-macros-bundle.test.mjs
+
       - name: PescoDial sign-up routing (pesco-* -> pd, CW/KD unchanged)
         run: node tests/pd-subscribe-routing.test.mjs
 

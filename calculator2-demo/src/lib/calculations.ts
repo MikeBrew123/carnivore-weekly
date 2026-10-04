@@ -177,7 +177,14 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
     // Keto and Low-Carb get a 20g carb budget; carnivore/lion/pescatarian are
     // the zero-carb diets (Brew, 2026-08-30). Must mirror the worker exactly.
     if (diet === 'keto' || diet === 'lowcarb' || diet === 'low-carb' || diet === 'low carb') {
-      carbs = 20
+      // Pescatarian Low Carb is up to 100 g/day; Pescatarian Keto stays 20 g
+      // (Brew, 2026-10-03). CW's own lowcarb is unchanged at 20 g. The 100 g is
+      // a ceiling: carbs step down (never below 20 g) when they would push fat
+      // under 20% of calories, the AMDR lower bound. Only very high protein on a
+      // very low calorie target reaches this.
+      carbs = dietIn === 'pesco-lowcarb'
+        ? Math.min(100, Math.max(20, Math.floor((calories - proteinCals - 0.2 * calories) / 4)))
+        : 20
       fat = Math.round((calories - proteinCals - carbs * 4) / 9)
     } else {
       carbs = 0

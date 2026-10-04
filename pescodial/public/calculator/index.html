@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PescoDial calculator | PescoDial</title>
-<meta name="description" content="Pescatarian eating for heart health, with a free calculator.">
+<title>Pescatarian calorie and protein calculator | PescoDial</title>
+<meta name="description" content="Work out your daily calories, protein and fish meals for a pescatarian diet. Free, about two minutes.">
 <link rel="canonical" href="https://www.pescodial.com/calculator/">
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/css/site.css">
@@ -12,11 +12,228 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="site-header"><a class="brand" href="/">PescoDial</a>
-<nav><a href="/calculator/">Calculator</a> <a href="/guides/">Guides</a> <a href="/about/">About</a></nav></header>
-<main id="main"><h1>PescoDial calculator</h1>
-<p>Coming soon.</p></main>
-<footer class="site-footer"><nav><a href="/about/">About</a> <a href="/privacy/">Privacy</a> <a href="/contact/">Contact</a></nav>
-<p>PescoDial shares general information, not medical advice. Talk to your doctor before starting a new diet or changing the one you're on.</p></footer>
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="PescoDial home">Pesco<span>Dial</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/guides/">Guides</a>
+      <a href="/about/">About</a>
+    </nav>
+  </div>
+</header>
+<div class="scallop" aria-hidden="true"></div>
+<main id="main">
+
+<section class="hero wrap" id="calc">
+    <h1>Your pescatarian numbers, worked out</h1>
+    <p class="lead">A free calculator for daily calories, protein and fish meals. It takes about two minutes.</p>
+
+    <div class="card calc">
+      <div class="steps" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
+
+      <!-- STEP 1 -->
+      <form data-step="1" novalidate="">
+        <p class="step-label">Step 1 of 4</p>
+        <fieldset>
+          <legend>Choose your eating style</legend>
+          <div class="choices style-cards">
+            <label class="choice">
+              <input type="radio" name="style" value="med" checked="">
+              <span class="choice-body">
+                <span class="choice-title">Pescatarian Mediterranean</span>
+                <span class="choice-desc">Fish plus olive oil, vegetables, beans and whole grains.</span>
+                <span class="choice-tag">A good place to start</span>
+              </span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="style" value="lowcarb">
+              <span class="choice-body">
+                <span class="choice-title">Pescatarian Low Carb</span>
+                <span class="choice-desc">Fish and vegetables, with less bread, rice and sugar.</span>
+              </span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="style" value="keto">
+              <span class="choice-body">
+                <span class="choice-title">Pescatarian Keto</span>
+                <span class="choice-desc">Fish, eggs, healthy fats and very few carbs.</span>
+              </span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="style" value="carn">
+              <span class="choice-body">
+                <span class="choice-title">Pescatarian Carnivore</span>
+                <span class="choice-desc">Fish, seafood and eggs only.</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+        <div class="btn-row"><button class="btn btn-primary btn-block" type="submit">Next: your numbers</button></div>
+      </form>
+
+      <!-- STEP 2 -->
+      <form data-step="2" novalidate="" hidden="">
+        <p class="step-label">Step 2 of 4</p>
+        <h2 class="step-title" tabindex="-1">Your numbers</h2>
+
+        <div class="error-summary" role="alert" hidden="">
+          <h3>Please check these answers</h3>
+          <ul></ul>
+        </div>
+
+        <div class="toggle" role="radiogroup" aria-label="Units">
+          <label><input type="radio" name="units" value="imp" checked=""><span>ft and lb</span></label>
+          <label><input type="radio" name="units" value="met"><span>cm and kg</span></label>
+        </div>
+
+        <div class="field" data-field="age">
+          <label for="age">Age</label>
+          <div class="unit-wrap"><input class="input" id="age" name="age" type="number" inputmode="numeric" min="1" max="120" aria-describedby="age-err"><span class="unit">years</span></div>
+          <p class="field-error" id="age-err">Enter your age in years, for example 58.</p>
+        </div>
+
+        <fieldset class="field" data-field="sex">
+          <legend class="label" style="font:700 1.125rem var(--f-ui);margin-bottom:6px;">Sex</legend>
+          <span class="hint">Used for the calorie formula.</span>
+          <div class="choices compact two">
+            <label class="choice"><input type="radio" name="sex" value="f"><span class="choice-body"><span class="choice-title">Female</span></span></label>
+            <label class="choice"><input type="radio" name="sex" value="m"><span class="choice-body"><span class="choice-title">Male</span></span></label>
+          </div>
+          <p class="field-error">Choose female or male.</p>
+        </fieldset>
+
+        <div class="field" data-field="height">
+          <span class="label" id="height-label">Height</span>
+          <div class="input-group" data-units="imp">
+            <div class="unit-wrap"><input class="input" id="ft" name="ft" type="number" inputmode="numeric" aria-labelledby="height-label" aria-describedby="height-err"><span class="unit">ft</span></div>
+            <div class="unit-wrap"><input class="input" id="in" name="in" type="number" inputmode="numeric" aria-label="Height, inches"><span class="unit">in</span></div>
+          </div>
+          <div data-units="met" hidden="">
+            <div class="unit-wrap"><input class="input" id="cm" name="cm" type="number" inputmode="numeric" aria-labelledby="height-label" aria-describedby="height-err"><span class="unit">cm</span></div>
+          </div>
+          <p class="field-error" id="height-err">Enter your height, for example 5 ft 4 in.</p>
+        </div>
+
+        <div class="field" data-field="weight">
+          <label for="weight">Current weight</label>
+          <div class="unit-wrap"><input class="input" id="weight" name="weight" type="number" inputmode="decimal" aria-describedby="weight-err"><span class="unit" data-wunit="">lb</span></div>
+          <p class="field-error" id="weight-err">Enter your current weight.</p>
+        </div>
+
+        <fieldset class="field" data-field="goal">
+          <legend class="label" style="font:700 1.125rem var(--f-ui);margin-bottom:6px;">Your goal</legend>
+          <div class="choices compact two">
+            <label class="choice"><input type="radio" name="goal" value="lose" checked=""><span class="choice-body"><span class="choice-title">Lose weight</span></span></label>
+            <label class="choice"><input type="radio" name="goal" value="maintain"><span class="choice-body"><span class="choice-title">Maintain</span></span></label>
+          </div>
+          <p class="field-error">Choose a goal.</p>
+        </fieldset>
+
+        <div class="field" data-field="goalweight">
+          <label for="goalweight">Goal weight</label>
+          <span class="hint">If you want to maintain, enter your current weight.</span>
+          <div class="unit-wrap"><input class="input" id="goalweight" name="goalweight" type="number" inputmode="decimal" aria-describedby="goalweight-err"><span class="unit" data-wunit="">lb</span></div>
+          <p class="field-error" id="goalweight-err">Enter your goal weight.</p>
+        </div>
+
+        <fieldset class="field" data-field="activity">
+          <legend class="label" style="font:700 1.125rem var(--f-ui);margin-bottom:6px;">How active are you?</legend>
+          <div class="choices compact">
+            <label class="choice"><input type="radio" name="activity" value="1.2"><span class="choice-body"><span class="choice-title">Mostly sitting</span></span></label>
+            <label class="choice"><input type="radio" name="activity" value="1.375"><span class="choice-body"><span class="choice-title">Lightly active</span><span class="choice-desc">Walks or light exercise 1 to 3 days a week</span></span></label>
+            <label class="choice"><input type="radio" name="activity" value="1.55"><span class="choice-body"><span class="choice-title">Moderately active</span><span class="choice-desc">Exercise 3 to 5 days a week</span></span></label>
+            <label class="choice"><input type="radio" name="activity" value="1.725"><span class="choice-body"><span class="choice-title">Very active</span><span class="choice-desc">Hard exercise most days</span></span></label>
+          </div>
+          <p class="field-error">Choose the line that fits you best.</p>
+        </fieldset>
+
+        <div class="btn-row">
+          <button class="btn btn-primary btn-block" type="submit">Next</button>
+          <button class="btn-link" type="button" data-back="1">Back</button>
+        </div>
+      </form>
+
+      <!-- UNDER 18 -->
+      <div data-state="under18" class="state-panel" hidden="">
+        <h2 tabindex="-1">This calculator is for adults</h2>
+        <p>PescoDial's calculator is not available for anyone under 18. Growing bodies need different amounts of food, and a general calculator can't account for that.</p>
+        <p>If you're under 18 and thinking about changing how you eat, a doctor or school nurse is a good person to talk to first.</p>
+        <div class="btn-row"><a class="btn btn-secondary" href="/guides/">Read our guides</a><button class="btn-link" type="button" data-back="2">Change my age</button></div>
+      </div>
+
+      <!-- UNDERWEIGHT -->
+      <div data-state="underweight" class="state-panel" hidden="">
+        <h2 tabindex="-1">We can't give a weight-loss target</h2>
+        <p>Based on your height and weight, you are already below the usual healthy weight range. Losing more weight could be harmful, so we won't suggest a calorie target for weight loss.</p>
+        <p>We can show you numbers for keeping your weight steady. If you've lost weight without trying, please mention it to your doctor.</p>
+        <div class="btn-row"><button class="btn btn-primary" type="button" data-maintain="">Show numbers to maintain</button><button class="btn-link" type="button" data-back="2">Check my answers</button></div>
+      </div>
+
+      <div data-state="nottarget" class="state-panel" hidden="">
+        <h2 tabindex="-1">We can't give a self-guided target</h2>
+        <p>Your estimated daily needs are at or below the lowest amount we use for a self-guided plan, so a calculator is the wrong tool here. Your doctor or a registered dietitian can set numbers that fit you.</p>
+        <div class="btn-row"><button class="btn-link" type="button" data-back="2">Check my answers</button></div>
+      </div>
+
+      <!-- STEP 3 -->
+      <form data-step="3" novalidate="" hidden="">
+        <p class="step-label">Step 3 of 4</p>
+        <h2 class="step-title" tabindex="-1">Where should we send your results?</h2>
+        <div class="field" data-field="email">
+          <label for="email">Email address</label>
+          <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="email-note email-err">
+          <p class="field-error" id="email-err">Enter an email address like name@example.com.</p>
+        </div>
+        <p id="email-note">We'll email your results and a short weekly guide. Unsubscribe anytime.</p>
+        <div class="btn-row">
+          <button class="btn btn-primary btn-block" type="submit">Show my results</button>
+          <button class="btn-link" type="button" data-back="2">Back</button>
+        </div>
+      </form>
+
+      <!-- STEP 4 -->
+      <div data-step="4" hidden="">
+        <p class="step-label">Step 4 of 4</p>
+        <h2 class="step-title" tabindex="-1">Your daily numbers</h2>
+
+        <div class="notice notice-doctor" role="note">
+          <p>Talk to your doctor before starting a new diet or changing the one you're on, especially if you take medication.</p>
+        </div>
+
+        <div class="results-grid">
+          <div class="stat stat-wide"><span class="stat-label">Calories</span><span class="stat-value"><span data-r="kcal">1,600</span><small>a day</small></span></div>
+          <div class="stat"><span class="stat-label">Protein</span><span class="stat-value"><span data-r="protein">85</span><small>g</small></span></div>
+          <div class="stat"><span class="stat-label">Fat</span><span class="stat-value"><span data-r="fat">62</span><small>g</small></span></div>
+          <div class="stat"><span class="stat-label">Carbs</span><span class="stat-value"><span data-r="carbs">175</span><small data-r="carbsunit">g</small></span></div>
+          <div class="stat"><span class="stat-label">Fiber</span><span class="stat-value"><span data-r="fiber">25</span><small data-r="fiberunit">g</small></span></div>
+        </div>
+        <p class="results-basis" data-r="basis">Based on Pescatarian Mediterranean, aiming to lose weight slowly.</p>
+
+        <div class="fish-box">
+          <h3>About 5 fish meals a week</h3>
+          <p>Build about 5 meals a week around fish or seafood. Make at least 2 of them oily fish such as salmon, sardines, trout or Atlantic mackerel. Canned and frozen fish count.</p>
+          <h3 style="font-family:var(--f-serif);font-weight:600;font-size:1.25rem;margin-top:18px;">A sample day</h3>
+          <ul class="sample-day" data-r="sample"></ul>
+        </div>
+
+        
+
+        <div class="btn-row"><button class="btn-link" type="button" data-restart="">Start over</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <a href="/about/">About</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/contact/">Contact</a>
+    </nav>
+    <p class="small">General information, not medical advice.</p>
+    <p class="small">© 2026 PescoDial</p>
+  </div>
+</footer>
+<script src="/js/pd-macros.js" defer></script><script src="/js/calculator.js" defer></script>
 </body>
 </html>

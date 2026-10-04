@@ -2447,7 +2447,14 @@ function calculateMacros(formData) {
     // "it is only low if they choose Low Carb or Keto"). lowcarb previously
     // fell into the zero branch, contradicting its own "moderate carbs" label.
     if (diet === 'keto' || diet === 'lowcarb' || diet === 'low-carb' || diet === 'low carb') {
-      carbs = 20;
+      // Pescatarian Low Carb is up to 100 g/day; Pescatarian Keto stays 20 g
+      // (Brew, 2026-10-03). CW's own lowcarb is unchanged at 20 g. The 100 g is
+      // a ceiling: carbs step down (never below 20 g) when they would push fat
+      // under 20% of calories, the AMDR lower bound. Only very high protein on a
+      // very low calorie target reaches this.
+      carbs = dietIn === 'pesco-lowcarb'
+        ? Math.min(100, Math.max(20, Math.floor((calories - proteinCals - 0.2 * calories) / 4)))
+        : 20;
       const carbCals = carbs * 4;
       const fatCals = calories - proteinCals - carbCals;
       fat = Math.round(fatCals / 9);

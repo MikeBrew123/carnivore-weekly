@@ -35928,8 +35928,8 @@
   "output": {
    "calories": 1695,
    "protein_grams": 163,
-   "fat_grams": 107,
-   "carbs_grams": 20,
+   "fat_grams": 71,
+   "carbs_grams": 100,
    "tdee": 1695,
    "targetSuppressed": false,
    "selfServiceFloor": 1200,
@@ -35952,8 +35952,8 @@
   "output": {
    "calories": 1356,
    "protein_grams": 163,
-   "fat_grams": 69,
-   "carbs_grams": 20,
+   "fat_grams": 34,
+   "carbs_grams": 100,
    "tdee": 1695,
    "targetSuppressed": false,
    "selfServiceFloor": 1200,
@@ -35977,8 +35977,8 @@
   "output": {
    "calories": 1356,
    "protein_grams": 136,
-   "fat_grams": 81,
-   "carbs_grams": 20,
+   "fat_grams": 46,
+   "carbs_grams": 100,
    "tdee": 1695,
    "targetSuppressed": false,
    "selfServiceFloor": 1200,
@@ -36001,8 +36001,8 @@
   "output": {
    "calories": 1864,
    "protein_grams": 163,
-   "fat_grams": 126,
-   "carbs_grams": 20,
+   "fat_grams": 90,
+   "carbs_grams": 100,
    "tdee": 1695,
    "targetSuppressed": false,
    "selfServiceFloor": 1200,
@@ -36205,6 +36205,30 @@
    "floorApplied": false,
    "requestedDeficitPct": 20,
    "effectiveDeficitPct": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 90,
+   "heightCm": 165,
+   "weight": 95,
+   "goalWeight": 160,
+   "lifestyle": "sedentary",
+   "goal": "maintain",
+   "diet": "pesco-lowcarb"
+  },
+  "output": {
+   "calories": 1021,
+   "protein_grams": 145,
+   "fat_grams": 23,
+   "carbs_grams": 59,
+   "tdee": 1021,
+   "targetSuppressed": false,
+   "selfServiceFloor": 1200,
+   "floorApplied": false,
+   "requestedDeficitPct": 0,
+   "effectiveDeficitPct": 0
   }
  }
 ]
