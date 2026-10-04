@@ -42,7 +42,10 @@ PAGES = {
     "contact.html": "contact/",
     "404.html": "404.html",
 }
-NOINDEX_PAGES = {"404.html"}
+# Pages kept out of the sitemap. /calculator/ duplicates the homepage tool, so it
+# points its canonical at / (CANONICAL_TO) instead of competing with it.
+NOINDEX_PAGES = {"404.html", "calculator.html"}
+CANONICAL_TO = {"calculator.html": ""}
 
 # Foreign domains that must never appear as same-site links in PD output.
 FOREIGN_HOSTS = ("carnivoreweekly.com", "ketodial.com")
@@ -91,7 +94,7 @@ def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT, paid_preview=False)
     for tpl, path in PAGES.items():
         dest = out_dir / path if path.endswith(".html") else (out_dir / path / "index.html" if path else out_dir / "index.html")
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(env.get_template(f"pages/{tpl}").render(**ctx, canonical=f"{DOMAIN}/{path}"), encoding="utf-8")
+        dest.write_text(env.get_template(f"pages/{tpl}").render(**ctx, canonical=f"{DOMAIN}/{CANONICAL_TO.get(tpl, path)}"), encoding="utf-8")
         if tpl not in NOINDEX_PAGES:
             urls.append((f"{DOMAIN}/{path}", ctx["build_date"]))
 
