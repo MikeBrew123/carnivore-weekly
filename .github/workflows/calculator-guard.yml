@@ -334,6 +334,11 @@ jobs:
       # dishes, all-fish exclusion is refused, grocery list derived from the week.
       - name: PescoDial meal plan
         run: node tests/pd-meal-plan.test.mjs
+      # The other PescoDial styles (Low Carb, Keto, Carnivore) and the rules all four
+      # share: tolerance and carb rule per style, fish meals per style (5/5/7/7),
+      # no forbidden foods, sane portions, restrictions, the numbers-withheld week.
+      - name: PescoDial meal plan, every style
+        run: node tests/pd-meal-plan-styles.test.mjs
       # PescoDial paid report through the real path: guarded numbers, maintenance for
       # medication, numbers hidden for kidney disease and blood thinners (dishes only,
       # no amounts), allergies removed from plan, list, recipes and tips, PD branding,

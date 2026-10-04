@@ -30,7 +30,7 @@ jobs:
           set -e
           for t in report-safety kd-report-safety report-integrity health-context-flow \
                    report-copy-gate-retry renal-meal-plan-suppression report-email-authorization \
-                   deploy-tripwire goal-conflict-flow calorie-guardrail pd-meal-plan pd-report \
+                   deploy-tripwire goal-conflict-flow calorie-guardrail pd-meal-plan pd-meal-plan-styles pd-report \
                    cw-report-warning brand-attribution-isolation; do
             echo "== $t"; node tests/$t.test.mjs
           done

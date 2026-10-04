@@ -15,7 +15,9 @@
  * and asserts:
  *   A. it renders: no throw, a 30-day calendar and a shopping list exist;
  *   B. fish-only diets contain no land meat anywhere in the rendered report;
- *   C. the cover title names the reader's diet, never another one.
+ *   C. the cover title names the reader's diet, never another one;
+ *   D. every PescoDial style renders the PescoDial report (7-day plan, grocery list),
+ *      with no CW section text and no other PescoDial style's name.
  *
  * Run: node tests/report-diet-fidelity.test.mjs
  */
@@ -39,10 +41,11 @@ const DIETS = {
   pescatarian: { title: 'Pescatarian', fishOnly: true },
   keto: { title: 'Keto', fishOnly: false },
   lowcarb: { title: 'Low Carb', fishOnly: false },
-  'pesco-carnivore': { title: 'Pescatarian Carnivore', fishOnly: true },
-  'pesco-keto': { title: 'Pescatarian Keto', fishOnly: true },
-  'pesco-lowcarb': { title: 'Pescatarian Low Carb', fishOnly: true },
-  // PescoDial's own report (Brew's design): a 7-day plan, not the 30-day calendar.
+  // PescoDial's own report (Brew's design) for all four PescoDial styles: a 7-day
+  // plan, not the 30-day calendar, and never a CW section.
+  'pesco-carnivore': { title: 'Pescatarian Carnivore', fishOnly: true, days: 7 },
+  'pesco-keto': { title: 'Pescatarian Keto', fishOnly: true, days: 7 },
+  'pesco-lowcarb': { title: 'Pescatarian Low Carb', fishOnly: true, days: 7 },
   'pesco-mediterranean': { title: 'Pescatarian Mediterranean', fishOnly: true, days: 7 },
 };
 const ONLY = process.argv.slice(2).filter(a => !a.startsWith('-'));
@@ -96,6 +99,11 @@ for (const [diet, want] of Object.entries(DIETS)) {
     const rows = (html.match(/<tr><th scope="row">(Mon|Tue|Wed|Thu|Fri|Sat|Sun)<\/th>/g) || []).length;
     if (rows !== 7) { ok = false; fail(diet, `A. 7-day plan has ${rows} day rows`); }
     if (!/data-pd-section="grocery"/.test(html)) { ok = false; fail(diet, 'A. no grocery list'); }
+    // D. a PD report is the PD report: no CW section, no other style's name.
+    const leak = html.match(/Report #\d|day\s*30\b|30-Day|About this report:|\n---\n/i);
+    if (leak) { ok = false; fail(diet, `D. CW report text "${leak[0]}" in a PescoDial report`); }
+    const other = Object.values(DIETS).filter(d => d.days === 7 && d.title !== want.title).map(d => d.title).find(t => html.includes(t));
+    if (other) { ok = false; fail(diet, `D. another style's name "${other}" in the report`); }
   } else {
     if (!/day\s*30/i.test(sections[3] || '')) { ok = false; fail(diet, 'A. no 30-day calendar'); }
     if (!(sections[4] || '').trim()) { ok = false; fail(diet, 'A. no shopping list'); }

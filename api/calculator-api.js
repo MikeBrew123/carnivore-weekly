@@ -56,9 +56,9 @@ import {
   applyCalorieGuidance,
 } from './medical-context.js';
 import { resolveGoal, detectGoalConflict } from './goal-semantics.js';
-import { buildPescoMedWeek, buildPescoMedDishWeek, groceryFromWeek, groceryNamesFromWeek } from './pd-meal-plan.js';
+import { buildPescoWeek, buildPescoDishWeek, groceryFromWeek, groceryNamesFromWeek } from './pd-meal-plan.js';
 import { PD_FOODS } from './pd-foods.js';
-import { renderPescoMedSections, pdSectionText, wrapPdReportHTML } from './pd-report.js';
+import { renderPescoSections, pdSectionText, wrapPdReportHTML, pdStyleLabel } from './pd-report.js';
 
 // Version marker for deployment verification
 const DEPLOY_VERSION = "v2026-06-07-resend-webhook";
@@ -4035,7 +4035,7 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
   // Carnivore Weekly branding anywhere in the document.
   if (isPescoMedReport(userData)) {
     const name = [userData.firstName, userData.lastName].filter(Boolean).join(' ').trim() || 'You';
-    return wrapPdReportHTML(markdownContent, { name });
+    return wrapPdReportHTML(markdownContent, { name, label: pdStyleLabel(pescoStyleOf(userData)) });
   }
   // Cover names the reader's own diet (ISSUE-086), never a hard-coded one.
   const reportDietLabel = userData.dietLabel || resolveDietProfile(userData.selectedProtocol).label;
@@ -4191,15 +4191,22 @@ class ReportValidationError extends Error {
   }
 }
 
-// ===== PescoDial: Pescatarian Mediterranean report (Brew, 2026-10-03) =====
-// The 7-day plan, fish plan, grocery list and fixed copy from Brew's design. This is
-// a branch of generateAllReports(), not a second generator: same input gate, same
-// medical context, same calorie guidance, same four copy gates, same delivery path.
+// ===== PescoDial report, all four styles (Brew, 2026-10-03) =====
+// The 7-day plan, fish plan, grocery list and fixed copy from Brew's design, for
+// Pescatarian Mediterranean, Low Carb, Keto and Carnivore. This is a branch of
+// generateAllReports(), not a second generator: same input gate, same medical
+// context, same calorie guidance, same four copy gates, same delivery path.
+const PD_REPORT_STYLES = ['pesco-mediterranean', 'pesco-lowcarb', 'pesco-keto', 'pesco-carnivore'];
 
-function isPescoMedReport(data) {
+/** The reader's PescoDial style key, or null for any other diet. */
+function pescoStyleOf(data) {
   const key = (data && data.dietProfile && data.dietProfile.key)
     || resolveDietProfile((data && (data.diet_type || data.diet)) || '').key;
-  return key === 'pesco-mediterranean';
+  return PD_REPORT_STYLES.includes(key) ? key : null;
+}
+// Name kept: every PescoDial style now takes this branch, not only Mediterranean.
+function isPescoMedReport(data) {
+  return pescoStyleOf(data) !== null;
 }
 
 // Plan foods carry a category so the existing allergy rules in shouldFilterOutFood()
@@ -4209,6 +4216,8 @@ const PD_FOOD_CATEGORY = {
   shrimp: 'shellfish',
   greek_yogurt: 'dairy', milk: 'dairy', feta: 'dairy', parmesan: 'dairy', string_cheese: 'dairy',
   eggs: 'eggs',
+  mackerel: 'fish', smoked_salmon: 'fish', halibut: 'fish', scallops: 'shellfish',
+  butter: 'dairy', cheddar: 'dairy', cream_cheese: 'dairy', heavy_cream: 'dairy', whole_greek_yogurt: 'dairy',
 };
 
 /**
@@ -4227,6 +4236,8 @@ function pdNumbersHidden(ctx, macros) {
 }
 
 function generatePescoMedReport(data, { now = new Date() } = {}) {
+  const style = pescoStyleOf(data);
+  if (!style) throw new Error('generatePescoMedReport: not a PescoDial style.');
   const ctx = deriveMedicalContext(data);
   const allergies = (data.allergies || '').toLowerCase();
   const restrictions = withMedicalFoodExclusions((data.avoidFoods || data.foodRestrictions || '').toLowerCase(), ctx);
@@ -4242,7 +4253,7 @@ function generatePescoMedReport(data, { now = new Date() } = {}) {
   const hidden = pdNumbersHidden(ctx, data.macros);
   // Never sized from a withheld value: the hidden variant is built with no macro set at all.
   const macros = hidden ? null : applyCalorieGuidance(data.macros || {}, ctx);
-  const week = hidden ? buildPescoMedDishWeek(isExcluded) : buildPescoMedWeek(macros, isExcluded);
+  const week = hidden ? buildPescoDishWeek(style, isExcluded) : buildPescoWeek(style, macros, isExcluded);
   if (!week.days.length) {
     throw new ReportValidationError({
       code: 'PD_PLAN_NOT_POSSIBLE',
@@ -4256,8 +4267,8 @@ function generatePescoMedReport(data, { now = new Date() } = {}) {
   const name = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || 'You';
   const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Los_Angeles' });
 
-  const sections = renderPescoMedSections({
-    hidden, maintenance: !hidden && !!macros.deficitNeutralized, macros, week, grocery, ctx,
+  const sections = renderPescoSections({
+    style, hidden, maintenance: !hidden && !!macros.deficitNeutralized, macros, week, grocery, ctx,
     avgFiber, name, date, isRecipeExcluded, isTextExcluded,
   });
   // The same render-time claim gate as every CW section, on the visible text.
@@ -4350,8 +4361,8 @@ async function generateAllReports(data, apiKey) {
   // Fail closed before a single section is written or a single token is spent.
   assertReportInputsCoherent(data);
 
-  // PescoDial Pescatarian Mediterranean: its own section set (Brew's design), built
-  // inside this generator so it passes the same gates as every other report.
+  // PescoDial (all four styles): its own section set (Brew's design), built inside
+  // this generator so it passes the same gates as every other report.
   if (isPescoMedReport(data)) return generatePescoMedReport(data);
 
   // CRITICAL VALIDATION: Force diet to lowercase and log source

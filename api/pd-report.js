@@ -1,4 +1,6 @@
-// PescoDial paid report: Pescatarian Mediterranean (Brew, 2026-10-03).
+// PescoDial paid report, all four PescoDial styles (Brew, 2026-10-03): Pescatarian
+// Mediterranean, Low Carb, Keto and Carnivore. One layout; the per-style copy (plate
+// guide, card notes, fish line, recipes, eating-out line) is STYLE_COPY below.
 //
 // NOT a second report generator. This module only RENDERS. The one entry point is
 // still generateAllReports() in api/calculator-api.js, which runs the input gate,
@@ -181,6 +183,171 @@ const RECIPES = [
     swap: 'Add a can of sardines or a hard-boiled egg to make it a bigger meal. Chickpeas work in place of lentils.' },
 ];
 
+// ---------------------------------------------------------------------------
+// Per-style copy (Sarah, pescodial/drafts/report/). Recipes are her text as written;
+// the plate guide is plate-guide.md, the card notes are numbers-intro.md "Card
+// sublabels by style", the fish line is fish-plan.md "Fish that suit your style", the
+// eating-out line is eating-out.md "For your style". `dish` ties a recipe to the plan's
+// dish; `foods` drop it with an excluded food; `lines` are also checked as text.
+// ---------------------------------------------------------------------------
+// recipes-pesco-lowcarb.md
+const RECIPES_LOWCARB = [
+  { dish: 'lc-sardine-greek', slot: 'lunch', title: 'Sardine Greek salad', time: '10 min', tool: '1 bowl, no cooking',
+    foods: ['sardines', 'greens', 'cucumber', 'tomatoes', 'olives', 'feta', 'olive_oil', 'lemon'],
+    lines: ['1 can sardines in olive oil (about 3.75 oz), drained', '2 cups chopped romaine', '1 cup chopped cucumber', '½ cup cherry tomatoes, halved', '6 Kalamata olives', '1 oz feta, crumbled', '1 tbsp extra-virgin olive oil, ½ lemon, dried oregano'],
+    steps: ['Put the romaine, cucumber, tomatoes and olives in a bowl.', 'Whisk the oil, lemon juice and a pinch of oregano.', 'Toss the salad with the dressing.', 'Top with the sardines and feta.'],
+    swap: 'Canned salmon or two hard-boiled eggs.' },
+  { dish: 'lc-shrimp-stirfry', slot: 'dinner', title: 'Shrimp stir-fry with cauliflower rice', time: '20 min', tool: '1 large skillet',
+    foods: ['shrimp', 'cauliflower', 'broccoli', 'bell_pepper', 'olive_oil'], shellfish: true,
+    lines: ['4 oz peeled shrimp, thawed if frozen', '1 cup riced cauliflower (fresh or frozen)', '1 cup broccoli florets', '½ cup sliced bell pepper', '1 tbsp olive or avocado oil', '1 tsp grated fresh ginger and 1 clove garlic, minced', '1 tbsp low-sodium soy sauce or tamari'],
+    steps: ['Heat half the oil in the skillet over medium-high heat. Cook the cauliflower rice 4 to 5 minutes, then move it to a plate.', 'Add the rest of the oil, the broccoli and the pepper. Stir-fry 3 to 4 minutes.', 'Add the ginger, garlic and shrimp. Cook 3 to 4 minutes, until the shrimp are pink and opaque.', 'Stir in the soy sauce and serve over the cauliflower rice.'],
+    swap: 'Scallops or cubes of firm white fish.' },
+  { dish: 'lc-trout-cauli', slot: 'dinner', title: 'Lemon-herb trout with roasted cauliflower', time: '30 min', tool: '1 sheet pan',
+    foods: ['trout', 'cauliflower', 'green_beans', 'olive_oil', 'lemon'],
+    lines: ['4 oz trout fillet', '1½ cups cauliflower florets', '1 cup green beans, trimmed', '1 tbsp olive oil', '½ lemon, sliced', 'Fresh dill or parsley, salt and pepper'],
+    steps: ['Heat the oven to 425°F. Toss the cauliflower and green beans with most of the oil and some salt. Roast 15 minutes.', 'Move the vegetables to the edges. Add the trout, brush with the rest of the oil and season.', 'Lay the lemon slices on the fish. Roast 8 to 10 minutes, until it flakes easily.', 'Scatter the herbs over everything.'],
+    swap: 'Salmon, which may need a few minutes more.' },
+  { dish: 'lc-frittata', slot: 'breakfast', title: 'Spinach, pepper and feta frittata', time: '15 min', tool: '1 small oven-safe skillet',
+    foods: ['eggs', 'spinach', 'bell_pepper', 'feta', 'olive_oil'],
+    lines: ['3 eggs', '1 cup fresh spinach', '¼ cup diced bell pepper', '1 oz feta, crumbled', '1 tsp olive oil', 'Salt and pepper'],
+    steps: ['Turn on the broiler. Beat the eggs with a pinch of salt and pepper.', 'Heat the oil in the skillet over medium heat. Cook the pepper 2 minutes, then add the spinach until it wilts.', 'Pour in the eggs and scatter the feta on top. Cook without stirring for 3 to 4 minutes, until the edges set.', 'Slide the pan under the broiler for 1 to 2 minutes, until the top is set and cooked through.'],
+    swap: 'Leftover cooked salmon instead of feta.' },
+  { dish: 'lc-salmon-wraps', slot: 'lunch', title: 'Salmon lettuce wraps with crunchy slaw', time: '15 min', tool: '1 bowl',
+    foods: ['salmon', 'cabbage', 'greek_yogurt', 'greens', 'avocado', 'lemon'],
+    lines: ['4 oz cooked salmon (leftover or canned), flaked', '1 cup shredded cabbage or coleslaw mix', '2 tbsp plain Greek yogurt', '1 tsp lime or lemon juice', '4 large lettuce leaves (butter lettuce or romaine)', '¼ avocado, sliced', 'Salsa, salt and pepper'],
+    steps: ['Mix the yogurt, lime juice and a pinch of salt. Toss it with the cabbage.', 'Lay out the lettuce leaves.', 'Fill each one with salmon, slaw and avocado.', 'Top with a spoonful of salsa and fold to eat.'],
+    swap: 'Cooked shrimp or canned light tuna.' },
+];
+// recipes-pesco-keto.md
+const RECIPES_KETO = [
+  { dish: 'k-salmon-spinach', slot: 'dinner', title: 'Pan-seared salmon with garlic butter spinach', time: '20 min', tool: '1 skillet',
+    foods: ['salmon', 'olive_oil', 'butter', 'spinach', 'lemon'],
+    lines: ['4 oz salmon fillet, skin on', '1 tbsp olive oil', '1 tbsp butter', '1 clove garlic, sliced', '3 cups fresh spinach', '½ lemon, salt and pepper'],
+    steps: ['Pat the salmon dry and season with salt and pepper.', 'Heat the oil in a skillet over medium-high heat. Cook the salmon skin side down for 4 to 5 minutes, until the skin is crisp.', 'Flip and cook 2 to 4 minutes more, until it flakes easily. Move it to a plate.', 'Lower the heat, add the butter and garlic, then the spinach. Stir until the spinach wilts, about 2 minutes.', 'Serve the salmon on the spinach with a squeeze of lemon.'],
+    swap: 'Trout or Atlantic mackerel fillets.' },
+  { dish: 'k-tuna-avocado', slot: 'lunch', title: 'Tuna-stuffed avocado', time: '10 min', tool: '1 bowl, no cooking',
+    foods: ['tuna', 'avocado', 'lemon'],
+    lines: ['1 can light tuna (about 5 oz), drained', '1 tbsp mayonnaise', '1 celery stalk, finely chopped', '1 tsp lemon juice', '1 ripe avocado', 'Fresh dill or chives, salt and pepper'],
+    steps: ['Mix the tuna, mayonnaise, celery and lemon juice in a bowl. Season with salt and pepper.', 'Halve the avocado and remove the pit.', 'Pile the tuna into the avocado halves.', 'Top with dill or chives.'],
+    swap: 'Canned salmon instead of tuna. Choose light tuna over albacore to keep mercury lower.' },
+  { dish: 'k-shrimp-zoodles', slot: 'dinner', title: 'Garlic shrimp with zucchini noodles', time: '20 min', tool: '1 skillet',
+    foods: ['shrimp', 'zucchini', 'olive_oil', 'butter', 'parmesan'], shellfish: true,
+    lines: ['4 oz peeled shrimp, thawed if frozen', '2 cups zucchini noodles (store-bought or spiralized)', '1 tbsp olive oil', '1 tbsp butter', '2 cloves garlic, sliced', 'Pinch of red pepper flakes', '1 tbsp grated parmesan, salt and pepper'],
+    steps: ['Heat the oil in a skillet over medium heat. Add the garlic and pepper flakes and cook 1 minute.', 'Add the shrimp and cook 2 to 3 minutes per side, until pink and opaque. Move them to a plate.', 'Add the butter and zucchini noodles to the pan. Toss for 2 to 3 minutes, just until warm.', 'Return the shrimp, season, and top with parmesan.'],
+    swap: 'Scallops instead of shrimp.' },
+  { dish: 'k-parmesan-cod', slot: 'dinner', title: 'Parmesan-crusted cod with roasted broccoli', time: '25 min', tool: '1 sheet pan',
+    foods: ['cod', 'broccoli', 'olive_oil', 'parmesan', 'butter'],
+    lines: ['4 oz cod fillet', '1½ cups broccoli florets', '1 tbsp olive oil', '2 tbsp grated parmesan', '1 tbsp butter, melted', '½ tsp dried parsley or oregano, salt and pepper'],
+    steps: ['Heat the oven to 425°F. Toss the broccoli with the oil and a pinch of salt, spread it on the pan and roast for 8 minutes.', 'Mix the parmesan, melted butter and herbs.', 'Put the cod on the pan, season it, and press the parmesan mixture on top.', 'Roast 12 to 15 minutes, until the cod flakes easily and the topping is golden.'],
+    swap: 'Haddock or pollock.' },
+  { dish: 'k-smoked-salmon-eggs', slot: 'breakfast', title: 'Smoked salmon scrambled eggs', time: '10 min', tool: '1 nonstick skillet',
+    foods: ['eggs', 'smoked_salmon', 'cream_cheese', 'butter'],
+    lines: ['3 eggs', '1 oz smoked salmon, torn into pieces', '1 tbsp cream cheese', '1 tsp butter', 'Fresh chives and black pepper'],
+    steps: ['Beat the eggs with a pinch of pepper. Smoked salmon is salty, so go easy on salt.', 'Melt the butter in the skillet over low heat. Add the eggs.', 'Stir slowly until the eggs are softly set and cooked through, 3 to 4 minutes.', 'Take the pan off the heat. Fold in the cream cheese and salmon.', 'Top with chives.'],
+    swap: 'Leftover cooked salmon or trout in place of smoked salmon.' },
+];
+// recipes-pesco-carnivore.md
+const RECIPES_CARNIVORE = [
+  { dish: 'c-butter-salmon', slot: 'dinner', title: 'Butter-basted salmon with crispy skin', time: '15 min', tool: '1 skillet',
+    foods: ['salmon', 'butter'],
+    lines: ['4 to 6 oz salmon fillet, skin on', '1 tbsp butter', 'Salt and black pepper'],
+    steps: ['Pat the salmon dry, especially the skin. Season both sides with salt.', 'Heat a skillet over medium-high heat. Lay the salmon in skin side down with no oil and press it flat for 10 seconds.', 'Cook 4 to 5 minutes, until the skin is crisp and releases easily.', 'Flip, add the butter, and tilt the pan to spoon the melted butter over the fish for 2 to 3 minutes, until it flakes easily.'],
+    swap: 'Trout or arctic char.' },
+  { dish: 'c-sardines-eggs', slot: 'breakfast', title: 'Sardines with soft-scrambled eggs', time: '10 min', tool: '1 nonstick skillet',
+    foods: ['eggs', 'sardines', 'butter'],
+    lines: ['3 eggs', '1 can sardines in water or their own oil (about 3.75 oz), drained', '1 tsp butter', 'Salt'],
+    steps: ['Beat the eggs with a pinch of salt.', 'Melt the butter in the skillet over low heat and add the eggs.', 'Stir slowly until the eggs are softly set and cooked through, 3 to 4 minutes.', 'Slide the eggs onto a plate. Warm the sardines in the same pan for 1 minute and lay them on top.'],
+    swap: 'Canned salmon or smoked trout.' },
+  { dish: 'c-brown-butter-shrimp', slot: 'dinner', title: 'Brown butter shrimp', time: '10 min', tool: '1 skillet',
+    foods: ['shrimp', 'butter'], shellfish: true,
+    lines: ['5 oz peeled shrimp, thawed if frozen', '1½ tbsp butter', '½ tsp smoked paprika (optional)', 'Salt'],
+    steps: ['Pat the shrimp dry and season with salt and paprika.', 'Melt the butter in a skillet over medium heat. Let it bubble until it smells nutty and turns light brown, about 2 minutes.', 'Add the shrimp in a single layer. Cook 2 to 3 minutes per side, until pink and opaque.', 'Pour the pan butter over the shrimp to serve.'],
+    swap: 'Sea scallops, seared 2 minutes per side.' },
+  { dish: 'c-salmon-patties', slot: 'lunch', title: 'Salmon patties', time: '20 min', tool: '1 bowl, 1 skillet',
+    foods: ['salmon', 'eggs', 'parmesan', 'butter'],
+    lines: ['1 can salmon (about 5 oz), drained', '1 egg', '2 tbsp finely grated parmesan', '1 tbsp butter', 'Salt and pepper'],
+    steps: ['Flake the salmon into a bowl. Canned salmon bones are soft, so you can mash them in or lift them out.', 'Add the egg, parmesan and a pinch of salt and pepper. Mix well.', 'Shape into 2 patties, about ¾ inch thick.', 'Melt the butter in a skillet over medium heat. Cook the patties 3 to 4 minutes per side, until golden and hot all the way through.'],
+    swap: 'Canned light tuna or cooked crab instead of salmon.' },
+  { dish: 'c-parmesan-cod', slot: 'dinner', title: 'Baked cod with parmesan butter', time: '20 min', tool: '1 small baking dish',
+    foods: ['cod', 'butter', 'parmesan'],
+    lines: ['5 oz cod fillet', '1 tbsp butter, softened', '2 tbsp grated parmesan', 'Salt and pepper'],
+    steps: ['Heat the oven to 400°F.', 'Mash the butter and parmesan together.', 'Put the cod in the baking dish, season it, and spread the parmesan butter over the top.', 'Bake 12 to 15 minutes, until the cod flakes easily and the top is golden.'],
+    swap: 'Haddock or pollock. If you skip cheese, bake the fish with just butter and salt.' },
+];
+const RECIPE_INTROS = { lowcarb: 'Each recipe serves one. Double everything to cook for two or to save a portion for tomorrow. If your meal plan lists a different portion, use the one in your plan.', keto: 'Each recipe serves one. Double everything to cook for two or to save a portion for tomorrow. If your meal plan lists a different portion, use the one in your plan.', carnivore: 'Each recipe serves one. Double everything to cook for two or to save a portion for tomorrow. If your meal plan lists a different portion, use the one in your plan. Salt to taste, and add a pinch of your favorite spice if you like.' };
+
+// Plate guide lines: [dot colour or null, bold lead or '', text]. The disc is the
+// plate drawn to the same shares (aria-label says the same in words).
+const STYLE_COPY = {
+  'pesco-mediterranean': {
+    label: 'Pescatarian Mediterranean',
+    cardNotes: COPY.cardNotes, fishStyle: COPY.fishStyle, fishCards: COPY.fishCards,
+    recipes: RECIPES, recipesIntro: COPY.recipesIntro, eatingOutStyle: COPY.eatingOutStyle,
+    plate: null, // the original Mediterranean plate (COPY.plate), unchanged
+  },
+  'pesco-lowcarb': {
+    label: 'Pescatarian Low Carb',
+    cardNotes: { cal: 'Three meals', pro: 'Fish, seafood, eggs, yogurt', fat: 'Olive oil, fish, nuts', carb: 'Vegetables, berries, nuts', fib: 'Vegetables, nuts, seeds' },
+    fishStyle: 'Salmon, trout, cod, haddock, shrimp and canned light tuna suit your style. A mix of rich and lean fish gives you heartier and lighter meals through the week.',
+    fishCards: { shrimp: COPY.fishCards.shrimp },
+    recipes: RECIPES_LOWCARB, recipesIntro: RECIPE_INTROS.lowcarb,
+    eatingOutStyle: 'Trade the starch for a second vegetable, and keep fruit to a small portion like berries. Nuts and cheese sticks are easy travel snacks.',
+    plate: {
+      disc: 'conic-gradient(var(--olive-2) 0 50%,var(--sea-2) 50% 88%,#c79a3e 88% 100%)',
+      aria: 'Plate: half non-starchy vegetables, a quarter to a half fish, seafood or eggs, a little nuts or cheese',
+      lines: [
+        ['var(--olive-2)', 'Half the plate:', 'non-starchy vegetables or salad'],
+        ['var(--sea-2)', 'A quarter to a half:', 'fish, seafood or eggs, about the size of your palm'],
+        ['#c79a3e', '', "A small handful of nuts, seeds or cheese if you're still hungry"],
+        [null, '', 'Leave out bread, rice, pasta, beans and potatoes.'],
+      ],
+    },
+  },
+  'pesco-keto': {
+    label: 'Pescatarian Keto',
+    cardNotes: { cal: 'Two or three meals', pro: 'Fish, seafood, eggs, cheese', fat: 'Fish, olive oil, butter, avocado', carb: 'Leafy and green vegetables', fib: 'Greens, avocado, nuts, seeds' },
+    fishStyle: 'Salmon, sardines, Atlantic mackerel, herring and trout suit your style. Fattier fish bring the fat this style needs. Shrimp and scallops work when you add butter or olive oil.',
+    fishCards: { shrimp: COPY.fishCards.shrimp },
+    recipes: RECIPES_KETO, recipesIntro: RECIPE_INTROS.keto,
+    eatingOutStyle: 'Skip the bread basket, rice and potatoes, and ask for double vegetables or a side salad with olive oil instead. Nuts, olives and cheese are easy travel snacks.',
+    plate: {
+      disc: 'conic-gradient(var(--sea-2) 0 62%,var(--olive-2) 62% 100%)',
+      aria: 'Plate: mostly fish, seafood or eggs, the rest leafy greens or other low-carb vegetables',
+      lines: [
+        ['var(--sea-2)', 'Most of the plate:', 'fish, seafood or eggs, about the size of your palm or a little more'],
+        ['var(--olive-2)', 'The rest:', 'leafy greens or other low-carb vegetables'],
+        [null, '', 'Add fat you can see: olive oil, butter, avocado or a little cheese.'],
+        [null, '', 'Skip the bread, rice, pasta, beans and potatoes.'],
+      ],
+    },
+  },
+  'pesco-carnivore': {
+    label: 'Pescatarian Carnivore',
+    cardNotes: { cal: 'Two or three meals', pro: 'Fish, seafood, eggs', fat: 'Fish, butter, eggs', carb: 'Very little on this style', fib: 'Very little on this style' },
+    fishStyle: 'Salmon, sardines, Atlantic mackerel, trout, shrimp, scallops and oysters suit your style. Fish and shellfish are the whole meal, so rotating kinds keeps the week from getting repetitive.',
+    fishCards: { shrimp: COPY.fishCards.shrimp },
+    recipes: RECIPES_CARNIVORE, recipesIntro: RECIPE_INTROS.carnivore,
+    eatingOutStyle: 'Order the fish or shrimp plain, cooked in butter, and ask for a second portion of protein or eggs in place of the sides. Salmon pouches and hard-boiled eggs are your travel staples.',
+    plate: {
+      disc: 'var(--sea-2)',
+      aria: 'Plate: fish, seafood or eggs',
+      lines: [
+        ['var(--sea-2)', '', 'Fish, seafood or eggs make up the plate.'],
+        [null, '', "Start with a palm-sized portion and add more if you're still hungry."],
+        [null, '', "Cook in butter or in the fish's own fat, and salt to taste."],
+        [null, '', 'A little cheese or plain yogurt is fine if dairy suits you.'],
+      ],
+    },
+    // The warning box's blood-thinner line names leafy greens in the meal plan, and
+    // this plan has none. Sarah's numbers-hidden blood-thinner line (keep greens
+    // steady, ask your prescriber before changing them) is true for this style too.
+    // TODO(Sarah): a carnivore-specific warning line.
+    warn: { bloodThinner: COPY.bloodThinner },
+  },
+};
+export const PD_STYLE_KEYS = Object.keys(STYLE_COPY);
+export function pdStyleLabel(style) { return (STYLE_COPY[style] || STYLE_COPY['pesco-mediterranean']).label; }
+
 const AISLES = [
   ['Seafood', 'sea', 'Seafood', 'Counter or freezer'],
   ['Produce', 'olive', 'Produce', ''],
@@ -188,7 +355,8 @@ const AISLES = [
   ['Pantry', 'cream', 'Pantry', ''],
   ['Bakery', 'cream', 'Bread', ''],
 ];
-const SEAFOOD_NAMES = { salmon: 'Salmon', sardines: 'Sardines', shrimp: 'Shrimp', cod: 'Cod', trout: 'Trout', tuna: 'Canned light tuna', tilapia: 'Tilapia' };
+const SEAFOOD_NAMES = { salmon: 'Salmon', sardines: 'Sardines', shrimp: 'Shrimp', cod: 'Cod', trout: 'Trout', tuna: 'Canned light tuna', tilapia: 'Tilapia',
+  mackerel: 'Atlantic mackerel', scallops: 'Scallops', halibut: 'Halibut', smoked_salmon: 'Smoked salmon' };
 const LEGUMES = ['lentils', 'chickpeas', 'white_beans', 'hummus'];
 
 // ---------------------------------------------------------------------------
@@ -219,13 +387,13 @@ function renderCover(v) {
       <div class="photo" aria-hidden="true"></div>
       <div class="cover-style">
         <div class="label">Your eating style</div>
-        <div class="style-name">${PD_REPORT_STYLE}</div>
+        <div class="style-name">${esc(v.label)}</div>
         <p>${v.hidden ? COPY.coverSubHidden : COPY.coverSub}</p>
       </div>
     </div>
     <dl class="cover-meta">
       <div><dt>Name</dt><dd>${esc(v.name)}</dd></div>
-      <div><dt>Style</dt><dd>${PD_REPORT_STYLE}</dd></div>
+      <div><dt>Style</dt><dd>${esc(v.label)}</dd></div>
       <div><dt>Date</dt><dd>${esc(v.date)}</dd></div>
     </dl>
   </section>`;
@@ -239,7 +407,17 @@ function renderNumbers(v) {
         <div><div class="kicker">Before you begin</div><p>${COPY.doctorBox}</p></div>
       </div>
     </div>`;
-  const plate = `
+  const sp = v.sc.plate;
+  const plate = sp ? `
+      <div class="plate">
+        <div class="plate-disc" role="img" aria-label="${sp.aria}" style="background:${sp.disc}"></div>
+        <div>
+          <h3>Build every plate the same way</h3>
+          <ul>
+            ${sp.lines.map(([c, b, t]) => `<li>${c ? `<i class="dot" style="background:${c}"></i>` : ''}${b ? `<b>${b}</b> ` : ''}${t}</li>`).join('\n            ')}
+          </ul>
+        </div>
+      </div>` : `
       <div class="plate">
         <div class="plate-disc" role="img" aria-label="Plate: half vegetables, a quarter protein, a quarter grains or beans"></div>
         <div>
@@ -285,8 +463,8 @@ function renderNumbers(v) {
       <div class="numbers">
         <div class="num-card cal">
           <div><div class="num-label">Calories per day</div><div class="num-value">${fmtInt(m.calories)}</div></div>
-          <div class="num-note">${COPY.cardNotes.cal}</div>
-        </div>${card('pro', 'Protein', fmtInt(m.protein_grams), 'g', COPY.cardNotes.pro)}${card('fat', 'Fat', fmtInt(m.fat_grams), 'g', COPY.cardNotes.fat)}${card('carb', 'Carbs', fmtInt(m.carbs_grams), 'g', COPY.cardNotes.carb)}${card('fib', 'Fiber', fmtInt(v.avgFiber), 'g', 'Your 7-day plan averages this. ' + COPY.cardNotes.fib)}
+          <div class="num-note">${v.sc.cardNotes.cal}</div>
+        </div>${card('pro', 'Protein', fmtInt(m.protein_grams), 'g', v.sc.cardNotes.pro)}${card('fat', 'Fat', fmtInt(m.fat_grams), 'g', v.sc.cardNotes.fat)}${card('carb', 'Carbs', fmtInt(m.carbs_grams), 'g', v.sc.cardNotes.carb)}${card('fib', 'Fiber', fmtInt(v.avgFiber), 'g', 'Your 7-day plan averages this. ' + v.sc.cardNotes.fib)}
       </div>
       ${renderWarningBox(v)}
       <div class="split">
@@ -333,7 +511,7 @@ function renderWarningBox(v) {
         <div>
           <h3>${COPY.warn.heading}</h3>
           <p>${COPY.warn.intro}</p>
-          <ul>${concerns.map(k => `<li data-concern="${k}">${COPY.warn[k]}</li>`).join('')}</ul>
+          <ul>${concerns.map(k => `<li data-concern="${k}">${(v.sc && v.sc.warn && v.sc.warn[k]) || COPY.warn[k]}</li>`).join('')}</ul>
           <p>${COPY.warn.close}</p>
         </div>
       </div>`;
@@ -362,7 +540,7 @@ function renderFishPlan(v) {
     if (sp) counts.set(sp, (counts.get(sp) || 0) + 1);
   }
   const cards = [...counts.entries()].map(([sp, n]) =>
-    `<div class="fish-card"><div class="times">${n}<small>a week</small></div><div><h4>${esc(SEAFOOD_NAMES[sp])}</h4><p>${COPY.fishCards[sp] || ''}</p></div></div>`).join('\n        ');
+    `<div class="fish-card"><div class="times">${n}<small>a week</small></div><div><h4>${esc(SEAFOOD_NAMES[sp])}</h4><p>${v.sc.fishCards[sp] || ''}</p></div></div>`).join('\n        ');
   const tier = (cls, title, sub, items) => `
           <div class="tier ${cls}">
             <div class="tier-head"><h4>${title}</h4><div class="tier-sub">${sub}</div></div>
@@ -378,7 +556,7 @@ function renderFishPlan(v) {
       <div class="fish-list">
         ${cards}
       </div>
-      <p class="fineprint">${COPY.fishStyle}</p>
+      <p class="fineprint">${v.sc.fishStyle}</p>
       <div style="display:grid;gap:12px">
         <h3>How often to eat fish</h3>
         ${COPY.fishHowOften.map(p => `<p>${p}</p>`).join('\n        ')}
@@ -449,7 +627,7 @@ function renderGrocery(v) {
 }
 
 function renderRecipes(v) {
-  const kept = RECIPES.filter(r => !v.isRecipeExcluded(r));
+  const kept = v.sc.recipes.filter(r => !v.isRecipeExcluded(r));
   if (!kept.length) return '';
   const firstUse = dishId => {
     for (const d of v.week.days) for (const m of d.meals) if (m.dishId === dishId) return `${DAY_LONG[d.day]} ${m.slot}`;
@@ -470,7 +648,7 @@ function renderRecipes(v) {
         </article>`).join('');
   return `
   <section class="page" data-pd-section="recipes">
-    ${opener('05', 'five', 'sea', `${COUNT_WORDS[kept.length]} easy recipe${kept.length === 1 ? '' : 's'}`, COPY.recipesIntro)}
+    ${opener('05', 'five', 'sea', `${COUNT_WORDS[kept.length]} easy recipe${kept.length === 1 ? '' : 's'}`, v.sc.recipesIntro)}
     <div class="page-body">
       <div class="recipes">${cards}
       </div>
@@ -495,7 +673,7 @@ function renderEatingOut(v) {
         <div class="out-card menu"><h3>Easy menu picks</h3><ul>${picks.map(([k, t]) => `<li><b>${k}:</b> ${t}</li>`).join('')}</ul></div>
         <div class="out-card travel"><h3>When you travel</h3><ul>${travel.map(l => `<li>${l}</li>`).join('')}</ul></div>
       </div>
-      <p>${COPY.eatingOutStyle}</p>
+      <p>${v.sc.eatingOutStyle}</p>
       <div style="display:grid;gap:14px">
         <h3>What to say when you order</h3>
         <div class="say-wrap">${COPY.sayLines.filter(ok).map(l => `<div class="say">${esc(l)}</div>`).join('')}</div>
@@ -546,6 +724,7 @@ function renderSources(v) {
 
 /**
  * Render the PD report sections, in order, as HTML fragments keyed 1..9.
+ *   v.style            'pesco-mediterranean' (default) | 'pesco-lowcarb' | 'pesco-keto' | 'pesco-carnivore'
  * The caller decides everything that matters for safety and passes it in:
  *   v.hidden           numbers withheld (no cards, no portions, no amounts)
  *   v.maintenance      numbers shown at maintenance (deficit removed); adds that line to the warning box
@@ -556,6 +735,10 @@ function renderSources(v) {
  *   v.isTextExcluded   drops a fixed copy line that names an excluded food
  */
 export function renderPescoMedSections(v) {
+  // v.style picks the per-style copy; the Mediterranean report is the default.
+  const style = v.style || 'pesco-mediterranean';
+  if (!STYLE_COPY[style]) throw new Error(`renderPescoMedSections: unknown PescoDial style "${style}".`);
+  v = { ...v, style, sc: STYLE_COPY[style], label: STYLE_COPY[style].label };
   if (v.hidden && v.macros) throw new Error('renderPescoMedSections: numbers are hidden but a macro set was passed.');
   if (!v.hidden && !(v.macros && Number.isFinite(Number(v.macros.calories)))) {
     throw new Error('renderPescoMedSections: numbers are shown but there is no usable macro set.');
@@ -743,14 +926,14 @@ p{margin:0;text-wrap:pretty}ul,ol{margin:0;padding-left:1.2em}li+li{margin-top:.
 `;
 
 /** Full PD document around the rendered sections. */
-export function wrapPdReportHTML(sectionsHTML, { name }) {
+export function wrapPdReportHTML(sectionsHTML, { name, label = PD_REPORT_STYLE }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <title>Personalized ${PD_REPORT_STYLE} Plan for ${esc(name)} · PescoDial</title>
+  <title>Personalized ${esc(label)} Plan for ${esc(name)} · PescoDial</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="${PD_FONTS}" rel="stylesheet">
@@ -764,3 +947,6 @@ ${sectionsHTML}
 </body>
 </html>`;
 }
+
+/** Same renderer, named for what it now covers. */
+export const renderPescoSections = renderPescoMedSections;

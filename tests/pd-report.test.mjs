@@ -18,6 +18,13 @@
  *   F. the four copy gates run on PD sections (a claim smuggled in through the
  *      reader's own name is rejected, the way it would be on a CW report).
  *
+ *   S. every other PescoDial style (Low Carb, Keto, Carnivore) renders this report, not
+ *      CW's: its own label on the cover and title, its 7-day plan, grocery list,
+ *      recipes, plate guide and eating-out line; nothing Mediterranean and no CW
+ *      section; no forbidden food in its plan; the numbers-hidden variant (kidney
+ *      disease plus a blood thinner) prints no number; allergies and a fish allergy
+ *      behave as above.
+ *
  * Run: node tests/pd-report.test.mjs
  */
 import path from 'node:path';
@@ -43,7 +50,7 @@ const quiet = ['log', 'info', 'warn', 'debug'].map(k => [k, console[k]]);
 async function render(over = {}) {
   const form = { ...BASE, ...over };
   const session = { id: 'pd-fixture', email: form.email, first_name: form.firstName, last_name: form.lastName,
-    diet_type: 'pesco-mediterranean', form_data: form };
+    diet_type: form.diet, form_data: form };
   for (const [k] of quiet) console[k] = () => {};
   try {
     const data = buildReportData(session);
@@ -222,6 +229,107 @@ await check('F. copy gates run on PD sections (outcome claim in the name is reje
   try { await render({ firstName: 'You will feel', lastName: 'lighter' }); } catch (e) { err = e; }
   ok(err && /PD Report #/.test(err.message), `expected a PD copy-gate rejection, got ${err ? err.message.split('\n')[0] : 'no error'}`);
 });
+
+// S. The other three PescoDial styles.
+const STYLES = {
+  'pesco-lowcarb': {
+    label: 'Pescatarian Low Carb', fish: 5,
+    plate: 'A quarter to a half: fish, seafood or eggs, about the size of your palm',
+    eatingOut: 'Trade the starch for a second vegetable',
+    recipe: 'Shrimp stir-fry with cauliflower rice', card: 'Vegetables, berries, nuts',
+    forbidden: /\b(bread|pita|pasta|rice(?! vinegar)|quinoa|bulgur|oats|potato(es)?|lentils?|chickpeas?|hummus|white beans|apple|orange|pear|dates)\b/i,
+  },
+  'pesco-keto': {
+    label: 'Pescatarian Keto', fish: 7,
+    plate: 'Most of the plate: fish, seafood or eggs',
+    eatingOut: 'Skip the bread basket, rice and potatoes',
+    recipe: 'Garlic shrimp with zucchini noodles', card: 'Leafy and green vegetables',
+    forbidden: /\b(bread|pita|pasta|quinoa|bulgur|oats|potato(es)?|lentils?|chickpeas?|hummus|beans|apple|orange|pear|dates|milk)\b/i,
+  },
+  'pesco-carnivore': {
+    label: 'Pescatarian Carnivore', fish: 7,
+    plate: 'Fish, seafood or eggs make up the plate.',
+    eatingOut: 'Order the fish or shrimp plain, cooked in butter',
+    recipe: 'Brown butter shrimp', card: 'Very little on this style',
+    forbidden: /\b(bread|pasta|quinoa|oats|potato(es)?|lentils?|chickpeas?|hummus|beans|spinach|greens|broccoli|cauliflower|asparagus|zucchini|tomato(es)?|cucumber|carrots?|pepper|avocado|olives?|olive oil|almonds|walnuts|macadamia|berries|raspberries|strawberries|blueberries|lemon|cabbage|mushrooms|chia)\b/i,
+  },
+};
+// CW report section titles and markers that must never appear in a PD report.
+const CW_LEAKS = /Report #\d|30-Day|Day 30|\bday\s*30\b|Your Carnivore|Carnivore Diet Report|Mediterranean|About this report:|\n---\n/i;
+const aisles = html => [...section(html, 'grocery').matchAll(/<h3>([^<]+?)(?: <small>|<\/h3>)/g)].map(m => m[1]);
+for (const [diet, want] of Object.entries(STYLES)) {
+  const r = await render({ diet });
+  await check(`S1. ${diet}: the PD report with its own label, 7-day plan, grocery list and copy`, async () => {
+    ok(new RegExp(`<title>Personalized ${want.label} Plan for Margaret Ellis · PescoDial</title>`).test(r.html), 'title');
+    const cover = section(r.html, 'cover');
+    ok(cover.includes(`<div class="style-name">${want.label}</div>`) && cover.includes(`<dd>${want.label}</dd>`), 'cover label');
+    for (const s of ['cover', 'numbers', 'fish', 'meals', 'grocery', 'recipes', 'eating-out', 'doctor', 'sources']) ok(section(r.html, s), `missing section ${s}`);
+    const m = CW_LEAKS.exec(r.html);
+    ok(!m, `CW or Mediterranean text in a ${want.label} report: "${m && m[0]}"`);
+    ok(!/carnivore\s*weekly|carnivoreweekly/i.test(r.html), 'Carnivore Weekly text in a PD report');
+    const meals = section(r.html, 'meals');
+    ok((meals.match(/<tr><th scope="row">/g) || []).length === 7, 'not 7 day rows');
+    ok((meals.match(/class="portion"/g) || []).length === 28, 'not 28 portion lines');
+    ok((meals.match(/class="tag">Fish</g) || []).length === want.fish, `not ${want.fish} fish meals`);
+    const qtys = [...section(r.html, 'grocery').matchAll(/<span class="qty">([^<]*)<\/span>/g)].map(x => x[1]);
+    ok(qtys.length >= 8 && qtys.every(q => /\d|[¼½¾⅛]/.test(q)), 'grocery list missing amounts');
+    ok(text(section(r.html, 'numbers')).includes(want.plate), 'plate guide is not this style\'s');
+    ok(text(section(r.html, 'numbers')).includes(want.card), 'card notes are not this style\'s');
+    ok(text(section(r.html, 'eating-out')).includes(want.eatingOut), 'eating-out line is not this style\'s');
+    const rec = section(r.html, 'recipes');
+    ok((rec.match(/<article class="recipe">/g) || []).length === 5, 'not 5 recipes');
+    ok(rec.includes(want.recipe), 'recipes are not this style\'s');
+    const labels = [...rec.matchAll(/Recipe \d · ([A-Za-z]+)/g)].map(x => x[1]);
+    ok(labels.length === 5 && labels.every(l => /day$/.test(l)), `a recipe is not tied to a plan day: ${labels}`);
+  });
+  await check(`S2. ${diet}: no food this style leaves out, in the plan or the grocery list`, async () => {
+    for (const s of ['meals', 'grocery']) {
+      // "Green beans" are a vegetable and "cauliflower rice" is cauliflower.
+      const body = text(section(r.html, s)).replace(/green beans/gi, 'GB').replace(/cauliflower rice/gi, 'CR');
+      const m = body.match(want.forbidden);
+      ok(!m, `"${m && m[0]}" in ${s}`);
+    }
+    if (diet === 'pesco-carnivore') {
+      ok(JSON.stringify(aisles(r.html)) === '["Seafood","Dairy and eggs"]', `carnivore aisles ${aisles(r.html)}`);
+    } else {
+      ok(!aisles(r.html).includes('Bread'), 'a bread aisle on a low-carb list');
+    }
+  });
+  await check(`S3. ${diet}: kidney disease and a blood thinner, numbers hidden everywhere`, async () => {
+    const h = await render({ diet, otherConditions: 'CKD stage 3', medications: 'warfarin' });
+    const nums = section(h.html, 'numbers');
+    ok(nums.includes(HIDDEN_NOTE), 'numbers-hidden note missing');
+    ok(!/num-card|Calories per day|split-bar/.test(nums), 'a number card rendered');
+    ok(!/\d+\s*(g|kcal|calories)\b/i.test(text(nums)), 'a gram or calorie figure in the numbers section');
+    const meals = section(h.html, 'meals');
+    ok((meals.match(/<tr><th scope="row">/g) || []).length === 7, 'not 7 day rows');
+    ok(!/class="portion"/.test(meals), 'portions printed');
+    ok(!/\d+\s*(oz|cups?|tbsp|slices?|cans?|sticks?)\b/i.test(text(meals)), 'a quantity in the meal table');
+    const q = [...section(h.html, 'grocery').matchAll(/<span class="qty">([^<]*)<\/span>/g)].map(x => x[1]);
+    ok(q.length >= 8 && q.every(x => x === ''), 'grocery amounts printed');
+    ok(h.html.includes(Q_CALORIES) && h.html.includes(Q_THINNER), 'hidden-variant questions missing');
+    ok(h.html.includes(BLOOD_THINNER_NOTE), 'blood thinner note missing');
+    ok(new RegExp(`<div class="style-name">${want.label}</div>`).test(h.html), 'hidden variant lost its label');
+  });
+  await check(`S4. ${diet}: blood thinner with numbers shown gets a true warning line`, async () => {
+    const b = await render({ diet, medications: 'warfarin' });
+    ok(JSON.stringify(concerns(b.html)) === '["bloodThinner","maintenance"]', `concerns ${concerns(b.html)}`);
+    const line = (b.html.match(/data-concern="bloodThinner">([^<]*)</) || [])[1] || '';
+    if (diet === 'pesco-carnivore') ok(!/Your meal plan has leafy greens/.test(line), 'carnivore warning claims leafy greens in the plan');
+    ok(line.length > 40, 'empty blood thinner line');
+  });
+  await check(`S5. ${diet}: shellfish allergy and fish allergy`, async () => {
+    const sh = await render({ diet, allergies: 'shellfish' });
+    for (const s of ['meals', 'grocery', 'recipes']) {
+      const m = text(section(sh.html, s)).match(/\b(shrimp|prawns?|clams?|oysters?|scallops?|crab|lobster|mussels?)\b/i);
+      ok(!m, `"${m && m[0]}" in ${s}`);
+    }
+    ok((section(sh.html, 'meals').match(/class="tag">Fish</g) || []).length === want.fish, 'fish meals not kept');
+    let err = null;
+    try { await render({ diet, allergies: 'fish, shellfish' }); } catch (e) { err = e; }
+    ok(err instanceof ReportValidationError && err.code === 'PD_PLAN_NOT_POSSIBLE', `expected PD_PLAN_NOT_POSSIBLE, got ${err && (err.code || err.message)}`);
+  });
+}
 
 // G. Lifecycle email branding. Supabase and Resend are stubbed; nothing is sent.
 async function lifecycle(fnName, diet, obj) {
