@@ -62,6 +62,7 @@
   f1.addEventListener('submit', function (e) {
     e.preventDefault();
     data.style = val(f1, 'style') || 'med';
+    if (window.pdTrack) window.pdTrack('calc_style_chosen', { style: data.style });
     show('2');
   });
 
@@ -131,6 +132,7 @@
     if (!isNaN(r.age) && r.age >= 1 && r.age < 18) { show('under18'); return; }
     if (r.errs.length) { var s = f2.querySelector('.error-summary'); s.focus && s.setAttribute('tabindex', '-1'); s.focus(); return; }
     Object.assign(data, r);
+    if (window.pdTrack) window.pdTrack('calc_numbers_entered', { style: data.style, goal: data.goal });
     var bmi = r.kg / Math.pow(r.cm / 100, 2);
     if (r.goal === 'lose' && bmi < 18.5) { show('underweight'); return; }
     show('3');
@@ -158,8 +160,10 @@
         body: JSON.stringify({ email: em, site: 'pd', source: 'calculator', diet_type: DIET[data.style] || DIET.med }) })
         .catch(function () {});
     } catch (err) { /* offline */ }
-    if (renderResults() === false) return;
+    if (renderResults() === false) { if (window.pdTrack) window.pdTrack('calc_no_target', { style: data.style }); return; }
     show('4');
+    if (window.pdTrack) window.pdTrack('calc_results_viewed', { style: data.style, goal: data.goal });
+    if (window.pdTrack) window.pdTrack('generate_lead', { method: 'calculator', style: data.style });
   });
 
   function round(n, to) { return Math.max(0, Math.round(n / to) * to); }
@@ -239,6 +243,7 @@
   if (checkoutBtn) checkoutBtn.addEventListener('click', function () {
     var err = root.querySelector('[data-checkout-error]');
     if (err) err.textContent = '';
+    if (window.pdTrack) window.pdTrack('upgrade_click', { style: data.style });
     var codeEl = root.querySelector('[data-coupon]');
     var code = codeEl ? codeEl.value.trim().toUpperCase() : '';
     // A code is checked by the worker (/validate-coupon) and applied by the worker
@@ -258,7 +263,7 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
         var url = res.j && (res.j.url || res.j.checkout_url);
-        if (res.ok && url) { if (res.j.session_uuid) store(res.j.session_uuid); window.location.assign(url); return; }
+        if (res.ok && url) { if (res.j.session_uuid) store(res.j.session_uuid); if (window.pdTrack) window.pdTrack('begin_checkout', { value: 29, currency: 'USD' }); window.location.assign(url); return; }
         show('4');
         if (err) err.textContent = (res.j && res.j.message) || 'We could not start checkout. Please try again in a minute.';
       })
@@ -293,6 +298,7 @@
 
   if (assessmentId && (payState === 'success' || payState === 'resume' || payState === 'free')) {
     store(assessmentId);
+    if (window.pdTrack) window.pdTrack('payment_returned', { state: payState });
     show('paid-wait');
     waitForPayment(0);
   } else if (payState === 'cancelled') {
@@ -312,6 +318,7 @@
                     otherConditions: other, allergies: g('allergies'), avoidFoods: g('avoidFoods') };
     var err = f5.querySelector('[data-plan-error]'); err.textContent = '';
     show('building');
+    if (window.pdTrack) window.pdTrack('plan_answers_submitted', {});
     fetch(API + '/api/v1/calculator/step/4', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ assessment_id: assessmentId, data: payload }) })
       .then(function (r) { if (!r.ok) throw new Error('step4 ' + r.status); return r.json(); })
@@ -338,13 +345,14 @@
     var frame = root.querySelector('[data-report-frame]');
     frame.srcdoc = html;
     show('report');
+    if (window.pdTrack) window.pdTrack('plan_viewed', {});
     store(null);
     root.querySelector('[data-report-print]').onclick = function () { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch (e) {} };
     root.querySelector('[data-report-email]').onclick = function () {
       var msg = root.querySelector('[data-report-email-msg]');
       fetch(API + '/api/v1/calculator/email-report', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: assessmentId }) })
-        .then(function (r) { msg.textContent = r.ok ? 'Sent. Check your inbox in a minute or two.' : 'We could not send it just now. Your plan is saved; try again later.'; })
+        .then(function (r) { if (r.ok) if (window.pdTrack) window.pdTrack('plan_emailed', {}); msg.textContent = r.ok ? 'Sent. Check your inbox in a minute or two.' : 'We could not send it just now. Your plan is saved; try again later.'; })
         .catch(function () { msg.textContent = 'We could not send it just now.'; });
     };
   }
@@ -364,6 +372,7 @@
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: em, site: 'pd', source: 'homepage' })
     }).catch(function () {});
+    if (window.pdTrack) window.pdTrack('sign_up', { method: 'newsletter' });
     var ok = form.querySelector('[data-ok]'); if (ok) ok.hidden = false;
   });
 })();
