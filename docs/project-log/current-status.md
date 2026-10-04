@@ -1,6 +1,8 @@
 # Current Status
 
-**Last Updated:** 2026-09-27 (calculator page protein copy; Brian protein reply)
+**Last Updated:** 2026-10-04 (PescoDial launched: paid plan, tracking, drip, CW invite)
+
+**2026-10-03/04 · PescoDial launched (www.pescodial.com).** PRs #84 (paid flow + 4-style report + health-safety fixes), #85 (Brew's email design, Sarah's reply question + $29 plan box in all 10 drip emails), #86 (PescoDial branding + PESCODIAL statement suffix on Stripe, PD orders only), #87 (e2e fixes), #89 (PRELAUNCH off), #91 (CW invite sender), #92 (email wordmark nowrap on phones); worker + site deployed. GA4 557125657 / G-FWZ3VJ6D32 (www only), GSC sc-domain:pescodial.com and Bing verified, sitemap submitted to both, homepage indexing requested. Live e2e with a single-use 100% code (created, used, deleted) passed end to end; real-card path not exercised (100% bypasses Stripe). PD drip ON (`PD_DRIP_ENABLED=true`, daily-publish 14:00 UTC). PESCO50 (50%, no expiry, max 50) created; CW pescatarian invite sent to 8 on 10-03 22:37 PDT (Brian excluded, closed). PR #90 closed unmerged: the writer-inbox sweep already reads content_feedback. Open: first drip send check, Etsy PD cards from 10-05, Sarah's 7 report copy TODOs, red-team P1s (report/init token reuse, rate limits, trust pages), AI-crawler policy. Reads: invite 10-10, GSC page-level ~10-17.
 
 **2026-09-27 · Calculator page protein copy corrected; reader reply sent.** `public/calculator.html` now says protein is 2 g/kg of goal weight when given (explainer, 2 FAQ answers + JSON-LD, table) and drops the false "activity surplus" (`0803340a`, `147f034e`, both verified live). Sarah replied to brhuizenga (Resend `01a0e3e3`, draft `writer_memory_log` 467, `content_feedback` row closed). Open: P0 bead on reports delivered before the safety fixes (Brian's Aug report likely still has "3-7 teaspoons" salt), parked by Brew; P2 bead for the results screen not naming goal weight.
 
