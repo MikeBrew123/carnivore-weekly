@@ -53,12 +53,19 @@ def test_only_published_pd_posts_render(tmp_path):
     assert all(u.startswith("https://www.pescodial.com/") for u, _ in urls)
 
 
-def test_prelaunch_is_noindex(tmp_path):
+def test_indexing_follows_prelaunch(tmp_path):
     out, _, _ = render(tmp_path, [post("2026-10-01-pd-food-list", "pd")])
-    assert pd.PRELAUNCH is True
-    assert (out / "robots.txt").read_text().startswith("User-agent: *\nDisallow: /")
-    for page in out.rglob("*.html"):
-        assert 'name="robots" content="noindex' in page.read_text(), page
+    robots = (out / "robots.txt").read_text()
+    home = (out / "index.html").read_text()
+    if pd.PRELAUNCH:
+        assert robots.startswith("User-agent: *\nDisallow: /")
+        for page in out.rglob("*.html"):
+            assert 'name="robots" content="noindex' in page.read_text(), page
+    else:
+        # Launched (Brew, 2026-10-03): crawlable, sitemap advertised, home indexable.
+        assert "Disallow: /" not in robots and "Sitemap: https://www.pescodial.com/sitemap.xml" in robots
+        assert 'content="noindex' not in home
+        assert 'content="noindex' in (out / "404.html").read_text()
 
 
 def test_output_check_catches_leaks_and_broken_links(tmp_path):

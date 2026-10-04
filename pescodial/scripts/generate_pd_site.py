@@ -52,7 +52,7 @@ FOREIGN_HOSTS = ("carnivoreweekly.com", "ketodial.com")
 
 # Until Brew approves launch, every page is noindex and robots.txt disallows all,
 # so the *.pages.dev preview can never be indexed ahead of the real domain.
-PRELAUNCH = True
+PRELAUNCH = False
 
 # The $29 upgrade card stays hidden until Brew approves selling (Stripe test buy
 # done, every style's report verified). Tests render with --paid-preview.
