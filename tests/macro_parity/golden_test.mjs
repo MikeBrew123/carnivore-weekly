@@ -157,6 +157,9 @@ export function grid() {
     { sex: 'female', age: 70, heightFeet: 4, heightInches: 11, weight: 150, lifestyle: 'sedentary', goal: 'lose', deficit: 25, diet: 'pesco-mediterranean', goalWeight: 115 },
     { sex: 'male', age: 62, heightCm: 178, weight: 230, lifestyle: 'moderate', goal: 'lose', diet: 'pesco-mediterranean', goalWeight: 190 },
   );
+  // Pescatarian Low Carb 100 g ceiling steps down to protect a 20% fat floor
+  // (very high protein basis on a very low calorie target).
+  pesco.push({ sex: 'female', age: 90, heightCm: 165, weight: 95, goalWeight: 160, lifestyle: 'sedentary', goal: 'maintain', diet: 'pesco-lowcarb' });
   cases.push(...pesco);
   return cases;
 }

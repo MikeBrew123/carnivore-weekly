@@ -119,7 +119,7 @@ var PDMacros = (() => {
       protein = Math.round(proteinBasisKg * 2);
       const proteinCals = protein * 4;
       if (diet === "keto" || diet === "lowcarb" || diet === "low-carb" || diet === "low carb") {
-        carbs = 20;
+        carbs = dietIn === "pesco-lowcarb" ? Math.min(100, Math.max(20, Math.floor((calories - proteinCals - 0.2 * calories) / 4))) : 20;
         fat = Math.round((calories - proteinCals - carbs * 4) / 9);
       } else {
         carbs = 0;
