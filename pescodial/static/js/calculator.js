@@ -220,6 +220,121 @@
     else if (demo === 'underweight') show('underweight');
     else if (demo === 'errors') { show('2'); f2.elements.age.value = '5x'; f2.elements.weight.value = '40'; validate2(); }
   }
+
+  // ===== PAID PLAN =====
+  // Contract: same worker endpoints as the CW calculator. Price is set on the
+  // server; form_data.diet (pesco-*) is what makes the worker treat this as a
+  // PescoDial order (return URL, emails, report design). Never send a price.
+  var KEY = 'pd_assessment';
+  function store(v) { try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch (e) {} }
+  function stored() { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } }
+
+  function formData(d) {
+    var f = engineInput(d);
+    return { diet: f.diet, sex: f.sex, age: f.age, weight: Math.round(f.weight * 10) / 10, heightCm: Math.round(f.heightCm * 10) / 10,
+             lifestyle: f.lifestyle, goal: f.goal, goalWeight: Math.round(f.goalWeight * 10) / 10, email: d.email, site: 'pd' };
+  }
+
+  var checkoutBtn = root.querySelector('[data-checkout]');
+  if (checkoutBtn) checkoutBtn.addEventListener('click', function () {
+    var err = root.querySelector('[data-checkout-error]');
+    if (err) err.textContent = '';
+    show('checkout-wait');
+    fetch(API + '/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: data.email, form_data: formData(data), tier_id: 'bundle', site: 'pd' }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        var url = res.j && (res.j.url || res.j.checkout_url);
+        if (res.ok && url) { if (res.j.session_uuid) store(res.j.session_uuid); window.location.assign(url); return; }
+        show('4');
+        if (err) err.textContent = (res.j && res.j.message) || 'We could not start checkout. Please try again in a minute.';
+      })
+      .catch(function () { show('4'); if (err) err.textContent = 'We could not reach checkout. Please check your connection and try again.'; });
+  });
+
+  var params = new URLSearchParams(window.location.search);
+  var payState = params.get('payment');
+  var assessmentId = params.get('session_id') || params.get('assessment_id') || stored();
+
+  function waitForPayment(tries) {
+    fetch(API + '/get-session?id=' + encodeURIComponent(assessmentId))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var st = j && (j.payment_status || (j.session && j.session.payment_status));
+        if (st === 'completed' || st === 'success') {
+          var fd = (j.form_data || (j.session && j.session.form_data)) || {};
+          // The page reloaded after Stripe: the order's email comes back from the server,
+          // and email-report only sends to that stored address.
+          data.email = j.email || fd.email || data.email;
+          var first = root.querySelector('#pd-first'); if (first && fd.firstName) first.value = fd.firstName;
+          show('5'); return;
+        }
+        if (tries > 20) {
+          root.querySelector('[data-paid-wait-msg]').textContent = 'This is taking longer than usual. Your payment is safe: we have emailed you a link to come back and finish.';
+          return;
+        }
+        setTimeout(function () { waitForPayment(tries + 1); }, 3000);
+      })
+      .catch(function () { setTimeout(function () { waitForPayment(tries + 1); }, 4000); });
+  }
+
+  if (assessmentId && (payState === 'success' || payState === 'resume' || payState === 'free')) {
+    store(assessmentId);
+    show('paid-wait');
+    waitForPayment(0);
+  } else if (payState === 'cancelled') {
+    store(null);
+  }
+
+  var f5 = root.querySelector('[data-step="5"]');
+  if (f5) f5.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var g = function (n) { var el = f5.elements[n]; return el ? String(el.value || '').trim() : ''; };
+    var conditions = Array.prototype.slice.call(f5.querySelectorAll('input[name="conditions"]:checked')).map(function (c) { return c.value; });
+    var meds = g('medications');
+    if (f5.querySelector('input[name="bloodthinner"]:checked')) meds = (meds ? meds + '; ' : '') + 'blood thinner';
+    var other = g('otherConditions');
+    if (f5.querySelector('input[name="pregnant"]:checked')) other = (other ? other + '; ' : '') + 'pregnant or breastfeeding';
+    var payload = { firstName: g('firstName'), medications: meds, conditions: conditions.length ? conditions : ['none'],
+                    otherConditions: other, allergies: g('allergies'), avoidFoods: g('avoidFoods') };
+    var err = f5.querySelector('[data-plan-error]'); err.textContent = '';
+    show('building');
+    fetch(API + '/api/v1/calculator/step/4', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assessment_id: assessmentId, data: payload }) })
+      .then(function (r) { if (!r.ok) throw new Error('step4 ' + r.status); return r.json(); })
+      .then(function () {
+        return fetch(API + '/api/v1/calculator/report/init', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: assessmentId }) });
+      })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) {
+          show('5'); err.textContent = (res.j && res.j.message) || 'We could not build your plan. Please try again.'; return;
+        }
+        if (res.j.report_html) return showReport(res.j.report_html, res.j.access_token);
+        if (res.j.access_token) {
+          return fetch(API + '/report/' + res.j.access_token + '/content').then(function (r) { return r.text(); })
+            .then(function (html) { showReport(html, res.j.access_token); });
+        }
+        throw new Error('no report');
+      })
+      .catch(function () { show('paid-error'); });
+  });
+
+  function showReport(html, token) {
+    var frame = root.querySelector('[data-report-frame]');
+    frame.srcdoc = html;
+    show('report');
+    store(null);
+    root.querySelector('[data-report-print]').onclick = function () { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch (e) {} };
+    root.querySelector('[data-report-email]').onclick = function () {
+      var msg = root.querySelector('[data-report-email-msg]');
+      fetch(API + '/api/v1/calculator/email-report', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: assessmentId, email: data.email || '' }) })
+        .then(function (r) { msg.textContent = r.ok ? 'Sent. Check your inbox in a minute or two.' : 'We could not send it just now. Your plan is saved; try again later.'; })
+        .catch(function () { msg.textContent = 'We could not send it just now.'; });
+    };
+  }
 })();
 
 /* Newsletter sign-up (homepage). Same worker endpoint; site 'pd'. */

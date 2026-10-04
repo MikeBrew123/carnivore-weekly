@@ -50,6 +50,10 @@ FOREIGN_HOSTS = ("carnivoreweekly.com", "ketodial.com")
 # so the *.pages.dev preview can never be indexed ahead of the real domain.
 PRELAUNCH = True
 
+# The $29 upgrade card stays hidden until Brew approves selling (Stripe test buy
+# done, every style's report verified). Tests render with --paid-preview.
+PAID_REPORT_LIVE = False
+
 
 def is_published(post):
     status = post.get("status")
@@ -67,14 +71,14 @@ def load_pd_posts(data_path):
     return pd
 
 
-def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT):
+def render_site(data_path=DEFAULT_DATA, out_dir=DEFAULT_OUT, paid_preview=False):
     out_dir = Path(out_dir)
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES)),
         autoescape=select_autoescape(["html", "xml"]),
     )
     posts = load_pd_posts(data_path)
-    ctx = {"domain": DOMAIN, "posts": posts, "build_date": date.today().isoformat(), "prelaunch": PRELAUNCH}
+    ctx = {"domain": DOMAIN, "posts": posts, "build_date": date.today().isoformat(), "prelaunch": PRELAUNCH, "paid_report_live": PAID_REPORT_LIVE or paid_preview}
 
     if out_dir.exists():
         shutil.rmtree(out_dir)
@@ -130,8 +134,9 @@ def main():
     ap = argparse.ArgumentParser(description="Render pescodial.com")
     ap.add_argument("--data", default=str(DEFAULT_DATA))
     ap.add_argument("--out", default=str(DEFAULT_OUT))
+    ap.add_argument("--paid-preview", action="store_true", help="show the upgrade card (tests only; never deploy)")
     args = ap.parse_args()
-    posts, urls = render_site(args.data, args.out)
+    posts, urls = render_site(args.data, args.out, paid_preview=args.paid_preview)
     problems = check_output(args.out, posts)
     if problems:
         print("❌ PescoDial output check failed:")
