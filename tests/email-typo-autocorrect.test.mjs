@@ -63,6 +63,14 @@ check('dead, no match: refused', [unfixable.email, unfixable.error !== null], ['
 check('real gmx.com left alone', await resolve('test@gmx.com'), { email: 'test@gmx.com', correctedFrom: null, error: null });
 check('real fuse.net lowercased only', (await resolve('Bar@Fuse.net')).email, 'bar@fuse.net');
 
+// 6. malformed and stuttered domains (real PD signup 2026-10-04 typed 'aol..ccoom';
+//    the DNS gate fails open on an empty label, so the sync fix must catch it)
+check('double dot + stutter', fix('x@aol..ccoom').email, 'x@aol.com');
+check('double dot only', fix('x@gmail..com').email, 'x@gmail.com');
+check('leading dot', fix('x@.yahoo.com').email, 'x@yahoo.com');
+check('dead stutter via resolve', (await resolve('x@aol.ccoom')).email, 'x@aol.com');
+check('resolve malformed', (await resolve('x@aol..ccoom')).email, 'x@aol.com');
+
 console.log = console.info;
 console.info(`email-typo-autocorrect: ${pass}/${pass + fail} checks passed`);
 process.exit(fail ? 1 : 0);

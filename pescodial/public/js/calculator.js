@@ -1,6 +1,46 @@
 /* PescoDial calculator. Screens from Brew's Claude Design (site-v1); maths from the shared engine. */
 /* Numbers come from window.PDMacros (the shared engine), never a local formula.
    Try ?demo=results | errors | under18 | underweight to preview states. */
+/* Email typo autocorrect, mirrored from correctEmailTypo/stutterMatch in
+   api/calculator-api.js (CW/KD, 2026-09-30). The worker is the authority and
+   corrects again; this fixes the field in front of the reader so the address
+   they see is the one we save. A real PD signup arrived as 'aol..ccoom' on
+   2026-10-04. Returns the address unchanged when nothing is clearly wrong. */
+var pdFixEmail = (function () {
+  var TYPOS = {
+    'gnail.com': 'gmail.com', 'gmial.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gmal.com': 'gmail.com',
+    'gmai.com': 'gmail.com', 'gmaill.com': 'gmail.com', 'gmsil.com': 'gmail.com', 'gmaul.com': 'gmail.com',
+    'gmali.com': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com', 'gmail.con': 'gmail.com',
+    'gmail.cmo': 'gmail.com', 'gmail.vom': 'gmail.com', 'gmail.xom': 'gmail.com', 'gmail.comm': 'gmail.com',
+    'gmail.om': 'gmail.com', 'googlemail.co': 'googlemail.com',
+    'yagoo.com': 'yahoo.com', 'yaho.com': 'yahoo.com', 'yahho.com': 'yahoo.com', 'yhoo.com': 'yahoo.com',
+    'yahooo.com': 'yahoo.com', 'uahoo.com': 'yahoo.com', 'yahoo.con': 'yahoo.com', 'yahoo.cm': 'yahoo.com',
+    'yahoo.vom': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'hotmai.com': 'hotmail.com', 'hotmal.com': 'hotmail.com',
+    'hotmil.com': 'hotmail.com', 'hotnail.com': 'hotmail.com', 'hotmaill.com': 'hotmail.com',
+    'hotmail.con': 'hotmail.com', 'hotmail.cm': 'hotmail.com', 'outlok.com': 'outlook.com',
+    'outllok.com': 'outlook.com', 'outlook.con': 'outlook.com', 'iclod.com': 'icloud.com',
+    'icoud.com': 'icloud.com', 'icloud.con': 'icloud.com', 'aol.con': 'aol.com', 'aoll.com': 'aol.com',
+    'comcast.com': 'comcast.net', 'sbcglobal.com': 'sbcglobal.net'
+  };
+  var COMMON = ['gmail.com', 'yahoo.com', 'aol.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'proton.me',
+    'protonmail.com', 'duck.com', 'comcast.net', 'bellsouth.net', 'sbcglobal.net', 'msn.com', 'live.com',
+    'me.com', 'yahoo.ca', 'shaw.ca', 'rogers.com', 'telus.net', 'verizon.net'];
+  function runs(s) { return s.replace(/(.)\1+/g, '$1'); }
+  function stutter(d) {
+    for (var i = 0; i < COMMON.length; i++) if (COMMON[i] !== d && runs(COMMON[i]) === runs(d)) return COMMON[i];
+    return null;
+  }
+  return function (email) {
+    var raw = String(email || '').trim(), clean = raw.toLowerCase(), at = clean.lastIndexOf('@');
+    if (at < 1) return raw;
+    var domain = clean.slice(at + 1);
+    var malformed = /\.\.|^\.|\.$/.test(domain);
+    if (malformed) domain = domain.replace(/\.{2,}/g, '.').replace(/^\.|\.$/g, '');
+    var fixed = TYPOS[domain] || (malformed ? (stutter(domain) || domain) : null);
+    return fixed ? clean.slice(0, at) + '@' + fixed : raw;
+  };
+})();
+
 (function () {
   var API = 'https://carnivore-report-api-production.iambrew.workers.dev';
   var root = document.querySelector('.calc');
@@ -147,8 +187,9 @@
 
   f3.addEventListener('submit', function (e) {
     e.preventDefault();
-    var em = val(f3, 'email');
-    var bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em);
+    var em = pdFixEmail(val(f3, 'email'));
+    if (em !== val(f3, 'email')) f3.elements.email.value = em;
+    var bad = !/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}$/.test(em);
     setError('email', bad);
     if (bad) { f3.elements.email.focus(); return; }
     data.email = em;
@@ -367,8 +408,9 @@
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var input = form.querySelector('input[type="email"]');
-    var em = (input && input.value || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { input.focus(); input.setAttribute('aria-invalid', 'true'); return; }
+    var em = pdFixEmail(input && input.value);
+    if (input && em !== input.value.trim()) input.value = em;
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}$/.test(em)) { input.focus(); input.setAttribute('aria-invalid', 'true'); return; }
     input.removeAttribute('aria-invalid');
     fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },

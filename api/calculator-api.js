@@ -398,7 +398,17 @@ function suggestEmailFix(email) {
       bestDist = d;
     }
   }
+  if (!best) best = stutterMatch(domain);
   return best ? `${local}@${best}` : null;
+}
+
+// 'aol.ccoom', 'gmaill.coom': a key held or double-tapped. Collapsing runs of the
+// same character on both sides catches these when Levenshtein says 2+ on a short
+// domain. Returns the matching big provider, or null.
+const collapseRuns = (s) => s.replace(/(.)\1+/g, '$1');
+function stutterMatch(domain) {
+  const c = collapseRuns(domain);
+  return COMMON_EMAIL_DOMAINS.find((d) => d !== domain && collapseRuns(d) === c) || null;
 }
 
 // Misspellings of the big providers that are REAL registered domains, so the DNS
@@ -434,7 +444,13 @@ function correctEmailTypo(email) {
   const clean = raw.toLowerCase();
   const at = clean.lastIndexOf('@');
   if (at < 1) return { email: raw, correctedFrom: null };
-  const fixed = KNOWN_TYPO_DOMAINS[clean.slice(at + 1)];
+  let domain = clean.slice(at + 1);
+  // A domain with an empty label ('aol..ccoom', '.gmail.com') can never receive
+  // mail, and the DNS gate FAILS OPEN on it (DoH rejects the name), so a real PD
+  // signup got in this way on 2026-10-04. Fix the dots, then the stutter.
+  const malformed = /\.\.|^\.|\.$/.test(domain);
+  if (malformed) domain = domain.replace(/\.{2,}/g, '.').replace(/^\.|\.$/g, '');
+  const fixed = KNOWN_TYPO_DOMAINS[domain] || (malformed ? (stutterMatch(domain) || domain) : null);
   if (!fixed) return { email: raw, correctedFrom: null };
   const corrected = `${clean.slice(0, at)}@${fixed}`;
   console.log(`[email-typo] corrected ${clean.slice(at + 1)} -> ${fixed}`);

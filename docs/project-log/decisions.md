@@ -2481,3 +2481,10 @@ Measure: calculator starts by referring post (`calculator_sessions_v2.referrer`)
 - PESCO50 for the CW pescatarian invite: 50%, no expiry, max 50 uses; copy makes no deadline claim.
 - Customer brhuizenga (Aug-10 label buyer) is closed: do not contact (Brew).
 - Feedback form already reaches the writer-inbox sweep via content_feedback; PR #90 closed.
+
+## 2026-10-04: PescoDial gets the email typo autocorrect; malformed domains fixed for every site
+A real PD reader signed up at aol.com, then 90 seconds later at the same name with domain `aol..ccoom` (2026-10-04 08:59 UTC). The 09-30 typo guard (b349d7c4) already ran on site 'pd' via /api/v1/subscribe, but it missed this: `aol..ccoom` is not on the known-typo list, and the DNS gate FAILS OPEN on a name with an empty label (DoH rejects it), so it was saved.
+- Worker (`api/calculator-api.js`, shared by CW/KD/PD): `correctEmailTypo` now collapses doubled dots and strips leading/trailing dots, then matches "stutter" typos (runs of the same key collapsed, e.g. `aol.ccoom` -> `aol.com`) against the big providers. Stutter is applied synchronously only when the domain was malformed; for a well-formed dead domain it runs through `suggestEmailFix` in `resolveSignupEmail`. Covers subscribe, session create, step 1 and checkout for all sites.
+- PD client (`pescodial/static/js/calculator.js`, copied to `public/js`): `pdFixEmail` mirrors the worker fix on the calculator and homepage sign-up forms and rewrites the field so the reader sees the corrected address; the format check now rejects empty labels.
+- Data: the malformed PD `drip_subscribers` and `newsletter_subscribers` rows were marked bounced/unsubscribed with a reason (not deleted); the reader's correct PD rows were untouched. No mail had been sent to the bad address.
+- Tests: `tests/email-typo-autocorrect.test.mjs` 19/19, new `tests/pd-email-typo.test.mjs` 8/8, all pd-* tests pass.
