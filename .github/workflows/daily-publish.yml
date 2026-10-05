@@ -229,7 +229,7 @@ jobs:
           fi
 
       # =====================================================================
-      # --- TEMPORARY, added 2026-09-14. Review on or after 2026-09-21. -------
+      # --- TEMPORARY, switched on 2026-10-05. Review on or after 2026-10-12. -------
       # Runs the ten pre-push gates against this run's generated content, before
       # anything is committed or pushed. Report-only: nothing here blocks
       # publishing, and every later step is independent of it.
@@ -323,7 +323,7 @@ jobs:
             echo
             echo "Report-only observation period: the gates did not block this run, and every"
             echo "commit, push and deployment step after this one ran as it otherwise would."
-            echo "Review on or after **2026-09-21**."
+            echo "Review on or after **2026-10-12**."
           } >> "$GITHUB_STEP_SUMMARY"
 
           echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
