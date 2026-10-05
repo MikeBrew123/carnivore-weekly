@@ -28,9 +28,13 @@ shared across all of them). DNS for both is hosted at **GoDaddy**, not Cloudflar
 | carnivoreweekly.com | `f266a0f1-4f63-47fa-9297-de65deec9c5e` | verified | enabled | enabled (inbound catch-all) |
 | ketodial.com | `a0c9850a-f3c9-49b6-84be-ec50e131c616` | **verified** 2026-09-12 | enabled | disabled |
 
-Tracking differs between the two: carnivoreweekly.com has open and click tracking
-**on**; ketodial.com was created with both **off**. Turn them on before flipping KD over,
-or KD loses open/click stats.
+Open and click tracking is **on** for all three sending domains (carnivoreweekly.com,
+ketodial.com, pescodial.com). ketodial.com and pescodial.com were created with it off and
+stayed off until 2026-10-05, so KD drip opens/clicks from 2026-09-30 to 2026-10-05 and PD
+opens before 10-05 were never recorded (bead jxk1). Tracking needs a tracking subdomain:
+each domain uses `links` (CNAME `links` -> `links2.resend-dns.com` at GoDaddy; Resend never
+lets the subdomain be removed). Any new sending domain: set `tracking_subdomain`, add the
+CNAME, verify, and read back `open_tracking`/`click_tracking` from the API before use.
 
 ### ketodial.com: DNS records (added at GoDaddy 2026-09-12, verified)
 
