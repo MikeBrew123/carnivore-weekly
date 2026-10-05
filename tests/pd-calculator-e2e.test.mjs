@@ -313,6 +313,69 @@ if (PAID_LIVE) {
   check('R7. substituted protein basis names the weight the engine used', basis.includes(`based on ${lb} lb, a weight in the healthy range`) && !basis.includes('220 lb'), `${basis} (want ${lb})`);
   await p.close();
 }
+// T1-T4. Email typos (Brew, 2026-10-04): a reader typed "name@aol..ccoom" and it was stored.
+{
+  const p = await newPage();
+  await step2(p);
+  await fillImp(p);
+  await p.click('form[data-step="2"] button[type="submit"]');
+  await p.fill('#email', 'name@aol..ccoom');
+  await p.click('form[data-step="3"] button[type="submit"]');
+  await p.waitForTimeout(150);
+  const err = await p.evaluate(() => { const f = document.querySelector('[data-field="email"]'); return { on: f.classList.contains('has-error'), msg: f.querySelector('.field-error').textContent, s4: !document.querySelector('[data-step="4"]').hidden }; });
+  check('T1. name@aol..ccoom shows the typo error and does NOT call /subscribe',
+    err.on && err.msg === "Check your email address. It looks like there's a typo." && !err.s4 && p.subs.length === 0, JSON.stringify({ err, subs: p.subs.length }));
+  check('T2. name@aol..ccoom also offers name@aol.com', (await p.textContent('[data-email-suggest]')) === 'Did you mean name@aol.com?', await p.textContent('[data-email-suggest]'));
+
+  await p.fill('#email', 'name@gmial.com');
+  await p.waitForFunction(() => document.querySelector('[data-email-suggest]').textContent.includes('gmail'), null, { timeout: 3000 }).catch(() => {});
+  const sug = await p.textContent('[data-email-suggest]');
+  check('T3. name@gmial.com shows "Did you mean name@gmail.com?"', sug === 'Did you mean name@gmail.com?', sug);
+  await p.click('[data-email-fix]');
+  const fixed = await p.inputValue('#email');
+  const cleared = (await p.textContent('[data-email-suggest]')) === '' && !(await p.evaluate(() => document.querySelector('[data-field="email"]').classList.contains('has-error')));
+  check('T4. clicking the suggestion fixes the field and clears the error', fixed === 'name@gmail.com' && cleared, JSON.stringify({ fixed, cleared }));
+  await p.click('form[data-step="3"] button[type="submit"]');
+  await p.waitForSelector('[data-step="4"]:not([hidden])', { timeout: 5000 });
+  check('T5. the fixed address submits once', p.subs.length === 1, String(p.subs.length));
+  await p.close();
+}
+{
+  // Ignoring the suggestion still submits a well-formed address (second press), and "+" is never flagged.
+  const p = await newPage();
+  await step2(p);
+  await fillImp(p);
+  await p.click('form[data-step="2"] button[type="submit"]');
+  await p.fill('#email', 'name@gmial.com');
+  await p.click('form[data-step="3"] button[type="submit"]');
+  await p.waitForTimeout(150);
+  const paused = p.subs.length === 0 && (await p.textContent('[data-email-suggest]')).includes('name@gmail.com');
+  await p.click('form[data-step="3"] button[type="submit"]');
+  await p.waitForSelector('[data-step="4"]:not([hidden])', { timeout: 5000 });
+  check('T6. ignoring the suggestion still submits on the second press', paused && p.subs.length === 1, JSON.stringify({ paused, subs: p.subs.length }));
+  await p.close();
+  const q = await newPage();
+  await step2(q);
+  await fillImp(q);
+  await q.click('form[data-step="2"] button[type="submit"]');
+  await q.fill('#email', 'testuser+b@gmail.com');
+  await q.click('form[data-step="3"] button[type="submit"]');
+  await q.waitForSelector('[data-step="4"]:not([hidden])', { timeout: 5000 });
+  check('T7. testuser+b@gmail.com goes straight through with no suggestion', q.subs.length === 1);
+  await q.close();
+}
+{
+  // Homepage sign-up box uses the same check.
+  const p = await newPage();
+  await p.goto(base + '/');
+  await p.fill('#signup-email', 'name@aol..ccoom');
+  await p.click('form[data-signup] button[type="submit"]');
+  await p.waitForTimeout(150);
+  const st = await p.evaluate(() => ({ inv: document.querySelector('#signup-email').getAttribute('aria-invalid'), ok: !document.querySelector('form[data-signup] [data-ok]').hidden,
+    sug: document.querySelector('form[data-signup] [data-email-suggest]').textContent }));
+  check('T8. homepage sign-up refuses name@aol..ccoom, offers name@aol.com, sends nothing', st.inv === 'true' && !st.ok && st.sug === 'Did you mean name@aol.com?' && p.subs.length === 0, JSON.stringify({ st, subs: p.subs.length }));
+  await p.close();
+}
 {
   const html = readFileSync(path.join(pub, 'calculator/index.html'), 'utf8');
   check('R14. no "email your results" promise on step 3', !/email your results|send your results/i.test(html) && html.includes('Your results show on the next screen'));

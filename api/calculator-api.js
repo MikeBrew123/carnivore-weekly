@@ -339,9 +339,32 @@ function validateContentType(request, expected = 'application/json') {
   return contentType.includes(expected);
 }
 
-function isValidEmail(email) {
-  const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-  return emailRegex.test(email) && email.length <= 255;
+// The ONE email shape check for every endpoint that accepts an address
+// (subscribe, create-checkout, step-2 save, coach waitlist, feedback, refund).
+// A PescoDial reader typed "name@aol..ccoom" on 2026-10-04 and the old regex
+// stored it, because [A-Za-z0-9.-]+ happily matches "aol." and ".". Rejects:
+// consecutive dots, a dot at either end of the local part or domain, empty
+// domain labels or labels starting/ending with "-", a TLD that is not 2-24
+// letters, whitespace, more than one "@", and anything over 254 characters.
+// Accepts plus-addressing (never flag "+"), subdomains, long TLDs, digits and
+// inner hyphens and an apostrophe (o'brien@). Shape only: domain typos like gmial.com are a valid shape and
+// are handled by correctEmailTypo / resolveSignupEmail, never refused here.
+// Keep pescodial/static/js/calculator.js isPlausibleEmail in step with this.
+function isPlausibleEmail(email) {
+  if (typeof email !== 'string') return false;
+  if (email.length === 0 || email.length > 254) return false;
+  const parts = email.split('@');
+  if (parts.length !== 2) return false;
+  const [local, domain] = parts;
+  if (!local || local.length > 64) return false;
+  if (!/^[A-Za-z0-9._%+'-]+$/.test(local)) return false; // ' for O'Brien
+  if (local.startsWith('.') || local.endsWith('.') || local.includes('..')) return false;
+  const labels = domain.split('.');
+  if (labels.length < 2) return false;
+  for (const label of labels) {
+    if (!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/.test(label)) return false;
+  }
+  return /^[A-Za-z]{2,24}$/.test(labels[labels.length - 1]);
 }
 
 // ===== SIGNUP EMAIL DELIVERABILITY =====
@@ -977,7 +1000,7 @@ async function handleSaveStep1(request, env) {
     }
     // Email is mandatory on CW as of 2026-06-29; enforce here so stale cached
     // frontends can't write email-less sessions (frontend saves are fire-and-forget)
-    if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    if (!data.email || !isPlausibleEmail(String(data.email).trim())) {
       return createErrorResponse('VALIDATION_FAILED', 'Email is required', 400);
     }
 
@@ -1079,7 +1102,7 @@ async function handleSaveStep2(request, env) {
     try {
       const rows = await response.json();
       const email = rows && rows[0] && rows[0].email;
-      if (email && isValidEmail(email.trim())) {
+      if (email && isPlausibleEmail(email.trim())) {
         const clean = email.trim().toLowerCase();
         // The step save already succeeded and must not be undone. We just
         // decline to enroll a dead address into the drip. The client-side
@@ -6415,7 +6438,7 @@ async function handleCreateCheckout(request, env) {
       );
     }
 
-    if (!isValidEmail(email)) {
+    if (!isPlausibleEmail(email)) {
       return createErrorResponse(
         'INVALID_EMAIL',
         'email must be a valid email address',
@@ -7307,7 +7330,7 @@ async function sendKetoDialWelcome(email, env) {
 async function handleCoachWaitlist(request, env) {
   try {
     const { email, first_name, source } = await request.json();
-    if (!email || !isValidEmail(email)) {
+    if (!email || !isPlausibleEmail(email)) {
       return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
     }
     const cleanEmail = email.trim().toLowerCase();
@@ -7368,7 +7391,7 @@ async function handleCoachWaitlist(request, env) {
 async function handleSubscribe(request, env) {
   try {
     const { email, site, source, diet_type } = await request.json();
-    if (!email || !isValidEmail(email.trim())) {
+    if (!email || !isPlausibleEmail(email.trim())) {
       return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
     }
     // Fix typos rather than refuse them: known misspellings and dead domains with
@@ -7492,7 +7515,7 @@ async function handleFeedback(request, env) {
   try {
     const { request_text, email } = await request.json();
 
-    if (!email || !isValidEmail(email)) {
+    if (!email || !isPlausibleEmail(email)) {
       return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
     }
     if (!request_text || request_text.trim().length < 10) {
@@ -8426,7 +8449,7 @@ async function handleRefundRequest(request, env) {
       technical_notes, additional_notes,
     } = await request.json();
 
-    if (!email || !isValidEmail(email)) {
+    if (!email || !isPlausibleEmail(email)) {
       return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
     }
 
@@ -10399,6 +10422,8 @@ async function handleResendWebhook(request, env) {
 // ============================================================================
 export {
   correctEmailTypo as __test_correctEmailTypo,
+  isPlausibleEmail as __test_isPlausibleEmail,
+  handleSubscribe as __test_handleSubscribe,
   resolveSignupEmail as __test_resolveSignupEmail,
   buildReportData as __test_buildReportData,
   generateAllReports as __test_generateAllReports,

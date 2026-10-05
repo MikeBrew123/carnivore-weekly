@@ -34,6 +34,7 @@ on:
       - 'api/pd-report.js'
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
+      - 'tests/email-validation.test.mjs'
       - 'tests/cw-report-warning.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
@@ -106,6 +107,7 @@ on:
       - 'api/pd-report.js'
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
+      - 'tests/email-validation.test.mjs'
       - 'tests/cw-report-warning.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
@@ -389,6 +391,12 @@ jobs:
 
       - name: PescoDial sign-up routing (pesco-* -> pd, CW/KD unchanged)
         run: node tests/pd-subscribe-routing.test.mjs
+
+      # One email shape check for every endpoint (2026-10-04: "name@aol..ccoom"
+      # was stored). Table of accept/reject cases plus /subscribe and
+      # /create-checkout through the real router.
+      - name: Email validation (isPlausibleEmail)
+        run: node tests/email-validation.test.mjs
 
       - name: PescoDial checkout returns to PescoDial, priced on server; report/init needs payment
         run: node tests/pd-checkout-contract.test.mjs
