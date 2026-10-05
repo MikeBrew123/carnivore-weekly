@@ -218,3 +218,16 @@ Beads filed (carnivore-weekly): 5ggf (cycle), + writeback, #calc anchor, distrib
 **Recurring-issues.** No new ISSUE.
 **Deck (Step 6).** Published scoreboard 2026-09-28 and rewrote briefing via bobloblaw-nas; all three endpoints 200. Biggest WoW change: first spam complaint in weeks (0 to 1), auto-suppressed. No decision posted (0 pending, nothing new due). No failures.
 **Note.** Staged only this log + .beads/ rather than `git add -A -- docs/`: `docs/project-log/current-status.md` carries another session's uncommitted edits (concurrency rule).
+
+## 2026-10-05 — Weekly Ops Review
+
+**Revenue.** Stripe 30d: 3 charges / $87.00 (09-07..09-13 sales, about to roll off). **7d: 0 charges, third straight week.** Checkout 7d: 4 sessions, all 10-04, all expired unpaid (1 x $29, 3 x $14.50 discounted). PESCO50 0 redemptions; no DRIP50/WELCOME5 activity. Etsy 90d $109.43 CAD, 18 receipts; by month Jul 8 / Aug 4 / **Sep 6** (+ 09-30 pescatarian list); Oct 0 so far. Tracked 4532542805 (Keto Starter Kit): 0 sales, 12 views.
+**List + drip.** New 7d: CW 29, KD 14, PD 4 (47, ~6.7/day vs 2+/day target; prior week 34). Active CW 122 / KD 60 / PD 3. drip_events 7d: CW 429 delivered / 293 opened / 86 clicked / 3 bounced / 1 complained / 9 skipped; KD 107 / 14 / 4 / 2 bounced; PD 3 delivered. Complaint: CW 10-01, week-2 salt email, joined 09-22; auto-suppressed (bounced_at set).
+**KD opens collapsed** from 09-30 (98 delivered, 4 opens). Cause found: the 09-30 sender switch to ketodial@ketodial.com (0ed3a87b) says tracking was enabled, but Resend API shows open/click tracking OFF on ketodial.com and pescodial.com (CW on). Measurement only, sends fine. Bead `jxk1` (P2).
+**Search.** Calculator cluster (regex carnivore.*(macro|calculator), 09-26..10-02): 40 imp / 1 click / wpos 13.3 (prev 67 / 2 / 12.4; third weekly slide). "carnivore macro calculator" 12.6 (was 9.6). But /calculator.html page-level 335 imp / 34 clicks / pos 6.1 (prev 229 / 33 / 6.3), so the page is fine; head-term drift only. KD (https://ketodial.com/): 4 impressions, 1 page, 0 clicks (first nonzero in weeks).
+**Traffic (GA4 30d).** CW 1,214 sessions (prev 1,146), KD 287 (prev 286).
+**Queues.** CW blog 6 ready, all in next 7 days 🟢 (Wed run refills). KD 2 ready (10-06, 10-09) 🟢. PD 0 (no PD blog cadence). Pin queue retired.
+**Crons.** Truth pass ran on schedule: "Scoreboard appended for 2026-10-05. Errors: none". Heartbeat 10-05 03:45 all clear.
+**GH issues.** #88 (staleness, pin queue 27d): same Pinterest false alarm as #78/#79, left open, bead `77ik`.
+**Beads.** Filed `jxk1` (P2). **Recurring-issues.** No new ISSUE.
+**Deck (Step 6).** Published scoreboard 2026-10-05 and rewrote briefing via bobloblaw-nas; all three endpoints 200. Biggest WoW change: drip new 7d 35 to 47 (and the KD open collapse, explained as tracking off). No decision posted (2 pending from other sessions, nothing new due). No failures.
