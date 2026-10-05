@@ -194,6 +194,7 @@
           <label for="email">Email address</label>
           <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="email-note email-err">
           <p class="field-error" id="email-err">Enter an email address like name@example.com.</p>
+          <p class="email-suggest" data-email-suggest aria-live="polite"></p>
         </div>
         <p id="email-note">Your results show on the next screen. We'll also send a short welcome series that explains what the numbers mean. Unsubscribe anytime.</p>
         <p class="privacy-note">We never share your email. <a href="/privacy/">Privacy policy</a></p>
@@ -323,9 +324,11 @@
     <form class="signup" novalidate="" data-signup="">
       <h2 id="signup-title">A short weekly guide</h2>
       <p>Short emails with a fish recipe, a shopping tip and one question answered in plain words.</p>
-      <div class="field" style="margin-bottom:12px;">
+      <div class="field" style="margin-bottom:12px;" data-signup-field>
         <label for="signup-email">Email address</label>
-        <input class="input" id="signup-email" type="email" autocomplete="email">
+        <input class="input" id="signup-email" type="email" autocomplete="email" aria-describedby="signup-email-err">
+        <p class="field-error" id="signup-email-err">Enter an email address like name@example.com.</p>
+        <p class="email-suggest" data-email-suggest aria-live="polite"></p>
       </div>
       <button class="btn btn-primary btn-block" type="submit">Sign up</button>
       <p class="small">Unsubscribe anytime. We don't share your email.</p>

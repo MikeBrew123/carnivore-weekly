@@ -1,6 +1,110 @@
 /* PescoDial calculator. Screens from Brew's Claude Design (site-v1); maths from the shared engine. */
 /* Numbers come from window.PDMacros (the shared engine), never a local formula.
    Try ?demo=results | errors | under18 | underweight to preview states. */
+/* Email checks shared by the calculator and the homepage sign-up (Brew, 2026-10-04).
+   A reader typed "name@aol..ccoom" and it was accepted. isPlausible mirrors the
+   worker's isPlausibleEmail in api/calculator-api.js: keep the two in step.
+   suggest() only offers a fix for a close misspelling of a common domain; the
+   reader can ignore it and still submit a well-formed address. Never flags "+". */
+window.pdEmail = (function () {
+  var DOMAINS = ['gmail.com', 'yahoo.com', 'yahoo.ca', 'aol.com', 'hotmail.com', 'outlook.com',
+    'icloud.com', 'me.com', 'msn.com', 'live.com', 'comcast.net', 'sbcglobal.net', 'att.net',
+    'verizon.net', 'shaw.ca', 'telus.net', 'rogers.com', 'sympatico.ca', 'bellsouth.net'];
+
+  function isPlausible(email) {
+    if (typeof email !== 'string' || !email.length || email.length > 254) return false;
+    var parts = email.split('@');
+    if (parts.length !== 2) return false;
+    var local = parts[0], domain = parts[1];
+    if (!local || local.length > 64 || !/^[A-Za-z0-9._%+'-]+$/.test(local)) return false;
+    if (local.charAt(0) === '.' || local.slice(-1) === '.' || local.indexOf('..') !== -1) return false;
+    var labels = domain.split('.');
+    if (labels.length < 2) return false;
+    for (var i = 0; i < labels.length; i++) {
+      if (!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/.test(labels[i])) return false;
+    }
+    return /^[A-Za-z]{2,24}$/.test(labels[labels.length - 1]);
+  }
+
+  // Edit distance where swapping two neighbours (gmial) counts as one slip.
+  function dist(a, b) {
+    if (a === b) return 0;
+    if (Math.abs(a.length - b.length) > 2) return 99;
+    var d = [];
+    for (var i = 0; i <= a.length; i++) { d[i] = [i]; }
+    for (var j = 0; j <= b.length; j++) { d[0][j] = j; }
+    for (i = 1; i <= a.length; i++) {
+      for (j = 1; j <= b.length; j++) {
+        var cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+        if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
+    }
+    return d[a.length][b.length];
+  }
+  function undouble(s) { return s.replace(/(.)\1+/g, '$1'); }
+
+  // Returns the corrected address, or '' when nothing common is close.
+  function suggest(email) {
+    email = String(email || '').trim();
+    var at = email.lastIndexOf('@');
+    if (at < 1) return '';
+    var local = email.slice(0, at).replace(/^@+|@+$/g, '');
+    var raw = email.slice(at + 1).toLowerCase().replace(/\s+/g, '');
+    if (!local || !raw || DOMAINS.indexOf(raw) !== -1) return '';
+    var tidy = raw.replace(/,/g, '.').replace(/\.{2,}/g, '.').replace(/^\.+|\.+$/g, '');
+    var best = '', bestD = 99;
+    for (var i = 0; i < DOMAINS.length; i++) {
+      var c = DOMAINS[i];
+      // Doubled letters and dots ("aol..ccoom", "yaho.com") match outright.
+      var d = undouble(tidy) === undouble(c) ? 0 : Math.min(dist(raw, c), dist(tidy, c));
+      // One slip on any domain; two only on longer ones, so gmx.com is never pulled to me.com.
+      if (d < bestD && (d <= 1 || (d === 2 && c.length >= 9))) { best = c; bestD = d; }
+    }
+    if (!best) return '';
+    var fixed = local + '@' + best;
+    return fixed === email ? '' : fixed;
+  }
+
+  var TYPO = "Check your email address. It looks like there's a typo.";
+
+  // Shows "Did you mean x?" in `box` (an aria-live element). Clicking the address
+  // puts it in the field. Returns the suggestion shown, or ''.
+  function offer(input, box, onAccept) {
+    var s = suggest(input.value);
+    box.textContent = '';
+    if (!s) return '';
+    box.appendChild(document.createTextNode('Did you mean '));
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn-link';
+    b.setAttribute('data-email-fix', '');
+    b.textContent = s;
+    b.addEventListener('click', function () {
+      input.value = s;
+      box.textContent = '';
+      if (onAccept) onAccept(s);
+      input.focus();
+    });
+    box.appendChild(b);
+    box.appendChild(document.createTextNode('?'));
+    return s;
+  }
+
+  // Offer the fix once she pauses typing. Not on blur: the line appearing under the
+  // field while she presses the button moves the button out from under the click.
+  function watch(input, box, onAccept) {
+    var t;
+    input.addEventListener('input', function () {
+      clearTimeout(t);
+      if (!input.value.trim()) { box.textContent = ''; return; }
+      t = setTimeout(function () { offer(input, box, onAccept); }, 600);
+    });
+  }
+
+  return { isPlausible: isPlausible, suggest: suggest, offer: offer, watch: watch, TYPO: TYPO };
+})();
+
 (function () {
   var API = 'https://carnivore-report-api-production.iambrew.workers.dev';
   var root = document.querySelector('.calc');
@@ -218,12 +322,21 @@
     show('3');
   });
 
+  var emailSuggest = f3.querySelector('[data-email-suggest]');
+  var emailPaused = '';
+  function clearEmailError() { setError('email', false); }
+  window.pdEmail.watch(f3.elements.email, emailSuggest, clearEmailError);
+
   f3.addEventListener('submit', function (e) {
     e.preventDefault();
     var em = val(f3, 'email');
-    var bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em);
-    setError('email', bad);
+    var bad = !window.pdEmail.isPlausible(em);
+    setError('email', bad, em ? window.pdEmail.TYPO : 'Enter an email address like name@example.com.');
+    var offered = window.pdEmail.offer(f3.elements.email, emailSuggest, clearEmailError);
     if (bad) { f3.elements.email.focus(); return; }
+    // A well-formed address that looks like a misspelling pauses once so she sees
+    // the suggestion; submitting again with the same address goes through.
+    if (offered && emailPaused !== em) { emailPaused = em; return; }
     data.email = em;
     // Belt and braces: the target was checked at step 2; if it is somehow suppressed now,
     // show the refusal and do NOT sign her up.
@@ -483,12 +596,26 @@
 (function () {
   var form = document.querySelector('[data-signup]');
   if (!form) return;
+  var field = form.querySelector('[data-signup-field]');
+  var err = form.querySelector('.field-error');
+  var box = form.querySelector('[data-email-suggest]');
+  var paused = '';
+  function setBad(on, em) {
+    var input = form.querySelector('input[type="email"]');
+    if (field) field.classList.toggle('has-error', on);
+    if (err && on) err.textContent = em ? window.pdEmail.TYPO : 'Enter an email address like name@example.com.';
+    if (on) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');
+  }
+  window.pdEmail.watch(form.querySelector('input[type="email"]'), box, function () { setBad(false); });
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var input = form.querySelector('input[type="email"]');
     var em = (input && input.value || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { input.focus(); input.setAttribute('aria-invalid', 'true'); return; }
-    input.removeAttribute('aria-invalid');
+    var bad = !window.pdEmail.isPlausible(em);
+    setBad(bad, em);
+    var offered = window.pdEmail.offer(input, box, function () { setBad(false); });
+    if (bad) { input.focus(); return; }
+    if (offered && paused !== em) { paused = em; return; }
     fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: em, site: 'pd', source: 'homepage' })

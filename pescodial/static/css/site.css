@@ -402,6 +402,14 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .field.has-error .field-error { display: block; }
 /* Checkout and plan errors live outside a .field: show them whenever they have text. */
 .field-error[role="alert"]:not(:empty) { display: block; }
+/* "Did you mean name@gmail.com?" under an email field. Quiet, one line, the address is the button. */
+.email-suggest { margin: 6px 0 0; font-size: 1.0625rem; color: var(--ink); }
+.email-suggest:empty { display: none; }
+.email-suggest .btn-link { min-height: 44px; padding: 6px 0; font-size: inherit; word-break: break-all; text-align: left; }
+.signup .email-suggest { color: var(--cream); }
+.signup .email-suggest .btn-link { color: #fff; }
+.signup .field-error { color: #fff; }
+.signup .field.has-error .input { border-color: var(--terra-tint); outline: 3px solid var(--terra); outline-offset: 0; }
 .error-summary { border: 2px solid var(--error); background: var(--error-tint); border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
 .error-summary h3 { color: var(--error); font-family: var(--f-ui); font-size: 1.125rem; margin: 0 0 4px; }
 .error-summary ul { margin: 0; padding-left: 20px; }
