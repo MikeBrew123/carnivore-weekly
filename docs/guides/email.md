@@ -124,10 +124,11 @@ Two exceptions to the table, both deliberate:
   (`Carnivore Weekly <newsletter@carnivoreweekly.com>`), so the reader hears first
   from the name they signed up with. Controlled by the `KD_CW_INTRO_ENABLED` repo
   variable, switched on 2026-10-01. See `use_cw_intro()` in `scripts/send_drip.py`.
-- **The KetoDial worker's transactional sends are not in this table** and still use
-  `@carnivoreweekly.com` from addresses (`ketodial/worker/index.js`, read
-  2026-10-03). They need a wrangler deploy to change. Do not assume they moved with
-  the drip.
+- **KetoDial transactional sends** (welcome, finish-your-reports nudge, report
+  delivery in `ketodial/worker/index.js`; the CW-side KD welcome in
+  `api/calculator-api.js`) send from `KetoDial <ketodial@ketodial.com>` since
+  2026-10-06 and reply to `@carnivoreweekly.com` addresses. Both workers were
+  wrangler-deployed that day.
 
 ### Drip sequences
 

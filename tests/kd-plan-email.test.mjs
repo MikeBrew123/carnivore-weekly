@@ -303,7 +303,7 @@ for (const kidney of ['yes', 'unsure']) {
   check('EF', 'replies never go to a personal inbox',
     !/gmail\.com/i.test(JSON.stringify(e.sent.reply_to || '')), String(e.sent.reply_to));
   check('EF', 'the from address is the KetoDial sender',
-    e.sent.from === 'KetoDial <ketodial@carnivoreweekly.com>', String(e.sent.from));
+    e.sent.from === 'KetoDial <ketodial@ketodial.com>', String(e.sent.from));
 
   const tag = (n) => (e.sent.tags || []).find(t => t.name === n);
   check('EF', 'the send is tagged as a plan email for kd',
