@@ -421,7 +421,17 @@ function suggestEmailFix(email) {
       bestDist = d;
     }
   }
+  if (!best) best = stutterMatch(domain);
   return best ? `${local}@${best}` : null;
+}
+
+// 'aol.ccoom', 'gmaill.coom': a key held or double-tapped. Collapsing runs of the
+// same character on both sides catches these when Levenshtein says 2+ on a short
+// domain. Returns the matching big provider, or null.
+const collapseRuns = (s) => s.replace(/(.)\1+/g, '$1');
+function stutterMatch(domain) {
+  const c = collapseRuns(domain);
+  return COMMON_EMAIL_DOMAINS.find((d) => d !== domain && collapseRuns(d) === c) || null;
 }
 
 // Misspellings of the big providers that are REAL registered domains, so the DNS

@@ -63,6 +63,10 @@ check('dead, no match: refused', [unfixable.email, unfixable.error !== null], ['
 check('real gmx.com left alone', await resolve('test@gmx.com'), { email: 'test@gmx.com', correctedFrom: null, error: null });
 check('real fuse.net lowercased only', (await resolve('Bar@Fuse.net')).email, 'bar@fuse.net');
 
+// 6. stuttered dead domains get a suggestion (malformed ones like 'aol..ccoom' are
+//    refused upstream by isPlausibleEmail, see email-validation.test.mjs)
+check('dead stutter via resolve', (await resolve('x@aol.ccoom')).email, 'x@aol.com');
+
 console.log = console.info;
 console.info(`email-typo-autocorrect: ${pass}/${pass + fail} checks passed`);
 process.exit(fail ? 1 : 0);

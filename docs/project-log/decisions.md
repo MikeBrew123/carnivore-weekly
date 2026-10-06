@@ -2481,3 +2481,6 @@ Measure: calculator starts by referring post (`calculator_sessions_v2.referrer`)
 - PESCO50 for the CW pescatarian invite: 50%, no expiry, max 50 uses; copy makes no deadline claim.
 - Customer brhuizenga (Aug-10 label buyer) is closed: do not contact (Brew).
 - Feedback form already reaches the writer-inbox sweep via content_feedback; PR #90 closed.
+
+## 2026-10-04 (merged 2026-10-06): stutter-typo suggestion added to the worker
+A real PD reader signed up as `aol..ccoom` on 2026-10-04. Two fixes were built in parallel. #99 (a82bd872, shipped first) refuses malformed addresses with 400 INVALID_EMAIL via the shared `isPlausibleEmail` and shows a "Did you mean" line on the PD client; that is the approved contract and it stands. From the parallel `fix/pd-email-typo` branch only the worker's `stutterMatch` was kept: `suggestEmailFix` now falls back to collapsing repeated keys (`aol.ccoom` -> `aol.com`) for well-formed dead domains. The branch's silent autocorrect of malformed domains and its separate PD client `pdFixEmail` were dropped because they contradict #99. Data cleanup of the bad PD rows was already done 10-04. Tests: email-typo-autocorrect 15/15, email-validation 41/41.
