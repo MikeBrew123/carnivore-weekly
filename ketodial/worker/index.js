@@ -640,7 +640,7 @@ async function handleEmailPlan(request, env) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'KetoDial <ketodial@carnivoreweekly.com>',
+        from: 'KetoDial <ketodial@ketodial.com>',
         to: [email],
         // KetoDial replies go to the inbound catch-all, never a personal inbox.
         reply_to: 'ketodial@carnivoreweekly.com',
@@ -1560,7 +1560,7 @@ async function sendFinishProfileEmail(email, name, stripeSessionId, env) {
   Reply to this email or write to ketodial@carnivoreweekly.com.</p>
 </div>`;
   return resendSend({
-    from: 'KetoDial <ketodial@carnivoreweekly.com>',
+    from: 'KetoDial <ketodial@ketodial.com>',
     to: [email],
     reply_to: 'ketodial@carnivoreweekly.com',
     subject: 'One short step to finish your KetoDial reports',
@@ -1650,8 +1650,10 @@ ${linkList}
 
   // Throws on rejection. The caller must not mark delivery until this returns.
   return resendSend({
-    from: 'KetoDial <reports@carnivoreweekly.com>',
+    from: 'KetoDial <ketodial@ketodial.com>',
     to: [email],
+    // ketodial.com has no inbound; replies ride the carnivoreweekly.com catch-all.
+    reply_to: 'ketodial@carnivoreweekly.com',
     subject: `${name}, your KetoDial reports are ready`,
     html: html,
   }, idempotencyKey.report(stripeSessionId), env);

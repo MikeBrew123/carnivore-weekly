@@ -7309,7 +7309,7 @@ async function sendKetoDialWelcome(email, env) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'KetoDial <ketodial@carnivoreweekly.com>',
+        from: 'KetoDial <ketodial@ketodial.com>',
         to: [email],
         reply_to: 'newsletter@carnivoreweekly.com',
         subject: 'You found the keto side of the family',
@@ -8433,7 +8433,7 @@ const REFUND_PRODUCTS = {
     ],
   },
   ketodial_report: {
-    from: 'KetoDial <ketodial@carnivoreweekly.com>',
+    from: 'KetoDial <ketodial@ketodial.com>',
     sections: [
       { field: 'meal_plan_feedback', label: '7-day meal plan' },
       { field: 'doctor_script_feedback', label: "Doctor's report" },
@@ -10200,7 +10200,7 @@ async function handleResendWebhook(request, env) {
     }
 
     // Attribute the event to a site so CW/KD engagement stats stay separate.
-    // KD emails send from ketodial@/coach@carnivoreweekly.com and tag sequence=kd-*.
+    // KD emails send from ketodial@ketodial.com (coach@carnivoreweekly.com for Coach) and tag sequence=kd-*.
     // Resend delivers tags as an array of {name, value}; normalize to an object
     // (older payload shapes were a plain object, so handle both).
     const evFrom = String(data.from || '').toLowerCase();
