@@ -929,3 +929,9 @@ If recurs: grep the rendered HTML of a test report per diet for another diet's p
 - 2026-10-04 02:07 UTC: Brew created token `cw-worker-and-pescodial-deploy` (Workers Scripts:Edit + Cloudflare Pages:Edit, his account only) and re-saved the secret on one line. Re-runs passed: Deploy PescoDial run 37170128422 (pescodial.pages.dev 200), deploy-calculator-worker run 37170129905 (production version 5e54b8e9-3775-4b49-b7ac-52d9d0390bdf, same main b5fe0226). Old `pescodial-pages-deploy` token can be deleted.
 **Fix:** Cloudflare > My Profile > API Tokens: edit `pescodial-pages-deploy` (or create one) to add Account > Workers Scripts > Edit alongside Cloudflare Pages > Edit. Then GitHub repo Settings > Secrets > Actions > `CLOUDFLARE_API_TOKEN` > paste only the token, one line. Re-run both workflows.
 **If recurs:** check the secret first (preflight message), then the token's permissions; never strip lines in the workflow, the second line may be the real token.
+
+## ISSUE-100 — KD drip stalled by its own flood cap (daily drip, fixed 50 floor)
+Status: 🟢 fixed 2026-10-07 (#102, #103). RECURRING of ISSUE-043 (same cap, KD side).
+Pattern: `send_drip.py` stops with SAFETY STOP when due > max(50, 3x busiest send day). A daily drip owes everyone daily, so due = list size. KD passed 50 active on 10-03; every run failed (54, 55, 58, 59 due), no email 10-02 to 10-07. Cap shrank with no sends, so it could never self-heal. Only trace was GitHub issue #80 and a "stalled" Command Centre line.
+Attempts: 2026-10-07 cap now also allows settled list (+25% +5), new-signup surge still trips; backlog sent via workflow_dispatch; Command Centre now shows CAUSE (blocked drip_event).
+If recurs: check `drip_events` event_type='blocked' first, then `established_list_cap` in scripts/send_drip.py.
