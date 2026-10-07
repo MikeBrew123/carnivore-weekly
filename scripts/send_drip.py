@@ -712,6 +712,30 @@ def dynamic_send_cap(secrets):
         return MIN_SEND_CAP  # Fail safe but recoverable
 
 
+def established_list_cap(pending, now=None):
+    """Cap floor that scales with the settled list (ISSUE-043 again, KD 2026-10-07).
+
+    A daily drip owes an email to nearly everyone on the list every day, so
+    "due today" is the list size, not a signup spike. KD crossed the old
+    50 floor and every run since failed with a flood stop. Subscribers who
+    signed up more than 2 days ago are the established list; allow it plus
+    25% and 5. A real flood is a surge of NEW signups, which still trips it.
+    """
+    now = now or datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=2)
+    established = 0
+    for s in pending:
+        try:
+            ts = datetime.fromisoformat((s.get("subscribed_at") or "").replace("Z", "+00:00"))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue  # unparseable date counts as new: never widens the cap
+        if ts <= cutoff:
+            established += 1
+    return int(established * 1.25) + 5
+
+
 class DedupeCheckFailed(Exception):
     """The "already sent today?" answer could not be established."""
 
@@ -908,7 +932,8 @@ def main():
         print(f"No pending {SITE} drip subscribers")
         return
 
-    cap = int(os.environ.get("MAX_SENDS_PER_RUN", 0)) or dynamic_send_cap(secrets)
+    cap = int(os.environ.get("MAX_SENDS_PER_RUN", 0)) or max(
+        dynamic_send_cap(secrets), established_list_cap(pending))
     if len(pending) > cap:
         print(f"🚨 SAFETY STOP: {len(pending)} subscribers exceeds cap of {cap}.")
         print("   This looks like a bad-data signup flood. Check drip_subscribers before proceeding.")
