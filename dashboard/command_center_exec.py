@@ -538,8 +538,11 @@ def build_needs_attention(d, changes, today):
     for site, lbl in (('cw', 'CW'), ('kd', 'KD')):
         drip = (d.get('funnels') or {}).get(f'drip_{site}') or {}
         if drip.get('active', 0) > 0 and drip.get('stalled_days') is not None and drip['stalled_days'] > 2:
+            why = drip.get('blocked_reason')
             add('red', f'{lbl} drip has {drip["active"]} active subscribers and no send in '
-                       f'{drip["stalled_days"]:.1f} days.')
+                       f'{drip["stalled_days"]:.1f} days. '
+                       + (f'CAUSE: blocked by the anti-flood safety cap ({why}).' if why
+                          else 'Cause not logged, check the latest daily-publish run.'))
 
     pf = d.get('paid_funnel') or {}
     if not pf.get('error'):

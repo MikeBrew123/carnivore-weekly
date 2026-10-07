@@ -26,3 +26,11 @@ def test_new_signup_surge_still_trips():
 
 def test_bad_dates_never_widen_cap():
     assert send_drip.established_list_cap([{"subscribed_at": None}] * 200, NOW) == 5
+
+
+def test_safety_stop_leaves_a_reason_for_the_command_centre():
+    src = (Path(__file__).resolve().parent.parent / "scripts" / "send_drip.py").read_text()
+    stop = src.index("SAFETY STOP")
+    assert "log_block(" in src[stop:stop + 400]
+    cc = (Path(__file__).resolve().parent.parent / "dashboard" / "command_center_exec.py").read_text()
+    assert "blocked_reason" in cc and "safety cap" in cc
