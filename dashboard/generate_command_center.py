@@ -677,6 +677,12 @@ def fetch_funnels():
             'new_7d': supa_count('drip_subscribers', f'{s}&subscribed_at=gte.{d7}'),
             'last_send': last_sent[0]['last_sent_at'] if last_sent else None,
         }
+        # WHY a drip is silent: newest 'blocked' event in the last 3 days
+        # (send_drip.py log_block). Empty list = no known block.
+        blk = supa_fetch('drip_events', select='subject,created_at',
+                         filters=f"site=eq.{site}&event_type=eq.blocked&created_at=gte.{(datetime.now(timezone.utc) - timedelta(days=3)).isoformat()}",
+                         order='created_at.desc', limit=1)
+        out[f'drip_{site}']['blocked_reason'] = blk[0]['subject'] if blk else None
         try:
             ls = out[f'drip_{site}']['last_send']
             out[f'drip_{site}']['stalled_days'] = round(
@@ -1497,9 +1503,12 @@ def build_insights(d):
                 last = datetime.fromisoformat(drip['last_send'].replace('Z', '+00:00'))
                 hours = (datetime.now(timezone.utc) - last).total_seconds() / 3600
                 if hours > 48:
+                    why = drip.get('blocked_reason')
                     add('alert', f'{dlabel} drip pipeline looks stalled — {drip["active"]} active '
                                  f'subscribers but no send in {hours / 24:.1f} days. '
-                                 f'Check daily-publish.yml / send_drip.py --site {dsite}.')
+                                 + (f'CAUSE: BLOCKED BY SAFETY CAP, {why} (anti-flood guard, not a double-send guard). '
+                                    if why else 'Cause not logged. ')
+                                 + f'Check daily-publish.yml / send_drip.py --site {dsite}.')
             except Exception:
                 pass
 

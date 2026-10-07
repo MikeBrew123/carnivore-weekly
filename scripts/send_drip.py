@@ -564,6 +564,26 @@ def log_skip(secrets, email, day, reason, subject):
         pass  # never let instrumentation break a send run
 
 
+def log_block(secrets, reason, detail):
+    """Leave a countable trace when the run refuses to send, so the Command
+    Centre can say WHY a drip is silent instead of just "stalled" (Brew,
+    2026-10-07: the KD safety-cap stop looked like an unexplained outage).
+    event_type 'blocked', reason and detail in tags."""
+    try:
+        supabase_insert(secrets, "drip_events", {
+            "email": f"system@{SITE}",
+            "event_type": "blocked",
+            "subject": detail,
+            "site": SITE,
+            "tags": json.dumps([
+                {"name": "block_reason", "value": reason},
+                {"name": "sequence", "value": CFG["sequence"]},
+            ]),
+        })
+    except Exception:
+        pass  # never let instrumentation break a send run
+
+
 def load_drip_email(day, variant=None):
     drip_dir = CFG["drip_dir"]
     path = drip_dir / (f"day-{day}-{variant}.html" if variant else f"day-{day}.html")
@@ -936,6 +956,8 @@ def main():
         dynamic_send_cap(secrets), established_list_cap(pending))
     if len(pending) > cap:
         print(f"🚨 SAFETY STOP: {len(pending)} subscribers exceeds cap of {cap}.")
+        log_block(secrets, "safety_cap",
+                  f"{len(pending)} due exceeds the signup-flood safety cap of {cap}")
         print("   This looks like a bad-data signup flood. Check drip_subscribers before proceeding.")
         print("   Override with MAX_SENDS_PER_RUN env var if the volume is legitimate.")
         sys.exit(1)
