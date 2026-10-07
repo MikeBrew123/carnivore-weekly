@@ -1614,4 +1614,10 @@
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-10-07-carnivore-without-beef-chicken-pork.html</loc>
+        <lastmod>2026-10-07</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
 </urlset>
