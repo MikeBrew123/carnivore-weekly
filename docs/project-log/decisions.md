@@ -2484,3 +2484,9 @@ Measure: calculator starts by referring post (`calculator_sessions_v2.referrer`)
 
 ## 2026-10-04 (merged 2026-10-06): stutter-typo suggestion added to the worker
 A real PD reader signed up as `aol..ccoom` on 2026-10-04. Two fixes were built in parallel. #99 (a82bd872, shipped first) refuses malformed addresses with 400 INVALID_EMAIL via the shared `isPlausibleEmail` and shows a "Did you mean" line on the PD client; that is the approved contract and it stands. From the parallel `fix/pd-email-typo` branch only the worker's `stutterMatch` was kept: `suggestEmailFix` now falls back to collapsing repeated keys (`aol.ccoom` -> `aol.com`) for well-formed dead domains. The branch's silent autocorrect of malformed domains and its separate PD client `pdFixEmail` were dropped because they contradict #99. Data cleanup of the bad PD rows was already done 10-04. Tests: email-typo-autocorrect 15/15, email-validation 41/41.
+
+## 2026-10-10: Brief Me narrated walkthrough (Brew)
+- On demand only ("brief me"), never scheduled: daily runs would repeat themselves.
+- Voice: OpenAI TTS (`gpt-4o-mini-tts`, key already on file), not ElevenLabs. About 8 cents an episode, fail-closed $1/day cap in `~/.brief-me/tts-ledger.jsonl`.
+- 3 to 5 minutes, 8 to 10 slides: cold open, calendar, 3 to 5 rotating areas, CEO brief, close. No Google Slides; self-hosted on the NAS deck at `/brief/latest/`.
+- Narration may only use numbers from cited facts and never recommends an action beyond the CEO brief's suggested move. PR #104.
