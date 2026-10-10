@@ -242,11 +242,12 @@ def watchlist_due(md, today):
         if re.search(r'\b(RETRACTED|CLOSED|DONE)\b', status):
             continue
         m = re.search(r'\$[\d,]+(?:\.\d+)?', worth)
-        if not m:
+        dollars = m.group() if m else None
+        if dollars is None:
             continue                       # no dollar value, not a finding
         due = [d for d in _dates_in(status, today) if 0 <= (d - today).days <= WATCH_DAYS]
         if due:
-            hits.append((min(due), name, m.group()))
+            hits.append((min(due), name, dollars))
     if not hits:
         return []
     hits.sort()

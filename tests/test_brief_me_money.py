@@ -48,7 +48,7 @@ def sheet(**over):
         'budget': [
             ['Month', 'Dining Out Budget', 'Dining Out Actual', 'Dining Out Variance',
              'Groceries Budget', 'Groceries Actual', 'Groceries Variance', 'Total Budget', 'Total Actual'],
-            ['2026-10', '$300', '$200', '', '$600', '$150', '', '$900', '$350'],
+            ['2026-10', '$300', '$200', '', '$1,000', '$320', '', '$1,300', '$520'],
         ],
         'txns': [
             ['2026-10-08', 'Hotel', '', '-400', 'Expense', 'Travel', 'Hotel'],
@@ -124,12 +124,13 @@ def test_watchlist_silent_outside_window():
 def test_budget_pace_flags_category_ahead_of_straight_line():
     f = W.budget_pace(sheet(), TODAY)
     assert ids(f) == ['personal.budget_pace']
+    # Groceries is $62 over a straight line but inside the 25% tolerance.
     assert 'Dining Out' in f[0]['text'] and 'Groceries' not in f[0]['text']
     assert 'Oct 8' in f[0]['text'] and '2 days behind' in f[0]['text']
 
 
 def test_budget_pace_waits_for_an_import_this_month():
-    old = [['2026-09-29', 'x', '', '-10', 'Expense', 'Dining Out', '']]
+    old = [['2026-09-02', 'x', '', '-10', 'Expense', 'Dining Out', '']]
     assert W.budget_pace(sheet(txns=old), TODAY) == []
 
 
