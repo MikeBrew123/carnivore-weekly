@@ -265,6 +265,7 @@ def test_trip_leads_and_business_collapses_to_one_headline():
     assert p['format'] == 'trip' and slots[0] == 'trip'
     assert slots.count('business') == 1 and 'area' not in slots and 'ceo' not in slots
     assert slots.index('business') > max(i for i, x in enumerate(slots) if x == 'trip')
+    assert p['tier'] == 'short'
 
 
 def test_red_health_keeps_business_slides_on_a_trip():
