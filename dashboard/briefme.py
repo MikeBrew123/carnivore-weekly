@@ -11,6 +11,10 @@ Pipeline (the `brief-me` skill drives it; Claude writes step 3):
     6. render   self-contained slide player (index.html)
     7. publish  NAS deck /brief/<stamp>/ and /brief/latest/, then record history
 
+Personal money (brief_me/wallet.py) reads Brew's MyBudget sheet read-only and
+adds its own slide only when a gate opens; `"money": "off"` in
+~/.brief-me/config.json turns it off.
+
 State lives outside the repo in ~/.brief-me/ (the repo is public and episodes
 quote reader feedback): history.jsonl, tts-ledger.jsonl, episodes/<stamp>/.
 
@@ -38,6 +42,7 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from brief_me import facts as F          # noqa: E402
 from brief_me import lenses as L         # noqa: E402
+from brief_me import wallet as W         # noqa: E402
 
 TZ = ZoneInfo('America/Vancouver')
 HERE = Path(__file__).resolve().parent
@@ -102,6 +107,9 @@ def cmd_gather(a):
     facts = (F.command_center_facts(data) + F.ceo_facts(F.parse_ceo_brief(ceo_md))
              + F.calendar_facts(calendar, today=now().date().isoformat()))
     history = load_history()
+    # Personal money from MyBudget, by exception; `"money": "off"` in config.json skips it.
+    facts += W.money_facts(now().date(), HOME, cc=data, fmt=now().strftime('%A').lower(),
+                           seen=W.seen_keys(history))
     plan = L.plan_episode(facts, history)
 
     stamp = now().strftime('%Y-%m-%d-%H%M%S')

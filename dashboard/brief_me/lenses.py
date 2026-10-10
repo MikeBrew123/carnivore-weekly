@@ -64,7 +64,7 @@ def pick_lens(area, facts, history):
 
 
 # Fixed slots every episode; health (data outages) rides on the close slide.
-FIXED_AREAS = {'ceo', 'calendar', 'health'}
+FIXED_AREAS = {'ceo', 'calendar', 'health', 'personal'}
 
 
 def pick_cold_open(scored, on_slides, history):
@@ -113,6 +113,12 @@ def plan_episode(facts, history):
                    'facts': sorted([f for f in ceo if f['id'] in ('ceo.move', 'ceo.timeline') or f['id'].startswith('ceo.sit')],
                                    key=lambda f: -f['score'])[:5]})
 
+    # Personal money (MyBudget) is its own opt-out section, shown only when a
+    # wallet.py gate opened. It never competes with the business areas.
+    personal = by_area.get('personal', [])
+    if personal:
+        slides.append({'slot': 'personal', 'area': 'personal', 'lens': 'personal', 'facts': personal})
+
     recent_close = {ep.get('close') for ep in history[-3:]}
     watch = [f for f in scored if ('watch' in f['lenses'] or f['area'] == 'funnel')
              and f['id'] not in recent_close]
@@ -130,7 +136,9 @@ def history_record(stamp, plan, facts):
     return {'stamp': stamp, 'cold_open': plan.get('cold_open'), 'close': plan.get('close'),
             'slides': [{'area': s['area'], 'lens': s['lens']}
                        for s in plan['slides'] if s['slot'] == 'area'],
-            'facts': {f['id']: signature(f) for f in facts if f['id'] in used}}
+            'facts': {f['id']: signature(f) for f in facts if f['id'] in used},
+            'money_seen': sorted({f['seen_key'] for s in plan['slides'] for f in s['facts']
+                                  if f.get('seen_key')})}
 
 
 # ---------- script validation ----------
