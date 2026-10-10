@@ -206,6 +206,8 @@ def plan_episode(facts, history, today=None, full=False):
 
     deep_area = None
     collapse = fmt == 'trip' and not red
+    if collapse and tier == 'full':
+        tier = 'short'                     # trip slides plus one headline is a short episode
     if collapse:
         chosen = []
         headline = sorted([f for f in scored if f['area'] not in NOT_BUSINESS],
