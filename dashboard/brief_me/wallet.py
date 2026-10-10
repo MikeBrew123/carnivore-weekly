@@ -34,6 +34,8 @@ from datetime import date, timedelta
 from pathlib import Path
 
 AREA = 'personal'
+# 'friday' (weekday name) or the trip-mode branch's Friday format name.
+FRIDAY_FORMATS = {'friday', 'week_review'}
 MYBUDGET = Path('/Users/mbrew/Developer/MyBudget')
 CREDS = MYBUDGET / 'secrets' / 'google-sheets-credentials.json'
 WATCHLIST = MYBUDGET / 'references' / 'optimization-watchlist.md'
@@ -299,7 +301,7 @@ def _goal(sheet, prefix):
 
 
 def business_week(sheet, cc, fmt):
-    if (fmt or '').lower() != 'friday':
+    if (fmt or '').lower() not in FRIDAY_FORMATS:
         return []
     g = _goal(sheet, 'cw revenue')
     target = money(cell(g, 1)) if g else None
@@ -395,7 +397,8 @@ def holdings_move(sheet, today, seen):
 def trip_spend(sheet, today, trip):
     if not trip:
         return []
-    start, end = day(trip.get('start')), day(trip.get('end'))
+    start = day(trip.get('start') or trip.get('starts_on'))
+    end = day(trip.get('end') or trip.get('ends_on'))
     if not start or not end or not start <= today <= end:
         return []
     spent, travel, n = 0.0, 0.0, 0

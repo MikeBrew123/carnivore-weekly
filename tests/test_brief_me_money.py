@@ -241,3 +241,41 @@ def test_unreadable_sheet_is_missing_not_clear(tmp_path, monkeypatch):
 def test_quiet_day_has_no_personal_facts(tmp_path):
     quiet = sheet(subs=[], recurring=[], networth=[], holdings=[], budget=[])
     assert W.money_facts(TODAY, tmp_path, cc=CC, fmt='monday', sheet=quiet, watchlist_md='') == []
+
+
+# ---------- wiring into the episode plan ----------
+
+from brief_me import lenses as L     # noqa: E402
+
+BIZ = [{'id': f'b{i}', 'area': a, 'lenses': ['trend'], 'value': 10 + i, 'importance': 0.6,
+        'text': f'b{i} is {10 + i}.', 'source': 't'} for i, a in enumerate(['traffic', 'search', 'etsy'])]
+
+
+def test_trip_mode_keys_and_friday_format_name_accepted():
+    t = {'name': 'Coast', 'starts_on': '2026-10-05', 'ends_on': '2026-10-12'}
+    assert ids(W.trip_spend(sheet(), TODAY, t)) == ['personal.trip']
+    assert ids(W.business_week(sheet(), CC, 'week_review')) == ['personal.business_week']
+
+
+def test_plan_gives_personal_money_its_own_slot_before_close():
+    money = W.net_worth_month(sheet(), TODAY, set())
+    slots = [s['slot'] for s in L.plan_episode(BIZ + money, [])['slides']]
+    assert slots[-2:] == ['personal', 'close']
+    assert 'personal' not in [s['area'] for s in L.plan_episode(BIZ + money, [])['slides'] if s['slot'] == 'area']
+
+
+def test_plan_has_no_personal_slot_on_a_quiet_day():
+    assert 'personal' not in [s['slot'] for s in L.plan_episode(BIZ, [])['slides']]
+
+
+def test_personal_money_never_opens_the_show():
+    money = [dict(W.net_worth_month(sheet(), TODAY, set())[0], importance=1.0)]
+    assert L.plan_episode(BIZ + money, [])['cold_open'] != 'personal.networth'
+
+
+def test_history_remembers_once_only_money_facts():
+    money = W.net_worth_month(sheet(), TODAY, set())
+    plan = L.plan_episode(BIZ + money, [])
+    rec = L.history_record('ep', plan, BIZ + money)
+    assert W.seen_keys([rec]) == {'personal.networth.2026-09'}
+    assert W.net_worth_month(sheet(), TODAY, W.seen_keys([rec])) == []
