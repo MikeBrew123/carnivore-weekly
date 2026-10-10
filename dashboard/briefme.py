@@ -100,7 +100,7 @@ def cmd_gather(a):
     calendar = json.loads(Path(a.calendar).read_text()) if a.calendar else []
 
     facts = (F.command_center_facts(data) + F.ceo_facts(F.parse_ceo_brief(ceo_md))
-             + F.calendar_facts(calendar))
+             + F.calendar_facts(calendar, today=now().date().isoformat()))
     history = load_history()
     plan = L.plan_episode(facts, history)
 
@@ -208,13 +208,28 @@ def cmd_render(a):
         s = dict(s)
         if (ep / 'audio' / f'{i:02d}.mp3').exists():
             s['audio'] = f'audio/{i:02d}.mp3'
-        chart_id = s.pop('chart_fact', None)
-        if chart_id and by_id.get(chart_id, {}).get('series'):
-            f = by_id[chart_id]
-            s['chart'] = {'series': f['series'], 'labels': f.get('labels', []), 'label': f['text']}
+        vid = s.pop('visual', None) or s.pop('chart_fact', None)
+        f = by_id.get(vid) if vid else None
+        if f and (f.get('viz') or f.get('series')):
+            viz = dict(f.get('viz') or {'type': 'bars' if len(f['series']) <= 6 else 'line'})
+            if f.get('series'):
+                viz.setdefault('series', f['series'])
+                viz.setdefault('labels', f.get('labels', []))
+            viz['label'] = f['text']
+            s['visual'] = viz
+        site = s.get('site') or next((by_id[c].get('site') for c in s.get('fact_ids', [])
+                                      if by_id.get(c, {}).get('site')), None)
+        if site:
+            s['site'] = site
         slides.append(s)
     words = sum(len((s.get('narration') or '').split()) for s in slides)
-    episode = {'headline': script.get('headline', ''), 'dateline': script.get('dateline')
+    plan = json.loads((ep / 'plan.json').read_text())
+    ticker = []
+    for area in plan.get('quiet_areas', []):
+        best = max((f for f in facts if f['area'] == area), key=lambda f: f['importance'], default=None)
+        if best:
+            ticker.append({'area': area, 'text': best['text'].replace('\u2014', ',').replace(' ,', ',')[:140]})
+    episode = {'ticker': ticker, 'headline': script.get('headline', ''), 'dateline': script.get('dateline')
                or now().strftime('%A %B %-d, %-I:%M %p'), 'runtime': f'{round(words / 150)} min',
                'slides': slides}
     html = (HERE / 'brief_me' / 'template.html').read_text().replace(

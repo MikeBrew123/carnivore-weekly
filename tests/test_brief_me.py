@@ -162,6 +162,11 @@ def test_validate_checks_big_number_and_bullets():
     assert any('999' in p for p in probs) and any('777' in p for p in probs)
 
 
+def test_validate_checks_delta_pill():
+    probs = L.validate_script(script('ok', big_number={'value': '335', 'delta': {'text': '+44%', 'dir': 'up'}}), FACTS)
+    assert any('44' in p for p in probs)
+
+
 def test_validate_rejects_unknown_fact():
     assert L.validate_script(script('ok', ids=('nope',)), FACTS)
 

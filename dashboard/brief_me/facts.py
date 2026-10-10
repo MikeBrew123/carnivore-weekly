@@ -24,7 +24,7 @@ EMAIL_RE = re.compile(r'[\w.+-]+@[\w-]+\.[\w.-]+')
 
 
 def _fact(facts, id, area, lenses, text, value=None, importance=0.5,
-          source='', series=None, labels=None, caveat=None):
+          source='', series=None, labels=None, caveat=None, viz=None, site=None):
     f = {'id': id, 'area': area, 'lenses': list(lenses), 'text': text,
          'value': value, 'importance': round(float(importance), 2),
          'source': source}
@@ -33,6 +33,10 @@ def _fact(facts, id, area, lenses, text, value=None, importance=0.5,
         f['labels'] = labels or []
     if caveat:
         f['caveat'] = caveat
+    if viz:
+        f['viz'] = viz
+    if site:
+        f['site'] = site
     facts.append(f)
 
 
@@ -42,6 +46,13 @@ def _pct(change):
 
 def _short_url(url):
     return re.sub(r'^https?://[^/]+', '', url or '') or '/'
+
+
+def _chg(cur, prev):
+    """Percent change as text, or None when there is no base to compare."""
+    if not prev:
+        return None
+    return f'{(cur - prev) / prev * 100:+.0f}%'
 
 
 def _anon(text, limit=160):
@@ -63,7 +74,8 @@ def _traffic(d, facts):
               source='traffic.cw.week_ex_spike',
               series=[r['sessions'] for r in cw.get('daily', [])[-28:]],
               labels=[r['date'][5:] for r in cw.get('daily', [])[-28:]],
-              caveat='Raw GA4 includes crawler bursts; Google clicks are the steadier read.')
+              caveat='Raw GA4 includes crawler bursts; Google clicks are the steadier read.',
+              site='cw', viz={'type': 'line', 'excluded': [x[5:] for x in clean.get('excluded') or []]})
     pages = cw.get('top_pages_7d') or []
     if pages:
         p = pages[0]
@@ -91,7 +103,27 @@ def _traffic(d, facts):
               'Raw sessions this week: ' + ', '.join(f'{n} {v}' for n, v in sites) + '.',
               value=sum(v for _, v in sites), importance=0.45,
               source='traffic.*.week.sessions',
-              series=[v for _, v in sites], labels=[n for n, _ in sites])
+              series=[v for _, v in sites], labels=[n for n, _ in sites],
+              viz={'type': 'bars', 'sites': [n.lower() for n, _ in sites]})
+    rows = []
+    srch = d.get('search') or {}
+    for key in ('cw', 'kd', 'pd'):
+        wk = ((t.get(key) or {}).get('week') or {}).get('sessions')
+        if wk:
+            rows.append({'metric': 'Sessions', 'site': key, 'cur': int(wk['current']), 'prev': int(wk['previous'])})
+    for key in ('cw', 'kd', 'pd'):
+        c, p = (srch.get(key) or {}).get('current'), (srch.get(key) or {}).get('previous')
+        if c and p:
+            rows.append({'metric': 'Google clicks', 'site': key, 'cur': c['clicks'], 'prev': p['clicks']})
+            rows.append({'metric': 'Impressions', 'site': key, 'cur': c['impressions'], 'prev': p['impressions']})
+    if rows:
+        _fact(facts, 'traffic.wow', 'traffic', ['head_to_head', 'mover'],
+              'Week over week: ' + '; '.join(
+                  f"{r['site'].upper()} {r['metric'].lower()} {r['cur']} vs {r['prev']}"
+                  + (f" ({_chg(r['cur'], r['prev'])})" if _chg(r['cur'], r['prev']) else ' (new)')
+                  for r in rows) + '.',
+              value=len(rows), importance=0.45, source='traffic/search *.week',
+              viz={'type': 'wow', 'rows': rows})
 
 
 def _search(d, facts):
@@ -101,9 +133,11 @@ def _search(d, facts):
     if cur and prev:
         _fact(facts, 'search.cw.clicks', 'search', ['trend'],
               f"Google clicks to CW ({cw.get('window', '')}): {cur['clicks']} vs {prev['clicks']} the week before; "
-              f"impressions {cur['impressions']} vs {prev['impressions']}.",
+              f"impressions {cur['impressions']} vs {prev['impressions']}. "
+              f"Clicks {_chg(cur['clicks'], prev['clicks'])}, impressions {_chg(cur['impressions'], prev['impressions'])}.",
               value=cur['clicks'], importance=0.65, source='search.cw.current/previous',
-              series=[prev['clicks'], cur['clicks']], labels=['prev wk', 'this wk'])
+              series=[prev['clicks'], cur['clicks']], labels=['prev wk', 'this wk'],
+              site='cw', viz={'type': 'bars'})
         _fact(facts, 'search.cw.ctr', 'search', ['quiet_win', 'trend'],
               f"CW click-through rate {cur['ctr']}% (was {prev['ctr']}%), average position {cur['position']} (was {prev['position']}).",
               value=cur['ctr'], importance=0.4, source='search.cw.current.ctr')
@@ -118,6 +152,15 @@ def _search(d, facts):
         _fact(facts, 'search.cw.second_page', 'search', ['spotlight', 'mover'],
               f"Runner-up page: {_short_url(p['key'])}, {p['clicks']} clicks at position {p['position']}.",
               value=p['clicks'], importance=0.35, source='search.cw.top_pages[1]')
+    pts = [{'label': _short_url(p['key']), 'pos': p['position'], 'impr': p['impressions'],
+            'clicks': p['clicks']} for p in pages if p.get('impressions')]
+    if len(pts) >= 5:
+        band = [p for p in pts if 8 <= p['pos'] <= 20]
+        _fact(facts, 'search.cw.map', 'search', ['spotlight', 'mover'],
+              f"{len(pts)} CW pages charted on Google; {len(band)} sit at positions 8 to 20, "
+              f"within reach of page one.",
+              value=len(band), importance=0.45, source='search.cw.top_pages',
+              site='cw', viz={'type': 'bubbles', 'points': pts})
     qs = cw.get('top_queries') or []
     if qs:
         q = qs[0]
@@ -188,6 +231,14 @@ def _funnel(d, facts):
         fid = 'funnel.matters.' + re.sub(r'[^a-z]+', '_', w['fact'].lower())[:40]
         _fact(facts, fid, area, lens, text.strip(), value=None,
               importance=imp, source=f'what_matters[{i}]')
+    stages = [s for s in ((d.get('paid_funnel') or {}).get('stages') or [])
+              if s.get('status') == 'measured' and s.get('sessions')]
+    if len(stages) >= 3:
+        _fact(facts, 'funnel.paid_steps', 'funnel', ['leak'],
+              f"Paid journey, last {(d.get('paid_funnel') or {}).get('window_days', 28)} days: "
+              + ', '.join(f"{s['name'].lower()} {s['sessions']}" for s in stages) + '.',
+              value=stages[-1]['sessions'], importance=0.5, source='paid_funnel.stages',
+              site='cw', viz={'type': 'funnel', 'steps': [{'label': s['name'], 'value': s['sessions']} for s in stages]})
     for i, x in enumerate(d.get('experiments') or []):
         _fact(facts, 'funnel.exp.' + re.sub(r'[^a-z]+', '_', x['name'].lower()), 'funnel',
               ['experiment'],
@@ -213,19 +264,24 @@ def _email(d, facts):
 
 
 def _customers(d, facts):
+    seen = set()
     for q in ((d.get('voice') or {}).get('cw') or {}).get('questions') or []:
         ans = q.get('top_answers') or []
-        if not ans or not q.get('respondents_30d'):
+        if not ans or not q.get('respondents_30d') or q['key'] in seen:
             continue
+        seen.add(q['key'])
         a = ans[0]
         _fact(facts, f"customers.survey.{q['key']}", 'customers', ['voice'],
               f"Survey \"{q['text']}\": top answer \"{a['answer']}\" ({a['count']} of {q['respondents_30d']} in 30 days)."
               + (' Small sample.' if q.get('thin') else ''),
-              value=a['count'], importance=0.45, source=f"voice.cw.questions[{q['key']}]")
+              value=a['count'], importance=0.45, source=f"voice.cw.questions[{q['key']}]",
+              viz={'type': 'answers', 'question': q['text'], 'total': q['respondents_30d'],
+                   'answers': [{'label': x['answer'], 'value': x['count']} for x in ans[:4]]})
     for i, f in enumerate(((d.get('feedback') or {}).get('recent') or [])[:4]):
         _fact(facts, f"customers.feedback.{f.get('date', i)}", 'customers', ['voice'],
               f"Reader feedback ({(f.get('date') or '')[:10]}): \"{_anon(f.get('text'))}\"",
-              importance=0.4, source=f'feedback.recent[{i}]')
+              importance=0.4, source=f'feedback.recent[{i}]',
+              viz={'type': 'quote', 'quote': _anon(f.get('text')), 'who': 'A reader, ' + (f.get('date') or '')[:10]})
 
 
 def _ketodial(d, facts):
@@ -251,7 +307,8 @@ def _pescodial(d, facts):
         _fact(facts, 'pescodial.funnel', 'pescodial', ['leak', 'trend'],
               f"PescoDial calculator since {p.get('since')}: {steps}.",
               value=ev[0]['sessions'], importance=0.4, source='pescodial.events',
-              series=[e['sessions'] for e in ev[:6]], labels=[e['label'] for e in ev[:6]])
+              series=[e['sessions'] for e in ev[:6]], labels=[e['label'] for e in ev[:6]],
+              site='pd', viz={'type': 'funnel', 'steps': [{'label': e['label'], 'value': e['sessions']} for e in ev[:6]]})
     t = ((d.get('traffic') or {}).get('pd') or {}).get('week', {}).get('sessions')
     if t:
         _fact(facts, 'pescodial.sessions', 'pescodial', ['trend'],
@@ -314,6 +371,25 @@ def ceo_facts(brief):
     if brief.get('move'):
         _fact(facts, 'ceo.move', 'ceo', ['ceo'], f"CEO brief suggested move: {brief['move']}",
               importance=0.9, source='ceo-brief')
+    items = []
+    for line in brief.get('sit') or []:
+        for piece in re.split(r',\s*|\.\s+', line):
+            m = re.search(r'\b(\d{2})-(\d{2})\b', piece)
+            if m:
+                label = re.sub(r'\(.*?\)|\b(read|ends|window ends|due for a read today:?)\b|\d{2}-\d{2}|[:,.]', ' ', piece, flags=re.I)
+                label = re.sub(r'\s+', ' ', label).strip()
+                if label:
+                    items.append({'date': m.group(0), 'label': label[:40]})
+    if items:
+        seen, uniq = set(), []
+        for it in sorted(items, key=lambda x: x['date']):
+            if (it['date'], it['label']) not in seen:
+                seen.add((it['date'], it['label']))
+                uniq.append(it)
+        _fact(facts, 'ceo.timeline', 'ceo', ['ceo', 'watch'],
+              'Read dates: ' + ', '.join(f"{it['label']} {it['date']}" for it in uniq) + '.',
+              value=len(uniq), importance=0.6, source='ceo-brief',
+              viz={'type': 'timeline', 'items': uniq})
     for i, s in enumerate(brief.get('sit') or []):
         _fact(facts, f'ceo.sit.{i}', 'ceo', ['ceo', 'watch'], f'Sit window: {s}',
               importance=0.7, source='ceo-brief')
@@ -325,12 +401,33 @@ def ceo_facts(brief):
 
 # ---------- Calendar ----------
 
-def calendar_facts(events):
-    """events: list of {summary, start, end?, all_day?} as pulled by the session."""
-    facts = []
+def _when(start):
+    """'2026-10-14T10:00:00-07:00' -> ('Wed Oct 14', '10:00 AM'); all-day dates have no time."""
+    from datetime import datetime
+    try:
+        if 'T' in start:
+            dt = datetime.fromisoformat(start)
+            return dt.strftime('%a %b %-d'), dt.strftime('%-I:%M %p'), dt.date().isoformat()
+        dt = datetime.fromisoformat(start)
+        return dt.strftime('%a %b %-d'), 'all day', dt.date().isoformat()
+    except ValueError:
+        return start, '', ''
+
+
+def calendar_facts(events, today=None):
+    """events: list of {summary, start (ISO), ...} as pulled by the session."""
+    facts, week = [], []
     for i, ev in enumerate(events or []):
         title = (ev.get('summary') or '(untitled)').strip()
-        start = ev.get('start') or ''
+        day, time_, iso = _when(ev.get('start') or '')
         _fact(facts, f'calendar.{i}', 'calendar', ['calendar'],
-              f"{start}: {title}", importance=0.6, source=f'calendar[{i}]')
+              f"{day}, {time_}: {title}", importance=0.6, source=f'calendar[{i}]')
+        week.append({'date': iso, 'day': day, 'time': time_, 'title': title})
+    from datetime import date, timedelta
+    start = date.fromisoformat(today) if today else date.today()
+    _fact(facts, 'calendar.week', 'calendar', ['calendar'],
+          f"{len(week)} calendar events in the next 7 days.", value=len(week),
+          importance=0.3, source='calendar',
+          viz={'type': 'week', 'days': [(start + timedelta(days=k)).isoformat() for k in range(7)],
+               'events': week})
     return facts

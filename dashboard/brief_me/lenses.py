@@ -110,8 +110,8 @@ def plan_episode(facts, history):
     slides += area_slides
     ceo = by_area.get('ceo', [])
     slides.append({'slot': 'ceo', 'area': 'ceo', 'lens': 'ceo',
-                   'facts': sorted([f for f in ceo if f['id'] == 'ceo.move' or f['id'].startswith('ceo.sit')],
-                                   key=lambda f: -f['score'])[:4]})
+                   'facts': sorted([f for f in ceo if f['id'] in ('ceo.move', 'ceo.timeline') or f['id'].startswith('ceo.sit')],
+                                   key=lambda f: -f['score'])[:5]})
 
     recent_close = {ep.get('close') for ep in history[-3:]}
     watch = [f for f in scored if ('watch' in f['lenses'] or f['area'] == 'funnel')
@@ -175,7 +175,8 @@ def validate_script(script, facts):
                     allowed |= _variants(str(n))
         big = s.get('big_number') or {}
         texts = [s.get('title', ''), s.get('kicker', ''), s.get('narration', ''),
-                 str(big.get('value', '')), *(s.get('bullets') or [])]
+                 str(big.get('value', '')), str((big.get('delta') or {}).get('text', '')),
+                 *(s.get('bullets') or [])]
         for t in texts:
             if '—' in t:
                 problems.append(f'slide {i}: em-dash in "{t[:40]}"')
