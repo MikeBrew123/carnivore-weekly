@@ -20,8 +20,8 @@ mkdir -p ${LOG:h}
 say() { echo "$(date "+%F %T") [$slot] $*" >> $LOG; }
 
 # Track main once Brief Me has merged there, the PR branch until then.
-git -C $W fetch -q origin main feat/brief-me 2>>$LOG
-ref=origin/feat/brief-me
+git -C $W fetch -q origin main feat/brief-me-daily 2>>$LOG
+ref=origin/feat/brief-me-daily
 git -C $W cat-file -e origin/main:dashboard/brief_me/trip.py 2>/dev/null && ref=origin/main
 git -C $W checkout -q --detach $ref || { ~/bin/notify.sh "Brief Me: could not check out $ref on the Mini."; exit 1; }
 
