@@ -7661,9 +7661,16 @@ async function subscribeCore(env, cleanEmail, sourceValue, diet_type, site) {
 }
 
 // ===== FEEDBACK HANDLER =====
+const FEEDBACK_SITE_LABELS = { cw: 'Carnivore Weekly', kd: 'KetoDial', pd: 'PescoDial' };
+
 async function handleFeedback(request, env) {
   try {
-    const { request_text, email } = await request.json();
+    const { request_text, email, site: rawSite } = await request.json();
+    // CW's modal sends no site; KetoDial and PescoDial send 'kd' / 'pd' (2026-10-10).
+    const site = rawSite == null ? 'cw' : String(rawSite);
+    if (!Object.hasOwn(FEEDBACK_SITE_LABELS, site)) {
+      return createErrorResponse('INVALID_SITE', 'Unknown site', 400);
+    }
 
     if (!email || !isPlausibleEmail(email)) {
       return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
@@ -7690,6 +7697,7 @@ async function handleFeedback(request, env) {
           email: email || null,
           fingerprint: null,
           ip_address: request.headers.get('CF-Connecting-IP') || null,
+          site,
         }),
       }
     );
@@ -7708,11 +7716,11 @@ async function handleFeedback(request, env) {
               from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
               to: ['iambrew@gmail.com'],
               ...(email ? { reply_to: email } : {}),
-              subject: 'New site feedback',
+              subject: `New site feedback (${FEEDBACK_SITE_LABELS[site]})`,
               html: `
-                <h2>New feedback submission</h2>
-                <p><strong>From:</strong> ${email || '(no email provided)'}</p>
-                <p><strong>Message:</strong><br>${request_text.trim().replace(/\n/g, '<br>')}</p>
+                <h2>New feedback submission: ${FEEDBACK_SITE_LABELS[site]}</h2>
+                <p><strong>From:</strong> ${escapeHTML(email || '(no email provided)')}</p>
+                <p><strong>Message:</strong><br>${escapeHTML(request_text.trim()).replace(/\n/g, '<br>')}</p>
               `,
             }),
           });
