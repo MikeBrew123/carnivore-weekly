@@ -193,6 +193,9 @@ NEWSLETTER STRUCTURE RULES:
 Return ONLY valid JSON. No markdown fences, no explanation."""
 
 
+WEEKDAY_RE = re.compile(r"\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)s?\b", re.I)
+
+
 def enforce_style(content, api_key, system_prompt, label, site="cw"):
     """Self-check generated newsletter copy against house style before sending.
 
@@ -214,6 +217,10 @@ def enforce_style(content, api_key, system_prompt, label, site="cw"):
         def walk(v, path):
             if isinstance(v, str):
                 probs.extend(check_text(v, path, site))
+                # Saturday-evening Pacific send reads as Sunday or Monday
+                # elsewhere; any named weekday is wrong for someone (2026-10-11).
+                for day in WEEKDAY_RE.findall(v):
+                    probs.append(f"{path}: names a weekday ({day})")
             elif isinstance(v, dict):
                 for k, vv in v.items():
                     walk(vv, f"{path}.{k}")
@@ -231,7 +238,8 @@ def enforce_style(content, api_key, system_prompt, label, site="cw"):
     repair_prompt = (
         "The newsletter content below violates house style. Fix ONLY the listed "
         "violations (replace em-dashes with commas/periods, swap AI-tell words for "
-        "plain ones, simplify over-complex sentences to grade 8-10). Change nothing "
+        "plain ones, simplify over-complex sentences to grade 8-10, remove any named "
+        "weekday such as 'happy Sunday'). Change nothing "
         "else — same keys, same structure, same meaning.\n\n"
         f"Violations:\n" + "\n".join(f"- {p}" for p in probs) +
         f"\n\nContent JSON:\n{json.dumps(content, ensure_ascii=False)}\n\n"
@@ -402,6 +410,7 @@ CRITICAL RULES:
 - Use the EXACT slug from the posts above (including date prefix like 2026-06-15-topic-name). Do NOT strip the date prefix.
 - Supporting teasers are ONE sentence each, maximum. Create curiosity, not summaries.
 - ZERO em-dashes in any content. Use commas, periods, or colons instead.
+- Never name a day of the week (no "happy Sunday", "this Monday"). The email lands on different days for different readers.
 - Any statistic must be qualified ("community members report..." or "based on..."). No unsourced numbers.
 - All HTML content must use inline styles. No classes."""
 
@@ -535,6 +544,7 @@ NEWSLETTER STRUCTURE:
 - Any nutrition claim must be qualified ("a common starting range is..." not "you should eat exactly..."). Route specific guidance to the calculator.
 - Medical-adjacent content (bloodwork, cholesterol, glucose, hormones) must be SHORT teasers that click through to the article. Do not explain results or make claims in the email body. Use "some people find..." or "worth discussing with your doctor" framing.
 - ZERO em-dashes. Use commas, periods, or colons instead.
+- Never name a day of the week (no "happy Monday"). The email lands on different days for different readers.
 
 Return ONLY valid JSON. No markdown fences, no explanation."""
 
@@ -617,7 +627,7 @@ Return a JSON object with these keys:
 }}
 
 For quick_links, pick 3 evergreen KD posts that relate to this week's theme. Use actual URLs from the post list above.
-ZERO em-dashes in any content. Qualify any nutrition claims.
+ZERO em-dashes in any content. Never name a day of the week. Qualify any nutrition claims.
 All content must use inline styles. No CSS classes."""
 
     print("  Calling Anthropic API for KD content...")
