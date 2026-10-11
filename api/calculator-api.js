@@ -59,6 +59,11 @@ import { resolveGoal, detectGoalConflict } from './goal-semantics.js';
 import { buildPescoWeek, buildPescoDishWeek, groceryFromWeek, groceryNamesFromWeek } from './pd-meal-plan.js';
 import { PD_FOODS } from './pd-foods.js';
 import { renderPescoSections, pdSectionText, wrapPdReportHTML, pdStyleLabel } from './pd-report.js';
+import {
+  looksLikeGiftCode, normalizeGiftCode, describeGiftCode, giftErrorMessage, claimGift, attachRedemption,
+  releaseGift, voidGiftForPaymentIntent, isGiftCheckout, fulfillGiftCheckout, parseGiftPurchase,
+  giftCheckoutForm, createStripeCheckout, handleGiftCardPage, giftStatusForCheckout, GIFT_BRANDS,
+} from './gift.js';
 
 // Version marker for deployment verification
 const DEPLOY_VERSION = "v2026-06-07-resend-webhook";
@@ -1250,6 +1255,19 @@ async function handleValidateCoupon(request, env) {
 
     if (!code) {
       return createErrorResponse('MISSING_CODE', 'Coupon code is required', 400);
+    }
+
+    // Gift codes (CW-/PD-/KD-XXXXXXXX) are ours, not Stripe's. Checked here without
+    // being claimed; the claim happens at checkout, after the payment boundary.
+    if (looksLikeGiftCode(code)) {
+      const gift = await describeGiftCode(env, code);
+      if (!gift.ok) {
+        return createErrorResponse('INVALID_COUPON', giftErrorMessage(gift.reason, gift.site || 'cw'), 400);
+      }
+      return createSuccessResponse({
+        code: gift.code, stripe_coupon_id: null, percent: 100, amount_off: 0,
+        description: 'Gift', gift: true, site: gift.site,
+      });
     }
 
     // Validate via Stripe API (async)
@@ -6400,6 +6418,56 @@ async function handleGetSession(request, env) {
   }
 }
 
+/**
+ * POST /gift/checkout  { site: cw|pd|kd, buyer_name, buyer_email, recipient_name, note }
+ * The buyer pays the existing price for that site's report. No health answers are
+ * taken here: the recipient gives their own, through the normal calculator.
+ */
+async function handleGiftCheckout(request, env) {
+  let body;
+  try { body = await parseJsonBody(request); } catch { return createErrorResponse('INVALID_JSON', 'Request body must be valid JSON', 400); }
+  const g = parseGiftPurchase(body, isPlausibleEmail);
+  if (g.error) return createErrorResponse('INVALID_GIFT', g.error, 400);
+
+  let lineItem;
+  let extra = {};
+  if (g.site === 'cw') {
+    lineItem = { 'line_items[0][price]': 'price_1T5CZkEVDfkpGz8wnvZEnZH7' }; // $29 USD, same as self-purchase
+  } else if (g.site === 'pd') {
+    lineItem = {
+      'line_items[0][price_data][currency]': 'usd',
+      'line_items[0][price_data][unit_amount]': String(PD_PLAN_PRICE_CENTS),
+      'line_items[0][price_data][product_data][name]': 'Gift: a personal 7-day plan (PescoDial)',
+      'line_items[0][price_data][product_data][description]': 'A gift card with a code for one personal pescatarian 7-day plan.',
+    };
+    extra = PD_STRIPE_BRANDING;
+  } else {
+    lineItem = { 'line_items[0][price]': 'price_1Tcvd0EVDfkpGz8wCtiZSJT6' }; // KD Full Protocol Bundle, $10.99 USD
+  }
+  try {
+    const session = await createStripeCheckout(env, giftCheckoutForm(g, lineItem, extra));
+    return createSuccessResponse({ url: session.url }, 200);
+  } catch (err) {
+    console.error('[handleGiftCheckout]', err.message);
+    return createErrorResponse('STRIPE_ERROR', 'We could not open checkout just now. Please try again in a minute.', 502);
+  }
+}
+
+/** POST /gift/check { code, site }  For the redeem page: is this code good here? Never claims. */
+async function handleGiftCheck(request, env) {
+  let body;
+  try { body = await parseJsonBody(request); } catch { return createErrorResponse('INVALID_JSON', 'Request body must be valid JSON', 400); }
+  const site = GIFT_BRANDS[body && body.site] ? body.site : null;
+  try {
+    const r = await describeGiftCode(env, body && body.code, site);
+    if (!r.ok) return createErrorResponse('GIFT_CODE_REJECTED', giftErrorMessage(r.reason, site || 'cw'), 400);
+    return createSuccessResponse({ ok: true, code: r.code, site: r.site, recipient_name: r.recipient_name });
+  } catch (err) {
+    console.error('[handleGiftCheck]', err.message);
+    return createErrorResponse('GIFT_UNAVAILABLE', 'We could not check that code just now. Please try again in a minute.', 503);
+  }
+}
+
 async function handleCreateCheckout(request, env) {
   try {
     // Validate content type
@@ -6563,6 +6631,78 @@ async function handleCreateCheckout(request, env) {
         'Database did not return session ID',
         500
       );
+    }
+
+    // ===== GIFT CODE: SOMEONE ALREADY PAID FOR THIS REPORT =====
+    // Reached only after the payment boundary above, so a refused checkout never
+    // burns a gift. The claim is one conditional UPDATE: single-use by construction,
+    // unlike a Stripe 100% coupon on the free path below (bead c47q).
+    if (coupon_code && looksLikeGiftCode(coupon_code)) {
+      const giftCode = normalizeGiftCode(coupon_code);
+      let claimed = null;
+      try {
+        claimed = await claimGift(env, giftCode, orderSite, email);
+      } catch (err) {
+        console.error('[handleCreateCheckout] gift claim error:', err.message);
+        return createErrorResponse('GIFT_UNAVAILABLE', 'We could not check your gift code just now. Please try again in a minute.', 503);
+      }
+      if (!claimed) {
+        const why = await describeGiftCode(env, giftCode, orderSite).catch(() => ({ reason: 'invalid' }));
+        return createErrorResponse('GIFT_CODE_REJECTED', giftErrorMessage(why.reason || 'invalid', orderSite), 409);
+      }
+      const nowIso = new Date().toISOString();
+      const paidRes = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({ payment_status: 'completed', stripe_payment_intent_id: `gift_${giftCode}`, updated_at: nowIso }),
+        }
+      );
+      const paidRows = paidRes.ok ? await paidRes.json().catch(() => []) : [];
+      if (!paidRes.ok || !Array.isArray(paidRows) || !paidRows.length) {
+        console.error('[handleCreateCheckout] gift redeemed but session not marked paid:', paidRes.status);
+        await releaseGift(env, claimed.id);
+        return createErrorResponse('GIFT_REDEEM_FAILED', 'We could not start your plan just now. Your gift code still works, so please try again in a minute.', 500);
+      }
+      await attachRedemption(env, claimed.id, { redeemed_session_id: sessionUUID });
+      if (session_token && typeof session_token === 'string') {
+        const giftSync = await fetch(
+          `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(session_token)}&payment_status=eq.pending`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+              'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+            body: JSON.stringify({
+              payment_status: 'completed',
+              amount_paid_cents: 0,
+              stripe_payment_intent_id: `gift_${giftCode}`,
+              paid_at: nowIso,
+              updated_at: nowIso,
+            }),
+          }
+        );
+        if (!giftSync.ok) console.warn('Gift redemption: calculator_sessions_v2 sync failed:', await giftSync.text());
+      }
+      console.log(`[handleCreateCheckout] gift ${giftCode} redeemed for assessment ${sessionUUID} (${orderSite})`);
+      return createSuccessResponse({
+        success: true,
+        gift: true,
+        amount: 0,
+        checkout_url: orderSite === 'pd'
+          ? `${pdReturnBase(request)}/calculator/?payment=success&session_id=${sessionUUID}#payment-success`
+          : `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`,
+        session_uuid: sessionUUID,
+        message: 'Gift redeemed',
+      }, 200);
     }
 
     // ===== CHECK FOR 100% DISCOUNT - BYPASS STRIPE =====
@@ -9367,6 +9507,35 @@ async function handleStripeWebhook(request, env) {
 
   console.log(`Webhook: ${event.type} received`);
 
+  // ===== GIFT PURCHASES (CW, PD and KD) =====
+  // Handled before the event dedup on purpose: fulfilment is idempotent on the Stripe
+  // session (one row, one email), so a retry after a failed send must reach it again.
+  if (event.type === 'checkout.session.completed' && isGiftCheckout(event.data.object)) {
+    try {
+      const done = await fulfillGiftCheckout(env, event.data.object);
+      console.log(`Webhook: gift ${event.data.object.id}`, JSON.stringify({ ...done, code: done.code ? 'minted' : undefined }));
+      return createSuccessResponse({ received: true, gift: true, emailed: !!done.emailed });
+    } catch (err) {
+      console.error(`Webhook: gift fulfilment failed for ${event.data.object.id}: ${err.message}`);
+      return createErrorResponse('GIFT_FULFILMENT_FAILED', 'Gift not fulfilled yet', 500);
+    }
+  }
+  if (event.type === 'checkout.session.expired' && isGiftCheckout(event.data.object)) {
+    return createSuccessResponse({ received: true, gift: true, expired: true });
+  }
+  if (event.type === 'charge.refunded' && event.data.object?.refunded && event.data.object?.payment_intent) {
+    try {
+      const voided = await voidGiftForPaymentIntent(env, event.data.object.payment_intent, 'refunded');
+      if (voided) {
+        console.log(`Webhook: refund voided ${voided} unredeemed gift code(s)`);
+        return createSuccessResponse({ received: true, gift: true, voided });
+      }
+    } catch (err) {
+      console.error('Webhook: gift void on refund failed:', err.message);
+      return createErrorResponse('GIFT_VOID_FAILED', 'Gift void not confirmed', 500);
+    }
+  }
+
   const patchHeaders = {
     'Content-Type': 'application/json',
     'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
@@ -9756,6 +9925,21 @@ export default {
     // Payment flow
     if (path === '/api/v1/calculator/payment/tiers' && method === 'GET') {
       return await handleGetPaymentTiers(request, env);
+    }
+
+    // Gift a report (CW, PD, KD). Separate from /create-checkout, which is untouched.
+    if (path === '/gift/checkout' && method === 'POST') {
+      return sendWithCors(await handleGiftCheckout(request, env));
+    }
+    if (path === '/gift/status' && method === 'GET') {
+      const r = await giftStatusForCheckout(env, url.searchParams.get('cs'));
+      return sendWithCors(new Response(JSON.stringify(r.body), { status: r.status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }));
+    }
+    if (path === '/gift/check' && method === 'POST') {
+      return sendWithCors(await handleGiftCheck(request, env));
+    }
+    if (path.startsWith('/gift/card/') && method === 'GET') {
+      return await handleGiftCardPage(env, path.slice('/gift/card/'.length));
     }
 
     if (path === '/validate-coupon' && method === 'POST') {
