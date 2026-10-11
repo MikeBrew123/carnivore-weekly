@@ -35,6 +35,8 @@ on:
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
       - 'tests/email-validation.test.mjs'
+      - 'tests/feedback-form.test.mjs'
+      - 'pescodial/static/js/feedback.js'
       - 'tests/cw-report-warning.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
@@ -108,6 +110,8 @@ on:
       - 'tests/pd-report.test.mjs'
       - 'tests/brand-attribution-isolation.test.mjs'
       - 'tests/email-validation.test.mjs'
+      - 'tests/feedback-form.test.mjs'
+      - 'pescodial/static/js/feedback.js'
       - 'tests/cw-report-warning.test.mjs'
       - 'tests/test_pd_drip.py'
       - 'scripts/send_drip.py'
@@ -391,6 +395,9 @@ jobs:
 
       - name: PescoDial sign-up routing (pesco-* -> pd, CW/KD unchanged)
         run: node tests/pd-subscribe-routing.test.mjs
+
+      - name: Site feedback form (KD + PD site tag, escaping, page wiring)
+        run: node tests/feedback-form.test.mjs
 
       # One email shape check for every endpoint (2026-10-04: "name@aol..ccoom"
       # was stored). Table of accept/reject cases plus /subscribe and
