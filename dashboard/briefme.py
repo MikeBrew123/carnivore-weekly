@@ -115,6 +115,13 @@ def cmd_gather(a):
     today = a.date or now().date().isoformat()
 
     ctx, trip_note = trip_context(today)
+    from datetime import date, timedelta
+    if ceo_date and ceo_date < (date.fromisoformat(today) - timedelta(days=1)).isoformat():
+        # The CEO brief is written on the laptop; a closed laptop (say, in
+        # Mexico) leaves an old one behind. An old "suggested move" read as
+        # today's would be wrong, so it sits out.
+        print(f'note: CEO brief {ceo_date} is stale for {today}; leaving it out.')
+        ceo_md = ''
     facts = (F.command_center_facts(data) + F.ceo_facts(F.parse_ceo_brief(ceo_md))
              + F.calendar_facts(calendar, today=today) + F.trip_facts(ctx) + trip_note)
     if ctx and ctx.get('trip'):
