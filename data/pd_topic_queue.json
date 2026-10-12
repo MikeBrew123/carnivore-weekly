@@ -1,0 +1,162 @@
+{
+  "_about": "PescoDial topic queue. Writers take the first 'queued' item, set it to 'drafted' when a post is written (status ready), and the publish step sets 'published'. 'later' items are not scheduled. Volumes are SpyFu modelled US monthly estimates retrieved 2026-10-03 (order of magnitude only); Bing figures are Brew's pull 2026-10-03. Sources: Sarah's PD plan 2026-10-12 section 3, PD traffic research 2026-10-12.",
+  "statuses": [
+    "queued",
+    "drafted",
+    "published",
+    "later"
+  ],
+  "updated": "2026-10-12",
+  "queue": [
+    {
+      "order": 1,
+      "id": "P7",
+      "working_title": "Is Shrimp Bad for Cholesterol? What Actually Raises Your LDL",
+      "writer": "sarah",
+      "category": "health",
+      "keyword_evidence": "is shrimp high in cholesterol 720/mo; is shrimp bad for cholesterol 220/mo; is shrimp healthy 2,600/mo (covered as a section only); Bing 558 impressions over 3 months, the only seed with Bing data",
+      "safety_note": "Do not change your statin because of anything here; include a shellfish allergy note; nutrient numbers from USDA FoodData Central at writing time, never from memory.",
+      "must_not_cannibalize": [
+        "P8"
+      ],
+      "pair_with": "P8",
+      "status": "queued"
+    },
+    {
+      "order": 2,
+      "id": "P2",
+      "working_title": "A 7-Day Pescatarian Meal Plan for Weight Loss After 50",
+      "writer": "marcus",
+      "category": "meal-plan",
+      "keyword_evidence": "pescatarian weight-loss plan 220/mo; pescatarian diet plan 270/mo; parent 'pescatarian meal plan' 930/mo; difficulty 11 to 35, lowest on the map",
+      "safety_note": "Weight loss can lower blood pressure and blood sugar, so tell your doctor before starting; keep greens steady on warfarin; no supplement doses; no personalised quantities, route to the calculator for numbers.",
+      "must_not_cannibalize": [
+        "homepage calculator (/)",
+        "paid 7-day plan"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 3,
+      "id": "P8",
+      "working_title": "The Best Fish for High Cholesterol (and the Ones to Go Easy On)",
+      "writer": "sarah",
+      "category": "health",
+      "keyword_evidence": "best fish for high cholesterol and variants, about 270/mo combined",
+      "safety_note": "Food works alongside a statin, never instead of one.",
+      "must_not_cannibalize": [
+        "P7 (no shrimp section beyond a link)",
+        "P4 (omega-3 gets one paragraph and a link)"
+      ],
+      "pair_with": "P7",
+      "status": "queued"
+    },
+    {
+      "order": 4,
+      "id": "P4",
+      "working_title": "Fish High in Omega-3: What to Eat Each Week, Food First",
+      "writer": "sarah",
+      "category": "nutrition",
+      "keyword_evidence": "fish high in omega 3 440/mo; best fish for omega 3 220/mo; best fish for heart health 44/mo; difficulty 51 to 58, waits for links from P7, P2, P8",
+      "safety_note": "No supplement doses; anyone on a blood thinner asks their pharmacist before adding fish oil.",
+      "must_not_cannibalize": [
+        "P8",
+        "P5"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 5,
+      "id": "P3",
+      "working_title": "Is Pescatarian Healthy After 50? What It Does for Your Heart and Weight",
+      "writer": "sarah",
+      "category": "health",
+      "keyword_evidence": "is pescatarian healthy 180/mo; pescatarian benefits 135/mo; about 670/mo with variants; home for the pesco-Mediterranean angle (that phrase has no volume, never a title)",
+      "safety_note": "Blood-pressure medicine; watch salt in smoked and canned fish. Must not drift into an opinion piece.",
+      "must_not_cannibalize": [
+        "homepage (/)",
+        "/about/"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 6,
+      "id": "P5",
+      "working_title": "How Much Fish Per Week Is Safe After 60? Mercury and Heart Benefits",
+      "writer": "sarah",
+      "category": "health",
+      "keyword_evidence": "how much fish per week 180/mo + 44/mo; omega-3 per day 3,300/mo as a food-first section only; hardest SERP (nhs.uk first, difficulty 73 to 74), goes last",
+      "safety_note": "Cite FDA/EPA and AHA guidance directly; route blood-thinner users to the pharmacist; no supplement doses.",
+      "must_not_cannibalize": [
+        "P4"
+      ],
+      "status": "queued"
+    }
+  ],
+  "later": [
+    {
+      "id": "L1",
+      "working_title": "Low Mercury Fish",
+      "writer": null,
+      "keyword_evidence": "low mercury fish 1,200/mo; FDA ranks first",
+      "safety_note": "Cite FDA/EPA fish advice directly; pregnancy and children guidance is out of scope for this audience, link to FDA.",
+      "must_not_cannibalize": [
+        "P5"
+      ],
+      "status": "later"
+    },
+    {
+      "id": "L2",
+      "working_title": "Is Canned Tuna Healthy?",
+      "writer": null,
+      "keyword_evidence": "is canned tuna healthy 2,100/mo",
+      "safety_note": "Mercury by tuna type from FDA/EPA; sodium for blood-pressure readers.",
+      "must_not_cannibalize": [
+        "P5",
+        "L1"
+      ],
+      "status": "later"
+    },
+    {
+      "id": "L3",
+      "working_title": "Sardine Recipes",
+      "writer": null,
+      "keyword_evidence": "sardine recipes 3,200/mo",
+      "safety_note": "Sodium in canned sardines for blood-pressure readers.",
+      "must_not_cannibalize": [
+        "L5"
+      ],
+      "status": "later"
+    },
+    {
+      "id": "L4",
+      "working_title": "Canned Salmon Recipes",
+      "writer": null,
+      "keyword_evidence": "canned salmon recipes 2,000/mo",
+      "safety_note": "Sodium in canned fish for blood-pressure readers.",
+      "must_not_cannibalize": [
+        "P2"
+      ],
+      "status": "later"
+    },
+    {
+      "id": "L5",
+      "working_title": "Sardines Benefits",
+      "writer": null,
+      "keyword_evidence": "sardines benefits 360/mo",
+      "safety_note": "Food first, no supplement doses; blood thinners note for omega-3.",
+      "must_not_cannibalize": [
+        "P4",
+        "L3"
+      ],
+      "status": "later"
+    }
+  ],
+  "not_a_post": [
+    {
+      "id": "P1",
+      "working_title": "Pescatarian Food List (printable)",
+      "reason": "Reference list shape sits at pos 42 on CW; better as a printable lead magnet than a blog URL (Sarah, 2026-10-12)."
+    }
+  ]
+}

@@ -12,8 +12,14 @@ on:
       - 'data/blog_posts.json'
       - 'calculator2-demo/src/lib/calculations.ts'
       - 'tests/pd-*.test.mjs'
+      - 'scripts/pd_publish_check.py'
       - '.github/workflows/pescodial-deploy.yml'
   workflow_dispatch:
+
+# issues: write lets the liveness check open an issue instead of failing quietly.
+permissions:
+  contents: read
+  issues: write
 
 concurrency:
   group: pescodial-pages
@@ -59,3 +65,63 @@ jobs:
           code=$(curl -s -o /dev/null -w "%{http_code}" https://pescodial.pages.dev/)
           echo "pescodial.pages.dev -> $code"
           test "$code" = "200"
+
+      # Every published pd guide must answer 200 on the real domain and be in
+      # the live sitemap. Retries ride out Cloudflare propagation (~2 min).
+      # A cache-busting query keeps an edge-cached 404 from a pre-publish
+      # probe out of the result (Pages serves the file regardless of query).
+      - name: Guide liveness (every published PD post)
+        run: |
+          URLS=$(python3 scripts/pd_publish_check.py published-urls)
+          if [ -z "$URLS" ]; then
+            echo "No published PD guides yet; nothing to check."
+            exit 0
+          fi
+          BUST="v=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          FAILED=""
+          for url in $URLS; do
+            code=000
+            for i in $(seq 1 12); do
+              code=$(curl -s -o /dev/null -w "%{http_code}" "${url}?${BUST}-${i}" || echo 000)
+              [ "$code" = "200" ] && break
+              sleep 10
+            done
+            echo "$url -> $code"
+            [ "$code" = "200" ] || FAILED="${FAILED}${url} returned ${code}"$'\n'
+          done
+          SITEMAP=""
+          for i in $(seq 1 12); do
+            SITEMAP=$(curl -s "https://www.pescodial.com/sitemap.xml?${BUST}-${i}" || true)
+            MISSING=""
+            for url in $URLS; do
+              grep -qF "<loc>${url}</loc>" <<<"$SITEMAP" || MISSING="${MISSING}${url} "
+            done
+            [ -z "$MISSING" ] && break
+            sleep 10
+          done
+          for url in $MISSING; do
+            FAILED="${FAILED}${url} missing from sitemap.xml"$'\n'
+          done
+          if [ -n "$FAILED" ]; then
+            printf '%s' "$FAILED" > "$RUNNER_TEMP/pd-liveness.txt"
+            echo "::error title=PD guide liveness failed::$(printf '%s' "$FAILED" | wc -l | tr -d ' ') problem(s)"
+            printf '%s' "$FAILED"
+            exit 1
+          fi
+          echo "All $(echo "$URLS" | wc -l | tr -d ' ') published PD guides are live and in the sitemap."
+
+      - name: Open issue on PD deploy or liveness failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="🚨 PescoDial deploy or guide liveness failed"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          DETAIL=$(cat "$RUNNER_TEMP/pd-liveness.txt" 2>/dev/null || echo "A step before the guide liveness check failed; see the run log.")
+          BODY=$(printf 'pescodial-deploy.yml failed on %s (event: %s, commit %s).\n\n```\n%s\n```\n\nRun: %s' "$(date -u +%F)" "${{ github.event_name }}" "${GITHUB_SHA}" "$DETAIL" "$RUN_URL")
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$EXISTING" ]; then
+            gh issue create --title "$TITLE" --body "$BODY"
+          else
+            gh issue comment "$EXISTING" --body "$BODY"
+          fi

@@ -523,6 +523,40 @@ blockquote.not-doctor cite { font: normal 700 1rem var(--f-ui); color: var(--mut
 .guide-group { margin-top: 32px; }
 .guide-group h2 { font-size: 1.3rem; color: var(--olive); font-family: var(--f-ui); text-transform: uppercase; letter-spacing: .06em; }
 
+/* Blog post (guides/<slug>/). Body stays at the 18px base; prose gets roomier lines. */
+.post { padding-bottom: 8px; }
+.post h1 { margin-top: 4px; overflow-wrap: break-word; }
+.post-disclaimer { font: italic 400 1.0625rem/1.5 var(--f-serif); color: var(--muted); border-left: 4px solid var(--olive); padding: 2px 0 2px 14px; margin: 0 0 28px; }
+.post-body { font-size: 1.1875rem; line-height: 1.7; }
+.post-body p, .post-body li { max-width: 68ch; }
+.post-body h2 { margin-top: 1.8em; }
+.post-body h3 { margin-top: 1.4em; }
+.post-body ol { padding-left: 26px; }
+.post-body li { margin-bottom: 8px; }
+.post-body a { overflow-wrap: anywhere; }
+.post-body blockquote { margin: 24px 0; padding: 4px 0 4px 18px; border-left: 4px solid var(--olive); font-family: var(--f-serif); color: var(--sea-ink); }
+.post-body table { display: block; overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.post-body aside.med-note { background: var(--terra-tint); border: 2px solid var(--terra); border-radius: var(--r); padding: 16px 18px; margin: 28px 0; }
+.post-body aside.med-note p:last-child, .post-body aside.med-note ul:last-child { margin-bottom: 0; }
+.post-body aside.med-note strong { color: var(--terra-dark); }
+.related { margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--line); }
+.related h2 { font: 700 1.0625rem/1.3 var(--f-ui); color: var(--olive); text-transform: uppercase; letter-spacing: .06em; }
+.related ul { list-style: none; padding: 0; margin: 0; }
+.related li { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.related li a { font: 600 1.25rem/1.3 var(--f-serif); display: inline-block; padding: 4px 0; }
+.related li p { margin: 6px 0 0; color: var(--muted); font-size: 1.0625rem; }
+.calc-cta { background: var(--sea); color: var(--cream); border-radius: var(--r); padding: 22px 20px; margin: 32px 0 0; }
+.calc-cta p { margin: 0; font-size: 1.1875rem; }
+.calc-cta a { color: #fff; font-weight: 700; }
+.calc-cta a:hover { color: var(--olive-light); }
+.guide-list { list-style: none; padding: 0; margin: 24px 0 0; }
+.guide-list li { padding: 20px 0; border-top: 1px solid var(--line); }
+.guide-list h2 { font-size: 1.4rem; margin: 0 0 8px; }
+.guide-list h2 a { text-decoration: none; color: var(--sea-ink); }
+.guide-list h2 a:hover { text-decoration: underline; color: var(--terra-dark); }
+.guide-list p { margin: 0 0 6px; }
+.guide-meta { font-size: 1rem; color: var(--muted); }
+
 /* Footer */
 .site-footer { margin-top: 48px; padding: 28px 0 40px; border-top: 1px solid var(--line); }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
@@ -543,7 +577,8 @@ blockquote.not-doctor cite { font: normal 700 1rem var(--f-ui); color: var(--mut
 @media print {
   @page { margin: 18mm; }
   body { background: #fff; color: #000; font-size: 12pt; }
-  .site-header, .scallop, .site-footer, .calc-card, .btn-print, .crumbs, .ph, .skip { display: none !important; }
+  .site-header, .scallop, .site-footer, .calc-card, .calc-cta, .related, .btn-print, .crumbs, .ph, .skip { display: none !important; }
+  .post-body aside.med-note { background: #fff; border: 1.5pt solid #000; break-inside: avoid; }
   .wrap { max-width: none; padding: 0; }
   h1 { font-size: 22pt; color: #000; }
   h2 { font-size: 15pt; color: #000; break-after: avoid; }
@@ -556,3 +591,17 @@ blockquote.not-doctor cite { font: normal 700 1rem var(--f-ui); color: var(--mut
 }
 .print-only { display: none; }
 
+
+/* Content tables in guides: a card per row on phones (labels come from the
+   column headers, added at build time by stack_tables) */
+.post-table { margin: 20px 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; overflow: hidden; }
+.post-table table { margin: 0; }
+@media (max-width: 640px) {
+  .post-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .post-table tr { display: block; padding: 6px 0; border-bottom: 2px solid var(--line); }
+  .post-table tr:last-child { border-bottom: 0; }
+  .post-table td, .post-table tbody th { display: block; border: 0; padding: 6px 16px; }
+  .post-table td[data-label]::before, .post-table tbody th[data-label]::before { content: attr(data-label); display: block; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--sea-ink); }
+  .post-table tr > :first-child { font-weight: 700; color: var(--sea-ink); font-size: 1.1rem; }
+  .post-table tr > :first-child::before { display: none; }
+}

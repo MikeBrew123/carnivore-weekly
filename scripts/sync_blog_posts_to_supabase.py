@@ -104,7 +104,7 @@ def sync_blog_posts(dry_run=False):
         return False
 
     # Cross-post safety: refuse to sync if any post is missing a valid site tag
-    valid_sites = {"cw", "kd"}
+    valid_sites = {"cw", "kd", "pd"}  # pd = PescoDial (2026-10-12); DB check allows it
     untagged = [p for p in json_posts if p.get("site") not in valid_sites]
     if untagged:
         print(f"🛑 SAFETY: {len(untagged)} posts missing valid site tag. Refusing to sync.")
@@ -151,7 +151,12 @@ def sync_blog_posts(dry_run=False):
         content = json_post.get("content") or ""
 
         # GUARD: Never publish posts with empty content
-        is_published = json_post.get("published", True)
+        # status wins when present: a PD post has no "published" key and must not
+        # sync as live while it is still "ready" (2026-10-12)
+        if json_post.get("status"):
+            is_published = json_post.get("status") == "published"
+        else:
+            is_published = json_post.get("published", True)
         if content.strip() == "" and is_published:
             print(
                 f"  ⚠️  WARNING: {title[:50]}... has empty content - forcing is_published=False"
