@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mechanical content-quality scorer for queued blog posts (CW + KD).
+"""Mechanical content-quality scorer for queued blog posts (CW, KD, PD).
 
 Built 2026-08-24 (Brew's content-review routine). Checks every metric that
 can be measured without a model:
@@ -8,7 +8,7 @@ can be measured without a model:
   - Em-dashes (banned everywhere)
   - Contraction density (too few reads as AI/formal)
   - Internal links (house rule: at least 1, ideally 2+)
-  - Cross-site links (CW->KD links help KD's crawl-demand problem)
+  - Cross-site links to a sister site (CW->KD links help KD's crawl-demand problem)
 
 Usage:
   python3 scripts/content_review.py             # all status=ready posts not yet review-passed
@@ -30,7 +30,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from cw_sweet_guard import check_copy as cw_sweet_check  # noqa: E402
 
-BLOG_JSON = '/Users/mbrew/Developer/carnivore-weekly/data/blog_posts.json'
+# Resolve from the script, not a hardcoded checkout: worktrees and the Mini
+# runner must score their own queue, not the MacBook main checkout's.
+BLOG_JSON = str(Path(__file__).resolve().parent.parent / 'data' / 'blog_posts.json')
+
+# Per site: own domain and the relative path prefixes that count as internal
+# article links. PescoDial articles live under /guides/, not /blog/.
+SITE_DOMAINS = {'cw': 'carnivoreweekly.com', 'kd': 'ketodial.com', 'pd': 'pescodial.com'}
+INTERNAL_PREFIXES = {'cw': ('/blog/',), 'kd': ('/blog/',), 'pd': ('/guides/', '/blog/')}
 
 AI_TELLS = ['delve', 'landscape', 'robust', 'utilize', 'facilitate', 'crucial',
             'realm', 'tapestry', 'moreover', 'furthermore', 'embark',
@@ -90,11 +97,12 @@ def review_post(p):
     contr_per_k = round(contr / wc * 1000, 1) if wc else 0
 
     links = re.findall(r'href="([^"]+)"', html)
-    internal = [l for l in links if '/blog/' in l and 'http' not in l] + \
-               [l for l in links if ('carnivoreweekly.com' in l if p.get('site', 'cw') == 'cw'
-                                     else 'ketodial.com' in l)]
-    cross = [l for l in links if ('ketodial.com' in l if p.get('site', 'cw') == 'cw'
-                                  else 'carnivoreweekly.com' in l)]
+    site = p.get('site', 'cw')
+    own = SITE_DOMAINS.get(site, SITE_DOMAINS['cw'])
+    prefixes = INTERNAL_PREFIXES.get(site, ('/blog/',))
+    internal = [l for l in links if 'http' not in l and any(x in l for x in prefixes)] + \
+               [l for l in links if own in l]
+    cross = [l for l in links if any(d in l for s, d in SITE_DOMAINS.items() if d != own)]
 
     grade = fk_grade(text)
     critical, warn = [], []
