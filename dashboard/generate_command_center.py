@@ -679,8 +679,11 @@ def fetch_funnels():
         }
         # WHY a drip is silent: newest 'blocked' event in the last 3 days
         # (send_drip.py log_block). Empty list = no known block.
+        # 'Z', not isoformat()'s '+00:00': an unencoded '+' in a query string
+        # is read as a space and PostgREST 400s the whole funnels fetch.
+        since = (datetime.now(timezone.utc) - timedelta(days=3)).strftime('%Y-%m-%dT%H:%M:%SZ')
         blk = supa_fetch('drip_events', select='subject,created_at',
-                         filters=f"site=eq.{site}&event_type=eq.blocked&created_at=gte.{(datetime.now(timezone.utc) - timedelta(days=3)).isoformat()}",
+                         filters=f"site=eq.{site}&event_type=eq.blocked&created_at=gte.{since}",
                          order='created_at.desc', limit=1)
         out[f'drip_{site}']['blocked_reason'] = blk[0]['subject'] if blk else None
         try:
