@@ -6447,6 +6447,19 @@ async function handleGiftCheckout(request, env) {
     extra = PD_STRIPE_BRANDING;
   } else {
     lineItem = { 'line_items[0][price]': 'price_1Tcvd0EVDfkpGz8wCtiZSJT6' }; // KD Full Protocol Bundle, $10.99 USD
+    // KetoDial look on Stripe's page and the card statement, this order only (Brew
+    // 2026-10-12: the gift checkout showed Carnivore Weekly, the account default).
+    extra = {
+      'branding_settings[display_name]': 'KetoDial',
+      'branding_settings[background_color]': '#f1f5f9',
+      'branding_settings[button_color]': '#0b1620',
+      'branding_settings[border_style]': 'rounded',
+      'branding_settings[icon][type]': 'url',
+      'branding_settings[icon][url]': 'https://ketodial.com/images/ketodial-logo-512.png',
+      'branding_settings[logo][type]': 'url',
+      'branding_settings[logo][url]': 'https://ketodial.com/images/ketodial-logo-512.png',
+      'payment_intent_data[statement_descriptor_suffix]': 'KETODIAL',
+    };
   }
   try {
     const session = await createStripeCheckout(env, giftCheckoutForm(g, lineItem, extra));

@@ -28,6 +28,7 @@ BRANDS = {
         "calc": "/calculator.html?coupon=",
         "redeem_hint": "Your code will already be filled in at the payment step. Press Apply next to it and the price drops to $0.",
         "ga": "G-NR4JVKW2JV",
+        "logo": "/images/logo.png",
         "fonts": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap",
         "head": "'Playfair Display', Georgia, serif",
         "body": "Merriweather, Georgia, serif",
@@ -42,6 +43,7 @@ BRANDS = {
         "calc": "/?gift=",
         "redeem_hint": "When you've answered the questions, press Get my gift reports. There's nothing to pay.",
         "ga": "G-0Y79FB48EG",
+        "logo": "/images/ketodial-logo-512.png",
         "fonts": "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,16..72,400;1,16..72,400&display=swap",
         "head": "'Hanken Grotesk', -apple-system, 'Segoe UI', sans-serif",
         "body": "'Hanken Grotesk', -apple-system, 'Segoe UI', sans-serif",
@@ -88,7 +90,8 @@ def css(b):
 .gift-page *{{box-sizing:border-box}}
 .gift-page a{{color:var(--g-accent)}}
 .g-top{{max-width:1080px;margin:0 auto;padding:18px 20px}}
-.g-top a{{font-family:var(--g-head);font-weight:700;font-size:20px;color:var(--g-ink);text-decoration:none}}
+.g-top a{{font-family:var(--g-head);font-weight:700;font-size:20px;color:var(--g-ink);text-decoration:none;display:inline-flex;align-items:center;gap:10px}}
+.g-top img{{width:40px;height:40px;border-radius:50%;object-fit:cover}}
 .g-wrap{{max-width:1080px;margin:0 auto;padding:12px 20px 72px}}
 .g-hero{{display:grid;gap:28px;grid-template-columns:1fr;grid-template-areas:"head" "preview" "form";padding:12px 0 40px}}
 @media (min-width:900px){{.g-hero{{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);grid-template-areas:"head preview" "form preview";column-gap:56px;row-gap:22px;align-items:start}}
@@ -344,7 +347,7 @@ def standalone(site, title, desc, main, path, noindex):
 <style>html,body{{margin:0;background:{b['bg']}}}{css(b)}</style>
 </head>
 <body>
-<div class="gift-page"><header class="g-top"><a href="/">{e(b['name'])}</a></header></div>
+<div class="gift-page"><header class="g-top"><a href="/"><img src="{b['logo']}" alt="" width="40" height="40">{e(b['name'])}</a></header></div>
 {main}
 <div class="gift-page"><footer class="g-foot">{e(b['name'])}. The plan is general information, not medical advice.</footer></div>
 </body>
