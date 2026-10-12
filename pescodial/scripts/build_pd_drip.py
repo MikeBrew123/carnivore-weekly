@@ -130,7 +130,7 @@ def build(day):
         signoff.append(render_blocks(after, day))
     sections = [
         shell.body_section("\n      ".join(intro)),
-        shell.reply_block(box["reply"]["lead"], box["reply"]["question"]),
+        shell.reply_block(box["reply"]["lead"], box["reply"]["question"], box["reply"].get("note")),
         shell.body_section("\n      ".join(signoff)),
         shell.calculator_box(box["heading"], box["text"], box["button"], utm=utm_query(day)),
     ]

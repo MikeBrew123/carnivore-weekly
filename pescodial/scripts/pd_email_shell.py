@@ -191,8 +191,11 @@ def calculator_box(heading, text, button, utm=None, url=CALC_URL):
   </tr>"""
 
 
-def reply_block(lead, question):
-    """One easy question the reader answers by hitting reply (replies reach the PD inbox)."""
+def reply_block(lead, question, note=None):
+    """One easy question the reader answers by hitting reply (replies reach the PD inbox).
+    `note` is an optional small line under the question, e.g. routing medicine answers to a clinician."""
+    note_html = (f'<br><span class="t-muted" style="display:inline-block;margin-top:8px;font-size:15px;'
+                 f'line-height:22px;color:{MUTED};">{e(note)}</span>') if note else ""
     return f"""  <!-- REPLY QUESTION -->
   <tr>
     <td class="px" style="padding:28px 32px 0;">
@@ -201,7 +204,7 @@ def reply_block(lead, question):
           <td class="bg-paper t-ink" bgcolor="#fffbf4" style="background:#fffbf4;border:2px solid {OLIVE};border-radius:12px;padding:18px 20px;font-family:{SANS};font-size:18px;line-height:27px;mso-line-height-rule:exactly;color:{INK};">
             <strong class="t-olive" style="font-size:14px;color:{OLIVE};text-transform:uppercase;letter-spacing:1px;">Your turn</strong><br>
             {e(lead)}<br>
-            <span class="t-sea" style="font-family:{SERIF};font-size:21px;line-height:29px;font-weight:bold;color:{NAVY_DEEP};">{e(question)}</span>
+            <span class="t-sea" style="font-family:{SERIF};font-size:21px;line-height:29px;font-weight:bold;color:{NAVY_DEEP};">{e(question)}</span>{note_html}
           </td>
         </tr>
       </table>
