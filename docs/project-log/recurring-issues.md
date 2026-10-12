@@ -935,3 +935,11 @@ Status: 🟢 fixed 2026-10-07 (#102, #103). RECURRING of ISSUE-043 (same cap, KD
 Pattern: `send_drip.py` stops with SAFETY STOP when due > max(50, 3x busiest send day). A daily drip owes everyone daily, so due = list size. KD passed 50 active on 10-03; every run failed (54, 55, 58, 59 due), no email 10-02 to 10-07. Cap shrank with no sends, so it could never self-heal. Only trace was GitHub issue #80 and a "stalled" Command Centre line.
 Attempts: 2026-10-07 cap now also allows settled list (+25% +5), new-signup surge still trips; backlog sent via workflow_dispatch; Command Centre now shows CAUSE (blocked drip_event).
 If recurs: check `drip_events` event_type='blocked' first, then `established_list_cap` in scripts/send_drip.py.
+
+## ISSUE-101 — PD posts could never auto-publish; daily-publish swallowed failed pushes
+🟢 FIXED — Last: 2026-10-12
+Pattern: daily_publish.py supported `--site pd` (2-per-7-day cap) but daily-publish.yml never ran it, so a ready PescoDial post would sit in ready forever with no alarm. Separately the commit step ended `git push || true`: a failed push left posts flipped on the runner only, green run, no trace.
+Checked: pushes use the KD_DEPLOY_TOKEN PAT persisted by actions/checkout, not GITHUB_TOKEN, so they DO fire push-triggered workflows (every "auto: publish" commit has a matching pescodial-deploy push run).
+Attempts:
+- 2026-10-12 — added "Publish PD scheduled posts" (rolls back and opens an issue on failure, never blocks CW/KD), PD in the commit condition, explicit `gh workflow run pescodial-deploy.yml` backstop (actions: write), push retry with rebase plus issue, per-guide 200 + sitemap liveness in pescodial-deploy.yml with issue on failure, daily stuck-ready drift issue (>8 days). Helpers in scripts/pd_publish_check.py; tests/test_pd_publish_pipeline.py.
+If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness failed" and "PescoDial posts stuck in ready" issues first; then `python3 scripts/pd_publish_check.py stuck`.

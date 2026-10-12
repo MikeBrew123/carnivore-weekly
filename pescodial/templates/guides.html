@@ -2,6 +2,16 @@
 {% block title %}Guides | PescoDial{% endblock %}
 {% block description %}Plain-language PescoDial guides to eating fish and seafood for heart health.{% endblock %}
 {% block head %}{% if not posts %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
-{% block main %}<h1>Guides</h1>
-{% if posts %}<ul class="guide-list">{% for p in posts %}<li><a href="/guides/{{ p.slug }}/">{{ p.title }}</a><p>{{ p.excerpt }}</p></li>{% endfor %}</ul>
-{% else %}<p>The first guides are on their way.</p>{% endif %}{% endblock %}
+{% block main %}<section class="section wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> Guides</nav>
+<h1>Guides</h1>
+{% if posts %}<p class="lead">Plain-language answers about fish, seafood and your heart. Each one links to its sources.</p>
+<ul class="guide-list">{% for p in posts %}
+<li>
+  <h2><a href="/guides/{{ p.slug }}/">{{ p.title }}</a></h2>
+  {% if p.excerpt %}<p>{{ p.excerpt }}</p>{% endif %}
+  <p class="guide-meta"><time datetime="{{ p.date }}">{{ p.date|longdate }}</time></p>
+</li>{% endfor %}
+</ul>
+{% else %}<p>The first guides are on their way.</p>{% endif %}
+</section>{% endblock %}

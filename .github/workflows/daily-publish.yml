@@ -11,6 +11,8 @@ permissions:
   pages: write
   id-token: write
   issues: write
+  # Lets the publish job dispatch pescodial-deploy.yml after a PD publish.
+  actions: write
 
 # Own group, not the "pages" group shared with deploy.yml (Brew, deck card
 # 1f3f2f68, 2026-09-30; bead wxmk). On 2026-09-14 two dispatches 32s apart
@@ -228,6 +230,60 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
+      # PescoDial (pescodial.com, Cloudflare Pages). daily_publish.py --site pd
+      # flips ready -> published under the 2-per-7-day cap and re-renders
+      # pescodial/public. The live site is rebuilt by pescodial-deploy.yml from
+      # blog_posts.json, so new posts are detected from the JSON status diff,
+      # not from HTML paths. No image step: PD posts carry no image field.
+      # A PD failure must never cost CW/KD their publish: on any error the JSON
+      # and pescodial/public go back to their pre-PD state, an issue opens, and
+      # the job carries on.
+      - name: Publish PD scheduled posts
+        id: publish_pd
+        run: |
+          BEFORE="$RUNNER_TEMP/blog_posts.before-pd.json"
+          cp data/blog_posts.json "$BEFORE"
+          set +e
+          python3 scripts/daily_publish.py --site pd
+          STATUS=$?
+          set -e
+          if [ "$STATUS" != 0 ]; then
+            cp "$BEFORE" data/blog_posts.json
+            git checkout -- pescodial/public || true
+            git clean -fdq -- pescodial/public || true
+            echo "::error title=PD publish failed::daily_publish.py --site pd exited $STATUS. PD changes rolled back; CW/KD unaffected."
+            echo "failed=true" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          PD_URLS=$(python3 scripts/pd_publish_check.py newly-published "$BEFORE" data/blog_posts.json)
+          git add -A
+          if [ -n "$PD_URLS" ]; then
+            echo "Newly published PD guides:"
+            echo "$PD_URLS"
+            echo "new_post_urls<<EOF" >> $GITHUB_OUTPUT
+            echo "$PD_URLS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Alert on PD publish failure
+        if: steps.publish_pd.outputs.failed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="🚨 PD publish failed in daily-publish"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$EXISTING" ]; then
+            gh issue create --title "$TITLE" --body "daily_publish.py --site pd exited non-zero on $(date -u +%F). The PD changes were rolled back, so ready PescoDial posts stay ready and will retry tomorrow. CW and KD publishing was not affected. Run: $RUN_URL"
+          else
+            gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL"
+          fi
+
       # =====================================================================
       # --- TEMPORARY, switched on 2026-10-05. Review on or after 2026-10-12. -------
       # Runs the ten pre-push gates against this run's generated content, before
@@ -361,14 +417,70 @@ jobs:
           # 2026-08-03 pointer and broke the next day's checkout. Push HEAD.
           git push origin HEAD:main
 
+      # Pushes with the KD_DEPLOY_TOKEN PAT that actions/checkout persisted (not
+      # GITHUB_TOKEN), so the push DOES fire push-triggered workflows such as
+      # pescodial-deploy.yml. A push used to be "git push || true", which
+      # dropped a failed push without a trace (posts flipped on the runner
+      # only). Now: rebase-and-retry, and open an issue if it still fails.
       - name: Commit and push if changes
-        if: steps.publish_cw.outputs.has_changes == 'true' || steps.publish_kd.outputs.has_changes == 'true' || steps.ledger.outputs.changed == 'true'
+        id: commit
+        if: steps.publish_cw.outputs.has_changes == 'true' || steps.publish_kd.outputs.has_changes == 'true' || steps.publish_pd.outputs.has_changes == 'true' || steps.ledger.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --staged --quiet || git commit -m "auto: publish scheduled blog posts for $(date +%Y-%m-%d)"
-          git push || true
+          PUSHED=false
+          for attempt in 1 2 3; do
+            if git push; then PUSHED=true; break; fi
+            echo "Push attempt $attempt failed; rebasing on origin/main"
+            git pull --rebase origin main || { git rebase --abort || true; }
+            sleep 5
+          done
+          echo "pushed=$PUSHED" >> $GITHUB_OUTPUT
+          if [ "$PUSHED" != true ]; then
+            echo "::error title=Publish push failed::The daily publish commit never reached main. Posts flipped on the runner only."
+            TITLE="🚨 Daily publish push failed"
+            RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+            if [ -z "$EXISTING" ]; then
+              gh issue create --title "$TITLE" --body "git push from daily-publish failed 3 times on $(date -u +%F). Nothing published today reached main (statuses stay ready and retry tomorrow). Run: $RUN_URL" || true
+            else
+              gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL" || true
+            fi
+          fi
+
+      # Belt and braces for PescoDial. The push above already triggers
+      # pescodial-deploy.yml (PAT push, data/blog_posts.json path filter), but
+      # that silently stops if anyone switches the checkout back to
+      # GITHUB_TOKEN or narrows the path filter. An explicit dispatch is
+      # allowed from GITHUB_TOKEN (needs actions: write). A duplicate run just
+      # queues in the pescodial-pages concurrency group and redeploys the same
+      # commit. Dispatch rather than deploy inline so every PD deploy goes
+      # through the same tests, render guard, e2e and liveness checks.
+      - name: Trigger PescoDial deploy
+        if: steps.publish_pd.outputs.has_changes == 'true' && steps.commit.outputs.pushed == 'true'
+        # Red step, green job: a failed dispatch must not skip the CW Pages
+        # deploy job or the indexing steps below. The issue is the alarm.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh workflow run pescodial-deploy.yml --ref main; then
+            TITLE="🚨 PescoDial deploy dispatch failed"
+            RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+            if [ -z "$EXISTING" ]; then
+              gh issue create --title "$TITLE" --body "gh workflow run pescodial-deploy.yml failed on $(date -u +%F) after publishing PD posts. Check that pescodial-deploy.yml ran from the push; if not, run it by hand. Run: $RUN_URL" || true
+            else
+              gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL" || true
+            fi
+            exit 1
+          fi
+          echo "Dispatched pescodial-deploy.yml for:"
+          echo "${{ steps.publish_pd.outputs.new_post_urls }}"
 
       - name: Submit CW posts to Google Indexing API
         if: steps.publish_cw.outputs.has_changes == 'true' && steps.publish_cw.outputs.new_post_urls != ''
@@ -458,7 +570,12 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
+      # main, not the triggering SHA: the queue and drift checks must see
+      # what the publish job just pushed, or a post published today still
+      # reads as "ready" here.
       - uses: actions/checkout@v5
+        with:
+          ref: main
 
       - name: Check publish + deploy results
         run: |
@@ -484,6 +601,17 @@ jobs:
             echo "::warning::KD blog returned $KD_STATUS"
           fi
 
+      # Per-guide liveness for PD lives in pescodial-deploy.yml (it runs after
+      # the deploy); this is only the daily "is the site up" signal.
+      - name: Verify PD site is live
+        continue-on-error: true
+        run: |
+          PD_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.pescodial.com/guides/ || echo "000")
+          echo "PD guides: $PD_STATUS"
+          if [ "$PD_STATUS" != "200" ]; then
+            echo "::warning::PD guides returned $PD_STATUS"
+          fi
+
       - name: Check queue health
         run: |
           python3 << 'PYEOF'
@@ -494,7 +622,13 @@ jobs:
               data = json.load(f)
           posts = data.get("blog_posts", data) if isinstance(data, dict) else data
 
-          for site in ("cw", "kd"):
+          # PD publishes 2 per rolling 7 days on purpose, so its gap allowance
+          # is wider, and a site with no posts at all yet is reported, not warned.
+          stale_after = {"cw": 5, "kd": 5, "pd": 8}
+          for site in ("cw", "kd", "pd"):
+              if not any(p.get("site") == site for p in posts):
+                  print(f"{site.upper()}: no posts yet")
+                  continue
               ready = [p for p in posts if p.get("site") == site and p.get("status") == "ready"]
               pub = sorted(
                   [p for p in posts if p.get("site") == site and p.get("status") == "published"],
@@ -506,9 +640,34 @@ jobs:
               print(f"{site.upper()}: {len(ready)} ready, last published {last} ({days}d ago) [{status}]")
               if len(ready) == 0:
                   print(f"::warning::{site.upper()} queue is empty")
-              if days > 5:
+              if days > stale_after[site]:
                   print(f"::warning::{site.upper()} last publish was {days} days ago")
           PYEOF
+
+      # A PD post still "ready" more than 8 days after its publish_date is
+      # stuck: held by the 2-per-7-day cap behind an overfull queue, or a
+      # publish that keeps failing. Report-and-issue only; never blocks CW/KD.
+      - name: PD drift check (stuck ready posts)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          STUCK=$(python3 scripts/pd_publish_check.py stuck --days 8)
+          if [ -z "$STUCK" ]; then
+            echo "PD drift: no stuck ready posts"
+            exit 0
+          fi
+          echo "::warning title=PD posts stuck in ready::$(echo "$STUCK" | wc -l | tr -d ' ') post(s) more than 8 days past publish_date"
+          echo "$STUCK"
+          TITLE="⚠️ PescoDial posts stuck in ready"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY=$(printf 'These pd posts in data/blog_posts.json are still status ready more than 8 days after their publish_date (slug, publish_date):\n\n```\n%s\n```\n\nLikely causes: the 2-per-7-day cap in scripts/daily_publish.py is holding an overfull queue (respace the dates), or the "Publish PD scheduled posts" step keeps failing (see the PD publish failure issue). Run: %s' "$STUCK" "$RUN_URL")
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$EXISTING" ]; then
+            gh issue create --title "$TITLE" --body "$BODY"
+          else
+            gh issue comment "$EXISTING" --body "$BODY"
+          fi
 
       - name: Open issue on failure
         if: needs.publish.result == 'failure' || needs.deploy.result == 'failure'

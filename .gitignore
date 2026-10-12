@@ -73,6 +73,8 @@ data/*.csv
 # Writer persona definitions read by answer_questions.py. Untracked meant CI
 # generated every Q&A answer with an empty persona context and only a warning.
 !data/personas.json
+# PescoDial guide queue: the unattended PD writing task reads and updates it (2026-10-12)
+!data/pd_topic_queue.json
 
 # Generated content
 public/weekly/*.html
