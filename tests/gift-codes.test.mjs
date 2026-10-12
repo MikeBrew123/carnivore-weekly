@@ -201,6 +201,7 @@ res = await cw.fetch(new Request('https://worker.test/gift/checkout', { method: 
   body: JSON.stringify({ site: 'kd', buyer_name: 'Linda', buyer_email: 'mom@example.com', recipient_name: 'Dave', note: 'hi' }) }), env, {});
 let co = new URLSearchParams(stripeCalls.find(c => c.path === '/v1/checkout/sessions')?.body || '');
 check('F2. KD gift checkout uses the existing $10.99 Protocol price and marks it a gift', res.status === 200 && co.get('line_items[0][price]') === 'price_1Tcvd0EVDfkpGz8wCtiZSJT6' && co.get('metadata[kind]') === 'gift' && co.get('metadata[gift_site]') === 'kd');
+check('F2b. KD gift checkout is branded KetoDial with a KETODIAL statement suffix', co.get('branding_settings[display_name]') === 'KetoDial' && co.get('payment_intent_data[statement_descriptor_suffix]') === 'KETODIAL');
 check('F3. gift checkout returns to that site\'s gift page and takes no discount codes', co.get('success_url').startsWith('https://ketodial.com/gift/?bought=1') && !co.has('allow_promotion_codes'));
 stripeCalls.length = 0; mute();
 res = await cw.fetch(new Request('https://worker.test/gift/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -216,6 +217,14 @@ if (typeof kdOk !== 'function') {
   check('G2. KD redeemKdGift exposed for tests', false, 'export __test_redeemKdGift missing');
 } else {
   db.calculator_sessions_v2.push({ session_token: 'tok_kd_1', payment_status: 'pending' });
+  // Profile not finished: nothing is claimed, the page is told to open the profile.
+  const { IntakeError } = await import('../ketodial/worker/intake.js');
+  kdMod.kdGiftDeps.loadAuthoritativeIntake = async () => { throw new IntakeError('INTAKE_PROFILE_NOT_COMPLETED', ['profile'], 'finish your profile'); };
+  mute();
+  let pre = await kdOk(kd1.code, { allowed: ['doctor', 'meal', 'starter'] }, { email: 'dave@example.com', name: 'Dave', token: 'tok_kd_1' }, env);
+  let preJ = await pre.json();
+  check('G1b. unfinished profile: 409 profile_needed and the code is NOT spent', pre.status === 409 && preJ.error === 'profile_needed' && kd1.status === 'active', `${pre.status} ${JSON.stringify(preJ)} ${kd1.status}`);
+  kdMod.kdGiftDeps.loadAuthoritativeIntake = async () => ({ name: 'Dave' });
   mute();
   let out = await kdOk(kd1.code, { allowed: ['doctor', 'starter'] }, { email: 'dave@example.com', name: 'Dave', token: 'tok_kd_1' }, env);
   let j = await out.json();

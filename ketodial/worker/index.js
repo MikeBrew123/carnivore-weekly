@@ -815,12 +815,33 @@ async function handleCheckout(request, env) {
 // never a gentler meal plan. The report links carry a `kg_` reference, never the
 // session_token (a write credential), and resolve through gift_codes.
 const KD_GIFT_ITEMS = ['doctor', 'meal', 'starter'];
+// Indirection so the gift suite can stand in for the intake store.
+export const kdGiftDeps = { loadAuthoritativeIntake };
 
 async function redeemKdGift(code, offer, { email, name, token }, env) {
   const granted = KD_GIFT_ITEMS.filter(i => offer.allowed.includes(i));
   const recipientEmail = String(email || '').trim().toLowerCase();
   if (!recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
     return jsonResponse(400, { error: 'missing_email', message: 'Please add your email so we can send your reports.' });
+  }
+  // THE PROFILE COMES FIRST, THEN THE CLAIM. A paid order may finish the profile
+  // after Stripe; a gift has no Stripe step, and claiming first sent the first live
+  // recipient (Brew, 2026-10-12) round "payment confirmed, one short step" and back
+  // to a paid picker with the code already spent. Nothing is claimed until the
+  // reports can be built.
+  let intake;
+  try {
+    intake = await kdGiftDeps.loadAuthoritativeIntake(token, env);
+  } catch (err) {
+    if (err instanceof IntakeError) {
+      return jsonResponse(409, {
+        error: 'profile_needed', code: err.code,
+        message: err.code === 'INTAKE_PROFILE_NOT_COMPLETED'
+          ? 'One more step before your gift: fill in the short health profile above (about a minute), then press Get my gift reports again. Your code is not used until then.'
+          : err.customerMessage,
+      });
+    }
+    return jsonResponse(503, { error: 'intake_store_unavailable', message: 'We could not reach our records just now. Please try again in a minute. Your code is not used.' });
   }
   let claimed;
   try {
@@ -862,7 +883,6 @@ async function redeemKdGift(code, offer, { email, name, token }, env) {
   // unfinished profile -> the one-short-step email, tied to this gift.
   const recipientName = name || claimed.recipient_name || 'there';
   try {
-    const intake = await loadAuthoritativeIntake(token, env);
     const links = granted.map(type => ({ type, name: REPORT_NAMES[type], url: `${reportBaseUrl(env)}/report/${ref}?type=${type}` }));
     await sendReportEmail(recipientEmail, recipientName, links, intake, env, ref);
     await markDelivered(token, env);
