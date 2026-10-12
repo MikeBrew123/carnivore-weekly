@@ -4,7 +4,7 @@
       "heading": "When you want more than numbers",
       "text": "Your free numbers are a good start. If you'd rather not plan meals around them yourself, Your Full 7-Day Plan turns them into a week of meals and a grocery list.",
       "button": "See my 7-day plan",
-      "reply": {"lead": "Hit reply and tell me:", "question": "What made you curious about eating more fish?"}
+      "reply": {"lead": "Hit reply and tell me, I'm curious:", "question": "How did you find PescoDial? A search, a friend, an email from us, or somewhere else?"}
     },
     "2": {
       "heading": "Want some of that done for you?",
@@ -16,25 +16,25 @@
       "heading": "Your fish week, already planned",
       "text": "This email gives you a starting week. Your Full 7-Day Plan maps out your own fish meals from lowest-mercury choices, sizes every meal to your numbers, and adds the grocery list.",
       "button": "Get my 7-day plan",
-      "reply": {"lead": "Hit reply and tell me:", "question": "What's your home base fish, the one you could cook without thinking?"}
+      "reply": {"lead": "Since we're planning a week of meals, hit reply and tell me:", "question": "Who are you cooking for: just you, you and a partner, or a whole family?"}
     },
     "4": {
       "heading": "Eggs and shrimp, in sensible amounts",
       "text": "Wondering how eggs and shrimp fit your week? Your Full 7-Day Plan sizes seven days of meals to your numbers and leaves out any foods you tell us you avoid.",
       "button": "Show me my week",
-      "reply": {"lead": "Hit reply and tell me:", "question": "Were you raised to steer clear of eggs or shrimp? Which one?"}
+      "reply": {"lead": "The egg advice above changes with age, so hit reply and tell me:", "question": "Which age group are you in: under 45, 45 to 54, 55 to 64, or 65 and over?"}
     },
     "5": {
       "heading": "Skip the mercury chart homework",
       "text": "Your Full 7-Day Plan builds your fish week from lowest-mercury choices, so the sorting is done before you shop. Seven days of meals and a grocery list come with it.",
       "button": "Plan my fish week",
-      "reply": {"lead": "Hit reply and tell me:", "question": "Which fish on today's lists surprised you most?"}
+      "reply": {"lead": "Worries like mercury keep plenty of people away from fish, so hit reply and tell me:", "question": "What brought you to eating more fish? Your health, the taste, your family, or something else?"}
     },
     "7": {
       "heading": "From grams to a plate you can cook",
       "text": "Turning a fat number into spoons takes practice. Your Full 7-Day Plan does that math for you: seven days of meals sized to your numbers, plus five easy recipes.",
       "button": "Do the math for me",
-      "reply": {"lead": "Hit reply and tell me:", "question": "How do you use olive oil most: for cooking, for drizzling, or hardly at all?"}
+      "reply": {"lead": "One week in, hit reply and tell me:", "question": "What's been the hardest part so far? One line is plenty.", "note": "If your answer involves a medicine you take, I can't advise on that, but your doctor or pharmacist can."}
     },
     "10": {
       "heading": "A week of meals, one shopping trip",

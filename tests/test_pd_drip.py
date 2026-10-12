@@ -172,6 +172,30 @@ def test_engagement():
         check(f"E. {p.stem} plan box sells the 7-day plan", box["heading"] in h and "7-Day Plan" in h)
 
 
+def test_audience_questions():
+    """Brew 2026-10-12 (PD blog plan, Chloe): five drip reply questions learn who the PD reader is.
+    Sarah placed them on days 1, 3, 4, 5, 7. Never ask about medicine; the open-ended
+    question routes any medicine answer to a doctor or pharmacist."""
+    import json
+    boxes = json.loads((ROOT / "pescodial/drafts/drip/cta-boxes.json").read_text())["drip"]
+    want = {"1": "How did you find PescoDial", "3": "Who are you cooking for",
+            "4": "Which age group are you in", "5": "What brought you to eating more fish",
+            "7": "hardest part"}
+    for day, phrase in want.items():
+        check(f"G. day-{day} asks the audience question ({phrase})", phrase in boxes[day]["reply"]["question"])
+        h = html_unescape((ROOT / f"data/drip-emails/pd/day-{day}.html").read_text())
+        check(f"G. day-{day} email renders it", phrase in h)
+    for day, box in boxes.items():
+        text = " ".join(box["reply"].values())
+        check(f"G. day-{day} reply copy has no em or en dash", "\u2014" not in text and "\u2013" not in text)
+        check(f"G. day-{day} reply question never asks about medicine",
+              not re.search(r"medic|statin|pill|prescri|diagnos|cholesterol number|blood pressure", box["reply"]["question"], re.I))
+    note = boxes["7"]["reply"].get("note", "")
+    check("G. day-7 routes medicine answers to a clinician", "medicine" in note and ("doctor" in note or "pharmacist" in note))
+    h7 = html_unescape((ROOT / "data/drip-emails/pd/day-7.html").read_text())
+    check("G. day-7 email shows the clinician note", note and note in h7)
+
+
 def test_header_fits_phone():
     """Brew 2026-10-03: on an iPhone the wordmark wrapped to 'PescoDi / al'."""
     for p in sorted((ROOT / "data/drip-emails/pd").glob("day-*.html")):
@@ -185,5 +209,6 @@ if __name__ == "__main__":
     test_promo_days_plain()
     test_shell()
     test_engagement()
+    test_audience_questions()
     test_header_fits_phone()
     sys.exit(1 if FAILED else 0)
