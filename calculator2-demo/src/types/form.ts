@@ -67,6 +67,10 @@ export interface FormData {
   goals?: string[]
   biggestChallenge?: string
   additionalNotes?: string
+  // Kidney "I understand" tick (Brew, 2026-10-12). The client only sends the tick and
+  // the warning version it showed; the server decides and stamps the acknowledgment.
+  kidneyRiskAcknowledged?: boolean
+  kidneyAckVersion?: string
 
   // Misc (legacy)
   selectedProtocol?: string

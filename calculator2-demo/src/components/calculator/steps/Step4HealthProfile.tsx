@@ -5,6 +5,8 @@ import TextArea from '../shared/TextArea'
 import CheckboxGroup from '../shared/CheckboxGroup'
 import SelectField from '../shared/SelectField'
 import { useFormStore } from '../../../stores/formStore'
+// @ts-ignore — shared plain-JS module, same pattern as api/goal-semantics.js
+import { needsKidneyAck, KIDNEY_ACK_SCREEN, KIDNEY_ACK_VERSION } from '../../../../../api/medical-context.js'
 
 interface Step4HealthProfileProps {
   data: FormData
@@ -57,6 +59,22 @@ export default function Step4HealthProfile({
 
   const handleInputChange = (field: string, value: any) =>
     handleInputChanges({ [field]: value } as Partial<FormData>)
+
+  // Kidney "I understand" (Brew, 2026-10-12). Shown ONLY to a reader whose answers
+  // mention their kidneys, decided by the same classifier the report uses. Everyone
+  // else never sees it. The copy is the approved text, imported, never retyped here.
+  const showKidneyScreen = needsKidneyAck(data)
+  const kidneyAcked = showKidneyScreen && data.kidneyRiskAcknowledged === true &&
+    data.kidneyAckVersion === KIDNEY_ACK_VERSION
+  const setKidneyAck = (checked: boolean) => {
+    handleInputChanges({
+      kidneyRiskAcknowledged: checked,
+      kidneyAckVersion: checked ? KIDNEY_ACK_VERSION : undefined,
+    })
+    window.gtag?.('event', checked ? 'calculator_kidney_ack_ticked' : 'calculator_kidney_ack_unticked', {
+      'event_category': 'calculator',
+    })
+  }
 
   // Validate email on blur
   const validateEmail = () => {
@@ -469,6 +487,48 @@ export default function Step4HealthProfile({
           Your information is secure and will be used only to generate your personalized nutrition protocol.
         </p>
 
+        {showKidneyScreen && (
+          <div
+            id="kidney-understand"
+            role="group"
+            aria-labelledby="kidney-understand-heading"
+            style={{
+              background: '#fff4f2',
+              border: '2px solid #b91c1c',
+              borderRadius: '10px',
+              padding: '18px 16px',
+              color: '#1a120b',
+              fontFamily: "'Merriweather', Georgia, serif",
+            }}
+          >
+            <h3
+              id="kidney-understand-heading"
+              style={{ fontSize: '20px', fontWeight: 'bold', color: '#991b1b', margin: '0 0 10px 0', fontFamily: "'Playfair Display', Georgia, serif" }}
+            >
+              {KIDNEY_ACK_SCREEN.heading}
+            </h3>
+            <p style={{ fontSize: '17px', lineHeight: 1.6, margin: '0 0 16px 0' }}>{KIDNEY_ACK_SCREEN.body}</p>
+            <label
+              htmlFor="kidneyRiskAcknowledged"
+              style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', fontSize: '17px', lineHeight: 1.5, fontWeight: 600, cursor: 'pointer' }}
+            >
+              <input
+                id="kidneyRiskAcknowledged"
+                type="checkbox"
+                checked={kidneyAcked}
+                onChange={(e) => setKidneyAck(e.target.checked)}
+                style={{ width: '26px', height: '26px', flex: '0 0 26px', marginTop: '2px', accentColor: '#b91c1c', cursor: 'pointer' }}
+              />
+              <span>{KIDNEY_ACK_SCREEN.checkbox}</span>
+            </label>
+            {!kidneyAcked && (
+              <p style={{ fontSize: '16px', lineHeight: 1.55, color: '#5c4433', margin: '12px 0 0 38px' }}>
+                {KIDNEY_ACK_SCREEN.unchecked}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Submission errors (e.g. report generation failed) must be visible —
             they used to be set in state but never rendered, leaving paying
             users with a button that silently did nothing */}
@@ -548,7 +608,7 @@ export default function Step4HealthProfile({
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            Generate My Protocol
+            {kidneyAcked ? KIDNEY_ACK_SCREEN.button : 'Generate My Protocol'}
           </button>
         </div>
 
