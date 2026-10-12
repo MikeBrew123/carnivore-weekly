@@ -431,3 +431,101 @@ def calendar_facts(events, today=None):
           viz={'type': 'week', 'days': [(start + timedelta(days=k)).isoformat() for k in range(7)],
                'events': week})
     return facts
+
+
+# ---------- Trip (Project Nexus ledger, only while a trip is on) ----------
+
+def _money_txt(x):
+    x = float(x or 0)
+    return f'{x:,.0f}' if x == int(x) else f'{x:,.2f}'
+
+
+def trip_facts(ctx):
+    """ctx: trip.load_trip() output, or None. No trip today means no trip facts."""
+    if not ctx or not ctx.get('trip'):
+        return []
+    from datetime import date, timedelta
+    t, facts = ctx['trip'], []
+    today = date.fromisoformat(ctx['today'])
+    start, end = date.fromisoformat(t['starts_on'][:10]), date.fromisoformat(t['ends_on'][:10])
+    if not start <= today <= end:
+        return []                                  # belt and braces: the SQL gates too
+    day, length = (today - start).days + 1, (end - start).days + 1
+    place = t['location'].split(',')[0]
+    _fact(facts, 'trip.day', 'trip', ['trip'],
+          f"Day {day} of {length} in {place}; "
+          + ('last day.' if day == length else f"{(end - today).days} day{'s' if end - today != timedelta(1) else ''} to go."),
+          value=day, importance=0.5, source='trip.trips')
+    cur = t.get('currency') or 'MXN'
+
+    yday = [r for r in ctx.get('yday_spend') or [] if r.get('total') is not None]
+    if yday:
+        main = [r for r in yday if r['currency'] == cur]
+        total = sum(float(r['total']) for r in main)
+        other = [r for r in yday if r['currency'] != cur]
+        _fact(facts, 'trip.spend.yday', 'trip', ['trip'],
+              f"Yesterday's spend: {_money_txt(total)} {cur}"
+              + (': ' + ', '.join(f"{r['category']} {_money_txt(r['total'])}" for r in main) if main else '')
+              + (''.join(f"; plus {_money_txt(r['total'])} {r['currency']} {r['category']}" for r in other)) + '.',
+              value=round(total, 2), importance=0.7, source='trip.spend (yesterday)',
+              series=[round(float(r['total']), 2) for r in main], labels=[r['category'] for r in main],
+              viz={'type': 'bars', 'unit': cur})
+    tot = next((r for r in ctx.get('trip_spend') or [] if r['currency'] == cur), None)
+    if tot and tot.get('total'):
+        days = max(int(tot.get('days') or 0), 1)
+        daily = ctx.get('daily_spend') or []
+        _fact(facts, 'trip.spend.total', 'trip', ['trip', 'trend'],
+              f"Trip spend so far: {_money_txt(tot['total'])} {cur} over {days} day(s) with spending, "
+              f"about {_money_txt(round(float(tot['total']) / days))} {cur} a day.",
+              value=round(float(tot['total']), 2), importance=0.55, source='trip.spend (trip)',
+              series=[round(float(r['total']), 2) for r in daily][-14:],
+              labels=[r['day'][5:] for r in daily][-14:],
+              viz={'type': 'bars', 'unit': cur})
+
+    seen = sorted(ctx.get('yday_people') or [])
+    new = ctx.get('yday_new') or []
+    new_names = {n['name'] for n in new}
+    if seen or new:
+        _fact(facts, 'trip.people', 'trip', ['trip'],
+              f"Seen yesterday: {', '.join(seen) or 'nobody logged'}."
+              + (f" New faces: {', '.join(n['name'] + (' (' + n['description'] + ')' if n.get('description') else '') for n in new)}." if new else ''),
+              value=len(seen), importance=0.6, source='trip.sightings + trip.people',
+              viz={'type': 'people', 'people': [{'name': n, 'new': n in new_names} for n in seen]
+                   + [{'name': n['name'], 'new': True, 'note': n.get('description') or ''}
+                      for n in new if n['name'] not in seen]})
+
+    plans = ctx.get('commitments') or []
+    if plans:
+        _fact(facts, 'trip.commitments', 'trip', ['trip', 'watch'],
+              'Plans in the next 3 days: ' + '; '.join(
+                  f"{p['what']}" + (f" with {', '.join(p['with'])}" if p.get('with') else '')
+                  + (f" ({p['date'][5:]} {p['time']})" if p.get('date') else ' (no time set)') for p in plans) + '.',
+              value=len(plans), importance=0.65, source='trip.commitments')
+
+    events = ctx.get('events') or []
+    if events:
+        _fact(facts, 'trip.events', 'trip', ['trip'],
+              f"{len(events)} local event(s) today and the next 2 days: "
+              + '; '.join(e['title'] + (f" at {e['venue']}" if e.get('venue') else '') for e in events[:5]) + '.',
+              value=len(events), importance=0.4, source='trip.events')
+    return facts
+
+
+def merge_commitments_into_week(facts, commitments):
+    """Add open trip commitments to the calendar `week` viz so they sit beside meetings."""
+    week = next((f for f in facts if f['id'] == 'calendar.week'), None)
+    if not week or not commitments:
+        return facts
+    days = set(week['viz']['days'])
+    for p in commitments:
+        if p.get('date') in days:
+            week['viz']['events'].append({'date': p['date'], 'day': '', 'time': p.get('time') or '',
+                                          'title': p['what'], 'kind': 'trip'})
+    def clock(t):
+        from datetime import datetime
+        try:
+            return datetime.strptime(t, '%I:%M %p').time().isoformat()
+        except ValueError:
+            return ''                          # all day / no time sorts first
+    week['viz']['events'].sort(key=lambda e: (e['date'], clock(e['time'])))
+    return facts
