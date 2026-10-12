@@ -45,6 +45,10 @@ on:
       - 'pescodial/scripts/pd_email_shell.py'
       - 'tests/fixtures/pd_newsletter_sample.json'
       - 'scripts/send_newsletter.py'
+      - 'tests/test_newsletter_site_feature.py'
+      - 'scripts/generate_newsletter.py'
+      - 'templates/newsletter_template.html'
+      - 'data/newsletter_affiliates.json'
       - 'data/drip-emails/pd/**'
       - 'tests/report-diet-fidelity.test.mjs'
       - 'tests/pd-meal-plan.test.mjs'
@@ -120,6 +124,10 @@ on:
       - 'pescodial/scripts/pd_email_shell.py'
       - 'tests/fixtures/pd_newsletter_sample.json'
       - 'scripts/send_newsletter.py'
+      - 'tests/test_newsletter_site_feature.py'
+      - 'scripts/generate_newsletter.py'
+      - 'templates/newsletter_template.html'
+      - 'data/newsletter_affiliates.json'
       - 'data/drip-emails/pd/**'
       - 'tests/report-diet-fidelity.test.mjs'
       - 'tests/pd-meal-plan.test.mjs'
@@ -372,6 +380,12 @@ jobs:
         run: |
           python3 -m pip install --quiet requests
           python3 tests/test_pd_drip.py
+      # CW newsletter sister-site feature: renders only inside its dated window,
+      # UTM-tagged, no dashes, weekday, price or code.
+      - name: CW newsletter site feature
+        run: |
+          python3 -m pip install --quiet jinja2
+          python3 tests/test_newsletter_site_feature.py
 
   bundle-builds:
     runs-on: ubuntu-latest

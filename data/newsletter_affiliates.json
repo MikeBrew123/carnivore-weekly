@@ -23,5 +23,21 @@
     "url": "https://www.etsy.com/listing/4532542805/",
     "blurb": "New in our Etsy shop: the Keto Starter Kit, $21.99 CAD. You get a 30-day meal plan, a keto food list, a grocery list, and a simple tracker. It leans keto, and plenty of you eat keto or low-carb, or are easing into stricter meals, so it fits right in. If you like a plan laid out for you, it's worth a look.",
     "cta": "View the Kit"
-  }
+  },
+  "site_features": [
+    {
+      "_comment": "Sister-site feature for one CW send. Renders only when the newsletter date falls inside start..end (inclusive), so it runs once and retires itself. Copy by Chloe 2026-10-12; Brew approved the PD feature 2026-10-12 (ledger PESCODIAL BLOG GO). UTMs appended at render: utm_source=cw_newsletter&utm_medium=email&utm_campaign=<campaign>.",
+      "key": "pd_intro",
+      "active": true,
+      "start": "2026-10-13",
+      "end": "2026-10-19",
+      "writer": "Chloe",
+      "label": "From Our Sister Site",
+      "heading": "Meet PescoDial, Our Sister Site",
+      "blurb": "Okay, so if you eat fish and seafood instead of meat, or you love someone who does, this one's for you. PescoDial is our sister site, built around heart health, with the same writing team behind it. Its free calculator asks a few questions and gives you daily calories, protein, and fish servings for your eating style. Forwarding this along is always welcome.",
+      "cta": "Try the Free Calculator",
+      "url": "https://www.pescodial.com/",
+      "campaign": "pd_feature"
+    }
+  ]
 }
