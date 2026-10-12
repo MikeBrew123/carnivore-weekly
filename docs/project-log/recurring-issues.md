@@ -950,3 +950,10 @@ Checked: pushes use the KD_DEPLOY_TOKEN PAT persisted by actions/checkout, not G
 Attempts:
 - 2026-10-12 — added "Publish PD scheduled posts" (rolls back and opens an issue on failure, never blocks CW/KD), PD in the commit condition, explicit `gh workflow run pescodial-deploy.yml` backstop (actions: write), push retry with rebase plus issue, per-guide 200 + sitemap liveness in pescodial-deploy.yml with issue on failure, daily stuck-ready drift issue (>8 days). Helpers in scripts/pd_publish_check.py; tests/test_pd_publish_pipeline.py.
 If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness failed" and "PescoDial posts stuck in ready" issues first; then `python3 scripts/pd_publish_check.py stuck`.
+
+## ISSUE-103 — Command Center "Funnels failed: HTTP 400" and no Etsy on the Mac mini
+**Status:** 🟢 RESOLVED (2026-10-12)
+**Pattern:** (1) The drip "why blocked" lookup added for ISSUE-100 (#103, 2026-10-07) put `isoformat()` (`...+00:00`) raw into a PostgREST query string. `+` decodes as a space, Postgres rejects the timestamp (22007), and the 400 kills the whole Funnels fetch, which reads as "Supabase data is unavailable". Hit laptop and Mini alike from 10-07. (2) The Mini's Command Center reads `reports/etsy-snapshots/snapshots.jsonl`, which only the laptop's 3:00am `etsy-daily-snapshot` task wrote; the Mini had a stale 09-23 copy.
+**Attempts:**
+- 2026-10-12 — Timestamp now `strftime('%Y-%m-%dT%H:%M:%SZ')`. Mini seeded with the laptop's log; runner worktree's `reports/etsy-snapshots` symlinks to the Mini main checkout's; new LaunchAgent `com.minibrew.etsy-snapshot-daily` (04:40, read-only `etsy-snapshot.mjs`, one row per UTC day, Telegram on failure; source `scripts/mini/`). Mini run: all 13 data sources ok.
+**If recurs / rule:** never put a raw `isoformat()` with an offset in a URL; use `Z` or `urllib.parse.quote`. For Etsy on the Mini, read `~/Library/Logs/aihub/etsy-snapshot-daily.log` first.
