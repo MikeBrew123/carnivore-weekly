@@ -31,3 +31,6 @@ No "image" field (PD uses its site og.png; no paid image spend).
 * No em-dashes (—) anywhere. No invented stats, studies, quotes, testimonials or personal heart history for the writer.
 * 900-1,600 words. One narrow problem per post.
 * The "Not a doctor" line appears in the template, not in content.
+
+## Removing or renaming a published guide
+Same commit: add a redirect stub for the old URL AND remove or update every link to it in other PD posts. The validator fails every render while a published guide links to a slug that is no longer published, on purpose (a live page linking to a 404).

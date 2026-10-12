@@ -22,6 +22,7 @@ Usage:
 import argparse
 import json
 import re
+from html import escape as html_escape
 import shutil
 import sys
 from datetime import date
@@ -408,7 +409,7 @@ def stack_tables(html):
                 nonlocal i
                 label = heads[i] if i < len(heads) else ""
                 i += 1
-                return f'<{c.group(1)} data-label="{label}"{c.group(2)}>'
+                return f'<{c.group(1)} data-label="{html_escape(label, quote=True)}"{c.group(2)}>'
             return re.sub(r"<(td|th)\b([^>]*)>", cell, r.group(0))
         body = re.sub(r"<tbody\b.*?</tbody>", lambda b: re.sub(r"<tr\b.*?</tr>", row, b.group(0), flags=re.S), table, flags=re.S)
         return f'<div class="post-table">{body}</div>'
@@ -489,14 +490,28 @@ def main():
     args = ap.parse_args()
     candidates = load_pd_candidates(args.data)
     bad = validate_pd_posts(candidates)
-    if bad:
-        print(f"❌ PescoDial post contract failed ({len(bad)} problem(s)); nothing rendered:")
-        for p in bad:
-            print("   " + p)
-        return 1
     if args.check_only:
+        # Gate for the writing task: every ready and published post must pass.
+        if bad:
+            print(f"❌ PescoDial post contract failed ({len(bad)} problem(s)); nothing rendered:")
+            for p in bad:
+                print("   " + p)
+            return 1
         print(f"✅ PescoDial post contract ok: {len(candidates)} ready/published pd post(s) checked")
         return 0
+    # Render (deploy, daily publish): only problems on posts that will actually be
+    # rendered block. A bad post still scheduled for later is a warning here, so it
+    # can never stall today's publish or an unrelated deploy (review, 2026-10-12).
+    live = {p.get("slug") for p in candidates if is_published(p)}
+    blocking = [b for b in bad if b.split(":", 1)[0] in live]
+    for b in bad:
+        if b not in blocking:
+            print("⚠️  not yet published, fix before its date: " + b)
+    if blocking:
+        print(f"❌ PescoDial post contract failed ({len(blocking)} problem(s)); nothing rendered:")
+        for p in blocking:
+            print("   " + p)
+        return 1
     posts, urls = render_site(args.data, args.out, paid_preview=args.paid_preview)
     problems = check_output(args.out, posts)
     if problems:

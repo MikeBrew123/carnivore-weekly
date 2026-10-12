@@ -267,8 +267,20 @@ def test_cli_check_only_fails_closed(tmp_path):
     r = subprocess.run([sys.executable, str(GEN), "--check-only", "--data", str(data), "--out", str(out)],
                        capture_output=True, text=True)
     assert r.returncode == 1 and "title is 70 chars" in r.stdout, r.stdout
+    # A bad post that is already published blocks the render.
+    data = write_data(tmp_path, [good_post(title="T" * 70, status="published")])
     r = subprocess.run([sys.executable, str(GEN), "--data", str(data), "--out", str(out)], capture_output=True, text=True)
     assert r.returncode == 1 and not out.exists(), r.stdout
+
+
+def test_bad_future_post_warns_but_never_blocks_a_render(tmp_path):
+    out = tmp_path / "out"
+    data = write_data(tmp_path, [good_post(status="published"),
+                                 good_post("best-fish-for-high-cholesterol", "2026-12-01", title="T" * 70)])
+    r = subprocess.run([sys.executable, str(GEN), "--data", str(data), "--out", str(out)], capture_output=True, text=True)
+    assert r.returncode == 0 and "not yet published" in r.stdout and (out / "guides" / "is-shrimp-bad-for-cholesterol").exists(), r.stdout
+    r = subprocess.run([sys.executable, str(GEN), "--check-only", "--data", str(data)], capture_output=True, text=True)
+    assert r.returncode == 1, r.stdout
 
 
 def test_cli_check_only_passes_good_data(tmp_path):

@@ -256,7 +256,15 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-          PD_URLS=$(python3 scripts/pd_publish_check.py newly-published "$BEFORE" data/blog_posts.json)
+          PD_URLS=$(python3 scripts/pd_publish_check.py newly-published "$BEFORE" data/blog_posts.json) || {
+            cp "$BEFORE" data/blog_posts.json
+            git checkout -- pescodial/public || true
+            git clean -fdq -- pescodial/public || true
+            echo "::error title=PD publish check failed::pd_publish_check.py crashed. PD changes rolled back; CW/KD unaffected."
+            echo "failed=true" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          }
           git add -A
           if [ -n "$PD_URLS" ]; then
             echo "Newly published PD guides:"
