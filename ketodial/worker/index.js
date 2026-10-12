@@ -44,6 +44,10 @@ import {
 } from './reports.js';
 import { IntakeError, loadAuthoritativeIntake, loadIntakeForPurchase, toStoredVocabulary, activityToStored } from './intake.js';
 import { deriveKdMedicalContext, allowedProducts } from './reports.js';
+import {
+  looksLikeGiftCode, normalizeGiftCode, claimGift, attachRedemption, releaseGift, describeGiftCode,
+  giftErrorMessage, getGiftBy, randomHex, KD_GIFT_REF_RE,
+} from '../../api/gift.js';
 
 const PRICE_MAP_LIVE = {
   doctor: 'price_1TcvcxEVDfkpGz8w3XZgaWjN',
@@ -690,8 +694,12 @@ async function handleCheckout(request, env) {
   try {
     const body = await request.json();
     const { items, email, name, token } = body;
+    // A gift code means someone already paid (gift_codes, minted by the CW worker's
+    // webhook). It still passes the purchase-eligibility check below, so a refused
+    // checkout never burns a gift.
+    const giftCode = body.gift_code && looksLikeGiftCode(body.gift_code) ? normalizeGiftCode(body.gift_code) : null;
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!giftCode && (!items || !Array.isArray(items) || items.length === 0)) {
       return jsonResponse(400, { error: 'No items selected' });
     }
 
@@ -730,6 +738,7 @@ async function handleCheckout(request, env) {
     // still available — we do not block the purchase, disable the button, or ask for
     // a second health intake. The customer buys what we can actually deliver.
     const offer = allowedProducts(deriveKdMedicalContext(checkoutIntake));
+    if (giftCode) return await redeemKdGift(giftCode, offer, { email, name, token }, env);
     const unavailable = items.filter(i => !offer.allowed.includes(i));
     if (unavailable.length) {
       console.log(`Checkout offer adjusted for ${token}: declined ${unavailable.join(',')} (${offer.reason})`);
@@ -798,6 +807,95 @@ async function handleCheckout(request, env) {
 // ──────────────────────────────────────────────
 // WEBHOOK
 // ──────────────────────────────────────────────
+// ──────────────────────────────────────────────
+// GIFT REDEMPTION (gift a report, 2026-10-11)
+// ──────────────────────────────────────────────
+// The gift is the Full Protocol Bundle. SAFETY CHANGES THE OFFER here too: a
+// recipient whose answers withhold the meal plan gets the reports we can deliver,
+// never a gentler meal plan. The report links carry a `kg_` reference, never the
+// session_token (a write credential), and resolve through gift_codes.
+const KD_GIFT_ITEMS = ['doctor', 'meal', 'starter'];
+
+async function redeemKdGift(code, offer, { email, name, token }, env) {
+  const granted = KD_GIFT_ITEMS.filter(i => offer.allowed.includes(i));
+  const recipientEmail = String(email || '').trim().toLowerCase();
+  if (!recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
+    return jsonResponse(400, { error: 'missing_email', message: 'Please add your email so we can send your reports.' });
+  }
+  let claimed;
+  try {
+    claimed = await claimGift(env, code, 'kd', recipientEmail);
+  } catch (e) {
+    console.error('Gift claim error:', e.message);
+    return jsonResponse(503, { error: 'gift_unavailable', message: 'We could not check your gift code just now. Please try again in a minute.' });
+  }
+  if (!claimed) {
+    const why = await describeGiftCode(env, code, 'kd').catch(() => ({ reason: 'invalid' }));
+    return jsonResponse(409, { error: 'gift_code_rejected', message: giftErrorMessage(why.reason || 'invalid', 'kd') });
+  }
+
+  const ref = `kg_${randomHex(16)}`;
+  const nowIso = new Date().toISOString();
+  const wb = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(token)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+                 Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, Prefer: 'return=representation' },
+      body: JSON.stringify({
+        payment_status: 'completed', amount_paid_cents: 0, paid_at: nowIso, payment_verified_at: nowIso,
+        stripe_payment_intent_id: `gift_${code}`, step_completed: 4, updated_at: nowIso,
+        ...(recipientEmail ? { email: recipientEmail } : {}),
+      }),
+    });
+  const wbRows = wb.ok ? await wb.json().catch(() => []) : [];
+  const attached = wb.ok && Array.isArray(wbRows) && wbRows.length &&
+    await attachRedemption(env, claimed.id, {
+      redeemed_session_id: token, report_ref: ref, redeemed_items: granted.join(','),
+    });
+  if (!attached) {
+    console.error(`Gift ${code} claimed but not attached (writeback ${wb.status}); releasing.`);
+    await releaseGift(env, claimed.id);
+    return jsonResponse(500, { error: 'gift_redeem_failed', message: 'We could not start your reports just now. Your gift code still works, so please try again in a minute.' });
+  }
+
+  // Deliver exactly as a paid order would: finished profile -> reports now,
+  // unfinished profile -> the one-short-step email, tied to this gift.
+  const recipientName = name || claimed.recipient_name || 'there';
+  try {
+    const intake = await loadAuthoritativeIntake(token, env);
+    const links = granted.map(type => ({ type, name: REPORT_NAMES[type], url: `${reportBaseUrl(env)}/report/${ref}?type=${type}` }));
+    await sendReportEmail(recipientEmail, recipientName, links, intake, env, ref);
+    await markDelivered(token, env);
+  } catch (err) {
+    if (err instanceof IntakeError && err.code === 'INTAKE_PROFILE_NOT_COMPLETED') {
+      try { await sendFinishProfileEmail(recipientEmail, recipientName, ref, env, { gift: true }); }
+      catch (e) { console.error(`Gift ${code}: finish-profile email failed:`, e.message); }
+    } else {
+      // The gift is redeemed and recoverable through the return URL (/purchase, /fulfill).
+      console.error(`Gift ${code}: delivery deferred:`, err && (err.code || err.message));
+    }
+  }
+  console.log(`Gift ${code} redeemed (${granted.join(',')}) for session ${token.slice(0, 6)}…`);
+  return jsonResponse(200, { gift: true, return_url: `${appBaseUrl(env)}/?success=true&session_id=${ref}` });
+}
+
+/** A redeemed KD gift, shaped like the paid Stripe session the report paths expect. */
+async function resolveKdGiftRef(ref, env) {
+  let row;
+  try { row = await getGiftBy(env, 'report_ref', ref); }
+  catch { return { error: 'Temporarily unavailable, please retry', status: 503 }; }
+  if (!row || row.site !== 'kd' || row.status !== 'redeemed' || !row.redeemed_session_id) {
+    return { error: 'Checkout session not found', status: 404 };
+  }
+  const session = {
+    id: ref,
+    gift: true, // paid for by the giver; resolveKdGiftRef only returns redeemed rows
+    customer_email: row.redeemed_email,
+    metadata: { items: row.redeemed_items || '', customer_name: row.recipient_name || '', session_token: row.redeemed_session_id },
+  };
+  return { token: row.redeemed_session_id, session };
+}
+
 async function handleWebhook(request, env) {
   const payload = await request.text();
   const sig = request.headers.get('stripe-signature');
@@ -1045,6 +1143,7 @@ async function handleWebhook(request, env) {
  * someone's row after checkout, so an unpaid or unknown id must not resolve.
  */
 async function resolvePaidCheckout(stripeSessionId, env) {
+  if (KD_GIFT_REF_RE.test(stripeSessionId || '')) return resolveKdGiftRef(stripeSessionId, env);
   if (!stripeSessionId || !/^cs_[A-Za-z0-9_]+$/.test(stripeSessionId)) {
     return { error: 'Invalid checkout reference', status: 400 };
   }
@@ -1348,8 +1447,14 @@ const REPORT_NAMES = {
 };
 
 async function handleReport(sessionId, reportType, env) {
-  // Fetch session from Stripe to get form data
-  const session = await stripeAPI(`checkout/sessions/${sessionId}`, null, env, 'GET');
+  // Fetch session from Stripe to get form data (or the redeemed gift standing in for it)
+  let session;
+  if (KD_GIFT_REF_RE.test(sessionId || '')) {
+    const g = await resolveKdGiftRef(sessionId, env);
+    session = g.error ? { error: g.error } : g.session;
+  } else {
+    session = await stripeAPI(`checkout/sessions/${sessionId}`, null, env, 'GET');
+  }
 
   if (session.error || !session.metadata) {
     return new Response('Report not found. Please check your email for the correct link.', {
@@ -1357,8 +1462,8 @@ async function handleReport(sessionId, reportType, env) {
     });
   }
 
-  // Verify payment was completed
-  if (session.payment_status !== 'paid') {
+  // Verify payment was completed (a redeemed gift was paid for by the giver)
+  if (!session.gift && session.payment_status !== 'paid') {
     return new Response('Payment not completed.', { status: 403, headers: { 'Content-Type': 'text/html' } });
   }
 
@@ -1538,7 +1643,7 @@ function targetsLine(d) {
  * paid session. No apology for a mistake they did not make, and no suggestion that
  * anything is wrong with their order.
  */
-async function sendFinishProfileEmail(email, name, stripeSessionId, env) {
+async function sendFinishProfileEmail(email, name, stripeSessionId, env, opts = {}) {
   // Same base as the Stripe return URL. This was hardcoded to production, so the
   // harness could not follow the one link that proves the pay-first recovery works
   // without bouncing into the live site. Defaults to production when unset.
@@ -1546,7 +1651,7 @@ async function sendFinishProfileEmail(email, name, stripeSessionId, env) {
   const html = `
 <div style="max-width:560px;margin:0 auto;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#0f172a">
   <h1 style="font-size:22px;margin:0 0 14px">One short step to finish your reports</h1>
-  <p style="line-height:1.6">Hi ${escapeHtmlBasic(name)}, your payment went through — thank you.</p>
+  <p style="line-height:1.6">Hi ${escapeHtmlBasic(name)}, ${opts.gift ? 'your gift code worked.' : 'your payment went through — thank you.'}</p>
   <p style="line-height:1.6">Your reports are built around the short health profile on the calculator
   page, and it has not been filled in yet. It takes about a minute, and we would rather ask than
   guess at your details.</p>
@@ -1755,3 +1860,4 @@ function jsonResponse(status, data) {
 
 // Test hook: tests/unsubscribe-signed-link.test.mjs pins this to the CW worker and Python.
 export { buildUnsubscribeUrl as __test_buildUnsubscribeUrl };
+export { redeemKdGift as __test_redeemKdGift, resolvePaidCheckout as __test_resolvePaidCheckout };

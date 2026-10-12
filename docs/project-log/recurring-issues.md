@@ -935,3 +935,10 @@ Status: 🟢 fixed 2026-10-07 (#102, #103). RECURRING of ISSUE-043 (same cap, KD
 Pattern: `send_drip.py` stops with SAFETY STOP when due > max(50, 3x busiest send day). A daily drip owes everyone daily, so due = list size. KD passed 50 active on 10-03; every run failed (54, 55, 58, 59 due), no email 10-02 to 10-07. Cap shrank with no sends, so it could never self-heal. Only trace was GitHub issue #80 and a "stalled" Command Centre line.
 Attempts: 2026-10-07 cap now also allows settled list (+25% +5), new-signup surge still trips; backlog sent via workflow_dispatch; Command Centre now shows CAUSE (blocked drip_event).
 If recurs: check `drip_events` event_type='blocked' first, then `established_list_cap` in scripts/send_drip.py.
+
+## ISSUE-101 — Worker deployed from a feature branch silently reverts another session's live worker change
+**Status:** 🟢 RESOLVED (2026-10-11)
+**Pattern:** `wrangler deploy` ships the working tree, not main. A branch cut before another session deployed its own worker change rolls that change back in production, with no error and no conflict.
+**Attempts:**
+- 2026-10-11 — The gift-report branch (cut 07:30) was deployed at 08:35. That reverted the KD/PD feedback site tagging the feedback-form session had deployed earlier that day. Caught when PR #109 conflicted with main. Fixed by merging origin/main and redeploying (version 5228531c) about 10 minutes later. content_feedback showed 0 submissions in the window, so nothing was lost.
+**If recurs / rule:** before any worker deploy from a branch, run `git fetch origin main && git diff HEAD...origin/main -- api ketodial/worker`. If main has worker changes, merge them first.
