@@ -4,7 +4,7 @@
 // (no real network), runs the calculator, and inspects window.dataLayer.
 //  A. on a preview host, gtag is never requested and nothing is queued;
 //  B. on the live host, the funnel events fire in order;
-//  C. no event or config carries an email, name or health answer; Google Signals off.
+//  C. no event or config carries an email, name or health answer; Google signals on, ad personalisation off.
 // Run: python3 pescodial/scripts/generate_pd_site.py && node tests/pd-analytics.test.mjs
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -50,7 +50,7 @@ const events = live.dl.filter(a => a[0] === 'event').map(a => a[1]);
 check('B. live host loads gtag and fires the funnel in order', live.gtagRequests.length === 1 &&
   JSON.stringify(events) === JSON.stringify(['calc_style_chosen', 'calc_numbers_entered', 'calc_results_viewed', 'generate_lead']), JSON.stringify(events));
 const cfg = live.dl.find(a => a[0] === 'config');
-check('C1. Google Signals and ad personalisation off', cfg && cfg[2].allow_google_signals === false && cfg[2].allow_ad_personalization_signals === false);
+check('C1. Google signals on (demographics), ad personalisation off', cfg && cfg[2].allow_google_signals === true && cfg[2].allow_ad_personalization_signals === false);
 check('C2. no email, name or health data in any analytics payload', !/secret\.person|@example\.com|medication|warfarin|kidney/i.test(live.raw), live.raw.slice(0, 300));
 await browser.close();
 process.exit(failed ? 1 : 0);
