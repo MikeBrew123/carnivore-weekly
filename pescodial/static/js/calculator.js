@@ -504,6 +504,14 @@ window.pdEmail = (function () {
 
   var params = new URLSearchParams(window.location.search);
   var payState = params.get('payment');
+  // A gift card links here with ?coupon=PD-XXXXXXXX (via /gift/redeem/). Kept for the
+  // tab and dropped into the code box, where the worker claims it at checkout.
+  (function () {
+    var q = (params.get('coupon') || '').trim().toUpperCase();
+    try { if (q) sessionStorage.setItem('pdCode', q); else q = sessionStorage.getItem('pdCode') || ''; } catch (e) {}
+    var box = root.querySelector('[data-coupon]');
+    if (q && box && !box.value) box.value = q;
+  })();
   var assessmentId = params.get('session_id') || params.get('assessment_id') || stored();
 
   function waitForPayment(tries) {

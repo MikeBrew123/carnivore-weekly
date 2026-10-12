@@ -936,7 +936,14 @@ Pattern: `send_drip.py` stops with SAFETY STOP when due > max(50, 3x busiest sen
 Attempts: 2026-10-07 cap now also allows settled list (+25% +5), new-signup surge still trips; backlog sent via workflow_dispatch; Command Centre now shows CAUSE (blocked drip_event).
 If recurs: check `drip_events` event_type='blocked' first, then `established_list_cap` in scripts/send_drip.py.
 
-## ISSUE-101 — PD posts could never auto-publish; daily-publish swallowed failed pushes
+## ISSUE-101 — Worker deployed from a feature branch silently reverts another session's live worker change
+**Status:** 🟢 RESOLVED (2026-10-11)
+**Pattern:** `wrangler deploy` ships the working tree, not main. A branch cut before another session deployed its own worker change rolls that change back in production, with no error and no conflict.
+**Attempts:**
+- 2026-10-11 — The gift-report branch (cut 07:30) was deployed at 08:35. That reverted the KD/PD feedback site tagging the feedback-form session had deployed earlier that day. Caught when PR #109 conflicted with main. Fixed by merging origin/main and redeploying (version 5228531c) about 10 minutes later. content_feedback showed 0 submissions in the window, so nothing was lost.
+**If recurs / rule:** before any worker deploy from a branch, run `git fetch origin main && git diff HEAD...origin/main -- api ketodial/worker`. If main has worker changes, merge them first.
+
+## ISSUE-102 — PD posts could never auto-publish; daily-publish swallowed failed pushes
 🟢 FIXED — Last: 2026-10-12
 Pattern: daily_publish.py supported `--site pd` (2-per-7-day cap) but daily-publish.yml never ran it, so a ready PescoDial post would sit in ready forever with no alarm. Separately the commit step ended `git push || true`: a failed push left posts flipped on the runner only, green run, no trace.
 Checked: pushes use the KD_DEPLOY_TOKEN PAT persisted by actions/checkout, not GITHUB_TOKEN, so they DO fire push-triggered workflows (every "auto: publish" commit has a matching pescodial-deploy push run).

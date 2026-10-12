@@ -47,11 +47,13 @@ PAGES = {
     "about.html": "about/",
     "privacy.html": "privacy/",
     "contact.html": "contact/",
+    "gift.html": "gift/",
+    "gift-redeem.html": "gift/redeem/",
     "404.html": "404.html",
 }
 # Pages kept out of the sitemap. /calculator/ duplicates the homepage tool, so it
 # points its canonical at / (CANONICAL_TO) instead of competing with it.
-NOINDEX_PAGES = {"404.html", "calculator.html"}
+NOINDEX_PAGES = {"404.html", "calculator.html", "gift-redeem.html"}
 CANONICAL_TO = {"calculator.html": ""}
 
 # Foreign domains that must never appear as same-site links in PD output.
