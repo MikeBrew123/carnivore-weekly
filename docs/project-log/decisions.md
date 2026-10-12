@@ -2509,3 +2509,12 @@ Supersedes "on demand only, never scheduled" from 2026-10-10. Brew's brief: opti
 - **NAS (Brew, 2026-10-11):** the Mini's ed25519 key (`minibrew@mini`) was added to mbrew's authorized_keys on the NAS so it can publish `/brief/`.
 - **Stale CEO brief.** The CEO brief is written on the laptop; when it is older than yesterday (laptop closed in Mexico) Brief Me leaves it out instead of reading an old suggested move as today's.
 - **Known limits.** History and the $1/day TTS cap are per machine (laptop and Mini each keep `~/.brief-me/`), so worst case is $2/day and the laptop's on-demand episodes do not feed the Mini's no-repeat check. Claude headless on the Mini only works under launchd (an SSH shell has no login): use `launchctl kickstart gui/$(id -u)/com.minibrew.brief-me-daily.home` to run it by hand.
+
+## 2026-10-12: kidney disease on CW keto/carnivore: full report behind "I understand"
+
+Brew chose option 1 (decision ledger 2026-10-12, 13:44) and approved Sarah's harsher v2 copy at 14:06. A CW reader whose health answers mention their kidneys (declared disease or "not sure") sees a red box on Step 4: "This plan is hard on kidneys", a tick box, and a line saying what an unticked report leaves out. Healthy readers never see it.
+- **Ticked:** full report. Protein is the standard figure (the same a healthy-kidney reader gets, never a lower one), calories at maintenance (`calorieGuidance: 'qualified'`), real meal calendar and grocery lists. The approved warning (`KIDNEY_ACK_REPORT_WARNING`) is the first line of the Report #1 warning box and replaces the physician-guide protein note. Sodium, potassium and fluid amounts stay withheld. The model is told rule 9 does not apply, to restate the given protein figure only, and never to call the plan safe for kidneys.
+- **Unticked:** the old suppressed report, byte for byte.
+- **Proof:** only `handleStep4Submission` writes `form_data.kidney_risk_ack = { version, at }`, with the server clock, when the answers trigger the screen and the client ticked the CURRENT version. Every resubmission re-decides it; create-checkout strips a client-supplied stamp; form_data locks once a report exists. Changing the screen text means bumping `KIDNEY_ACK_VERSION`.
+- **PescoDial unchanged** (Brew: "leave PD as is"): pesco-* diets ignore any acknowledgment and keep `pdNoMealPlan`.
+- Tests: `tests/kidney-understand-gate.test.mjs` (62), each protection mutation-tested red on a named assertion.

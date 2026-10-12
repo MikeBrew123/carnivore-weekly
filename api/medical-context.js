@@ -160,6 +160,71 @@ const NONE_VALUES = new Set(['', 'none', 'n/a', 'na', 'no', 'nothing', 'no medic
  * `currentSymptoms` and `additionalNotes` as `challenges`, so both spellings can
  * reach a generator. meaningful() de-duplicates, so listing both is free.
  */
+/**
+ * KIDNEY "I UNDERSTAND" (Brew, 2026-10-12, option 1; copy approved 14:06, decision
+ * ledger). A CW reader who mentions their kidneys anywhere on the health form may tick
+ * a box saying they understand this plan is hard on struggling kidneys. With the tick
+ * they get the full report (protein target, calories at maintenance, meal calendar,
+ * grocery lists) and KIDNEY_ACK_REPORT_WARNING beside their numbers. Without it they
+ * get the suppressed report, unchanged.
+ *
+ * The acknowledgment is written ONLY by the server (handleStep4Submission), stamped
+ * with the server's clock and this version, into the assessment's form_data, which
+ * locks once a report exists. That stored stamp is the proof it was accepted. A
+ * reader-supplied `kidney_risk_ack` is stripped on every other write path.
+ *
+ * Bump KIDNEY_ACK_VERSION whenever the screen text changes, so an old tick can never
+ * stand for words the reader did not see.
+ *
+ * PescoDial is deliberately NOT included (Brew, 2026-10-12: "leave PD as is"): a
+ * pesco-* diet ignores any acknowledgment and keeps its hard stop.
+ */
+export const KIDNEY_ACK_VERSION = 'kidney-warning-v2-2026-10-12';
+
+export const KIDNEY_ACK_SCREEN = {
+  heading: 'This plan is hard on kidneys',
+  body: 'You told us your kidneys have problems, or you\'re not sure they\'re healthy. ' +
+    'This plan is built for healthy kidneys. Its protein target and meat-heavy meals are ' +
+    'hard on kidneys that are already struggling, and can make them fail faster. The ' +
+    'damage is usually silent. By the time you notice it, it is often permanent. If you ' +
+    'can see anyone, a doctor, nurse practitioner, renal dietitian or pharmacist, show ' +
+    'them this plan before you start. If you can get kidney blood tests, get one before ' +
+    'you start and another a few weeks in.',
+  checkbox: 'I understand this plan is hard on struggling kidneys, the damage can be ' +
+    'silent and permanent, and I choose to go ahead anyway.',
+  unchecked: 'Leave this box unchecked and your report will not include a protein ' +
+    'target, a calorie target, the 30-day meal calendar or the grocery lists. It will ' +
+    'send those questions to a doctor or renal dietitian instead.',
+  button: 'Build my full plan',
+};
+
+export const KIDNEY_ACK_REPORT_WARNING =
+  '**This plan is hard on struggling kidneys.** These are the same numbers a reader ' +
+  'with healthy kidneys gets. This much protein makes struggling kidneys work harder ' +
+  'and can make them fail faster. The damage is usually silent and often permanent by ' +
+  'the time it shows. If you can, show this plan to a doctor, nurse practitioner, renal ' +
+  'dietitian or pharmacist. Get kidney blood tests before you start and again a few ' +
+  'weeks in.';
+
+function isPescoDiet(data) {
+  return [data.diet, data.diet_type, data.selectedProtocol, data.dietProfile && data.dietProfile.key]
+    .some(v => typeof v === 'string' && /^pesco/i.test(v.trim()));
+}
+
+/** A server-written acknowledgment of the CURRENT warning text, and nothing else. */
+export function isValidKidneyAck(ack) {
+  return !!ack && typeof ack === 'object' && ack.version === KIDNEY_ACK_VERSION &&
+    typeof ack.at === 'string' && Number.isFinite(Date.parse(ack.at));
+}
+
+/**
+ * Does this reader's form trigger the kidney screen? Same classifier the report uses,
+ * so the screen and the report can never disagree about who is a kidney reader.
+ */
+export function needsKidneyAck(data = {}) {
+  return deriveMedicalContext({ ...data, kidney_risk_ack: undefined }).renal && !isPescoDiet(data);
+}
+
 export const HEALTH_CONTEXT_FIELDS = {
   conditions:  ['conditions', 'healthConditions', 'otherConditions'],
   medications: ['medications', 'currentMedications'],
@@ -236,6 +301,7 @@ function matchesAny(haystack, terms) {
  *   symptomMaskingDrug: boolean,
  *   anticoagulant: boolean,
  *   renal: boolean,
+ *   renalAcknowledged: boolean,
  *   pregnancy: boolean,
  *   restrictElectrolyteTargets: boolean,
  *   restrictProteinTarget: boolean,
@@ -294,7 +360,12 @@ export function deriveMedicalContext(data = {}) {
   // is declared this report prints NO protein figure at all. It does not print a
   // lower one — picking a lower one would be exactly the clinical judgement this
   // software is not entitled to make.
-  const restrictProteinTarget = renal;
+  //
+  // Exception (Brew, 2026-10-12): a CW reader who ticked the kidney "I understand" box
+  // gets the standard target with KIDNEY_ACK_REPORT_WARNING beside it. Still never a
+  // lower or "safer" number: the same one a healthy-kidney reader gets, or none.
+  const renalAcknowledged = renal && !isPescoDiet(data) && isValidKidneyAck(data.kidney_risk_ack);
+  const restrictProteinTarget = renal && !renalAcknowledged;
 
   // CALORIE GUIDANCE — a three-state value, not a boolean.
   //
@@ -331,7 +402,7 @@ export function deriveMedicalContext(data = {}) {
     // 'qualified' removes the deficit and keeps the maintenance figure, the same
     // treatment a reader on a blood-pressure tablet gets. The PescoDial report goes
     // further and hides its numbers (pdNumbersHidden in api/calculator-api.js).
-    : (restrictElectrolyteTargets || glucoseLowering || pregnancy) ? 'qualified'
+    : (restrictElectrolyteTargets || glucoseLowering || pregnancy || renalAcknowledged) ? 'qualified'
     : 'normal';
 
   // Foods withheld from the generated plan for a medical reason. These are removals,
@@ -381,6 +452,7 @@ export function deriveMedicalContext(data = {}) {
     symptomMaskingDrug,
     anticoagulant,
     renal,
+    renalAcknowledged,
     pregnancy,
     restrictElectrolyteTargets,
     restrictProteinTarget,
@@ -515,6 +587,9 @@ export function buildMedicalContextBanner(ctx) {
   const lines = [
     '> ### What you told us, and what it means for this report',
     '>',
+    // Kidney "I understand" readers: the approved warning comes first, beside the
+    // numbers it is about (Brew, 2026-10-12).
+    ...(ctx.renalAcknowledged ? [`> ${KIDNEY_ACK_REPORT_WARNING}`, '>'] : []),
     // List items, not three consecutive quoted lines. Consecutive lines inside a
     // blockquote render as ONE paragraph, and HTML collapses the newlines, so the
     // reader saw "Conditions you reported: None reported Symptoms and concerns you
@@ -874,6 +949,7 @@ export function assertNoConditionClaimFrames(sectionLabel, text, ctx) {
 }
 
 export function buildProteinTargetNote(ctx) {
+  if (ctx && ctx.renalAcknowledged) return `> ${KIDNEY_ACK_REPORT_WARNING}`;
   if (ctx && ctx.restrictProteinTarget) {
     return [
       '> **You reported kidney disease, so this report does not set a protein target for you,',
@@ -1060,7 +1136,8 @@ above, the rule here wins.
    per-meal amount, no range. Do NOT give them a smaller or more cautious number
    either. Give no number, and send the question to their doctor or renal dietitian.
    Choosing a protein intake for reduced kidney function is a clinical decision and
-   you are not making it.
+   you are not making it. The ONLY exception is a reader whose context notes below say
+   they ticked the kidney warning; follow that note instead.
 10. If an item has been left out of this reader's meal plan for a medical reason, do
    not add it back, do not suggest eating it, and do not state an amount of it that
    would be acceptable. Say the amount is a question for their prescriber.
@@ -1143,8 +1220,13 @@ medications they did not report, and do not write as though they have any.
   if (ctx.restrictProteinTarget) {
     notes.push('- Kidney disease was declared. Rule 9 is ACTIVE. Give this reader NO protein target, in grams, in grams per kilogram, as a percentage of calories, as a per-meal amount, or as a range. Do not state a lower or "safer" protein figure — state no figure. Send the protein question to their doctor or a renal dietitian.');
   }
+  if (ctx.renalAcknowledged) {
+    notes.push('- Kidney disease was declared AND the reader ticked a box accepting a warning that this plan is hard on struggling kidneys. Rule 9 does NOT apply to them: the protein figure in MACRO TARGETS is the standard one, the same a reader with healthy kidneys gets, and you may restate it exactly. Never change it, never offer a lower, higher or "safer" protein figure, never say this plan is safe or good for their kidneys, and never soften the warning. Say once, plainly, that this plan is hard on struggling kidneys and to show it to a doctor, nurse practitioner, renal dietitian or pharmacist if they can.');
+  }
   if (ctx.cardioRenal) {
-    notes.push('- A heart, kidney, liver or blood pressure condition was declared. Do not set protein, sodium, potassium or fluid amounts for this reader.');
+    notes.push(ctx.renalAcknowledged
+      ? '- A heart, kidney, liver or blood pressure condition was declared. Do not set sodium, potassium or fluid amounts for this reader. Do not set any protein amount other than the one in MACRO TARGETS.'
+      : '- A heart, kidney, liver or blood pressure condition was declared. Do not set protein, sodium, potassium or fluid amounts for this reader.');
   }
 
   return rules + `

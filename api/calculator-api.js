@@ -54,6 +54,8 @@ import {
   assertNoConditionClaimFrames,
   assertNoUnfoundedClearance,
   applyCalorieGuidance,
+  needsKidneyAck,
+  KIDNEY_ACK_VERSION,
 } from './medical-context.js';
 import { resolveGoal, detectGoalConflict } from './goal-semantics.js';
 import { buildPescoWeek, buildPescoDishWeek, groceryFromWeek, groceryNamesFromWeek } from './pd-meal-plan.js';
@@ -1631,6 +1633,16 @@ async function handleStep4Submission(request, env) {
       ...existingFormData,
       ...step4Answers,
     };
+    // Kidney "I understand" (Brew, 2026-10-12). Only this server writes the stamp, with
+    // its own clock, and only when the answers being saved trigger the kidney screen
+    // AND the reader ticked the box for the current warning text. Every resubmission
+    // re-decides it: unticking, or answers that no longer mention kidneys, clears it.
+    delete updatedFormData.kidney_risk_ack;
+    if (formData.kidneyRiskAcknowledged === true && formData.kidneyAckVersion === KIDNEY_ACK_VERSION &&
+        needsKidneyAck({ ...updatedFormData, diet_type: session.diet_type })) {
+      updatedFormData.kidney_risk_ack = { version: KIDNEY_ACK_VERSION, at: new Date().toISOString() };
+      console.log(`[handleStep4Submission] kidney warning acknowledged (${KIDNEY_ACK_VERSION}) for ${assessment_id}`);
+    }
     console.log('[handleStep4Submission] Updating session with Step 4 data');
 
     // Prepare update payload - include first_name and last_name if provided
@@ -6514,6 +6526,9 @@ async function handleCreateCheckout(request, env) {
     // Same typo correction as the calculator, so the receipt and report go where step 1 saved.
     const email = rawEmail ? correctEmailTypo(rawEmail).email : rawEmail;
     const finalFormData = form_data || formData;
+    // The kidney acknowledgment is written only by Step 4 on the server, never taken
+    // from a client at checkout.
+    if (finalFormData && typeof finalFormData === 'object') delete finalFormData.kidney_risk_ack;
     // PescoDial orders (pesco-* diet) come back to PescoDial, priced the same but
     // named for PescoDial on Stripe's page (Brew, 2026-10-03: $29 USD).
     const orderSite = brandSiteForDiet(finalFormData && finalFormData.diet);
