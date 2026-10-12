@@ -2492,3 +2492,8 @@ A real PD reader signed up as `aol..ccoom` on 2026-10-04. Two fixes were built i
 - Voice: OpenAI TTS (`gpt-4o-mini-tts`, key already on file), not ElevenLabs. About 8 cents an episode, fail-closed $1/day cap in `~/.brief-me/tts-ledger.jsonl`.
 - 3 to 5 minutes, 8 to 10 slides: cold open, calendar, 3 to 5 rotating areas, CEO brief, close. No Google Slides; self-hosted on the NAS deck at `/brief/latest/`.
 - Narration may only use numbers from cited facts and never recommends an action beyond the CEO brief's suggested move. PR #104.
+
+## 2026-10-12: PescoDial GA4 Google signals on (Brew)
+- Approved as item 3 of PESCODIAL BLOG GO. `analytics.js` sends `allow_google_signals: true`; ad personalisation stays off. PR #112.
+- Privacy page names Google signals and links Google Ads settings and the GA opt-out add-on. No consent banner, same as CW and KD.
+- GA4 property 557125657 enabled (Brew activated in the UI; the Admin API refuses until that one-time activation). Read demographics 2026-10-19.
