@@ -6426,6 +6426,10 @@ async function handleGetSession(request, env) {
 async function handleGiftCheckout(request, env) {
   let body;
   try { body = await parseJsonBody(request); } catch { return createErrorResponse('INVALID_JSON', 'Request body must be valid JSON', 400); }
+  // Same domain-typo correction as the calculator (gmial.com -> gmail.com), so the
+  // card goes where the buyer meant. A typo before the @ cannot be caught; the
+  // thank-you page shows the card link for exactly that case.
+  if (body && body.buyer_email) body.buyer_email = correctEmailTypo(String(body.buyer_email)).email;
   const g = parseGiftPurchase(body, isPlausibleEmail);
   if (g.error) return createErrorResponse('INVALID_GIFT', g.error, 400);
 
