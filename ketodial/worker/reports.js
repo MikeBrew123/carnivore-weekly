@@ -1216,12 +1216,37 @@ const SCREEN_CSS = `
   .rep-foot{padding:11px 14px}
   .meal{padding:10px 14px}
   .dtable{font-size:11.5px}
-  .dtable th,.dtable td{padding:7px 6px}
+  .dtable th,.dtable td{padding:7px 5px;overflow-wrap:anywhere}
+  .dtable th{letter-spacing:.02em}
   .page>.sec,.page>.rep-foot{padding-left:14px;padding-right:14px}
 }
 `;
 
+/**
+ * READABILITY FOR THE READER WE ACTUALLY HAVE (Brew, 2026-10-12).
+ *
+ * The reports were set at 9.5-13.5px with labels in #94a3b8, about 2.6:1 on white.
+ * Our buyers are mostly 45-70. Rather than hand-edit sixty rules and inline styles
+ * (and miss some), every small size is scaled here, once, at render time: labels
+ * reach 12px, body text 14.5-16px. Sizes of 16px and up are untouched, so headings
+ * and the layout keep their look. The faint grey is darkened to #64748b (4.8:1).
+ */
+export function kdReadableSizes(html) {
+  return html
+    .replace(/font-size:\s*(\d+(?:\.\d+)?)px/g, (m, n) => {
+      const x = parseFloat(n);
+      if (x >= 16) return m;
+      const y = x < 12 ? Math.max(12, x * 1.25) : x * 1.16;
+      return `font-size:${Math.round(Math.min(y, 16.5) * 2) / 2}px`;
+    })
+    .replace('--ink-faint:#94a3b8;', '--ink-faint:#64748b;');
+}
+
 function htmlShell(title, extraCSS, bodyContent) {
+  return kdReadableSizes(htmlShellRaw(title, extraCSS, bodyContent));
+}
+
+function htmlShellRaw(title, extraCSS, bodyContent) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
