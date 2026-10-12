@@ -11,7 +11,8 @@ changed and why, and the post itself must state that our position changed and wh
 Changing our mind is fine. Contradicting ourselves silently is not.
 
 Positions below default to the site's post-July-2026 editorial standard
-(hedged, sourced, doctor-partnered). CW = carnivoreweekly.com, KD = ketodial.com.
+(hedged, sourced, doctor-partnered). CW = carnivoreweekly.com, KD = ketodial.com,
+PD = pescodial.com (PD has its own section; CW/KD numbers do not carry over to it).
 
 ## Electrolytes
 
@@ -105,6 +106,54 @@ Positions below default to the site's post-July-2026 editorial standard
   new "the" number without acknowledging the range.
 - Arithmetic gets checked: calories and $/g protein claims must survive their own
   math (5 lb of 80/20 ≈ 5,700 kcal, not 9,500).
+
+## PescoDial (PD)
+
+PD = pescodial.com. Readers are mostly women over 50 eating pescatarian or
+Mediterranean, and many take statins, blood-pressure medicine, blood thinners
+or diabetes medicine. PD is a separate editorial voice: the CW/KD numbers in
+the sections above do not apply to PD unless a line below says so.
+
+- **What does not carry over from CW/KD.** The CW/KD sodium target (3-5 g/day),
+  the carnivore protein targets, and anything framed around ketosis or
+  carnivore adaptation are not PD positions. PD follows standard guidance for
+  its readers unless Brew approves a different stance.
+- **Sodium.** Standard guidance: under 2,300 mg/day, and readers with high
+  blood pressure or on blood-pressure medicine follow their doctor's target.
+  We never tell a PD reader to add salt.
+- **Fish frequency.** At least 2 servings of fish a week (AHA), a serving being
+  3 oz cooked (about a deck of cards), favouring fatty fish. The PD meal plan
+  builds 5 fish meals a week; that is the plan's design, not a minimum we tell
+  readers they must hit.
+- **Mercury.** Follow the FDA/EPA "Advice about Eating Fish". Recommend "Best
+  Choices" species only. Never recommend the "Choices to Avoid" list (king
+  mackerel, marlin, orange roughy, shark, swordfish, bigeye tuna, Gulf of
+  Mexico tilefish). Mercury figures only with a fetched FDA/EPA source.
+- **Omega-3s.** Food first. Fatty fish (salmon, sardines, trout, herring,
+  Atlantic mackerel) are the EPA/DHA sources; shrimp and lean white fish are
+  not meaningful ones and we say so. No fish oil or omega-3 supplement doses,
+  ever (no mg, IU or gram amounts).
+- **Dietary cholesterol and LDL.** For most people saturated fat moves LDL more
+  than dietary cholesterol does, so shellfish fits a heart-healthy pattern in
+  normal portions. Some readers respond more strongly, and anyone with high
+  LDL or on a statin checks with their doctor. The Dietary Guidelines dropped
+  the 300 mg/day limit from the 2015-2020 edition on, but still advise eating
+  as little as practical within a healthy pattern; we state both halves. PD
+  never defends high LDL and never links to CW posts that do.
+- **Medicine (hard rule).** Every guide has exactly one medicine box naming the
+  relevant medicines in plain words and sending the reader to her doctor or
+  pharmacist before changing anything, plus a "When to talk to your doctor"
+  section. No clinical judgement, no supplement doses.
+- **Numbers.** Every number traces to a primary source listed in the guide
+  (USDA FoodData Central, FDA/EPA, AHA, NIH ODS, DOI/PubMed). Writers never
+  share a personal heart history; Sarah's real story is anemia and PCOS.
+- **Linking.** Root-relative `/guides/<slug>/` and `/calculator/` (the
+  calculator link inside the first 300 words). At most 2 internal guide links,
+  only to guides already published on or before the post's date. CW and KD
+  links use full https URLs.
+- **Protein.** Still open: PD has no house protein target yet. Until
+  one is approved, guides use the calculator's output and do not quote the CW
+  g/lb figures.
 
 ## Writing mechanics and linking
 
@@ -388,3 +437,9 @@ Positions below default to the site's post-July-2026 editorial standard
 
   *Still open from earlier entries:* the LDL stance wording (2026-08-24 item 2),
   and the three additions Sarah proposed on 2026-08-31.
+
+- 2026-10-12: **PESCODIAL SECTION ADDED (Brew approved).** Written from what the
+  PD pipeline already enforces (post contract, PD writer task). One new stance:
+  PD sodium follows standard guidance (under 2,300 mg/day, doctor's target for
+  high blood pressure), and the CW/KD 3-5 g/day target does not apply to PD.
+  Still open: a PD protein target; until then guides use the calculator output.
