@@ -6525,6 +6525,10 @@ async function handleCreateCheckout(request, env) {
     const { email: rawEmail, first_name, form_data, formData, success_url, cancel_url, tier_id, amount, discount_percent, coupon_code, session_token } = body;
     // Same typo correction as the calculator, so the receipt and report go where step 1 saved.
     const email = rawEmail ? correctEmailTypo(rawEmail).email : rawEmail;
+    // Recovery-source attribution. Allowlisted, so an unknown value is dropped rather
+    // than stored; a missing one is the ordinary organic checkout.
+    const acquisitionSource = normalizeAcquisitionSource(body.acquisition_source);
+    const recoveredFromCheckout = acquisitionSource ? normalizeCheckoutRef(body.recovered_from_checkout) : null;
     const finalFormData = form_data || formData;
     // The kidney acknowledgment is written only by Step 4 on the server, never taken
     // from a client at checkout.
@@ -6836,12 +6840,15 @@ async function handleCreateCheckout(request, env) {
       console.log('[Worker] Detected localhost - using request origin:', baseDomain);
     }
 
+    // `src` rides the round trip through Stripe so the page the buyer returns to can
+    // tag its purchase event even if this tab's storage was lost on the way.
+    const srcParam = acquisitionSource ? `&src=${acquisitionSource}` : '';
     const successUrlWithId = orderSite === 'pd'
-      ? `${pdReturnBase(request)}/calculator/?payment=success&session_id=${sessionUUID}#payment-success`
-      : `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`;
+      ? `${pdReturnBase(request)}/calculator/?payment=success&session_id=${sessionUUID}${srcParam}#payment-success`
+      : `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}${srcParam}#payment-success`;
     const cancelUrlWithId = orderSite === 'pd'
-      ? `${pdReturnBase(request)}/calculator/?payment=cancelled&session_id=${sessionUUID}`
-      : `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}#upgrade-cta`;
+      ? `${pdReturnBase(request)}/calculator/?payment=cancelled&session_id=${sessionUUID}${srcParam}`
+      : `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}${srcParam}#upgrade-cta`;
 
     console.log('Sending to Stripe:');
     console.log('  success_url:', successUrlWithId);
@@ -6933,6 +6940,11 @@ async function handleCreateCheckout(request, env) {
     // funnel row paid (ISSUE bead carnivore-weekly-bryy)
     if (session_token && typeof session_token === 'string') {
       formBody.append('metadata[calc_session_token]', session_token);
+    }
+    // Recovery-source attribution, read back on checkout.session.completed.
+    if (acquisitionSource) {
+      formBody.append('metadata[acquisition_source]', acquisitionSource);
+      if (recoveredFromCheckout) formBody.append('metadata[recovered_from_checkout]', recoveredFromCheckout);
     }
 
     console.log('=== STRIPE REQUEST DEBUG ===');
@@ -9238,12 +9250,101 @@ const ABANDON_RECOVERY_EPOCH_MS = Date.parse('2026-09-13T16:00:00Z');
 
 const abandonEmailMarkerId = checkoutSessionId => `cw-abandon-email:${checkoutSessionId}`;
 
-function buildRecoveryLink(assessmentId) {
+/**
+ * RECOVERY-SOURCE ATTRIBUTION (2026-09-27).
+ *
+ * Sending was re-disabled on 2026-09-13 because a reader who came back through the
+ * recovery link converted on the ordinary Step 3 offer and was indistinguishable from
+ * an organic bridge-offer conversion. These carry the source end to end:
+ *
+ *   link     `src=abandon_recovery` (the app's own marker) + `rc=<expired checkout id>`
+ *            + UTM, so GA4 attributes the whole session to the recovery campaign with
+ *            built-in dimensions and no custom-dimension setup
+ *   browser  tags payment_modal_opened / begin_checkout / purchase and posts the
+ *            source to /create-checkout
+ *   Stripe   `metadata[acquisition_source]` + `metadata[recovered_from_checkout]` on
+ *            the NEW Checkout Session, and `src=` on its success/cancel URLs
+ *   DB       a `cw_abandon_recovery_conversion` row in stripe_webhook_events on
+ *            completion, keyed on the paid checkout, amount carried
+ *
+ * Only allowlisted values are accepted anywhere. An unknown `src` is dropped, never
+ * stored, so a hand-edited URL cannot invent a new revenue line.
+ */
+const RECOVERY_SOURCE = 'abandon_recovery';
+const RECOVERY_UTM_CAMPAIGN = 'abandon_recovery';
+const ACQUISITION_SOURCES = new Set([RECOVERY_SOURCE]);
+const recoveryConversionMarkerId = checkoutSessionId => `cw-recovery-conversion:${checkoutSessionId}`;
+
+function normalizeAcquisitionSource(value) {
+  return typeof value === 'string' && ACQUISITION_SOURCES.has(value) ? value : null;
+}
+
+// Stripe Checkout Session ids only. Anything else is dropped rather than stored.
+function normalizeCheckoutRef(value) {
+  return typeof value === 'string' && /^cs_[A-Za-z0-9_]{1,200}$/.test(value) ? value : null;
+}
+
+function buildRecoveryLink(assessmentId, expiredCheckoutId) {
   // `payment=resume` restores the saved answers WITHOUT claiming a payment: the
   // restore branch in App.tsx sets isPremium only when the row itself says the
   // money arrived, and usePaymentState treats only 'success' and 'free' as a
   // completed payment. An abandoner lands back on their own results page.
-  return `${RESUME_LINK_BASE}?payment=resume&session_id=${encodeURIComponent(assessmentId)}`;
+  const params = new URLSearchParams({
+    payment: 'resume',
+    session_id: assessmentId,
+    src: RECOVERY_SOURCE,
+  });
+  const rc = normalizeCheckoutRef(expiredCheckoutId);
+  if (rc) params.set('rc', rc);
+  params.set('utm_source', 'cw_abandon_recovery');
+  params.set('utm_medium', 'email');
+  params.set('utm_campaign', RECOVERY_UTM_CAMPAIGN);
+  return `${RESUME_LINK_BASE}?${params.toString()}`;
+}
+
+/**
+ * Persist a recovery-sourced conversion in our own database. Bookkeeping only: it is
+ * logged and never allowed to fail the webhook or hold up fulfilment. Idempotent on
+ * its own marker id, so the first delivery and a Stripe retry cannot double it.
+ *
+ * amount_cents repeats the paid amount so the recovery revenue line is one query
+ * (`sum(amount_cents) where event_type = 'cw_abandon_recovery_conversion'`). The
+ * matching `checkout.session.completed` row carries the same amount, so any total
+ * over this table must already be scoped by event_type, as it is for refunds.
+ */
+async function recordRecoveryConversionIfTagged(env, obj, assessmentId, headers) {
+  const source = normalizeAcquisitionSource(obj?.metadata?.acquisition_source);
+  if (source !== RECOVERY_SOURCE || !obj?.id || !assessmentId) return { skipped: 'not-recovery-sourced' };
+  const markerId = recoveryConversionMarkerId(obj.id);
+  try {
+    const existing = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/stripe_webhook_events?stripe_event_id=eq.${encodeURIComponent(markerId)}&select=id`,
+      { headers }
+    );
+    if (existing.ok) {
+      const rows = await existing.json().catch(() => []);
+      if (Array.isArray(rows) && rows.length > 0) return { skipped: 'already-recorded' };
+    }
+    const write = await fetch(`${env.SUPABASE_URL}/rest/v1/stripe_webhook_events`, {
+      method: 'POST',
+      headers: { ...headers, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        stripe_event_id: markerId,
+        event_type: 'cw_abandon_recovery_conversion',
+        session_id: assessmentId,
+        amount_cents: obj.amount_total || 0,
+      }),
+    });
+    if (!write.ok) {
+      console.warn(`[recovery-attribution] conversion marker did not save (${write.status}) for ${obj.id}`);
+      return { failed: true };
+    }
+    console.log(`[recovery-attribution] recovery conversion recorded for assessment ${assessmentId}`);
+    return { recorded: true };
+  } catch (err) {
+    console.warn('[recovery-attribution] conversion marker threw:', String(err).slice(0, 200));
+    return { failed: true };
+  }
 }
 
 /**
@@ -9255,48 +9356,27 @@ function buildRecoveryLink(assessmentId) {
 const ABANDON_EMAIL_SUBJECT = 'Your carnivore numbers are still saved';
 
 /**
- * Sarah, 2026-09-13, reviewed as a real customer communication and used verbatim. The
- * paragraph break before "One honest note" is the only editorial change to what she
- * returned, and it moves no words.
+ * Brew approved this short version verbatim on 2026-10-12 (decision ledger, "RECOVERY
+ * EMAIL COPY REPLACED WITH A SHORT VERSION"). It replaces Sarah's 2026-09-13 long text,
+ * which Brew judged a waste of a healthy reader's time, and whose health paragraph had
+ * been wrong since the 2026-10-04 change that puts a warning beside the numbers instead
+ * of withholding them.
  *
- * Two things she changed and why they must not drift back:
- *
- * 1. The offer no longer names a section. "The Stall-Breaker Protocol" is fat-loss only
- *    and is deliberately withheld from maintenance and gaining readers, and a protein
- *    restriction or kidney flag replaces BOTH the meal calendar and the grocery lists
- *    with a medical notice. This email is sent before the health profile is asked, so
- *    those answers are unknown at send time. It therefore describes the substance, ties
- *    it to the goal we DO know they picked, and states the suppression plainly instead
- *    of hiding it.
- * 2. "I'll sort it out" is gone. The inbox is real and is read, so inviting a reply is
- *    honest, but there is no support tooling, no refund path, and nothing was charged.
- *    Promising a fixed outcome would cost more trust than the invitation earns.
- *
- * No discount, no deadline, no scarcity, no second email. "You won't hear from me about
- * it again" is a fact the one-per-person marker enforces, not a reassurance.
+ * What must not drift back in: a section name (the stall section is fat-loss only), a
+ * promise to fix a payment problem, a discount, a deadline, or any em dash. The reply
+ * invitation is honest because the inbox is real and read. One email per person, no
+ * follow-up sequence: the one-per-person marker enforces that.
  */
 function buildAbandonEmailBody(recoveryLink, unsubscribeLink) {
   const paragraphs = [
-    'You started the full plan the other day and didn\'t finish checking out. That\'s ' +
-    'completely fine, and nothing was charged.',
-    'Your answers are still saved, so you don\'t have to fill anything in again. This ' +
-    'link takes you back to your own results:',
+    'You started the full plan but didn\'t finish checking out. No problem, nothing was ' +
+    'charged.',
+    'Your answers are saved, so this link takes you straight back to your results:',
   ];
   const closing = [
-    'If you were on the fence, the $29 builds 30 days of meals around the calorie and ' +
-    'protein numbers you already have, adds grocery lists that match those meals week by ' +
-    'week, and keeps the advice pointed at the goal you picked rather than someone ' +
-    'else\'s.',
-    'One honest note before you decide: the report asks about your health first, and if ' +
-    'your answers are the kind of thing that needs a doctor rather than a meal plan, ' +
-    'those sections are replaced with a plain explanation and a recommendation to talk ' +
-    'to yours. I\'d rather you hear that from me now than find it after you\'ve paid. ' +
-    'The macros you already have stay free either way.',
-    'If it\'s not for you, no hard feelings. Ignore this and you won\'t hear from me ' +
-    'about it again.',
-    'If something went wrong at the payment screen, reply and tell me what you saw. I ' +
-    'read this inbox myself and I\'ll answer you. I can\'t always fix a payment problem ' +
-    'from my side, but I\'d rather know about it than not.',
+    'The $29 plan gives you 30 days of meals and weekly grocery lists built around your ' +
+    'own numbers and goal.',
+    'If something went wrong at checkout, just reply. I read every message.',
   ];
 
   const text = [...paragraphs, recoveryLink, ...closing, 'Sarah', 'Carnivore Weekly',
@@ -9443,7 +9523,7 @@ async function sendAbandonRecoveryIfOwed(env, obj) {
 
   if (!env.RESEND_API_KEY) return { failed: true, reason: 'RESEND_API_KEY not configured' };
 
-  const link = buildRecoveryLink(assessmentId);
+  const link = buildRecoveryLink(assessmentId, obj.id);
   const unsub = await buildUnsubscribeUrl(env, to, 'cw');
   const { text, html } = buildAbandonEmailBody(link, unsub);
 
@@ -9615,6 +9695,9 @@ async function handleStripeWebhook(request, env) {
           return createErrorResponse('PAYMENT_WRITEBACK_UNCONFIRMED', 'Payment writeback not confirmed', 500);
         }
       }
+      // Bookkeeping the first delivery may not have reached. Idempotent on its own
+      // marker, never fails the retry.
+      if (dupAssessment) await recordRecoveryConversionIfTagged(env, dupObj, dupAssessment, patchHeaders);
       const retry = await sendResumeEmailIfOwed(env, dupObj);
       if (retry.failed) {
         console.error(`Webhook: resume email still owed for ${event.id}: ${retry.reason}`);
@@ -9752,6 +9835,9 @@ async function handleStripeWebhook(request, env) {
       return createErrorResponse('PAYMENT_WRITEBACK_UNCONFIRMED', 'Payment writeback not confirmed', 500);
     }
 
+    // Recovery-source revenue line in our own database. Payment is confirmed by now.
+    await recordRecoveryConversionIfTagged(env, obj, sessionUUID, patchHeaders);
+
     // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
     if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
       // ga_client_id lives on the funnel row we just patched (the old lookup
@@ -9769,6 +9855,9 @@ async function handleStripeWebhook(request, env) {
               currency: obj.currency?.toUpperCase() || 'USD',
               items: [{ item_id: 'carnivore-protocol', item_name: 'Personalized Carnivore Protocol', price: (amountTotal || 0) / 100, quantity: 1 }],
               source: 'stripe_webhook',
+              ...(normalizeAcquisitionSource(obj.metadata?.acquisition_source)
+                ? { acquisition_source: normalizeAcquisitionSource(obj.metadata.acquisition_source) }
+                : {}),
             },
           }],
         }),
@@ -10684,6 +10773,9 @@ export {
   REPORT_BRANDS as __test_REPORT_BRANDS,
   sendAbandonRecoveryIfOwed as __test_sendAbandonRecoveryIfOwed,
   buildRecoveryLink as __test_buildRecoveryLink,
+  recordRecoveryConversionIfTagged as __test_recordRecoveryConversionIfTagged,
+  normalizeAcquisitionSource as __test_normalizeAcquisitionSource,
+  RECOVERY_SOURCE as __test_RECOVERY_SOURCE,
   buildAbandonEmailBody as __test_buildAbandonEmailBody,
   isEmailSuppressed as __test_isEmailSuppressed,
   ABANDON_EMAIL_SUBJECT as __test_ABANDON_EMAIL_SUBJECT,
