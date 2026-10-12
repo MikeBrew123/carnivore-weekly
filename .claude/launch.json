@@ -40,6 +40,42 @@
         "5199"
       ],
       "port": 5199
+    },
+    {
+      "name": "gift-cw",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8902",
+        "--directory",
+        "/Users/mbrew/Developer/carnivore-weekly/.claude/worktrees/gift-report/public"
+      ],
+      "port": 8902
+    },
+    {
+      "name": "gift-kd",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8904",
+        "--directory",
+        "/Users/mbrew/Developer/carnivore-weekly/.claude/worktrees/gift-report/ketodial/public"
+      ],
+      "port": 8904
+    },
+    {
+      "name": "gift-pd",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8903",
+        "--directory",
+        "/Users/mbrew/Developer/carnivore-weekly/.claude/worktrees/gift-report/pescodial/public"
+      ],
+      "port": 8903
     }
   ]
 }

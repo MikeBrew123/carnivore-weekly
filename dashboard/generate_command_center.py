@@ -680,7 +680,7 @@ def fetch_funnels():
         # WHY a drip is silent: newest 'blocked' event in the last 3 days
         # (send_drip.py log_block). Empty list = no known block.
         blk = supa_fetch('drip_events', select='subject,created_at',
-                         filters=f"site=eq.{site}&event_type=eq.blocked&created_at=gte.{(datetime.now(timezone.utc) - timedelta(days=3)).isoformat()}",
+                         filters=f"site=eq.{site}&event_type=eq.blocked&created_at=gte.{(datetime.now(timezone.utc) - timedelta(days=3)).strftime('%Y-%m-%dT%H:%M:%SZ')}",
                          order='created_at.desc', limit=1)
         out[f'drip_{site}']['blocked_reason'] = blk[0]['subject'] if blk else None
         try:
@@ -2794,7 +2794,7 @@ def _voice_bars(weekly, key, accent):
     mx = max(vals) or 1
     cols = ''
     for w, v in zip(weekly, vals):
-        h = max(round(v * 100 / mx), 2 if v else 0)
+        h = max(round(v * 72 / mx), 2 if v else 0)  # CSS caps .vb-bar at 72% to leave room for the label
         label = datetime.strptime(w['week_start'], '%Y-%m-%d').strftime('%b %-d')
         tip = f'Week of {label}: {v}' + (' (week in progress)' if w['partial'] else '')
         cols += (f'<div class="vb{" partial" if w["partial"] else ""}" title="{esc(tip)}">'

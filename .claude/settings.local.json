@@ -210,7 +210,13 @@
       "Bash(python3 -c \"import json; d=json.load\\(open\\('dashboard/command-center-data.json'\\)\\); print\\(json.dumps\\({'as_of': d.get\\('meta',{}\\).get\\('generated_date'\\), 'kd_demographics': d.get\\('demographics',{}\\).get\\('kd'\\)}, indent=1, default=str\\)\\)\")",
       "Bash(python3 -)",
       "Bash(cat >> *)",
-      "Bash(sed -n '/YOUR MEMORIES/,/^# /p' /tmp/marcus_prompt.txt)"
+      "Bash(sed -n '/YOUR MEMORIES/,/^# /p' /tmp/marcus_prompt.txt)",
+      "Bash(node etsy/edit-cap.mjs 4464219356)",
+      "Bash(cd \"/Users/mbrew/Documents/Banana Stand Media/01 Carnivore Weekly/Legacy Project\" && grep -n -i \"flagship\\\\|4464219356\\\\|4575891585\" decision-ledger.md todos.md | tail -20; grep -n -i \"4464219356\\\\|flagship\" \"/Users/mbrew/Documents/Brew-Vault/00-Core/Live-Changes-Log.md\" | tail -8)",
+      "Bash(node dump-listing.mjs 4464219356)",
+      "Bash(mkdir -p _build)",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(awk -F' \\\\\\\\| ' '{print NF}')"
     ]
   },
   "disabledMcpjsonServers": [

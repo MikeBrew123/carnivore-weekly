@@ -14,7 +14,7 @@
  *
  * Requires: Service account with Owner access on the GSC property.
  * (KD uses the URL-prefix property — the service account is not authorized
- * on sc-domain:ketodial.com, only on https://ketodial.com/.)
+ * on https://ketodial.com/, only on https://ketodial.com/.)
  */
 
 import { google } from 'googleapis'
