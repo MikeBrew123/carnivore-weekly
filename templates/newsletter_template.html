@@ -310,6 +310,29 @@
     {% endif %}
 
     <!-- ============================================ -->
+    <!-- SISTER SITE - dated one-send feature          -->
+    <!-- ============================================ -->
+    {% if site_feature %}
+    <tr>
+        <td style="padding:8px 32px 20px 32px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FFF8F0;border-radius:4px;border-left:3px solid #C8956C;">
+                <tr>
+                    <td style="padding:20px 24px;">
+                        <span style="font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#9B8574;">{{ site_feature.label }}</span>
+                        <br><br>
+                        <span style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:bold;color:#1C1210;">{{ site_feature.heading }}</span>
+                        <br><br>
+                        <span style="font-family:Verdana,Geneva,sans-serif;font-size:14px;line-height:1.65;color:#2A2018;">{{ site_feature.blurb }}</span>
+                        <br><br>
+                        <a href="{{ site_feature.url }}" target="_blank" style="display:inline-block;background-color:#1C1210;color:#E8DDD0;font-family:Verdana,Geneva,sans-serif;font-size:12px;font-weight:bold;letter-spacing:0.5px;text-decoration:none;padding:11px 26px;border-radius:3px;text-transform:uppercase;">{{ site_feature.cta }}</a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    {% endif %}
+
+    <!-- ============================================ -->
     <!-- FROM THE SHOP - Product feature (bundle)      -->
     <!-- ============================================ -->
     {% if product_feature %}

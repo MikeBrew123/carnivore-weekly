@@ -156,6 +156,29 @@ def load_affiliate_and_product(date_str=None):
     return affiliate, product_feature
 
 
+def load_site_feature(date_str=None):
+    """The sister-site feature whose start..end window (inclusive) covers this
+    newsletter's date, from data/newsletter_affiliates.json "site_features".
+    A dated window makes a feature run once and retire itself. None if nothing
+    is scheduled, so the template section simply doesn't render."""
+    cfg_path = PROJECT_ROOT / "data" / "newsletter_affiliates.json"
+    if not cfg_path.exists():
+        return None
+    try:
+        cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"  ⚠ newsletter_affiliates.json unreadable: {e}")
+        return None
+    day = date_str or datetime.now().strftime("%Y-%m-%d")
+    for f in cfg.get("site_features", []):
+        if f.get("active") and f.get("url") and f.get("start", "") <= day <= f.get("end", ""):
+            chosen = dict(f)
+            chosen["url"] = _with_utm(chosen["url"], chosen.get("campaign") or f"feature_{chosen.get('key', 'x')}")
+            print(f"  ✓ Site feature: {chosen.get('key')}")
+            return chosen
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Main renderer
 # ---------------------------------------------------------------------------
@@ -211,6 +234,7 @@ def generate_newsletter(date_str=None):
     # Config is committed in data/newsletter_affiliates.json so the automated
     # send needs no secrets. URLs there are clean; UTMs are appended here.
     affiliate, product_feature = load_affiliate_and_product(date_str)
+    site_feature = load_site_feature(date_str)
 
     template_vars = {
         "date": display_date,
@@ -222,6 +246,7 @@ def generate_newsletter(date_str=None):
         "community_pulse": content.get("community_pulse", []),
         "affiliate": affiliate,
         "product_feature": product_feature,
+        "site_feature": site_feature,
     }
 
     # Load and render template
