@@ -53,6 +53,7 @@ const {
 
 let passed = 0;
 const failures = [];
+const escapeForTest = (s) => String(s).replace(/&/g, '&amp;');
 const check = (group, label, ok, detail = '') =>
   ok ? passed++ : failures.push({ group, label, detail });
 
@@ -383,17 +384,20 @@ for (const [label, opts] of [
   check('I', 'the subject promises nothing', !/free|%|now|last/i.test(ABANDON_SUBJECT), ABANDON_SUBJECT);
   check('I', 'no em dashes in customer copy', !text.includes('—') && !html.includes('—'));
 
-  // Sarah's two accuracy fixes. Both have a way of creeping back in a later edit.
+  // Brew's approved short copy (2026-10-12). Pin the lines that carry a promise.
   check('I', 'it does not name the fat-loss-only stall section',
     !/stall|scale stops moving|plateau/i.test(body));
-  check('I', 'it says the goal they picked drives the advice', /goal you picked/.test(body));
-  check('I', 'it discloses the medical suppression before they pay',
-    /replaced with a plain explanation/.test(body) && /talk\s+to yours/.test(body));
-  check('I', 'it promises a reply, not a repair', /i read this inbox myself/.test(body));
+  check('I', 'it ties the plan to their own numbers and goal', /your own numbers and goal/.test(body));
+  check('I', 'it names the price and what it buys',
+    /the \$29 plan gives you 30 days of meals and weekly grocery lists/.test(body));
+  check('I', 'it invites a reply', /just reply\. i read every message\./.test(body));
   check('I', 'it does not promise to fix a payment problem',
     !/i'll sort it out|i will sort it out|we'll fix|i'll fix/.test(body));
-  check('I', 'it states there is no follow-up sequence',
-    /won't hear from me about it again/.test(body));
+  check('I', 'the old long-form copy is gone',
+    !/one honest note|no hard feelings|replaced with a plain explanation/.test(body));
+  check('I', 'the button and fallback link are both present',
+    html.includes('Back to your results') && html.includes(escapeForTest(link)));
+  check('I', 'it is signed by Sarah', /sarah\s*(<br>|\n\n)carnivore weekly/.test(body));
 }
 
 // ---------------------------------------------------------------------------

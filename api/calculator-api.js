@@ -9240,48 +9240,27 @@ function buildRecoveryLink(assessmentId) {
 const ABANDON_EMAIL_SUBJECT = 'Your carnivore numbers are still saved';
 
 /**
- * Sarah, 2026-09-13, reviewed as a real customer communication and used verbatim. The
- * paragraph break before "One honest note" is the only editorial change to what she
- * returned, and it moves no words.
+ * Brew approved this short version verbatim on 2026-10-12 (decision ledger, "RECOVERY
+ * EMAIL COPY REPLACED WITH A SHORT VERSION"). It replaces Sarah's 2026-09-13 long text,
+ * which Brew judged a waste of a healthy reader's time, and whose health paragraph had
+ * been wrong since the 2026-10-04 change that puts a warning beside the numbers instead
+ * of withholding them.
  *
- * Two things she changed and why they must not drift back:
- *
- * 1. The offer no longer names a section. "The Stall-Breaker Protocol" is fat-loss only
- *    and is deliberately withheld from maintenance and gaining readers, and a protein
- *    restriction or kidney flag replaces BOTH the meal calendar and the grocery lists
- *    with a medical notice. This email is sent before the health profile is asked, so
- *    those answers are unknown at send time. It therefore describes the substance, ties
- *    it to the goal we DO know they picked, and states the suppression plainly instead
- *    of hiding it.
- * 2. "I'll sort it out" is gone. The inbox is real and is read, so inviting a reply is
- *    honest, but there is no support tooling, no refund path, and nothing was charged.
- *    Promising a fixed outcome would cost more trust than the invitation earns.
- *
- * No discount, no deadline, no scarcity, no second email. "You won't hear from me about
- * it again" is a fact the one-per-person marker enforces, not a reassurance.
+ * What must not drift back in: a section name (the stall section is fat-loss only), a
+ * promise to fix a payment problem, a discount, a deadline, or any em dash. The reply
+ * invitation is honest because the inbox is real and read. One email per person, no
+ * follow-up sequence: the one-per-person marker enforces that.
  */
 function buildAbandonEmailBody(recoveryLink, unsubscribeLink) {
   const paragraphs = [
-    'You started the full plan the other day and didn\'t finish checking out. That\'s ' +
-    'completely fine, and nothing was charged.',
-    'Your answers are still saved, so you don\'t have to fill anything in again. This ' +
-    'link takes you back to your own results:',
+    'You started the full plan but didn\'t finish checking out. No problem, nothing was ' +
+    'charged.',
+    'Your answers are saved, so this link takes you straight back to your results:',
   ];
   const closing = [
-    'If you were on the fence, the $29 builds 30 days of meals around the calorie and ' +
-    'protein numbers you already have, adds grocery lists that match those meals week by ' +
-    'week, and keeps the advice pointed at the goal you picked rather than someone ' +
-    'else\'s.',
-    'One honest note before you decide: the report asks about your health first, and if ' +
-    'your answers are the kind of thing that needs a doctor rather than a meal plan, ' +
-    'those sections are replaced with a plain explanation and a recommendation to talk ' +
-    'to yours. I\'d rather you hear that from me now than find it after you\'ve paid. ' +
-    'The macros you already have stay free either way.',
-    'If it\'s not for you, no hard feelings. Ignore this and you won\'t hear from me ' +
-    'about it again.',
-    'If something went wrong at the payment screen, reply and tell me what you saw. I ' +
-    'read this inbox myself and I\'ll answer you. I can\'t always fix a payment problem ' +
-    'from my side, but I\'d rather know about it than not.',
+    'The $29 plan gives you 30 days of meals and weekly grocery lists built around your ' +
+    'own numbers and goal.',
+    'If something went wrong at checkout, just reply. I read every message.',
   ];
 
   const text = [...paragraphs, recoveryLink, ...closing, 'Sarah', 'Carnivore Weekly',
