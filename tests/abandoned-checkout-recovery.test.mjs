@@ -31,6 +31,7 @@
  *   H  KetoDial, coach and shop checkouts are not touched
  *   I  the copy claims no payment, no discount and no deadline, and can be left
  *   J  an undecidable database fails loudly and is retried, not swallowed
+ *   L  a recovery conversion is attributed end to end and never counted as organic
  *
  * THE HARD ONE IS C. Abandoning session A and paying in session B is an ordinary
  * sequence, and Stripe expires A afterwards, so the naive version emails a paying
@@ -424,6 +425,202 @@ for (const [label, opts] of [
     check('J', `a Resend ${status} writes no success marker`,
       ![...world.events].some(e => e.startsWith('cw-abandon-email:')));
   }
+}
+
+// ---------------------------------------------------------------------------
+// L  Recovery-source attribution (2026-09-27)
+//
+// Sending was re-disabled because a reader who came back through the recovery link
+// and bought was indistinguishable from an organic bridge-offer conversion. These pin
+// every hop of the source: link, browser, /create-checkout, Stripe metadata,
+// completion, and our own database.
+// ---------------------------------------------------------------------------
+const {
+  __test_normalizeAcquisitionSource: normalizeSource,
+  __test_RECOVERY_SOURCE: RECOVERY_SOURCE,
+} = worker;
+{
+  const world = makeWorld();
+  await post(expiredEvent(), ON);
+  const sent = world.resendCalls[0];
+  const link = new URL(buildRecoveryLink(ASSESSMENT_ID, CHECKOUT_ID));
+  check('L', 'the recovery source is the allowlisted value', RECOVERY_SOURCE === 'abandon_recovery');
+  check('L', 'the link carries the source marker', link.searchParams.get('src') === 'abandon_recovery');
+  check('L', 'the link carries the expired checkout it recovers', link.searchParams.get('rc') === CHECKOUT_ID);
+  check('L', 'the link carries the recovery UTM campaign for GA4 session attribution',
+    link.searchParams.get('utm_campaign') === 'abandon_recovery' && link.searchParams.get('utm_medium') === 'email');
+  check('L', 'the link still restores without claiming a payment',
+    link.searchParams.get('payment') === 'resume' && link.searchParams.get('session_id') === ASSESSMENT_ID);
+  check('L', 'the email that actually goes out carries the marker and the checkout id',
+    sent && sent.body.text.includes('src=abandon_recovery') && sent.body.text.includes(`rc=${CHECKOUT_ID}`));
+  check('L', 'an unknown source is dropped, never stored',
+    normalizeSource('facebook') === null && normalizeSource('') === null && normalizeSource(undefined) === null);
+  check('L', 'a bad checkout ref is left off the link',
+    !new URL(buildRecoveryLink(ASSESSMENT_ID, 'javascript:alert(1)')).searchParams.has('rc'));
+}
+
+// /create-checkout: the source reaches the NEW Stripe Checkout Session.
+async function createCheckout(extra) {
+  const stripeBodies = [];
+  globalThis.fetch = async (url, opts = {}) => {
+    const u = String(url);
+    if (u.includes('api.stripe.com/v1/checkout/sessions')) {
+      stripeBodies.push(new URLSearchParams(opts.body || ''));
+      const txt = JSON.stringify({ id: 'cs_test_new_checkout', url: 'https://stripe.test/pay' });
+      return { ok: true, status: 200, text: async () => txt, json: async () => JSON.parse(txt) };
+    }
+    if (u.includes('/rest/v1/cw_assessment_sessions') && (opts.method || 'GET') === 'POST') {
+      return { ok: true, status: 201, json: async () => ([{ id: ASSESSMENT_ID }]), text: async () => '' };
+    }
+    return { ok: true, status: 200, json: async () => ([]), text: async () => '' };
+  };
+  const req = new Request('https://api.test/create-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: 'returning-reader@example.invalid', first_name: 'Rae', tier_id: 'bundle', amount: 2900,
+      form_data: {
+        sex: 'female', age: 44, heightFeet: 5, heightInches: 6, weight: 170,
+        lifestyle: 'moderate', exercise: '3-4', deficit: 15, diet: 'Carnivore', goal: 'lose',
+        goals: ['energy'], email: 'returning-reader@example.invalid', firstName: 'Rae',
+      },
+      session_token: 'calc-token-fixture',
+      ...extra,
+    }),
+  });
+  const res = await handler.fetch(req, { ...BASE_ENV, STRIPE_SECRET_KEY: 'sk_test_fixture' }, { waitUntil() {} });
+  return { res, body: stripeBodies[0] };
+}
+{
+  const { res, body } = await createCheckout({ acquisition_source: 'abandon_recovery', recovered_from_checkout: CHECKOUT_ID });
+  check('L', 'a recovery checkout is created', res.ok && !!body, `status ${res.status}`);
+  check('L', 'Stripe metadata carries the acquisition source',
+    body && body.get('metadata[acquisition_source]') === 'abandon_recovery', body && body.toString().slice(0, 200));
+  check('L', 'Stripe metadata carries the recovered checkout id',
+    body && body.get('metadata[recovered_from_checkout]') === CHECKOUT_ID);
+  check('L', 'the success URL brings the source back to the page',
+    body && body.get('success_url').includes('src=abandon_recovery') && body.get('success_url').endsWith('#payment-success'));
+  check('L', 'the cancel URL keeps the source for a retry',
+    body && body.get('cancel_url').includes('src=abandon_recovery'));
+}
+{
+  const { body } = await createCheckout({});
+  check('L', 'an organic checkout carries no acquisition source',
+    body && !body.has('metadata[acquisition_source]') && !body.get('success_url').includes('src='));
+}
+{
+  const { body } = await createCheckout({ acquisition_source: 'made_up', recovered_from_checkout: CHECKOUT_ID });
+  check('L', 'an unknown source is not stored on Stripe',
+    body && !body.has('metadata[acquisition_source]') && !body.has('metadata[recovered_from_checkout]'));
+}
+{
+  const { body } = await createCheckout({ acquisition_source: 'abandon_recovery', recovered_from_checkout: 'not-a-checkout' });
+  check('L', 'a malformed checkout ref is dropped but the source is kept',
+    body && body.get('metadata[acquisition_source]') === 'abandon_recovery' && !body.has('metadata[recovered_from_checkout]'));
+}
+
+// Completion: the recovery conversion is persisted in our own database.
+const completedEvent = (metadata, id = 'evt_paid_1') => ({
+  id,
+  type: 'checkout.session.completed',
+  data: {
+    object: {
+      id: 'cs_test_new_checkout',
+      client_reference_id: ASSESSMENT_ID,
+      customer_email: ABANDONER,
+      amount_total: 2900,
+      currency: 'usd',
+      payment_status: 'paid',
+      payment_intent: 'pi_fixture',
+      created: AFTER_EPOCH,
+      metadata: { assessment_session_id: ASSESSMENT_ID, email: ABANDONER, ...metadata },
+    },
+  },
+});
+const RECOVERY_MARKER = 'cw-recovery-conversion:cs_test_new_checkout';
+const recoveryMarkers = world => [...world.events].filter(e => e.startsWith('cw-recovery-conversion:'));
+{
+  const world = makeWorld({ assessmentStatus: 'completed' });
+  let marker = null;
+  const inner = globalThis.fetch;
+  globalThis.fetch = async (url, opts = {}) => {
+    if (String(url).includes('/rest/v1/stripe_webhook_events') && opts.method === 'POST') {
+      const row = JSON.parse(opts.body || '{}');
+      if (row.event_type === 'cw_abandon_recovery_conversion') marker = row;
+    }
+    return inner(url, opts);
+  };
+  const res = await post(completedEvent({ acquisition_source: 'abandon_recovery', recovered_from_checkout: CHECKOUT_ID }), ON);
+  check('L', 'a recovery-sourced purchase is acknowledged', res.status === 200, `status ${res.status}`);
+  check('L', 'the recovery conversion is persisted', !!marker && world.events.has(RECOVERY_MARKER),
+    [...world.events].join(','));
+  check('L', 'it is keyed on the paid assessment and carries the amount',
+    marker && marker.session_id === ASSESSMENT_ID && marker.amount_cents === 2900, JSON.stringify(marker));
+  await post(completedEvent({ acquisition_source: 'abandon_recovery' }), ON);   // Stripe redelivers
+  check('L', 'a redelivered completion does not double the recovery line',
+    recoveryMarkers(world).length === 1, `${recoveryMarkers(world).length} markers`);
+}
+{
+  const world = makeWorld({ assessmentStatus: 'completed' });
+  const res = await post(completedEvent({}), ON);
+  check('L', 'an organic purchase is acknowledged', res.status === 200, `status ${res.status}`);
+  check('L', 'an organic purchase writes no recovery conversion', recoveryMarkers(world).length === 0);
+}
+{
+  const world = makeWorld({ assessmentStatus: 'completed' });
+  await post(completedEvent({ acquisition_source: 'somebody_elses_campaign' }), ON);
+  check('L', 'an unknown source on a completed session is not counted as recovery',
+    recoveryMarkers(world).length === 0);
+}
+{
+  // The duplicate path repairs a marker the first delivery never wrote.
+  const world = makeWorld({ assessmentStatus: 'completed', seedEvents: ['evt_paid_1'] });
+  const res = await post(completedEvent({ acquisition_source: 'abandon_recovery' }), ON);
+  check('L', 'a retried completion records a missing recovery conversion',
+    res.status === 200 && world.events.has(RECOVERY_MARKER), `status ${res.status}`);
+}
+{
+  // The marker is bookkeeping: a database that refuses it never fails fulfilment.
+  const world = makeWorld({ assessmentStatus: 'completed' });
+  const inner = globalThis.fetch;
+  globalThis.fetch = async (url, opts = {}) => {
+    if (String(url).includes('/rest/v1/stripe_webhook_events') && opts.method === 'POST'
+        && JSON.parse(opts.body || '{}').event_type === 'cw_abandon_recovery_conversion') {
+      return { ok: false, status: 503, text: async () => 'down', json: async () => ({}) };
+    }
+    return inner(url, opts);
+  };
+  const res = await post(completedEvent({ acquisition_source: 'abandon_recovery' }), ON);
+  check('L', 'a failed recovery marker never fails the purchase webhook', res.status === 200, `status ${res.status}`);
+  check('L', 'and the customer still gets their way back', world.resendCalls.length >= 1,
+    `${world.resendCalls.length} sends`);
+}
+{
+  // Front end: the source is read on arrival and reaches GA4 and the checkout call.
+  const read = rel => fs.readFileSync(path.join(ROOT, 'calculator2-demo', 'src', rel), 'utf8');
+  const lib = read('lib/acquisitionSource.ts');
+  const app = read('App.tsx');
+  const modal = read('components/ui/StripePaymentModal.tsx');
+  const calc = read('components/calculator/CalculatorApp.tsx');
+  const near = (text, marker, span) => text.slice(text.indexOf(marker), text.indexOf(marker) + span);
+  check('L', 'the front end allowlists the same source', lib.includes("RECOVERY_SOURCE = 'abandon_recovery'"));
+  check('L', 'the source survives the Stripe round trip in session storage', lib.includes('sessionStorage'));
+  check('L', 'the app captures the source on arrival', app.includes('captureAcquisitionSource()'));
+  check('L', 'a recovery arrival fires its own landing event', app.includes("'calculator_recovery_landing'"));
+  check('L', 'payment_modal_opened is tagged',
+    near(modal, "'calculator_payment_modal_opened'", 200).includes('acquisitionGaParams()'));
+  check('L', 'begin_checkout is tagged', near(modal, "'begin_checkout'", 400).includes('acquisitionGaParams()'));
+  check('L', 'the source is posted to /create-checkout', modal.includes('...acquisitionCheckoutFields()'));
+  check('L', 'the browser purchase event is tagged', near(calc, "'purchase'", 500).includes('acquisitionGaParams()'));
+  const src = fs.readFileSync(API, 'utf8');
+  check('L', 'the server purchase event is tagged',
+    /source: 'stripe_webhook',[\s\S]{0,200}acquisition_source/.test(src));
+  const bundleRef = fs.readFileSync(path.join(ROOT, 'public', 'calculator.html'), 'utf8')
+    .match(/assets\/calculator2\/assets\/(index-[^'"]+\.js)/);
+  const bundle = bundleRef && fs.readFileSync(path.join(ROOT, 'public', 'assets', 'calculator2', 'assets', bundleRef[1]), 'utf8');
+  check('L', 'the committed bundle customers load contains the attribution',
+    !!bundle && bundle.includes('cw_acquisition_source') && bundle.includes('calculator_recovery_landing'),
+    bundleRef ? bundleRef[1] : 'no bundle ref');
 }
 
 // ---------------------------------------------------------------------------
