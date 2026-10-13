@@ -337,7 +337,10 @@ jobs:
               "7|Unrendered Jinja2|raw Jinja2 in blog HTML, pipeline bypassed" \
               "8|No date prefix|blog HTML without a date prefix (warning by design)" \
               "9|Made-to-order|Etsy script sets when_made=made_to_order" \
-              "10|promotes sweet treats|CW sweet-treat brand rule"
+              "10|promotes sweet treats|CW sweet-treat brand rule" \
+              "11|Universal K/Mg dose|electrolyte dose (potassium/magnesium)" \
+              "11|Universal fasting-Na dose|electrolyte dose (fasting sodium)" \
+              "11|Electrolyte dosing guard could not run|electrolyte guard failed to load"
             do
               IFS='|' read -r n text desc <<<"$entry"
               if grep -qF "$text" "$RUNNER_TEMP/gates.txt"; then

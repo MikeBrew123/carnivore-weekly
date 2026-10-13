@@ -16,17 +16,26 @@ PD = pescodial.com (PD has its own section; CW/KD numbers do not carry over to i
 
 ## Electrolytes
 
+Enforced by `scripts/check_electrolyte_dosing.py` (pre-push Gate 11, daily publish,
+both generation tasks). A post that prints a potassium or magnesium dose, or a
+sodium milligram amount during a fast, does not publish.
+
 - Sodium: 3-5 g/day of sodium (not salt) for most adults; up to 6 g when training
   hard or in heat. Conversion we always state: 1 tsp salt ≈ 2.3 g sodium.
-- Magnesium: 300-400 mg magnesium glycinate in the evening. Avoid oxide (poor absorption).
-- Potassium: 2,600 mg/day for adult women, 3,400 mg/day for adult men (the 2019
-  NASEM Adequate Intake figures). These are Adequate Intakes, not upper limits and
-  not a bar readers have to clear; falling a little short is not a deficiency.
-  Food-first (meat covers most of it). Do not publish the old 3,000-4,700 range or
-  a bare 4,700 "target": 4,700 mg came from the 2005 guideline that 2019 replaced,
-  and it was never intended as a target. We do not give bulk KCl dosing
-  instructions; OTC 99 mg capsules and cream of tartar are the only supplement
-  routes we describe, with the reminder that mega-dosing potassium is dangerous.
+- Magnesium: **no milligram amount, ever** (rule of 2026-09-14, see changelog
+  2026-10-13). Name the form and timing (glycinate, in the evening; avoid oxide,
+  poor absorption), then say why there is no number and send the reader to their
+  pharmacist: the kidneys clear magnesium, and blood pressure medicine, water
+  pills and reduced kidney function all change the safe amount.
+- Potassium: **no daily target and no supplement amount addressed to the reader**
+  (rule of 2026-09-14). Food first: meat and bone broth cover most of it. Say why
+  we give no number: too much potassium is dangerous, and blood pressure medicine
+  (ACE inhibitors, ARBs, some water pills) and reduced kidney function change the
+  answer, so the reader asks their doctor or pharmacist. Food facts ("beef has
+  about 300-400 mg per 4 oz") and overdose warnings are fine. Never publish the
+  retired 3,000-4,700 range or a bare 4,700 "target" anywhere, even as history
+  told to the reader as a goal. The 2019 NASEM Adequate Intakes (2,600 mg women,
+  3,400 mg men) are background for writers, not a number to print as a target.
 - Timing: spread sodium through the day. A small salty drink before bed is a fine
   fix for night cramps and 3am waking; we do not simultaneously warn against
   evening sodium.
@@ -438,6 +447,16 @@ the sections above do not apply to PD unless a line below says so.
   *Still open from earlier entries:* the LDL stance wording (2026-08-24 item 2),
   and the three additions Sarah proposed on 2026-08-31.
 
+- 2026-10-13: **ELECTROLYTES ALIGNED WITH THE 2026-09-14 SAFETY RULE. Magnesium and
+  potassium amounts removed from this file.** No new stance: this applies Brew's
+  2026-09-14 decision (decisions.md, "suppress, never substitute") that the sweep
+  applied to 24 pages but never wrote here. Because every writer prompt says each
+  number must agree with this file, the file kept telling writers to print
+  "300-400 mg magnesium glycinate", and three new posts did (CW 2026-09-23 resting
+  heart rate, CW 2026-10-01 leg cramps, KD 2026-10-06 bloating). Those lines are
+  fixed and the guard now runs in the pipeline. **Sodium is unchanged here**: the
+  3-5 g/day figure is the approved CW/KD position (KD aligned 2026-09-10), and
+  whether a daily sodium gram target counts as a dose is open for Brew.
 - 2026-10-12: **PESCODIAL SECTION ADDED (Brew approved).** Written from what the
   PD pipeline already enforces (post contract, PD writer task). One new stance:
   PD sodium follows standard guidance (under 2,300 mg/day, doctor's target for

@@ -26,7 +26,12 @@ Scans data/blog_posts.json, every public/blog/*.html (including the ~30 pages
 that exist on disk outside the JSON), and data/drip-emails/.
 
 Exit 0 clean, 1 if anything is flagged.
-Run: python3 scripts/check_electrolyte_dosing.py [--verbose]
+Run: python3 scripts/check_electrolyte_dosing.py [--verbose] [--site cw|kd|pd]
+
+WIRED IN (2026-10-13, after three new posts reintroduced magnesium doses because
+this guard ran only by hand): Gate 11 of validate_before_commit.py (pre-push hook
+and the CW daily publish), daily_publish.py --site kd (which skips that
+validator), and the weekly CW / Saturday KD generation task prompts.
 """
 
 import glob
@@ -96,31 +101,53 @@ def scan(name, text):
     return out
 
 
-def main():
-    verbose = "--verbose" in sys.argv
+def find_flags(root=ROOT, site=None):
+    """Return (scanned, flagged) for the whole corpus, or one site's share of it.
+
+    site=None scans everything. site="kd" (or "pd") scans that site's JSON posts and
+    its drip folder only, so a CW defect cannot block a KD publish and vice versa.
+    flagged is a list of (where, mineral, figure, context).
+    """
     flagged = []
     scanned = 0
 
-    posts = json.load(open(os.path.join(ROOT, "data/blog_posts.json")))["blog_posts"]
+    posts = json.load(open(os.path.join(root, "data/blog_posts.json")))["blog_posts"]
     json_slugs = {p["slug"] for p in posts}
     for p in posts:
+        if site and p.get("site", "cw") != site:
+            continue
         scanned += 1
         for hit in scan(p["slug"], strip(p["content"])):
             flagged.append((f"blog_posts.json:{p['slug']}",) + hit)
 
-    for f in sorted(glob.glob(os.path.join(ROOT, "public/blog/*.html"))):
-        slug = os.path.basename(f)[:-5]
-        if slug in json_slugs or slug == "index":
-            continue  # rendered from the JSON, already covered above
-        scanned += 1
-        for hit in scan(slug, strip(open(f, encoding="utf-8").read())):
-            flagged.append((f"public/blog/{slug}.html (outside blog_posts.json)",) + hit)
+    if site in (None, "cw"):
+        for f in sorted(glob.glob(os.path.join(root, "public/blog/*.html"))):
+            slug = os.path.basename(f)[:-5]
+            if slug in json_slugs or slug == "index":
+                continue  # rendered from the JSON, already covered above
+            scanned += 1
+            for hit in scan(slug, strip(open(f, encoding="utf-8").read())):
+                flagged.append((f"public/blog/{slug}.html (outside blog_posts.json)",) + hit)
 
-    for f in sorted(glob.glob(os.path.join(ROOT, "data/drip-emails/**/*.html"), recursive=True)):
+    drip = os.path.join(root, "data/drip-emails")
+    for f in sorted(glob.glob(os.path.join(drip, "**/*.html"), recursive=True)):
+        rel = os.path.relpath(f, root)
+        # CW drips sit at the top of data/drip-emails/, other sites in a subfolder.
+        parts = os.path.relpath(f, drip).split(os.sep)
+        owner = parts[0] if len(parts) > 1 else "cw"
+        if site and owner != site:
+            continue
         scanned += 1
-        rel = os.path.relpath(f, ROOT)
         for hit in scan(rel, strip(open(f, encoding="utf-8").read())):
             flagged.append((rel,) + hit)
+
+    return scanned, flagged
+
+
+def main():
+    verbose = "--verbose" in sys.argv
+    site = sys.argv[sys.argv.index("--site") + 1] if "--site" in sys.argv else None
+    scanned, flagged = find_flags(site=site)
 
     print(f"Scanned {scanned} documents.")
     if not flagged:

@@ -2650,3 +2650,44 @@ Brew: "get the writers together and brief them on this info.. let them pick the 
 - Restaurant cluster: 3 posts unpublished with meta-refresh stubs into `2026-08-25-order-carnivore-any-restaurant` (123 impr / pos 6.0 over 90d, strongest of 5). Fast-food page kept, given its first 3 internal links. Drip day-6 link repointed. Plan: `docs/project-log/restaurant-consolidation-plan-2026-10-13.md`.
 - Tracking: `data/content-refresh-cohorts.json` (3 cohorts incl. the alcohol quick answer, 3d874354), baselines 2026-09-14 to 10-11 page dimension, matched control of 23 untouched low posts. `scripts/content_refresh_tracker.py read all` on 2026-11-13, run by a Mini one-off task that reports to Brew unprompted.
 - Repeatable process: `.claude/skills/reader-question-refresh/SKILL.md`, brief `docs/project-log/reader-question-refresh-brief.md`. Repeat only if the 11-13 read says it worked.
+
+## 2026-10-13: Three electrolyte regressions fixed; the dose guard now runs in the pipeline
+
+**Root cause, not just the symptom.** `docs/house-claims.md` still said "Magnesium:
+300-400 mg magnesium glycinate in the evening" and carried potassium daily targets.
+Both generation tasks tell writers every number must agree with that file, so the
+2026-09-14 sweep fixed 24 pages while the file kept ordering new ones to reprint the
+dose. Sarah did exactly what the prompt required. The guard
+(`scripts/check_electrolyte_dosing.py`) existed but ran only by hand.
+
+**Fixed (Sarah wrote every replacement, tier-2 pattern: no number, say why, ask your
+pharmacist; salt to taste kept):** CW `2026-09-23-resting-heart-rate-up-carnivore`
+and CW `2026-10-01-leg-cramps-night-carnivore` (magnesium mg and the 3-5 g daily
+sodium target), KD `keto-bloating-what-changes` (same; ketodial `6750b6e`, rendered
+as one page from blog_posts.json and proven byte-identical to the live file before
+the edit, no bulk regen). Title, meta, H1, URL and links unchanged on all three.
+Baseline (GSC page dimension, 09-15..10-12): RHR 96 impr / 1 click / pos 5.2,
+leg cramps 19 / 2 / 6.2, KD bloating no data. Read 2026-11-10.
+
+**Controls added:**
+- Gate 11 in `validate_before_commit.py` (pre-push hook, CW daily publish): whole
+  corpus, every site. A checker that fails to load is CRITICAL, not a warning.
+- `daily_publish.py` checks the posts it is about to publish on every site and exits
+  before writing anything. Needed because the validator is skipped for KD and PD.
+- `check_electrolyte_dosing.py --site cw|kd|pd` (CW drips sit at the top of
+  `data/drip-emails/`, other sites in subfolders).
+- Both scheduled generation prompts: an ELECTROLYTES rule in the writer prompt and
+  a step 4d gate that sends a flagged post back to the same writer.
+- `house-claims.md` electrolyte section aligned with the 09-14 rule (changelog
+  2026-10-13).
+
+Mutation tested: planted "Take 300-400 mg of magnesium glycinate daily" in the KD
+post. Validator exit 1 on Gate 11, `--site kd` FAIL, `--site cw` PASS,
+`daily_publish` guard exit 1. Renamed `find_flags` to break the import: validator
+exit 1 ("could not run"). Restored: exit 2 (warnings only), checker PASS on 404 docs.
+
+**Open for Brew (not changed):** a daily sodium gram target ("3-5 g a day") is
+the approved CW/KD position in house-claims and appears on 7 other live pages
+(5 CW, 2 KD). The 09-14 rule kept salt-to-taste and the guard does not flag
+non-fasting sodium. Whether a daily gram target is a dose for readers on blood
+pressure medicine is a stance call.

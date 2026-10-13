@@ -1003,6 +1003,33 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
                 for problem in cw_sweet_check(html, 'cw', bf.name):
                     results.add_critical(f'public/blog/{bf.name}', 1, problem, fix_hint)
 
+    # Gate 11: no universal potassium, magnesium or fasting-sodium dose, on any
+    # site (electrolyte rule, decisions.md 2026-09-14). The checker existed from
+    # 2026-09-14 but ran only by hand, and three new posts (CW 09-23, CW 10-01,
+    # KD 10-06) reprinted "300-400 mg" magnesium before anyone looked. Whole
+    # corpus, every run: blog_posts.json for all sites, CW blog HTML outside the
+    # JSON, and every drip email. A checker that cannot load is CRITICAL, not a
+    # warning, so this gate cannot go quietly dark.
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from check_electrolyte_dosing import find_flags as electrolyte_flags
+        _, dose_hits = electrolyte_flags(str(project_root))
+    except Exception as e:
+        results.add_critical(
+            'scripts/check_electrolyte_dosing.py', 1,
+            f'Electrolyte dosing guard could not run: {e}',
+            'Fix the checker. Electrolyte dosing is unchecked until it runs.'
+        )
+        dose_hits = []
+    for where, mineral, fig, _ctx in dose_hits:
+        results.add_critical(
+            where.split(':')[0].split(' ')[0], 1,
+            f'Universal {mineral} dose "{fig}" in {where}',
+            'Suppress, never substitute: remove the figure, say why, send the '
+            'reader to their pharmacist; salt-to-taste stays. Do not swap in a '
+            'smaller number or add a caveat after it. decisions.md 2026-09-14.'
+        )
+
     return results
 
 
