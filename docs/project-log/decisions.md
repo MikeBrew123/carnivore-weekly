@@ -2611,3 +2611,6 @@ women-over-40 (held 2026-10-03), and the alcohol page upgrade plan
 (`alcohol-page-upgrade-plan-2026-10-13.md`), whose 252/4/7.0 baseline matches this
 read. The alcohol page's impression decline predates both changes; its read on
 2026-11-11 should allow for that trend. No page content was edited by this read.
+
+## 2026-10-13: calculator report mockups stay as they are (PR #127 closed)
+Brew rejected replacing the 5 AI-made images in `public/images/report-mockups` with real report pages. Two rounds were tried: plain Pillow backgrounds, then real pages warped onto AI empty scene plates with `scripts/composite_product_scene.py` ($0.21 of plates). His verdict: pages cut off and not matching the scene; "better to have the slightly inaccurate images". The originals are a known exception to the real-screenshot mockup rule. Do not re-propose a composite replacement; revisit only if Brew asks, with a different method.
