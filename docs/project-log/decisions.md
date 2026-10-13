@@ -2586,3 +2586,28 @@ Brew chose option 1 (decision ledger 2026-10-12, 13:44) and approved Sarah's har
 - **Proof:** only `handleStep4Submission` writes `form_data.kidney_risk_ack = { version, at }`, with the server clock, when the answers trigger the screen and the client ticked the CURRENT version. Every resubmission re-decides it; create-checkout strips a client-supplied stamp; form_data locks once a report exists. Changing the screen text means bumping `KIDNEY_ACK_VERSION`.
 - **PescoDial unchanged** (Brew: "leave PD as is"): pesco-* diets ignore any acknowledgment and keep `pdNoMealPlan`.
 - Tests: `tests/kidney-understand-gate.test.mjs` (62), each protection mutation-tested red on a named assertion.
+
+## 2026-10-13: Electrolyte sweep 28-day read: no measurable cost, held work unblocked
+
+The 2026-09-14 sweep (tiers 1 to 3: `981604a2`, `91963912`, `292f752a`, 17 live
+pages) was read today, one day after the planned 2026-10-12 date. GSC page
+dimension, final data, 27-day windows either side of the change day (08-18 to
+09-13 vs 09-15 to 10-11). Full table and weekly series appended to
+`docs/project-log/electrolyte-blog-baseline-2026-09-14.md`.
+
+- Site-wide: impressions +22%, clicks +20%, position 12.2 to 9.2.
+- `adaptation-timeline` (the protected asset): 1345/45/6.3 to 1656/47/5.0. **Held.**
+- `fasting-protocols`: 477/15/13.6 to 639/24/7.3. **Improved**, page 2 to page 1.
+- night-sweats, sleep-insomnia, 05-07 fasting, powerlifting: **held**.
+- `carnivore-and-alcohol` 577/3/10.9 to 251/4/7.0 and `endurance-problem` 51/0 to
+  6/0 **dropped on impressions**, but both declines began the week before the
+  edit, clicks did not fall, and the untouched control `best-macro-calculator`
+  fell 47% in the same window. Not attributed to the sweep.
+- Eight tier-1/2 pages have too little data to read either side.
+
+**Verdict: the sweep cost nothing measurable.** Unblocked: the early calculator
+line on adaptation-timeline, night-sweats, fasting-protocols, sleep-insomnia and
+women-over-40 (held 2026-10-03), and the alcohol page upgrade plan
+(`alcohol-page-upgrade-plan-2026-10-13.md`), whose 252/4/7.0 baseline matches this
+read. The alcohol page's impression decline predates both changes; its read on
+2026-11-11 should allow for that trend. No page content was edited by this read.
