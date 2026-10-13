@@ -9,6 +9,7 @@
 {% block main %}
 {% include "_calculator.html" %}
 {% include "_how_it_works.html" %}
+{% include "_plan_video.html" %}
 {% if posts %}
   <section class="section wrap" aria-labelledby="start-title">
     <h2 id="start-title">Start here</h2>
@@ -41,4 +42,4 @@
     </form>
   </section>
 {% endblock %}
-{% block scripts %}<script src="/js/pd-macros.js" defer></script><script src="/js/calculator.js" defer></script>{% endblock %}
+{% block scripts %}<script src="/js/plan-video.js" defer></script><script src="/js/pd-macros.js" defer></script><script src="/js/calculator.js" defer></script>{% endblock %}

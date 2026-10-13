@@ -87,6 +87,10 @@ images/**/*.png
 
 # Video files
 *.mp4
+# Site plan videos are small (under 2 MB), served by the sites (2026-10-13)
+!pescodial/static/video/*.mp4
+!pescodial/public/video/*.mp4
+!public/video/*.mp4
 *.mov
 *.avi
 
