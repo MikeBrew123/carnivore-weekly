@@ -5,9 +5,9 @@
     .planvid-in{display:grid;grid-template-columns:240px minmax(0,1fr);gap:36px;align-items:center}
     .planvid-frame{position:relative;aspect-ratio:9/16;border-radius:var(--r);overflow:hidden;background:var(--sea-ink);box-shadow:0 18px 40px rgba(19,42,64,.45)}
     .planvid-frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-    .planvid-play{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;padding:0 0 20px;border:0;cursor:pointer;color:var(--cream);font:700 1rem var(--f-ui);background:linear-gradient(rgba(19,42,64,0) 50%,rgba(19,42,64,.88))}
-    .planvid-play span:first-child{width:64px;height:64px;border-radius:50%;background:var(--olive-light);display:flex;align-items:center;justify-content:center}
-    .planvid-play svg{width:24px;height:24px;margin-left:4px;fill:var(--sea)}
+    .planvid-play{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:0 0 18px;border:0;cursor:pointer;background:linear-gradient(rgba(19,42,64,0) 72%,rgba(19,42,64,.55))}
+    .planvid-pill{display:inline-flex;align-items:center;gap:10px;background:var(--olive-light);color:var(--sea);font:700 1rem var(--f-ui);padding:12px 18px 12px 14px;border-radius:999px;box-shadow:0 8px 24px rgba(19,42,64,.35)}
+    .planvid-pill svg{width:22px;height:22px;fill:var(--sea);stroke:var(--sea);stroke-width:2;stroke-linecap:round}
     .planvid-play:focus-visible{outline:3px solid var(--olive-light);outline-offset:-6px}
     .planvid .eyebrow{color:var(--olive-light)}
     .planvid h2{font-family:var(--f-display);font-weight:400;color:var(--cream);font-size:clamp(1.75rem,4vw,2.25rem);line-height:1.15;margin:0 0 12px}
@@ -22,12 +22,11 @@
   </style>
   <div class="wrap planvid-in">
     <div class="planvid-frame" data-plan-video="pd-plan">
-      <video preload="none" playsinline poster="/video/pd-plan.jpg" aria-label="A 25-second look inside the PescoDial 7-day plan">
+      <video muted loop preload="none" playsinline poster="/video/pd-plan.jpg" aria-label="A 25-second look inside the PescoDial 7-day plan">
         <source src="/video/pd-plan.mp4" type="video/mp4">
       </video>
-      <button type="button" class="planvid-play" aria-label="Play the 25-second video">
-        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
-        <span>Watch, 25 seconds</span>
+      <button type="button" class="planvid-play" aria-label="Play the 25-second video with sound">
+        <span class="planvid-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4z" stroke="none"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none"/></svg><span data-label>Tap for sound</span></span>
       </button>
     </div>
     <div>
