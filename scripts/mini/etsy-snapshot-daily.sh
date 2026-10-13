@@ -11,6 +11,8 @@
 # scripts/mini/com.minibrew.etsy-snapshot-daily.plist.
 export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
 export TZ=America/Vancouver
+# The briefme-runner worktree is kept on main by brief-me/mini/brief-me-daily.sh
+# (Brief Me moved to the private MikeBrew123/brief-me repo on 2026-10-12).
 W=$HOME/Developer/carnivore-weekly/.claude/worktrees/briefme-runner
 OUT=$HOME/Developer/carnivore-weekly/reports/etsy-snapshots/snapshots.jsonl
 LOG=$HOME/Library/Logs/aihub/etsy-snapshot-daily.log

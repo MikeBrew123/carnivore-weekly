@@ -2586,3 +2586,6 @@ Brew chose option 1 (decision ledger 2026-10-12, 13:44) and approved Sarah's har
 - **Proof:** only `handleStep4Submission` writes `form_data.kidney_risk_ack = { version, at }`, with the server clock, when the answers trigger the screen and the client ticked the CURRENT version. Every resubmission re-decides it; create-checkout strips a client-supplied stamp; form_data locks once a report exists. Changing the screen text means bumping `KIDNEY_ACK_VERSION`.
 - **PescoDial unchanged** (Brew: "leave PD as is"): pesco-* diets ignore any acknowledgment and keep `pdNoMealPlan`.
 - Tests: `tests/kidney-understand-gate.test.mjs` (62), each protection mutation-tested red on a named assertion.
+
+## 2026-10-12: Brief Me moves to its own private repo (Brew)
+Brief Me now lives in the private repo MikeBrew123/brief-me (`~/Developer/brief-me`, history kept); its code and tests are removed from carnivore-weekly. The Mac mini runs brief-me's main and still keeps the `briefme-runner` CW worktree on main for the Command Center generator and the Etsy snapshot.
