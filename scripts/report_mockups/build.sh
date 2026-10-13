@@ -3,6 +3,7 @@
 # rule: actual product screenshots composited into an empty Pillow scene, never an AI fake).
 # Renders through api/calculator-api.js with the Anthropic call stubbed (no API spend) for a
 # fictional reader "Your Name". The two AI-written sections are never screenshotted.
+# Scenes come from scripts/report_mockups/plates (no image spend on rebuild).
 # Usage: bash scripts/report_mockups/build.sh
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; HERE="$ROOT/scripts/report_mockups"
