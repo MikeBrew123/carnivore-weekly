@@ -2640,3 +2640,13 @@ CW `2026-09-23-resting-heart-rate-up-carnivore`, CW
 `2026-10-01-leg-cramps-night-carnivore`, KD `2026-10-06-keto-bloating-what-changes`.
 The guard is not wired into the weekly generation or the pre-push validator, so new
 posts regress the 2026-09-14 rule unnoticed.
+
+## 2026-10-13: Writers rewrite their 3 worst posts from reader questions; restaurant merge step 1
+
+Brew: "get the writers together and brief them on this info.. let them pick the 3 worst performing posts they have and fix them with our best practices", then chose "Ship all 9 today" and approved the restaurant merge to ship the same day.
+
+- Reader questions: ~700 from ~10k YouTube comments (free YouTube Data API) + cached Reddit, tagged by Haiku, grouped by Sonnet (`scripts/reader_question_mining.py`).
+- 9 posts rewritten in place (URL and date unchanged), 3 per writer. Two are topic swaps on zero-traffic URLs: meal-prep -> chuck roast in the slow cooker (Marcus), purists-vs-pragmatists -> ketovore vs carnivore (Chloe). Chloe removed a stevia line and a "meat candy" line (no-sweets rule).
+- Restaurant cluster: 3 posts unpublished with meta-refresh stubs into `2026-08-25-order-carnivore-any-restaurant` (123 impr / pos 6.0 over 90d, strongest of 5). Fast-food page kept, given its first 3 internal links. Drip day-6 link repointed. Plan: `docs/project-log/restaurant-consolidation-plan-2026-10-13.md`.
+- Tracking: `data/content-refresh-cohorts.json` (3 cohorts incl. the alcohol quick answer, 3d874354), baselines 2026-09-14 to 10-11 page dimension, matched control of 23 untouched low posts. `scripts/content_refresh_tracker.py read all` on 2026-11-13, run by a Mini one-off task that reports to Brew unprompted.
+- Repeatable process: `.claude/skills/reader-question-refresh/SKILL.md`, brief `docs/project-log/reader-question-refresh-brief.md`. Repeat only if the 11-13 read says it worked.
