@@ -2614,3 +2614,29 @@ read. The alcohol page's impression decline predates both changes; its read on
 
 ## 2026-10-13: calculator report mockups stay as they are (PR #127 closed)
 Brew rejected replacing the 5 AI-made images in `public/images/report-mockups` with real report pages. Two rounds were tried: plain Pillow backgrounds, then real pages warped onto AI empty scene plates with `scripts/composite_product_scene.py` ($0.21 of plates). His verdict: pages cut off and not matching the scene; "better to have the slightly inaccurate images". The originals are a known exception to the real-screenshot mockup rule. Do not re-propose a composite replacement; revisit only if Brew asks, with a different method.
+
+## 2026-10-13: Alcohol page upgrade shipped (Brew: "go ahead with the alcohol upgrade")
+
+One change to `/blog/2026-06-15-carnivore-and-alcohol.html`, per
+`docs/project-log/alcohol-page-upgrade-plan-2026-10-13.md`: a drink-by-drink quick
+answer (H2 "Can You Drink on Carnivore? The Quick Answer by Drink", 6-row table,
+~170 words, written by Sarah) inserted after the intro, before "Why Your Tolerance
+Tanked". Facts match the existing "Which Drinks Are Less Bad" section; no new
+numbers, no sweeteners or diet mixers, no doses, one see-your-pharmacist line.
+
+Preserved and diff-checked: URL, title, meta description, canonical, H1, every
+existing H2 and all other body copy. Checked at 375px: table fits, 16px text, no
+horizontal scroll.
+
+Baseline (page dimension, 09-15 to 10-11): 251 impressions, 4 clicks, position 7.0.
+The page's impressions were already falling before both the 09-14 edit and this
+one (see the 2026-10-13 electrolyte read). **Read 2026-11-11.** Win: clicks up,
+position 10 or better, drink-specific queries inside the top 20. Revert: position
+down more than 3 places or zero clicks in the window. No title change until read.
+
+Found while validating, not fixed here: `scripts/check_electrolyte_dosing.py` FAILS
+on three live posts published after the sweep with magnesium doses (300-400 mg):
+CW `2026-09-23-resting-heart-rate-up-carnivore`, CW
+`2026-10-01-leg-cramps-night-carnivore`, KD `2026-10-06-keto-bloating-what-changes`.
+The guard is not wired into the weekly generation or the pre-push validator, so new
+posts regress the 2026-09-14 rule unnoticed.
