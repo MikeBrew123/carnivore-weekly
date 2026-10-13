@@ -29,13 +29,20 @@ FILLER = ("Shrimp is a lean food that fits well in a heart friendly week when yo
           "simply and keep the butter for special days at home with family. ")
 
 
+# Kept outside the f-string: Python 3.11 (the CI runner) rejects backslashes
+# inside f-string expressions.
+DEFAULT_MED_NOTE = ('<aside class="med-note"><p><strong>If you take medicine:</strong> statins and '
+                    'blood-pressure medicine keep working the same way. Ask your doctor or pharmacist '
+                    'before you change anything.</p></aside>')
+
+
 def body(intro_extra="", med="", extra=""):
     filler = "".join(f"<p>{FILLER * 4}</p>" for _ in range(6))
     return (
         f'<p>Most of us were told to fear shrimp. Start with your own numbers in the '
         f'<a href="/calculator/">free calculator</a> and read on. {intro_extra}</p>'
         f"{filler}"
-        f'{med or "<aside class=\"med-note\"><p><strong>If you take medicine:</strong> statins and blood-pressure medicine keep working the same way. Ask your doctor or pharmacist before you change anything.</p></aside>"}'
+        f'{med or DEFAULT_MED_NOTE}'
         f"<h2>What the research says</h2>{filler}"
         f"{extra}"
         "<h2>When to talk to your doctor</h2><p>Talk to your doctor if your numbers change.</p>"
