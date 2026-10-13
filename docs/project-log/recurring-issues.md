@@ -957,3 +957,10 @@ If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness fai
 **Attempts:**
 - 2026-10-12 — Timestamp now `strftime('%Y-%m-%dT%H:%M:%SZ')`. Mini seeded with the laptop's log; runner worktree's `reports/etsy-snapshots` symlinks to the Mini main checkout's; new LaunchAgent `com.minibrew.etsy-snapshot-daily` (04:40, read-only `etsy-snapshot.mjs`, one row per UTC day, Telegram on failure; source `scripts/mini/`). Mini run: all 13 data sources ok.
 **If recurs / rule:** never put a raw `isoformat()` with an offset in a URL; use `Z` or `urllib.parse.quote`. For Etsy on the Mini, read `~/Library/Logs/aihub/etsy-snapshot-daily.log` first.
+
+## ISSUE-104 — Mini pre-commit hook fails on "Failed to flush bd changes"
+**Status:** 🟡 WORKAROUND (2026-10-13)
+**Pattern:** The Mini checkout's `.git/hooks/pre-commit` (beads-generated, copied from the laptop) runs `bd sync --flush-only` whenever `bd` is on PATH and `.beads/` exists. The Mini has `bd` in `~/.local/bin` but no `.beads/beads.db`, so the flush fails and blocks every commit. Scheduled runs without `~/.local/bin` on PATH hit the hook's own "bd not found, skip" branch and pass, which is why it only shows up sometimes. Second gap: the secret and PII scanner paths in that hook are hardcoded to `/Users/mbrew/...`, so on the Mini both scanners silently skip.
+**Attempts:**
+- 2026-10-13 — content-editor run: ran `scripts/check-secrets.sh` and `scripts/check-pii.sh` by hand (both clean), then committed with `~/.local/bin` dropped from PATH. Hook not changed.
+**If recurs / rule:** proper fix needs a decision: either `bd init` on the Mini or make the hook skip when no `beads.db` exists, and switch the scanner paths to `$(git rev-parse --show-toplevel)`. Until then, run both scanners by hand before using the PATH workaround. Never `--no-verify`.
