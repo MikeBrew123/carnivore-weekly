@@ -2691,3 +2691,59 @@ the approved CW/KD position in house-claims and appears on 7 other live pages
 (5 CW, 2 KD). The 09-14 rule kept salt-to-taste and the guard does not flag
 non-fasting sodium. Whether a daily gram target is a dose for readers on blood
 pressure medicine is a stance call.
+
+## 2026-10-14: Sodium is salt to taste, no daily target (Brew, deck `9abbfdc5`)
+
+Brew answered Command Deck card `9abbfdc5` at 05:49 PDT: "yes, switch to salt to
+taste (recommended)". This closes the question the 2026-10-13 electrolyte entry
+left open: a daily sodium gram target is a dose. Same reason as magnesium: a fixed
+number addressed to every reader can hurt one on a salt limit.
+
+**Shipped.** carnivore-weekly `a1a1c30e`, ketodial `215b82a`.
+- 36 live pages lost their daily sodium or salt amount (31 CW, 5 KD) and gained
+  one line: "If you have high blood pressure or your doctor has you on a salt
+  limit, check with them first." The why and the salt-to-taste advice stayed.
+  Title, meta, H1, URL and dates unchanged. The card said 7 pages; the real count
+  was higher because the 10-13 count only matched "3-5 g a day" and missed
+  "4 to 6 grams", "3,000-5,000 mg", "2-3 g per meal" and "1-2 teaspoons a day".
+- Also fixed before they publish: 4 queued CW posts (10-15 blood pressure, 10-16,
+  10-23, 10-26) and the unpublished CW copy of keto-cramps-decision-tree.
+- CW HTML rendered from blog_posts.json with `generate_blog_pages.py --site cw`;
+  the diff touched exactly the 31 pages. KD HTML edited in place in the ketodial
+  repo with the same text as the JSON.
+- `docs/house-claims.md`: sodium is "salt to taste, no daily number", with the
+  doctor line; 1 tsp salt = about 2.3 g sodium kept as a fact only.
+
+**Guard.** `check_electrolyte_dosing.py` gained a `daily-Na` rule (grams,
+milligrams or teaspoons a day or per meal, CW and KD; PD exempt because its
+"under 2,300 mg" line is a ceiling) and now scans KD legacy pages in
+`ketodial/public/blog/`. Gate 11 and `daily_publish.py` use it. New test
+`tests/test_daily_sodium_guard.py`. Mutation tested: planted targets in a CW
+post, a queued post and a KD legacy page went red in the checker, Gate 11
+(exit 1) and the daily_publish guard; restored, PASS, validator exit 2.
+
+**Prompts.** The Mini runs `~/.claude/scheduled-tasks/*/SKILL.md`, and those
+copies did NOT have the 10-13 step 4d (it was written to the MacBook copies,
+which are paused since the 10-12 cutover). Added on the Mini today: the
+ELECTROLYTES writer rule and step 4d in weekly-blog-content-generation and
+kd-blog-content-generation, and content-queue-review now removes electrolyte
+numbers instead of "correcting to the house number". Backups `SKILL.md.bak-20261014`.
+
+**Excluded (frozen), not edited:**
+- `2026-04-14-the-carnivore-mistake-i-wish-someone-warned-me` ("4 to 6 grams of
+  sodium per day"): control page in the writer-rewrites cohort, read 2026-11-13.
+  Held in the guard until 2026-11-14, after which Gate 11 fails until it is fixed.
+- Checked and clean: the alcohol page, the 9 writer rewrites, the 3 restaurant
+  redirects, CW 09-23, CW 10-01, KD 10-06, and the calculator page.
+
+**Still printing sodium targets, out of scope (need their own call):**
+- Paid CW report, `api/medical-context.js:1059` ("Sodium: 3-5 grams a day ... up
+  to 6 grams"; same block prints "300-400 mg of magnesium glycinate").
+- KD Starter Kit, `ketodial/worker/reports.js` (~3044, "3,000-5,000 mg/day" card).
+- CW wiki `public/wiki/index.html` (4-6 g/day, an activity table up to 7-10 g/day)
+  and `public/bride-protocol.html` (2,000-3,000 mg); not blog posts.
+- KD `keto-electrolytes-doses`: body is clean, but its meta description and
+  JSON-LD still read "3000-5000mg sodium, ... 300-400mg magnesium" (meta was out
+  of scope for this change).
+- The submodule pointer `ketodial/public` in this repo was left uncommitted as
+  instructed; its checkout is now at ketodial `215b82a`.
