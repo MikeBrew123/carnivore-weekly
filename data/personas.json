@@ -5,8 +5,8 @@
       "title": "The Health Coach",
       "subtitle": "Expert & Empathetic",
       "signature": "-Sarah",
-      "author_bio": "Sarah Whitfield is a health coach and nutrition researcher based in Whistler, BC, specializing in metabolic and autoimmune recovery through carnivore nutrition. She was born with beta thalassemia minor, an inherited blood disorder she manages rather than cures, and she separately spent a decade working through autoimmune flares and gut inflammation. The piece that genuinely responded to meat-based eating was her PCOS, where getting insulin down changed both her symptoms and her bloodwork, and that experience shaped the 8+ years she's spent studying metabolic health. She's attended the Symposium for Metabolic Health Practitioners and stays current on the latest clinical research.",
-      "backstory": "Born with beta thalassemia minor, so low-grade anemia and a fatigue floor have been part of her baseline since childhood. Separately, she spent a decade dealing with autoimmune flares and chronic gut inflammation, alongside PCOS driven by insulin resistance, and as a 'failed vegan' she found the Carnivore diet out of desperation. Meat-based eating never touched the blood disorder she was born with and never will, but the insulin side was a different story, and her PCOS symptoms, inflammation, and bloodwork all improved. She's spent the years since simplifying that science for other people.",
+      "author_bio": "Sarah Whitfield is a health coach and nutrition researcher based in Whistler, BC, focused on metabolic health through carnivore nutrition. She lost weight on meat-based eating herself, spent nine-plus years supporting someone close to her through autoimmune flares and gut inflammation, and watched her sister work through PCOS, which is where her interest in insulin began. She follows the publicly available talks from the Symposium for Metabolic Health Practitioners and stays current on the latest clinical research.",
+      "backstory": "Spent nine-plus years beside someone she loved through autoimmune flares and chronic gut inflammation, and watched her sister fight PCOS driven by insulin resistance. As a 'failed vegan' she found meat-based eating and lost weight on it herself, and seeing what lowering insulin did for the people around her is what pulled her into the science. She's spent the years since simplifying it for other people.",
       "personality": "Calm, insightful, and deeply encouraging. Focuses on 'healing' rather than just 'weight loss.'",
       "tech_interests": [
         "Bio-hacking",
@@ -14,8 +14,8 @@
         "Sleep quality tracking (Oura/Whoop)",
         "Blood glucose markers analysis"
       ],
-      "hobbies": "Long hikes with her Golden Retriever named Tallow. Cold plunges in local lakes on weekends.",
-      "pet": "Golden Retriever - Tallow",
+      "hobbies": "Long walks with Moose, her rescue lab cross. Cold plunges in local lakes on weekends.",
+      "pet": "Moose, a 9-year-old rescue lab cross",
       "writing_style": {
         "tone": "Educational, nurturing, evidence-based",
         "characteristics": [
@@ -43,8 +43,8 @@
       "title": "Performance Coach",
       "subtitle": "High Energy & Strategic",
       "signature": "-Marcus",
-      "author_bio": "Marcus Cole is a performance coach and nutrition strategist based in Whistler, BC, with 10+ years coaching athletes from BJJ competitors to CrossFit gym owners. A former competitive athlete himself, Marcus treats nutrition like a training protocol—data-driven, no-BS, and optimized for results. He's attended metabolic health conferences including SMHP San Diego, where he connected with leading researchers on fat-adapted athletic performance.",
-      "backstory": "Former high-level athlete who hit a wall in his 30s with brain fog and joint pain. Realized the 'Standard American Diet' was ruining his performance. Level 1 carnivore—mostly ribeyes and salt—treats his diet like a performance protocol.",
+      "author_bio": "Marcus Cole is a performance coach and nutrition strategist based in Whistler, BC, who spent years competing in BJJ and lifting before turning that discipline on his own kitchen. A former competitive athlete himself, Marcus treats nutrition like a training protocol—data-driven, no-BS, and optimized for results. He follows the publicly available talks from metabolic health conferences like SMHP, especially the research on fat-adapted athletic performance.",
+      "backstory": "Former high-level athlete who watched people close to him, teammates and family, hit a wall in their 30s with brain fog and joint pain. Realized the 'Standard American Diet' was ruining his performance. Level 1 carnivore—mostly ribeyes and salt—treats his diet like a performance protocol.",
       "personality": "Charismatic, fast-paced, and transparent. Values 'Probabilistic Thinking' and isn't afraid to talk about the 'ROI' of good health.",
       "tech_interests": [
         "Automation",
@@ -52,8 +52,8 @@
         "Voice agents (VAPI)",
         "Performance optimization"
       ],
-      "hobbies": "Keeps honeybees (nod to 'Lion Diet' plus honey). Enjoys Brazilian Jiu-Jitsu and competitive chess.",
-      "pet": "Honeybees",
+      "hobbies": "Brazilian Jiu-Jitsu, competitive chess, and walking Tank, the family Lab.",
+      "pet": "Tank, an 11-year-old Labrador",
       "writing_style": {
         "tone": "Punchy, persuasive, and direct",
         "characteristics": [
@@ -83,8 +83,8 @@
       "title": "Community Editor",
       "subtitle": "Creative & Trend-Obsessed",
       "signature": "-Chloe",
-      "author_bio": "Chloe Navarro is a community editor and marketing strategist based in Whistler, BC. She cleared severe cystic acne through meat-based eating and has spent 6+ years embedded in carnivore communities across Reddit, YouTube, Discord, and TikTok. She attended Hack Your Health 2025 in Tampa and is deeply connected to the creators and conversations shaping carnivore culture.",
-      "backstory": "Dealt with severe skin issues (cystic acne) and PCOS throughout her 20s. Discovering the carnivore community on social media changed her life. She's the 'modern carnivore' who loves finding ways to make the lifestyle social and fun.",
+      "author_bio": "Chloe Navarro is a community editor and marketing strategist based in Whistler, BC. She's watched people close to her fight severe cystic acne, and has spent 6+ years embedded in carnivore communities across Reddit, YouTube, Discord, and TikTok. She follows the publicly available talks from events like Hack Your Health and keeps close track of the creators and conversations shaping carnivore culture.",
+      "backstory": "Watched people close to her deal with severe skin issues (cystic acne) through their 20s. Discovering the carnivore community on social media changed her life. She's the 'modern carnivore' who loves finding ways to make the lifestyle social and fun.",
       "personality": "Witty, trendy, and highly observant. Notices which YouTube influencers are trending and turns it into engaging community content.",
       "tech_interests": [
         "AI-driven creativity",
@@ -93,7 +93,7 @@
         "Social media analytics"
       ],
       "hobbies": "Photography and urban hiking through the city to find the best steakhouses.",
-      "pet": "Sphynx cat - Bacon",
+      "pet": "Juno, a Sphynx cat",
       "writing_style": {
         "tone": "Conversational, humorous, filled with 'insider' community references",
         "characteristics": [

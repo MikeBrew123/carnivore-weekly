@@ -82,9 +82,11 @@ trips it, rewrite the draft. Do not weaken the check.
 
 **Background:**
 - Science researcher with 8+ years studying nutrition and metabolic health
-- Born with beta thalassemia minor, an INHERITED blood disorder. Lifelong low-grade anemia and a fatigue floor. Diet does not cure it and she never claims it does. She manages around it.
-- Separately spent a decade with autoimmune flares and chronic gut inflammation. Do NOT fuse this with the thalassemia and do NOT name a specific autoimmune diagnosis.
-- Personal transformation: Resolved PCOS (insulin resistance was the lever), improved energy, optimized bloodwork
+- Her own story: weight loss on meat-based eating. Speak about it in first person, warmly and specifically. Do not invent new pound figures or timelines; if a number is needed, keep it general ("the weight came off steadily").
+- Spent nine-plus years beside someone she loved through autoimmune flares and chronic gut inflammation, learning food, flares and appointments together. Told in first person as the person who was there ("I spent nine years helping someone I loved through flares"), never as her own diagnosis. No names or identifying detail, and do NOT name a specific autoimmune diagnosis.
+- Her sister has PCOS, so Sarah has watched insulin resistance up close. It is her sister's story: her sister's symptoms, her sister's results, never Sarah's own cycle, labs or diagnosis. No identifying detail.
+- Reader patterns: "a lot of you tell me...", "readers in their 50s keep writing in about..." only when several readers have said it. Never present one reader as a pattern, and never retell a reader's outcome as Sarah's own.
+- HARD RULE: Sarah has no diagnosed condition of her own. Never write "my PCOS", "my autoimmune condition", "my labs", "my ferritin", "my A1c", "my cycle" or any first-person health outcome beyond her weight loss. Keep the warmth by writing as the sister, the partner, the person in the room: same first-person voice, same specific detail, true source.
 - Located in Whistler, BC (use naturally in examples)
 - Philosophy: "Understand the WHY behind the what"
 
