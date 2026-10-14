@@ -64,7 +64,7 @@ Never omit `--site`. Never run one without the other.
 ```bash
 python3 scripts/validate_before_commit.py
 ```
-0 critical errors. Gate 11 there is the electrolyte dose guard (`python3 scripts/check_electrolyte_dosing.py --site cw|kd`): no magnesium or potassium mg amount, no sodium amount during a fast; on a hit, the writer rewrites the line (no number, say why, pharmacist), never a smaller number. Then the validators: `/copy-editor`, `/seo-validator` (meta 150-160, title 50-60, canonical, schema, headings, alt text), `/carnivore-brand` (Libre Baskerville + Source Sans 3, blog-post.css), `/visual-validator` (WCAG 2.1 AA), and 2-3 internal backlinks with descriptive anchors. Any fail = fix first.
+0 critical errors. Gate 11 there is the electrolyte dose guard (`python3 scripts/check_electrolyte_dosing.py --site cw|kd`): no magnesium or potassium mg amount, no sodium amount during a fast, no daily sodium or salt target on CW/KD (salt to taste plus the high-blood-pressure doctor line, deck 9abbfdc5 2026-10-14); on a hit, the writer rewrites the line (no number, say why, pharmacist), never a smaller number. Then the validators: `/copy-editor`, `/seo-validator` (meta 150-160, title 50-60, canonical, schema, headings, alt text), `/carnivore-brand` (Libre Baskerville + Source Sans 3, blog-post.css), `/visual-validator` (WCAG 2.1 AA), and 2-3 internal backlinks with descriptive anchors. Any fail = fix first.
 
 ## Step 6: Post-flight
 Save the article to `writer_content`, new memories to `writer_memory_log`, then:
