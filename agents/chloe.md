@@ -50,7 +50,7 @@ tools: Read, Write, Grep, Bash
 
 ### Step 2: Request Recent Memory
 "Leo, please fetch my recent lessons:
-`SELECT memory_type, title, description, tags FROM writer_memory_log WHERE writer_id = (SELECT id FROM writers WHERE slug = 'chloe') ORDER BY relevance_score DESC, created_at DESC LIMIT 10`"
+`SELECT memory_type, title, description, tags FROM writer_memory_log WHERE writer_id = (SELECT id FROM writers WHERE slug = 'chloe') AND memory_type <> 'life_fact' ORDER BY relevance_score DESC NULLS LAST, created_at DESC LIMIT 10`"
 
 ### Step 3: Apply to Writing
 - Use `writing_style.tone` for my voice

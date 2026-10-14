@@ -34,11 +34,21 @@ def fetch_writer_context(writer_slug):
     # nullsfirst=False matters: Postgres sorts NULLs FIRST on DESC, so rows written
     # without a relevance_score (e.g. inbox drafts from writer-inbox-daily-check)
     # were occupying the whole top 10 and crowding out real writing lessons.
+    # life_fact rows are the persona's life, pulled in full below; keep them out
+    # of the top-10 lessons so they never crowd out real writing lessons.
     memories_result = supabase.table("writer_memory_log").select("*").eq(
         "writer_id", writer['id']
-    ).order(
+    ).neq("memory_type", "life_fact").order(
         "relevance_score", desc=True, nullsfirst=False
     ).order("created_at", desc=True).limit(10).execute()
+
+    # 2b. Fetch the writer's whole life (every active life_fact), so every post
+    # draws from the same facts (Brew 2026-10-14).
+    life_result = supabase.table("writer_memory_log").select(
+        "title, description, tags, created_at"
+    ).eq("writer_id", writer['id']).eq("memory_type", "life_fact").eq(
+        "is_active", True
+    ).order("created_at").execute()
 
     # 3. Fetch writer's past articles (last 10)
     content_result = supabase.table("writer_content").select(
@@ -83,6 +93,8 @@ def fetch_writer_context(writer_slug):
             "voice_formula": writer.get('voice_formula') or {}
         },
         "memories": [],
+        "life": [{"title": r["title"], "description": r["description"],
+                  "tags": r.get("tags") or []} for r in (life_result.data or [])],
         "past_articles": [],
         "team_recent_articles": [],
         "published_slugs": published_slugs
@@ -158,6 +170,16 @@ You are **{writer['name']}**, {writer['role_title']} at Carnivore Weekly.
     prompt += f"\n**Common Opening Patterns:**\n"
     for pattern in voice.get('common_opening_patterns', [])[:3]:
         prompt += f"- {pattern}\n"
+
+    # Add the writer's life (persona; disclosed on The Lab)
+    if context.get('life'):
+        prompt += "\n\n# YOUR LIFE\n\n"
+        prompt += ("These are the facts of your life. Use them naturally where they fit, never "
+                   "contradict them, and do not add new health outcomes, credentials, conference "
+                   "attendance or reader testimonials. Your only first-person health story is the one "
+                   "listed here; other people's health is their story, told as theirs.\n\n")
+        for fact in context['life']:
+            prompt += f"- **{fact['title']}:** {fact['description']}\n"
 
     # Add memories
     prompt += f"\n\n# YOUR MEMORIES & LESSONS LEARNED\n\n"

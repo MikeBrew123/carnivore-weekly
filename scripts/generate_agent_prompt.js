@@ -184,6 +184,7 @@ async function fetchWriterMemoryLog(supabase, writerId) {
         created_at
       `)
       .eq('writer_id', writerId)
+      .neq('memory_type', 'life_fact')
       .order('created_at', { ascending: false })
       .limit(5);
 
