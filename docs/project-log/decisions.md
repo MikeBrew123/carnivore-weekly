@@ -2747,3 +2747,6 @@ numbers instead of "correcting to the house number". Backups `SKILL.md.bak-20261
   of scope for this change).
 - The submodule pointer `ketodial/public` in this repo was left uncommitted as
   instructed; its checkout is now at ketodial `215b82a`.
+
+## 2026-10-12: Brief Me moves to its own private repo (Brew)
+Brief Me now lives in the private repo MikeBrew123/brief-me (`~/Developer/brief-me`, history kept); its code and tests are removed from carnivore-weekly. The Mac mini runs brief-me's main and still keeps the `briefme-runner` CW worktree on main for the Command Center generator and the Etsy snapshot.
