@@ -959,8 +959,9 @@ If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness fai
 **If recurs / rule:** never put a raw `isoformat()` with an offset in a URL; use `Z` or `urllib.parse.quote`. For Etsy on the Mini, read `~/Library/Logs/aihub/etsy-snapshot-daily.log` first.
 
 ## ISSUE-104 — Mini pre-commit hook fails on "Failed to flush bd changes"
-**Status:** 🟡 WORKAROUND (2026-10-13)
+**Status:** 🟡 RECURRING (2026-10-14)
 **Pattern:** The Mini checkout's `.git/hooks/pre-commit` (beads-generated, copied from the laptop) runs `bd sync --flush-only` whenever `bd` is on PATH and `.beads/` exists. The Mini has `bd` in `~/.local/bin` but no `.beads/beads.db`, so the flush fails and blocks every commit. Scheduled runs without `~/.local/bin` on PATH hit the hook's own "bd not found, skip" branch and pass, which is why it only shows up sometimes. Second gap: the secret and PII scanner paths in that hook are hardcoded to `/Users/mbrew/...`, so on the Mini both scanners silently skip.
 **Attempts:**
 - 2026-10-13 — content-editor run: ran `scripts/check-secrets.sh` and `scripts/check-pii.sh` by hand (both clean), then committed with `~/.local/bin` dropped from PATH. Hook not changed.
+- 2026-10-14 — weekly-blog-content-generation scheduled run hit it again on the batch commit. Same workaround (scanners clean by hand, PATH without `~/.local/bin`), pushed as 92d6b225. Scheduled tasks will keep hitting this until the hook fix is decided.
 **If recurs / rule:** proper fix needs a decision: either `bd init` on the Mini or make the hook skip when no `beads.db` exists, and switch the scanner paths to `$(git rev-parse --show-toplevel)`. Until then, run both scanners by hand before using the PATH workaround. Never `--no-verify`.

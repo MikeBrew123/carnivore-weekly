@@ -13,7 +13,12 @@ Writers produce CONTENT ONLY. `scripts/generate_blog_pages.py` produces HTML. Wr
 ```sql
 SELECT * FROM writers WHERE slug = '{writer}';
 SELECT memory_type, title, description FROM writer_memory_log
- WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}') ORDER BY created_at DESC LIMIT 10;
+ WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}') AND memory_type <> 'life_fact'
+ ORDER BY created_at DESC LIMIT 10;
+-- The writer's whole life (all of it, every time; hand it to the writer as "YOUR LIFE")
+SELECT title, description FROM writer_memory_log
+ WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}') AND memory_type = 'life_fact' AND is_active
+ ORDER BY created_at;
 SELECT title, slug FROM writer_content
  WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}') ORDER BY created_at DESC LIMIT 5;
 ```
@@ -64,10 +69,10 @@ Never omit `--site`. Never run one without the other.
 ```bash
 python3 scripts/validate_before_commit.py
 ```
-0 critical errors. Then the validators: `/copy-editor`, `/seo-validator` (meta 150-160, title 50-60, canonical, schema, headings, alt text), `/carnivore-brand` (Libre Baskerville + Source Sans 3, blog-post.css), `/visual-validator` (WCAG 2.1 AA), and 2-3 internal backlinks with descriptive anchors. Any fail = fix first.
+0 critical errors. Gate 11 there is the electrolyte dose guard (`python3 scripts/check_electrolyte_dosing.py --site cw|kd`): no magnesium or potassium mg amount, no sodium amount during a fast, no daily sodium or salt target on CW/KD (salt to taste plus the high-blood-pressure doctor line, deck 9abbfdc5 2026-10-14); on a hit, the writer rewrites the line (no number, say why, pharmacist), never a smaller number. Then the validators: `/copy-editor`, `/seo-validator` (meta 150-160, title 50-60, canonical, schema, headings, alt text), `/carnivore-brand` (Libre Baskerville + Source Sans 3, blog-post.css), `/visual-validator` (WCAG 2.1 AA), and 2-3 internal backlinks with descriptive anchors. Any fail = fix first.
 
 ## Step 6: Post-flight
-Save the article to `writer_content`, new memories to `writer_memory_log`, then:
+Save the article to `writer_content`, new memories to `writer_memory_log`. If the writer used a NEW life detail (something not already in their life rows: the dog's surgery, a new storyline beat), save it as a `life_fact` row (tags: category + `invented`), so the next post knows. Never save a health outcome, credential, attendance or reader testimonial as a life fact; the database trigger refuses the obvious ones. Then:
 ```bash
 python3 scripts/sync_blog_posts_to_supabase.py
 ```

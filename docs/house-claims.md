@@ -16,17 +16,37 @@ PD = pescodial.com (PD has its own section; CW/KD numbers do not carry over to i
 
 ## Electrolytes
 
-- Sodium: 3-5 g/day of sodium (not salt) for most adults; up to 6 g when training
-  hard or in heat. Conversion we always state: 1 tsp salt ≈ 2.3 g sodium.
-- Magnesium: 300-400 mg magnesium glycinate in the evening. Avoid oxide (poor absorption).
-- Potassium: 2,600 mg/day for adult women, 3,400 mg/day for adult men (the 2019
-  NASEM Adequate Intake figures). These are Adequate Intakes, not upper limits and
-  not a bar readers have to clear; falling a little short is not a deficiency.
-  Food-first (meat covers most of it). Do not publish the old 3,000-4,700 range or
-  a bare 4,700 "target": 4,700 mg came from the 2005 guideline that 2019 replaced,
-  and it was never intended as a target. We do not give bulk KCl dosing
-  instructions; OTC 99 mg capsules and cream of tartar are the only supplement
-  routes we describe, with the reminder that mega-dosing potassium is dangerous.
+Enforced by `scripts/check_electrolyte_dosing.py` (pre-push Gate 11, daily publish,
+both generation tasks). A post that prints a potassium or magnesium dose, a daily
+sodium or salt target (grams, milligrams or teaspoons a day, or per meal), or a
+sodium milligram amount during a fast, does not publish.
+
+- Sodium: **salt to taste, no daily number** (Brew, deck `9abbfdc5`, 2026-10-14;
+  see changelog). Most readers need more salt than they are used to in the first
+  weeks, because lower insulin makes the kidneys let go of sodium and water; say
+  that, and say "salt your food to taste, spread through the day", a bit more on
+  hot or hard-training days. Every post that tells readers to salt more also
+  carries one line: if you have high blood pressure or your doctor has you on a
+  salt limit, check with them first. Never print a daily gram, milligram or
+  teaspoon target ("3-5 g a day", "3,000-5,000 mg", "up to 6 g", "2 tsp a day",
+  "2-3 g per meal"), not even with a caveat after it, and not as "our position".
+  Food facts and labels are fine ("a cup of broth can carry 800-1,200 mg",
+  "LMNT has 1,000 mg per packet"), and so is the fact that 1 tsp of salt is about
+  2.3 g of sodium, but only as a fact, never next to a daily amount to hit.
+- Magnesium: **no milligram amount, ever** (rule of 2026-09-14, see changelog
+  2026-10-13). Name the form and timing (glycinate, in the evening; avoid oxide,
+  poor absorption), then say why there is no number and send the reader to their
+  pharmacist: the kidneys clear magnesium, and blood pressure medicine, water
+  pills and reduced kidney function all change the safe amount.
+- Potassium: **no daily target and no supplement amount addressed to the reader**
+  (rule of 2026-09-14). Food first: meat and bone broth cover most of it. Say why
+  we give no number: too much potassium is dangerous, and blood pressure medicine
+  (ACE inhibitors, ARBs, some water pills) and reduced kidney function change the
+  answer, so the reader asks their doctor or pharmacist. Food facts ("beef has
+  about 300-400 mg per 4 oz") and overdose warnings are fine. Never publish the
+  retired 3,000-4,700 range or a bare 4,700 "target" anywhere, even as history
+  told to the reader as a goal. The 2019 NASEM Adequate Intakes (2,600 mg women,
+  3,400 mg men) are background for writers, not a number to print as a target.
 - Timing: spread sodium through the day. A small salty drink before bed is a fine
   fix for night cramps and 3am waking; we do not simultaneously warn against
   evening sodium.
@@ -114,7 +134,8 @@ Mediterranean, and many take statins, blood-pressure medicine, blood thinners
 or diabetes medicine. PD is a separate editorial voice: the CW/KD numbers in
 the sections above do not apply to PD unless a line below says so.
 
-- **What does not carry over from CW/KD.** The CW/KD sodium target (3-5 g/day),
+- **What does not carry over from CW/KD.** The CW/KD sodium line (salt to taste;
+  until 2026-10-14 it was a 3-5 g/day target),
   the carnivore protein targets, and anything framed around ketosis or
   carnivore adaptation are not PD positions. PD follows standard guidance for
   its readers unless Brew approves a different stance.
@@ -437,6 +458,47 @@ the sections above do not apply to PD unless a line below says so.
 
   *Still open from earlier entries:* the LDL stance wording (2026-08-24 item 2),
   and the three additions Sarah proposed on 2026-08-31.
+
+- 2026-10-13: **ELECTROLYTES ALIGNED WITH THE 2026-09-14 SAFETY RULE. Magnesium and
+  potassium amounts removed from this file.** No new stance: this applies Brew's
+  2026-09-14 decision (decisions.md, "suppress, never substitute") that the sweep
+  applied to 24 pages but never wrote here. Because every writer prompt says each
+  number must agree with this file, the file kept telling writers to print
+  "300-400 mg magnesium glycinate", and three new posts did (CW 2026-09-23 resting
+  heart rate, CW 2026-10-01 leg cramps, KD 2026-10-06 bloating). Those lines are
+  fixed and the guard now runs in the pipeline. **Sodium is unchanged here**: the
+  3-5 g/day figure is the approved CW/KD position (KD aligned 2026-09-10), and
+  whether a daily sodium gram target counts as a dose is open for Brew.
+- 2026-10-14: **SODIUM: SALT TO TASTE, NO DAILY NUMBER. The 3-5 g/day target is
+  retired for CW and KD readers.** This answers the question the 2026-10-13 entry
+  left open: a daily sodium gram target is a dose.
+
+  *Approval.* Brew, Command Deck card `9abbfdc5`, 2026-10-14 05:49 PDT: "yes,
+  switch to salt to taste (recommended)". The card: "These pages tell readers to
+  eat a set amount of salt every day. We just pulled the magnesium amounts for the
+  same reason: a fixed number can hurt someone on a salt limit. ... Change it to
+  'salt to taste' plus a line to check with a doctor if you have high blood
+  pressure."
+
+  *Why.* Our core reader is a woman 45-70, often on blood pressure medicine. A
+  printed daily target ("3-5 g a day", "up to 6 g") is the same defect class as
+  the magnesium milligrams pulled on 2026-09-14 and 2026-10-13: a number addressed
+  to everyone with nothing deciding whether it is safe for this reader.
+
+  *What changed with it.* 36 live pages (31 CW, 5 KD), 4 queued CW posts and one
+  unpublished CW record lost their daily sodium or salt amount and gained the
+  doctor line; the "why" and the
+  salt-to-taste advice stayed. The guard now flags a daily sodium target on CW
+  and KD, and the writer and queue-review prompts carry the rule. PD is
+  untouched; its "under 2,300 mg a day" ceiling is a limit, not a target.
+
+  *Not changed, and why.* The CW control page
+  `2026-04-14-the-carnivore-mistake-i-wish-someone-warned-me` keeps its "4 to 6
+  grams" line until the writer-rewrites read on 2026-11-13 (held in the guard,
+  fails from 2026-11-14). The paid CW report (`api/medical-context.js`), the KD
+  Starter Kit (`ketodial/worker/reports.js`), the CW wiki and
+  `public/bride-protocol.html` still print sodium targets; they are product or
+  non-article surfaces and need their own decision.
 
 - 2026-10-12: **PESCODIAL SECTION ADDED (Brew approved).** Written from what the
   PD pipeline already enforces (post contract, PD writer task). One new stance:

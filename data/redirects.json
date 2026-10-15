@@ -1,7 +1,7 @@
 {
   "note": "Redirect rules. GitHub Pages ignores .htaccess so these are served as HTML meta-refresh files in public/.",
   "created": "2026-02-12",
-  "updated": "2026-09-11",
+  "updated": "2026-10-13",
   "redirects": [
     {
       "from": "blog/wiki.html",
@@ -269,6 +269,24 @@
       "to": "https://ketodial.com/desserts.html",
       "added": "2026-09-11",
       "reason": "Keto dessert cards buyer page moved to KetoDial by Brew's ruling (deck 85ae6bba, answered 2026-09-10): Carnivore Weekly does not promote sweet treats. GitHub Pages serves this stub for both /desserts and /desserts.html, which is the URL printed on the delivered page-tools-final.png. Same treatment as low-carb-food-list.html."
+    },
+    {
+      "from": "blog/2026-06-25-carnivore-restaurant-order.html",
+      "to": "https://carnivoreweekly.com/blog/2026-08-25-order-carnivore-any-restaurant.html",
+      "added": "2026-10-13",
+      "reason": "Restaurant cluster consolidation (Brew approved 2026-10-13). Five CW posts split one search intent; Google indexed some and skipped others. Redirected into the strongest page (123 impr, pos 6.0 over 90d). Plan: docs/project-log/restaurant-consolidation-plan-2026-10-13.md"
+    },
+    {
+      "from": "blog/2026-04-06-eating-out-carnivore-community-restaurant-hacks.html",
+      "to": "https://carnivoreweekly.com/blog/2026-08-25-order-carnivore-any-restaurant.html",
+      "added": "2026-10-13",
+      "reason": "Restaurant cluster consolidation (Brew approved 2026-10-13). Five CW posts split one search intent; Google indexed some and skipped others. Redirected into the strongest page (123 impr, pos 6.0 over 90d). Plan: docs/project-log/restaurant-consolidation-plan-2026-10-13.md"
+    },
+    {
+      "from": "blog/2026-02-08-restaurant-survival-guide.html",
+      "to": "https://carnivoreweekly.com/blog/2026-08-25-order-carnivore-any-restaurant.html",
+      "added": "2026-10-13",
+      "reason": "Restaurant cluster consolidation (Brew approved 2026-10-13). Five CW posts split one search intent; Google indexed some and skipped others. Redirected into the strongest page (123 impr, pos 6.0 over 90d). Plan: docs/project-log/restaurant-consolidation-plan-2026-10-13.md"
     }
   ]
 }

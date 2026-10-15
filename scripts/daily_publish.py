@@ -153,6 +153,28 @@ def run_generator():
         print(f"\n⏭️  Skipping main pages regeneration (not applicable for {SITE.upper()})")
 
 
+def check_electrolyte_doses(posts):
+    """Exit 1 before publishing if any post prints a universal potassium,
+    magnesium or fasting-sodium dose (decisions.md 2026-09-14), or a daily
+    sodium target on CW/KD (deck 9abbfdc5, 2026-10-14). Nothing is
+    written, so the post stays "ready" and the run goes red."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from check_electrolyte_dosing import scan, strip
+
+    hits = [(p.get("slug", "?"), fig) for p in posts
+            for _m, fig, _ctx in scan(p.get("slug", ""), strip(p.get("content", "")),
+                                      p.get("site", "cw"))]
+    if hits:
+        print("❌ Electrolyte dose found, nothing published:")
+        for slug, fig in hits:
+            print(f"   - {slug}: {fig}")
+        print("   Suppress, never substitute. Remove the figure, say why, send the reader")
+        print("   to their pharmacist. Sodium: salt to taste, plus check with your doctor")
+        print("   first if you have high blood pressure or a salt limit.")
+        print("   Check: python3 scripts/check_electrolyte_dosing.py")
+        sys.exit(1)
+
+
 def run_validator():
     """
     Run validate_before_commit.py — block on CRITICAL errors only.
@@ -288,6 +310,11 @@ def main():
         print(f"No publishable posts today ({TODAY}) after image check")
         print(f"Total published: {already_published}")
         sys.exit(0)
+
+    # Electrolyte dose guard, every site, before anything is written. The CW
+    # validator below also catches this, but it is skipped for KD and PD, and on
+    # 2026-10-06 a KD post went live printing "300 to 400 mg" magnesium.
+    check_electrolyte_doses(to_publish)
 
     # Publish them
     print(f"📰 Publishing {len(to_publish)} post(s) for {TODAY} [site={SITE}]:")

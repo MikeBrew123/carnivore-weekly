@@ -1,0 +1,49 @@
+{# Plan video (2026-10-13): the real 7-day plan, rendered for a sample reader ("Your Name"). Poster only until play. #}
+<section class="planvid" aria-labelledby="planvid-title">
+  <style>
+    .planvid{background:var(--sea);color:var(--cream);padding-block:48px}
+    .planvid-in{display:grid;grid-template-columns:240px minmax(0,1fr);gap:36px;align-items:center}
+    .planvid-frame{position:relative;aspect-ratio:9/16;border-radius:var(--r);overflow:hidden;background:var(--sea-ink);box-shadow:0 18px 40px rgba(19,42,64,.45)}
+    .planvid-frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+    .planvid-play{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:0 0 18px;border:0;cursor:pointer;background:linear-gradient(rgba(19,42,64,0) 72%,rgba(19,42,64,.55))}
+    .planvid-pill{display:inline-flex;align-items:center;gap:10px;background:var(--olive-light);color:var(--sea);font:700 1rem var(--f-ui);padding:12px 18px 12px 14px;border-radius:999px;box-shadow:0 8px 24px rgba(19,42,64,.35)}
+    .planvid-pill svg{width:22px;height:22px;fill:var(--sea);stroke:var(--sea);stroke-width:2;stroke-linecap:round}
+    .planvid-play:focus-visible{outline:3px solid var(--olive-light);outline-offset:-6px}
+    .planvid .eyebrow{color:var(--olive-light)}
+    .planvid h2{font-family:var(--f-display);font-weight:400;color:var(--cream);font-size:clamp(1.75rem,4vw,2.25rem);line-height:1.15;margin:0 0 12px}
+    .planvid p{color:#e6dfd1;margin:0 0 14px}
+    .planvid ul{margin:0 0 16px;padding-left:1.1em;color:var(--cream)}
+    .planvid li{margin:4px 0}
+    .planvid .price{color:var(--cream);font-weight:700}
+    .planvid details{margin-top:16px;font-size:.9375rem}
+    .planvid summary{cursor:pointer;padding:12px 0}
+    .planvid details p{font-size:.9375rem;color:#d6cfc0}
+    @media (max-width:640px){.planvid-in{grid-template-columns:1fr;gap:26px}.planvid-frame{width:min(100%,300px);margin:0 auto}}
+  </style>
+  <div class="wrap planvid-in">
+    <div class="planvid-frame" data-plan-video="pd-plan">
+      <video muted loop preload="none" playsinline poster="/video/pd-plan.jpg" aria-label="A 25-second look inside the PescoDial 7-day plan">
+        <source src="/video/pd-plan.mp4" type="video/mp4">
+      </video>
+      <button type="button" class="planvid-play" aria-label="Play the 25-second video with sound">
+        <span class="planvid-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4z" stroke="none"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none"/></svg><span data-label>Tap for sound</span></span>
+      </button>
+    </div>
+    <div>
+      <p class="eyebrow">Inside the 7-day plan</p>
+      <h2 id="planvid-title">See the plan before you buy it.</h2>
+      <p>Every plan is built on the numbers the calculator gives you. This one was made for a sample reader.</p>
+      <ul>
+        <li>A 7-day meal plan and grocery list</li>
+        <li>A weekly fish plan and five easy recipes</li>
+        <li>An eating-out guide and questions for your doctor</li>
+      </ul>
+      <p><span class="price">$29 USD, one time.</span> If it isn't useful, email us within 30 days for a full refund.</p>
+      <a class="btn btn-primary" href="#calc">Get my free numbers first</a>
+      <details>
+        <summary>What the video says</summary>
+        <p>You want to eat more fish. So what's for dinner on Tuesday? And what should you ask your doctor first? It then shows the 7-day plan: a weekly fish plan, seven days of meals, five easy recipes and questions to take to your doctor. $29 USD, one time. Not useful? Email us within 30 days for a full refund. General information, not medical advice.</p>
+      </details>
+    </div>
+  </div>
+</section>

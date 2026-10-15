@@ -2587,5 +2587,166 @@ Brew chose option 1 (decision ledger 2026-10-12, 13:44) and approved Sarah's har
 - **PescoDial unchanged** (Brew: "leave PD as is"): pesco-* diets ignore any acknowledgment and keep `pdNoMealPlan`.
 - Tests: `tests/kidney-understand-gate.test.mjs` (62), each protection mutation-tested red on a named assertion.
 
+## 2026-10-13: Electrolyte sweep 28-day read: no measurable cost, held work unblocked
+
+The 2026-09-14 sweep (tiers 1 to 3: `981604a2`, `91963912`, `292f752a`, 17 live
+pages) was read today, one day after the planned 2026-10-12 date. GSC page
+dimension, final data, 27-day windows either side of the change day (08-18 to
+09-13 vs 09-15 to 10-11). Full table and weekly series appended to
+`docs/project-log/electrolyte-blog-baseline-2026-09-14.md`.
+
+- Site-wide: impressions +22%, clicks +20%, position 12.2 to 9.2.
+- `adaptation-timeline` (the protected asset): 1345/45/6.3 to 1656/47/5.0. **Held.**
+- `fasting-protocols`: 477/15/13.6 to 639/24/7.3. **Improved**, page 2 to page 1.
+- night-sweats, sleep-insomnia, 05-07 fasting, powerlifting: **held**.
+- `carnivore-and-alcohol` 577/3/10.9 to 251/4/7.0 and `endurance-problem` 51/0 to
+  6/0 **dropped on impressions**, but both declines began the week before the
+  edit, clicks did not fall, and the untouched control `best-macro-calculator`
+  fell 47% in the same window. Not attributed to the sweep.
+- Eight tier-1/2 pages have too little data to read either side.
+
+**Verdict: the sweep cost nothing measurable.** Unblocked: the early calculator
+line on adaptation-timeline, night-sweats, fasting-protocols, sleep-insomnia and
+women-over-40 (held 2026-10-03), and the alcohol page upgrade plan
+(`alcohol-page-upgrade-plan-2026-10-13.md`), whose 252/4/7.0 baseline matches this
+read. The alcohol page's impression decline predates both changes; its read on
+2026-11-11 should allow for that trend. No page content was edited by this read.
+
+## 2026-10-13: calculator report mockups stay as they are (PR #127 closed)
+Brew rejected replacing the 5 AI-made images in `public/images/report-mockups` with real report pages. Two rounds were tried: plain Pillow backgrounds, then real pages warped onto AI empty scene plates with `scripts/composite_product_scene.py` ($0.21 of plates). His verdict: pages cut off and not matching the scene; "better to have the slightly inaccurate images". The originals are a known exception to the real-screenshot mockup rule. Do not re-propose a composite replacement; revisit only if Brew asks, with a different method.
+
+## 2026-10-13: Alcohol page upgrade shipped (Brew: "go ahead with the alcohol upgrade")
+
+One change to `/blog/2026-06-15-carnivore-and-alcohol.html`, per
+`docs/project-log/alcohol-page-upgrade-plan-2026-10-13.md`: a drink-by-drink quick
+answer (H2 "Can You Drink on Carnivore? The Quick Answer by Drink", 6-row table,
+~170 words, written by Sarah) inserted after the intro, before "Why Your Tolerance
+Tanked". Facts match the existing "Which Drinks Are Less Bad" section; no new
+numbers, no sweeteners or diet mixers, no doses, one see-your-pharmacist line.
+
+Preserved and diff-checked: URL, title, meta description, canonical, H1, every
+existing H2 and all other body copy. Checked at 375px: table fits, 16px text, no
+horizontal scroll.
+
+Baseline (page dimension, 09-15 to 10-11): 251 impressions, 4 clicks, position 7.0.
+The page's impressions were already falling before both the 09-14 edit and this
+one (see the 2026-10-13 electrolyte read). **Read 2026-11-11.** Win: clicks up,
+position 10 or better, drink-specific queries inside the top 20. Revert: position
+down more than 3 places or zero clicks in the window. No title change until read.
+
+Found while validating, not fixed here: `scripts/check_electrolyte_dosing.py` FAILS
+on three live posts published after the sweep with magnesium doses (300-400 mg):
+CW `2026-09-23-resting-heart-rate-up-carnivore`, CW
+`2026-10-01-leg-cramps-night-carnivore`, KD `2026-10-06-keto-bloating-what-changes`.
+The guard is not wired into the weekly generation or the pre-push validator, so new
+posts regress the 2026-09-14 rule unnoticed.
+
+## 2026-10-13: Writers rewrite their 3 worst posts from reader questions; restaurant merge step 1
+
+Brew: "get the writers together and brief them on this info.. let them pick the 3 worst performing posts they have and fix them with our best practices", then chose "Ship all 9 today" and approved the restaurant merge to ship the same day.
+
+- Reader questions: ~700 from ~10k YouTube comments (free YouTube Data API) + cached Reddit, tagged by Haiku, grouped by Sonnet (`scripts/reader_question_mining.py`).
+- 9 posts rewritten in place (URL and date unchanged), 3 per writer. Two are topic swaps on zero-traffic URLs: meal-prep -> chuck roast in the slow cooker (Marcus), purists-vs-pragmatists -> ketovore vs carnivore (Chloe). Chloe removed a stevia line and a "meat candy" line (no-sweets rule).
+- Restaurant cluster: 3 posts unpublished with meta-refresh stubs into `2026-08-25-order-carnivore-any-restaurant` (123 impr / pos 6.0 over 90d, strongest of 5). Fast-food page kept, given its first 3 internal links. Drip day-6 link repointed. Plan: `docs/project-log/restaurant-consolidation-plan-2026-10-13.md`.
+- Tracking: `data/content-refresh-cohorts.json` (3 cohorts incl. the alcohol quick answer, 3d874354), baselines 2026-09-14 to 10-11 page dimension, matched control of 23 untouched low posts. `scripts/content_refresh_tracker.py read all` on 2026-11-13, run by a Mini one-off task that reports to Brew unprompted.
+- Repeatable process: `.claude/skills/reader-question-refresh/SKILL.md`, brief `docs/project-log/reader-question-refresh-brief.md`. Repeat only if the 11-13 read says it worked.
+
+## 2026-10-13: Three electrolyte regressions fixed; the dose guard now runs in the pipeline
+
+**Root cause, not just the symptom.** `docs/house-claims.md` still said "Magnesium:
+300-400 mg magnesium glycinate in the evening" and carried potassium daily targets.
+Both generation tasks tell writers every number must agree with that file, so the
+2026-09-14 sweep fixed 24 pages while the file kept ordering new ones to reprint the
+dose. Sarah did exactly what the prompt required. The guard
+(`scripts/check_electrolyte_dosing.py`) existed but ran only by hand.
+
+**Fixed (Sarah wrote every replacement, tier-2 pattern: no number, say why, ask your
+pharmacist; salt to taste kept):** CW `2026-09-23-resting-heart-rate-up-carnivore`
+and CW `2026-10-01-leg-cramps-night-carnivore` (magnesium mg and the 3-5 g daily
+sodium target), KD `keto-bloating-what-changes` (same; ketodial `6750b6e`, rendered
+as one page from blog_posts.json and proven byte-identical to the live file before
+the edit, no bulk regen). Title, meta, H1, URL and links unchanged on all three.
+Baseline (GSC page dimension, 09-15..10-12): RHR 96 impr / 1 click / pos 5.2,
+leg cramps 19 / 2 / 6.2, KD bloating no data. Read 2026-11-10.
+
+**Controls added:**
+- Gate 11 in `validate_before_commit.py` (pre-push hook, CW daily publish): whole
+  corpus, every site. A checker that fails to load is CRITICAL, not a warning.
+- `daily_publish.py` checks the posts it is about to publish on every site and exits
+  before writing anything. Needed because the validator is skipped for KD and PD.
+- `check_electrolyte_dosing.py --site cw|kd|pd` (CW drips sit at the top of
+  `data/drip-emails/`, other sites in subfolders).
+- Both scheduled generation prompts: an ELECTROLYTES rule in the writer prompt and
+  a step 4d gate that sends a flagged post back to the same writer.
+- `house-claims.md` electrolyte section aligned with the 09-14 rule (changelog
+  2026-10-13).
+
+Mutation tested: planted "Take 300-400 mg of magnesium glycinate daily" in the KD
+post. Validator exit 1 on Gate 11, `--site kd` FAIL, `--site cw` PASS,
+`daily_publish` guard exit 1. Renamed `find_flags` to break the import: validator
+exit 1 ("could not run"). Restored: exit 2 (warnings only), checker PASS on 404 docs.
+
+**Open for Brew (not changed):** a daily sodium gram target ("3-5 g a day") is
+the approved CW/KD position in house-claims and appears on 7 other live pages
+(5 CW, 2 KD). The 09-14 rule kept salt-to-taste and the guard does not flag
+non-fasting sodium. Whether a daily gram target is a dose for readers on blood
+pressure medicine is a stance call.
+
+## 2026-10-14: Sodium is salt to taste, no daily target (Brew, deck `9abbfdc5`)
+
+Brew answered Command Deck card `9abbfdc5` at 05:49 PDT: "yes, switch to salt to
+taste (recommended)". This closes the question the 2026-10-13 electrolyte entry
+left open: a daily sodium gram target is a dose. Same reason as magnesium: a fixed
+number addressed to every reader can hurt one on a salt limit.
+
+**Shipped.** carnivore-weekly `a1a1c30e`, ketodial `215b82a`.
+- 36 live pages lost their daily sodium or salt amount (31 CW, 5 KD) and gained
+  one line: "If you have high blood pressure or your doctor has you on a salt
+  limit, check with them first." The why and the salt-to-taste advice stayed.
+  Title, meta, H1, URL and dates unchanged. The card said 7 pages; the real count
+  was higher because the 10-13 count only matched "3-5 g a day" and missed
+  "4 to 6 grams", "3,000-5,000 mg", "2-3 g per meal" and "1-2 teaspoons a day".
+- Also fixed before they publish: 4 queued CW posts (10-15 blood pressure, 10-16,
+  10-23, 10-26) and the unpublished CW copy of keto-cramps-decision-tree.
+- CW HTML rendered from blog_posts.json with `generate_blog_pages.py --site cw`;
+  the diff touched exactly the 31 pages. KD HTML edited in place in the ketodial
+  repo with the same text as the JSON.
+- `docs/house-claims.md`: sodium is "salt to taste, no daily number", with the
+  doctor line; 1 tsp salt = about 2.3 g sodium kept as a fact only.
+
+**Guard.** `check_electrolyte_dosing.py` gained a `daily-Na` rule (grams,
+milligrams or teaspoons a day or per meal, CW and KD; PD exempt because its
+"under 2,300 mg" line is a ceiling) and now scans KD legacy pages in
+`ketodial/public/blog/`. Gate 11 and `daily_publish.py` use it. New test
+`tests/test_daily_sodium_guard.py`. Mutation tested: planted targets in a CW
+post, a queued post and a KD legacy page went red in the checker, Gate 11
+(exit 1) and the daily_publish guard; restored, PASS, validator exit 2.
+
+**Prompts.** The Mini runs `~/.claude/scheduled-tasks/*/SKILL.md`, and those
+copies did NOT have the 10-13 step 4d (it was written to the MacBook copies,
+which are paused since the 10-12 cutover). Added on the Mini today: the
+ELECTROLYTES writer rule and step 4d in weekly-blog-content-generation and
+kd-blog-content-generation, and content-queue-review now removes electrolyte
+numbers instead of "correcting to the house number". Backups `SKILL.md.bak-20261014`.
+
+**Excluded (frozen), not edited:**
+- `2026-04-14-the-carnivore-mistake-i-wish-someone-warned-me` ("4 to 6 grams of
+  sodium per day"): control page in the writer-rewrites cohort, read 2026-11-13.
+  Held in the guard until 2026-11-14, after which Gate 11 fails until it is fixed.
+- Checked and clean: the alcohol page, the 9 writer rewrites, the 3 restaurant
+  redirects, CW 09-23, CW 10-01, KD 10-06, and the calculator page.
+
+**Still printing sodium targets, out of scope (need their own call):**
+- Paid CW report, `api/medical-context.js:1059` ("Sodium: 3-5 grams a day ... up
+  to 6 grams"; same block prints "300-400 mg of magnesium glycinate").
+- KD Starter Kit, `ketodial/worker/reports.js` (~3044, "3,000-5,000 mg/day" card).
+- CW wiki `public/wiki/index.html` (4-6 g/day, an activity table up to 7-10 g/day)
+  and `public/bride-protocol.html` (2,000-3,000 mg); not blog posts.
+- KD `keto-electrolytes-doses`: body is clean, but its meta description and
+  JSON-LD still read "3000-5000mg sodium, ... 300-400mg magnesium" (meta was out
+  of scope for this change).
+- The submodule pointer `ketodial/public` in this repo was left uncommitted as
+  instructed; its checkout is now at ketodial `215b82a`.
+
 ## 2026-10-12: Brief Me moves to its own private repo (Brew)
 Brief Me now lives in the private repo MikeBrew123/brief-me (`~/Developer/brief-me`, history kept); its code and tests are removed from carnivore-weekly. The Mac mini runs brief-me's main and still keeps the `briefme-runner` CW worktree on main for the Command Center generator and the Etsy snapshot.

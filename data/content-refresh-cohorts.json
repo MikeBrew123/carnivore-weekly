@@ -1,0 +1,312 @@
+{
+  "note": "Before/after cohorts for content refreshes. Run scripts/content_refresh_tracker.py. Baselines are Search Console page-dimension, 28 days.",
+  "cohorts": [
+    {
+      "id": "writer-rewrites-2026-10-13",
+      "title": "Writers rewrite their 3 worst posts using reader questions",
+      "ship_date": "2026-10-13",
+      "read_date": "2026-11-13",
+      "what": "Sarah, Marcus and Chloe each picked their 3 worst-performing posts and rewrote them around one real reader question (from ~700 YouTube/Reddit questions): new title, meta, answer-first body. URL and publish date unchanged.",
+      "pages": [
+        "2026-01-21-purists-vs-pragmatists",
+        "2026-04-22-zero-carb-pizza-carnivore-cooking-evolved",
+        "2026-05-28-eggs-dairy-long-term-carnivore-anchor",
+        "2026-03-23-carnivore-meal-prep-sunday-strategy-busy-professionals",
+        "2026-04-10-costco-whole-loin-bulk-buying-carnivore",
+        "2026-05-20-pork-chops-performance-meat",
+        "2026-03-02-the-first-2-weeks-weight-gain-phenomenon-what-your-body-is-a",
+        "2026-03-04-sibo-and-ibs-c-carnivore-success-what-actually-works-when-no",
+        "2026-04-26-why-most-people-quit-carnivore-week-three"
+      ],
+      "control": [
+        "2026-02-10-carnivore-vs-keto",
+        "2026-03-03-skin-healing-on-carnivore-eczema-dermatitis-and-the-8-week-d",
+        "2026-04-20-diabetes-reversed-60-days-carnivore-clinical-picture",
+        "2026-03-05-why-your-dental-cleanings-are-easier-now-and-what-youre-not",
+        "2026-04-14-the-carnivore-mistake-i-wish-someone-warned-me",
+        "2026-05-09-carnivore-digestion-transition",
+        "2026-06-01-we-built-something-for-the-keto-questions",
+        "2026-02-08-autoimmune-remission",
+        "2026-02-08-strength-gains",
+        "2025-12-20-insulin-resistance-morning-glucose",
+        "2025-12-29-lion-diet-challenge",
+        "2026-04-19-carnivore-five-dollars-day-protein-cost-analysis",
+        "2026-01-19-crossfit-high-intensity",
+        "2026-05-01-nose-to-tail-budget-organ-meal-plan",
+        "2026-05-23-217-month-carnivore-couple",
+        "2025-12-25-new-year-same-you",
+        "2026-02-08-youtube-results-truth",
+        "2026-03-07-carnivore-weekly-roundup-what-we-are-watching-march-202",
+        "2026-03-27-dr-chaffee-youtube-algorithm-quiet-science-vs-viral-drama",
+        "2026-04-06-carnivore-wardrobe-crisis-hidden-cost",
+        "2026-02-12-carnivore-depression-anxiety",
+        "2026-03-03-carnivore-rfks-food-policy-win-what-actually-changes-for-you",
+        "2026-03-25-carnivore-first-30-days-honest-adaptation-guide"
+      ],
+      "win_rule": "Worked if the 9 pages gain clearly more than the control group: more of them get shown by Google at all, and cohort impressions and clicks grow faster than the control. Same or worse than control means it did not work.",
+      "baseline": {
+        "window": [
+          "2026-09-14",
+          "2026-10-11"
+        ],
+        "pages": {
+          "2026-01-21-purists-vs-pragmatists": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Submitted and indexed"
+          },
+          "2026-04-22-zero-carb-pizza-carnivore-cooking-evolved": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Discovered - currently not indexed"
+          },
+          "2026-05-28-eggs-dairy-long-term-carnivore-anchor": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Submitted and indexed"
+          },
+          "2026-03-23-carnivore-meal-prep-sunday-strategy-busy-professionals": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Crawled - currently not indexed"
+          },
+          "2026-04-10-costco-whole-loin-bulk-buying-carnivore": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Discovered - currently not indexed"
+          },
+          "2026-05-20-pork-chops-performance-meat": {
+            "impr": 1,
+            "clicks": 0,
+            "pos": 1,
+            "index": "Submitted and indexed"
+          },
+          "2026-03-02-the-first-2-weeks-weight-gain-phenomenon-what-your-body-is-a": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Crawled - currently not indexed"
+          },
+          "2026-03-04-sibo-and-ibs-c-carnivore-success-what-actually-works-when-no": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "URL is unknown to Google"
+          },
+          "2026-04-26-why-most-people-quit-carnivore-week-three": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Discovered - currently not indexed"
+          }
+        },
+        "control": {
+          "2026-02-10-carnivore-vs-keto": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-03-03-skin-healing-on-carnivore-eczema-dermatitis-and-the-8-week-d": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-04-20-diabetes-reversed-60-days-carnivore-clinical-picture": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-03-05-why-your-dental-cleanings-are-easier-now-and-what-youre-not": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-04-14-the-carnivore-mistake-i-wish-someone-warned-me": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-05-09-carnivore-digestion-transition": {
+            "impr": 1,
+            "clicks": 0,
+            "pos": 2
+          },
+          "2026-06-01-we-built-something-for-the-keto-questions": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-02-08-autoimmune-remission": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-02-08-strength-gains": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2025-12-20-insulin-resistance-morning-glucose": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2025-12-29-lion-diet-challenge": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-04-19-carnivore-five-dollars-day-protein-cost-analysis": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-01-19-crossfit-high-intensity": {
+            "impr": 1,
+            "clicks": 0,
+            "pos": 6
+          },
+          "2026-05-01-nose-to-tail-budget-organ-meal-plan": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-05-23-217-month-carnivore-couple": {
+            "impr": 2,
+            "clicks": 0,
+            "pos": 7.5
+          },
+          "2025-12-25-new-year-same-you": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-02-08-youtube-results-truth": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-03-07-carnivore-weekly-roundup-what-we-are-watching-march-202": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-03-27-dr-chaffee-youtube-algorithm-quiet-science-vs-viral-drama": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-04-06-carnivore-wardrobe-crisis-hidden-cost": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-02-12-carnivore-depression-anxiety": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-03-03-carnivore-rfks-food-policy-win-what-actually-changes-for-you": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          },
+          "2026-03-25-carnivore-first-30-days-honest-adaptation-guide": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          }
+        },
+        "extra": {}
+      },
+      "control_note": "Untouched posts from the same writers bottom-10 lists, limited to 5 or fewer impressions in the before window so they start where the rewritten pages start."
+    },
+    {
+      "id": "restaurant-merge-2026-10-13",
+      "title": "Restaurant cluster merge (step 1)",
+      "ship_date": "2026-10-13",
+      "read_date": "2026-11-13",
+      "what": "3 overlapping restaurant posts redirected into order-carnivore-any-restaurant; fast-food page kept and given its first 3 internal links.",
+      "pages": [
+        "2026-08-25-order-carnivore-any-restaurant",
+        "2026-04-24-fast-food-carnivore-mcdonalds-egg-hack-survival"
+      ],
+      "extra_baseline": [
+        "2026-06-25-carnivore-restaurant-order",
+        "2026-04-06-eating-out-carnivore-community-restaurant-hacks",
+        "2026-02-08-restaurant-survival-guide"
+      ],
+      "win_rule": "Worked if the keeper holds position 8 or better and its impressions rise toward the old 5-page total, and the fast-food page gets indexed. Revert if the keeper falls below position 10.",
+      "baseline": {
+        "window": [
+          "2026-09-14",
+          "2026-10-11"
+        ],
+        "pages": {
+          "2026-08-25-order-carnivore-any-restaurant": {
+            "impr": 77,
+            "clicks": 1,
+            "pos": 5.9,
+            "index": "Submitted and indexed"
+          },
+          "2026-04-24-fast-food-carnivore-mcdonalds-egg-hack-survival": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null,
+            "index": "Discovered - currently not indexed"
+          }
+        },
+        "control": {},
+        "extra": {
+          "2026-06-25-carnivore-restaurant-order": {
+            "impr": 33,
+            "clicks": 1,
+            "pos": 8.8
+          },
+          "2026-04-06-eating-out-carnivore-community-restaurant-hacks": {
+            "impr": 10,
+            "clicks": 0,
+            "pos": 7.9
+          },
+          "2026-02-08-restaurant-survival-guide": {
+            "impr": 0,
+            "clicks": 0,
+            "pos": null
+          }
+        }
+      }
+    },
+    {
+      "id": "alcohol-quick-answer-2026-10-13",
+      "title": "Alcohol page drink-by-drink quick answer",
+      "ship_date": "2026-10-13",
+      "read_date": "2026-11-13",
+      "what": "Sarah added a drink-by-drink quick-answer table near the top of carnivore-and-alcohol. Title, H2s and URL unchanged (commit 3d874354).",
+      "pages": [
+        "2026-06-15-carnivore-and-alcohol"
+      ],
+      "win_rule": "Worked if clicks rise and position holds at 10 or better. Revert if position drops more than 3 places.",
+      "baseline": {
+        "window": [
+          "2026-09-14",
+          "2026-10-11"
+        ],
+        "pages": {
+          "2026-06-15-carnivore-and-alcohol": {
+            "impr": 252,
+            "clicks": 4,
+            "pos": 7.0,
+            "index": "Submitted and indexed"
+          }
+        },
+        "control": {},
+        "extra": {}
+      }
+    }
+  ]
+}
