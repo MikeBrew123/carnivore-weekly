@@ -1028,7 +1028,7 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         results.add_critical(
             where.split(':')[0].split(' ')[0], 1,
             f'Universal {mineral} dose "{fig}" in {where}',
-            'Bring the amount to the label (magnesium 400 mg, potassium 99 mg, '
+            'Bring the amount to the label (magnesium 350 mg, potassium 99 mg, '
             'fasting sodium 1,000 mg a serving or 5,000 mg a day) or remove it; '
             'remove every drug dose. DECISION_LOG 2026-10-17.'
         )

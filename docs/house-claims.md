@@ -42,7 +42,7 @@ fasting-salt amounts up to a common supplement label amount, with the page's
 one safety line (Brew, DECISION_LOG 2026-10-17 "ELECTROLYTE AMOUNTS UP TO THE
 LABEL", supersedes the 2026-09-14 block). A post that prints an amount ABOVE the
 label, or any prescription drug dose, does not publish. The guard's label
-maxima: magnesium 400 mg, potassium 99 mg, sodium during a fast 1,000 mg a
+maxima: magnesium 350 mg, potassium 99 mg, sodium during a fast 1,000 mg a
 serving or 5,000 mg a day. A daily salt range is allowed (2026-10-17).
 
 - Sodium: **most people on carnivore and keto land around 3-5 g of sodium a day**
@@ -54,9 +54,12 @@ serving or 5,000 mg a day. A daily salt range is allowed (2026-10-17).
   and put the page's one safety line next to it. Food facts and labels are fine
   ("a cup of broth can carry 800-1,200 mg", "LMNT has 1,000 mg per packet"), and
   1 tsp of salt is about 2.3 g of sodium.
-- Magnesium: **up to the label, typically 200-400 mg** of glycinate or citrate
+- Magnesium: **up to the label, typically 200-350 mg** of glycinate or citrate
   in the evening (avoid oxide, poor absorption), worded as what people on the
-  diet typically take. Never above the label. Say why it matters: the kidneys
+  diet typically take. Never above 350 mg a day from supplements: that is the
+  adult Tolerable Upper Intake Level (NIH Office of Dietary Supplements), and
+  food magnesium does not count toward it. 400 mg is the RDA for total intake,
+  not a supplement ceiling. Say why it matters: the kidneys
   clear magnesium, so kidney problems and some medicines change the safe amount;
   the page's one safety line covers the doctor check, so add no second warning.
 - Potassium: **food first** (meat and bone broth cover most of it). A supplement
@@ -249,7 +252,7 @@ the sections above do not apply to PD unless a line below says so.
   content, never above the supplement label, always with the page's one safety
   line. Supersedes the 2026-09-14 block on those amounts for new content only;
   pages cleaned under it are not re-edited. The guard now fails only amounts
-  above the label (magnesium 400 mg, potassium 99 mg, fasting sodium 1,000 mg a
+  above the label (magnesium 350 mg, potassium 99 mg, fasting sodium 1,000 mg a
   serving or 5,000 mg a day) and any prescription drug dose.
 
 - 2026-08-24: file created from the content-quality review. Open items needing

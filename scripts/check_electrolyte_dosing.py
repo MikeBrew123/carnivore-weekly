@@ -14,7 +14,8 @@ WHAT IT FLAGS (Brew, DECISION_LOG 2026-10-17 "ELECTROLYTE AMOUNTS UP TO THE
 LABEL", supersedes the 2026-09-14 block on these amounts for new content)
   A magnesium, potassium or fasting-sodium amount phrased as an instruction that
   is ABOVE a common supplement label amount (LABEL_MAX_MG below):
-    magnesium      400 mg   (top of the usual 100-400 mg per-serving label)
+    magnesium      350 mg   (the adult upper limit from supplements, NIH ODS;
+                            food magnesium does not count toward it)
     potassium       99 mg   (the per-tablet amount on over-the-counter labels)
     fasting sodium 1,000 mg per serving (one electrolyte packet), or 5,000 mg a
                    day (the top of the house 3-5 g daily range)
@@ -89,7 +90,7 @@ DESCRIPTIVE = re.compile(r'\b(contains?|provides?|per 4 ?oz|per serving|per 100 
 # one mineral must also not clear a different mineral's dose sitting next to it, which
 # is why this is checked against the text leading up to the figure only.
 # Common supplement label maxima, in mg (see the docstring).
-LABEL_MAX_MG = {"magnesium": 400, "potassium": 99}
+LABEL_MAX_MG = {"magnesium": 350, "potassium": 99}
 FASTING_NA_MAX_MG = {"serving": 1000, "day": 5000}
 PER_DAY = re.compile(r'\b(?:a day|per day|daily|each day|every day)\b|/day', re.I)
 MINERAL_WORD = re.compile(r'potassium|magnesium', re.I)
@@ -253,7 +254,7 @@ def main():
         if verbose:
             print(f"      context: ...{ctx}...")
         print()
-    print("Bring the amount down to the label (magnesium 400 mg, potassium 99 mg, fasting")
+    print("Bring the amount down to the label (magnesium 350 mg, potassium 99 mg, fasting")
     print("sodium 1,000 mg a serving or 5,000 mg a day), worded as what people typically")
     print("do, or remove it. Remove every drug dose. DECISION_LOG 2026-10-17.")
     print("A daily salt range is fine (CONTENT LINE, 2026-10-17); the page carries one")

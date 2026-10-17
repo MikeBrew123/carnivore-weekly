@@ -169,7 +169,7 @@ def check_electrolyte_doses(posts):
         print("❌ Electrolyte dose found, nothing published:")
         for slug, fig in hits:
             print(f"   - {slug}: {fig}")
-        print("   Bring the amount to the label (magnesium 400 mg, potassium 99 mg, fasting")
+        print("   Bring the amount to the label (magnesium 350 mg, potassium 99 mg, fasting")
         print("   sodium 1,000 mg a serving or 5,000 mg a day) or remove it. No drug doses.")
         print("   Check: python3 scripts/check_electrolyte_dosing.py")
         sys.exit(1)
