@@ -1004,8 +1004,8 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
                     results.add_critical(f'public/blog/{bf.name}', 1, problem, fix_hint)
 
     # Gate 11: no universal potassium, magnesium or fasting-sodium dose, on any
-    # site (electrolyte rule, decisions.md 2026-09-14), and no daily sodium or
-    # salt target on CW/KD (Brew, deck 9abbfdc5, 2026-10-14: salt to taste). The checker existed from
+    # site (electrolyte rule, decisions.md 2026-09-14). A daily salt range is
+    # allowed again (CONTENT LINE, 2026-10-17, supersedes deck 9abbfdc5). The checker existed from
     # 2026-09-14 but ran only by hand, and three new posts (CW 09-23, CW 10-01,
     # KD 10-06) reprinted "300-400 mg" magnesium before anyone looked. Whole
     # corpus, every run: blog_posts.json for all sites, CW blog HTML outside the
@@ -1027,10 +1027,8 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
             where.split(':')[0].split(' ')[0], 1,
             f'Universal {mineral} dose "{fig}" in {where}',
             'Suppress, never substitute: remove the figure, say why, send the '
-            'reader to their pharmacist. Sodium: "salt to taste" plus "check with '
-            'your doctor first if you have high blood pressure or a salt limit". '
-            'Do not swap in a smaller number or add a caveat after it. '
-            'decisions.md 2026-09-14 and 2026-10-14.'
+            'reader to their pharmacist. Do not swap in a smaller number or add a '
+            'caveat after it. decisions.md 2026-09-14.'
         )
 
     return results

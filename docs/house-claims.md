@@ -14,30 +14,49 @@ Positions below default to the site's post-July-2026 editorial standard
 (hedged, sourced, doctor-partnered). CW = carnivoreweekly.com, KD = ketodial.com,
 PD = pescodial.com (PD has its own section; CW/KD numbers do not carry over to it).
 
+## Content line: one safety line per page (all sites, new content)
+
+Brew, Command Centre DECISION_LOG 2026-10-17 "CONTENT LINE". Going forward only:
+published pages are not swept or re-edited for this.
+
+- **Teach the diet.** Keep its normal guidance with real numbers: salt and
+  electrolyte ranges, protein and fat targets, fasting windows, food lists.
+  Word them as what people on the diet typically do ("most people on carnivore
+  land around..."), not "you must".
+- **Exactly ONE safety line per page**, near the first number that needs it,
+  word for word: "This is not for everyone. Talk to your doctor first if you
+  have high blood pressure, kidney or heart problems, diabetes, are pregnant,
+  or take medicine." Never repeat it, or a variant of it, after each
+  recommendation. CW/KD: checked by `scripts/check_doctor_line.py` on queued
+  posts. PD: the one line lives in the medicine box the PD post contract
+  requires.
+- **Never:** tell a reader to start, stop or change a medicine; diagnose;
+  promise a cure; give drug doses; give supplement amounts above the label;
+  tell people to skip medical care.
+
 ## Electrolytes
 
 Enforced by `scripts/check_electrolyte_dosing.py` (pre-push Gate 11, daily publish,
-both generation tasks). A post that prints a potassium or magnesium dose, a daily
-sodium or salt target (grams, milligrams or teaspoons a day, or per meal), or a
-sodium milligram amount during a fast, does not publish.
+both generation tasks). A post that prints a potassium or magnesium dose, or a
+sodium milligram amount during a fast, does not publish. A daily salt range is
+allowed again (2026-10-17, see changelog).
 
-- Sodium: **salt to taste, no daily number** (Brew, deck `9abbfdc5`, 2026-10-14;
-  see changelog). Most readers need more salt than they are used to in the first
-  weeks, because lower insulin makes the kidneys let go of sodium and water; say
-  that, and say "salt your food to taste, spread through the day", a bit more on
-  hot or hard-training days. Every post that tells readers to salt more also
-  carries one line: if you have high blood pressure or your doctor has you on a
-  salt limit, check with them first. Never print a daily gram, milligram or
-  teaspoon target ("3-5 g a day", "3,000-5,000 mg", "up to 6 g", "2 tsp a day",
-  "2-3 g per meal"), not even with a caveat after it, and not as "our position".
-  Food facts and labels are fine ("a cup of broth can carry 800-1,200 mg",
-  "LMNT has 1,000 mg per packet"), and so is the fact that 1 tsp of salt is about
-  2.3 g of sodium, but only as a fact, never next to a daily amount to hit.
+- Sodium: **most people on carnivore and keto land around 3-5 g of sodium a day**
+  (about 1.5-2 teaspoons of salt), a bit more on hot or hard-training days
+  (CONTENT LINE, 2026-10-17, supersedes the 2026-10-14 "salt to taste, no daily
+  number" rule for new content). Say why: lower insulin makes the kidneys let go
+  of sodium and water, so most people need more salt than they are used to in
+  the first weeks. Word it as what people typically do, spread through the day,
+  and put the page's one safety line next to it. Food facts and labels are fine
+  ("a cup of broth can carry 800-1,200 mg", "LMNT has 1,000 mg per packet"), and
+  1 tsp of salt is about 2.3 g of sodium.
 - Magnesium: **no milligram amount, ever** (rule of 2026-09-14, see changelog
   2026-10-13). Name the form and timing (glycinate, in the evening; avoid oxide,
   poor absorption), then say why there is no number and send the reader to their
   pharmacist: the kidneys clear magnesium, and blood pressure medicine, water
-  pills and reduced kidney function all change the safe amount.
+  pills and reduced kidney function all change the safe amount. That routing is
+  the page's one safety line plus "ask your pharmacist" in the same sentence, not
+  a second warning paragraph.
 - Potassium: **no daily target and no supplement amount addressed to the reader**
   (rule of 2026-09-14). Food first: meat and bone broth cover most of it. Say why
   we give no number: too much potassium is dangerous, and blood pressure medicine
@@ -101,7 +120,10 @@ sodium milligram amount during a fast, does not publish.
 - We flag abnormal-low values as worth attention too (an A1c in the low 4s is
   not "normal range").
 - Every health post: qualified claims ("many people find...", "worth discussing
-  with your doctor"), and the standing disclaimer.
+  with your doctor"), the standing disclaimer, and exactly one safety line (see
+  "Content line" at the top). A red-flag "see a doctor now if..." section and
+  "any change to your medicine is your prescriber's decision" are not repeats of
+  the warning and stay.
 
 ## Food stances
 
@@ -134,14 +156,15 @@ Mediterranean, and many take statins, blood-pressure medicine, blood thinners
 or diabetes medicine. PD is a separate editorial voice: the CW/KD numbers in
 the sections above do not apply to PD unless a line below says so.
 
-- **What does not carry over from CW/KD.** The CW/KD sodium line (salt to taste;
-  until 2026-10-14 it was a 3-5 g/day target),
+- **What does not carry over from CW/KD.** The CW/KD sodium range (3-5 g a day,
+  restored 2026-10-17; salt to taste from 2026-10-14 to 2026-10-17),
   the carnivore protein targets, and anything framed around ketosis or
   carnivore adaptation are not PD positions. PD follows standard guidance for
   its readers unless Brew approves a different stance.
-- **Sodium.** Standard guidance: under 2,300 mg/day, and readers with high
-  blood pressure or on blood-pressure medicine follow their doctor's target.
-  We never tell a PD reader to add salt.
+- **Sodium.** Standard guidance, which is PD's normal diet guidance and a real
+  number under the 2026-10-17 content line: under 2,300 mg/day. We never tell a
+  PD reader to add salt. Readers with high blood pressure are covered by the
+  page's one safety line (in the medicine box), not a second sodium caveat.
 - **Fish frequency.** At least 2 servings of fish a week (AHA), a serving being
   3 oz cooked (about a deck of cards), favouring fatty fish. The PD meal plan
   builds 5 fish meals a week; that is the plan's design, not a minimum we tell
@@ -163,8 +186,10 @@ the sections above do not apply to PD unless a line below says so.
   never defends high LDL and never links to CW posts that do.
 - **Medicine (hard rule).** Every guide has exactly one medicine box naming the
   relevant medicines in plain words and sending the reader to her doctor or
-  pharmacist before changing anything, plus a "When to talk to your doctor"
-  section. No clinical judgement, no supplement doses.
+  pharmacist before changing anything; the box carries the page's one safety
+  line (2026-10-17). The "When to talk to your doctor" section stays: it lists
+  red-flag signs to get care for, not a repeat of the warning. No clinical
+  judgement, no supplement doses above the label.
 - **Numbers.** Every number traces to a primary source listed in the guide
   (USDA FoodData Central, FDA/EPA, AHA, NIH ODS, DOI/PubMed). Writers never
   share a personal heart history; Sarah's real story is anemia and PCOS.
@@ -200,6 +225,19 @@ the sections above do not apply to PD unless a line below says so.
   disclosed where links appear.
 
 ## Changelog
+
+- 2026-10-17: **CONTENT LINE: TEACH THE DIET, ONE SAFETY LINE PER PAGE (CW, KD,
+  PD, new content only).** Brew, Command Centre DECISION_LOG 2026-10-17: "we stop
+  stripping this stuff out.. the content is turning to milk toast" and "make it
+  a rule going forward.. no more than 1 warning per page". The diet's normal
+  numbers come back, worded as what people typically do, with one plain safety
+  line per page and the never-list above. Supersedes the 2026-10-14 sodium rule
+  for new content: the 3-5 g/day range is the house position again and the
+  guard no longer flags a daily salt range. No retro sweep: the 36 pages edited
+  on 2026-10-14 stay as they are. Paid reports keep their salt numbers.
+  `scripts/check_doctor_line.py` checks queued CW/KD posts for exactly one line.
+  Unchanged and still open for Brew: the 2026-09-14 magnesium and potassium
+  no-number rule and the fasting-sodium rule (Gate 11 still fails those).
 
 - 2026-08-24: file created from the content-quality review. Open items needing
   Brew's decision: (1) confirm the protein formula matches the calculator's
