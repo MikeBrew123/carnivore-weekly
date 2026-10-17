@@ -964,4 +964,5 @@ If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness fai
 **Attempts:**
 - 2026-10-13 — content-editor run: ran `scripts/check-secrets.sh` and `scripts/check-pii.sh` by hand (both clean), then committed with `~/.local/bin` dropped from PATH. Hook not changed.
 - 2026-10-14 — weekly-blog-content-generation scheduled run hit it again on the batch commit. Same workaround (scanners clean by hand, PATH without `~/.local/bin`), pushed as 92d6b225. Scheduled tasks will keep hitting this until the hook fix is decided.
+- 2026-10-17 — kd-blog-content-generation run hit it on the KD batch commit. Same workaround (scanners clean, PATH without `~/.local/bin`), pushed as 3bc8a534.
 **If recurs / rule:** proper fix needs a decision: either `bd init` on the Mini or make the hook skip when no `beads.db` exists, and switch the scanner paths to `$(git rev-parse --show-toplevel)`. Until then, run both scanners by hand before using the PATH workaround. Never `--no-verify`.
