@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Red/green proof that the electrolyte guard ALLOWS a daily salt range again.
+"""Red/green proof for scripts/check_electrolyte_dosing.py after the 2026-10-17 rules.
 
-Brew, Command Centre DECISION_LOG 2026-10-17 "CONTENT LINE": keep the diet's
-normal guidance with real numbers (salt and electrolyte ranges), worded as what
-people on the diet typically do, with ONE safety line per page. That supersedes
-the 2026-10-14 rule (deck 9abbfdc5) that failed any daily sodium or salt target,
-so these lines must now pass Gate 11 on CW, KD and PD. The 2026-09-14 rules are
-untouched: a potassium or magnesium dose and a sodium amount during a fast still
-fail. Run: python3 tests/test_daily_sodium_guard.py
+Brew, Command Centre DECISION_LOG 2026-10-17:
+  "CONTENT LINE": daily salt ranges come back, one safety line per page.
+  "ELECTROLYTE AMOUNTS UP TO THE LABEL": magnesium, potassium and fasting-salt
+  amounts may be stated in new content, never above the supplement label amount.
+So the guard now fails only an amount ABOVE a common label (magnesium 400 mg,
+potassium 99 mg, fasting sodium 1,000 mg a serving or 5,000 mg a day) and any
+prescription drug dose. Run: python3 tests/test_daily_sodium_guard.py
 """
 
 import sys
@@ -17,39 +17,51 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
 from check_electrolyte_dosing import scan  # noqa: E402
 
-# Formerly red under the 2026-10-14 rule, now green.
-NOW_ALLOWED = [
+FAST = ("Fasting basics. On a fast, people often feel flat. Fasting changes how the "
+        "kidneys handle salt. A longer fast needs a plan. Many people break a fast "
+        "slowly. Fasting is not for everyone. ")
+
+ALLOWED = [
     "Most people on carnivore land around 3 to 5 grams of sodium a day, and 1 teaspoon of salt gives about 2.3 grams.",
-    "Many people on carnivore aim for 3,000-5,000mg of sodium per day, sometimes more if they're active.",
     "Salt: people on the diet typically use 1 to 2 teaspoons a day, spread across meals.",
-    "Salt your food to taste and spread it out rather than loading one meal.",
-    "One teaspoon of salt is about 2.3 grams of sodium.",
+    "Many people take 200-400 mg of magnesium glycinate in the evening.",
+    "Some people add a 99 mg potassium tablet a day.",
+    FAST + "During a fast, many people take 500 mg of sodium in water a few times a day.",
+    FAST + "On a longer fast, people usually aim for 3-5 g of sodium a day.",
     "LMNT (per packet): 1,000 mg sodium (from salt) 200 mg potassium (from potassium chloride)",
+    "Fasting glucose of 95-110 mg/dL with low fasting insulin points one way.",
+    "We do not publish a metformin dose such as 500 mg; that is your prescriber's call.",
 ]
 
-# The 2026-09-14 rules still hold.
-STILL_FLAGGED = [
-    "Take 300-400 mg of magnesium glycinate before bed every day.",
-    "Add 1,000 mg of potassium a day to your water.",
+FLAGGED = [
+    ("K/Mg", "Take 600 mg of magnesium a day for cramps."),
+    ("K/Mg", "Add 1,000 mg of potassium a day to your water."),
+    ("fasting-Na", FAST + "During a fast, take 2,000 mg of sodium in one glass of water."),
+    ("fasting-Na", FAST + "On a long fast, aim for 7 g of sodium a day."),
+    ("drug-dose", "Most people start metformin at 500 mg with dinner."),
+    ("drug-dose", "Take 20 mEq of Klor-Con with food."),
+    ("drug-dose", "Drop to 10 units of insulin on carnivore."),
 ]
 
 
 def main():
     fails = 0
-    for t in NOW_ALLOWED:
+    for t in ALLOWED:
         for site in ("cw", "kd", "pd"):
-            if scan("t", t, site):
-                print(f"FAIL (daily salt range should pass on {site}): {t} -> {scan('t', t, site)}")
+            hits = scan("t", t, site)
+            if hits:
+                print(f"FAIL (should pass on {site}): {t[-90:]} -> {hits[0][:2]}")
                 fails += 1
-    for t in STILL_FLAGGED:
-        if not scan("t", t, "cw"):
-            print(f"FAIL (should still flag): {t}")
+    for kind, t in FLAGGED:
+        kinds = [h[0] for h in scan("t", t, "cw")]
+        if kind not in kinds:
+            print(f"FAIL (should flag {kind}): {t[-90:]} -> {kinds}")
             fails += 1
     if fails:
         print(f"\n{fails} failure(s)")
         return 1
-    print(f"PASS  {len(NOW_ALLOWED)} salt lines green on CW/KD/PD; "
-          f"{len(STILL_FLAGGED)} K/Mg doses still red")
+    print(f"PASS  {len(ALLOWED)} at-label lines green on CW/KD/PD; "
+          f"{len(FLAGGED)} above-label or drug-dose lines red")
     return 0
 
 

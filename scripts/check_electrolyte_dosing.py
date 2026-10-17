@@ -10,10 +10,18 @@ the hand-rolled scan undercounted.
 
 This exists so the next one is found by a script instead.
 
-WHAT IT FLAGS
-  Potassium or magnesium with a milligram figure, phrased as an instruction.
-  Sodium with a milligram or gram figure inside a FASTING context, because that
-  is a dose taken with no food rather than seasoning.
+WHAT IT FLAGS (Brew, DECISION_LOG 2026-10-17 "ELECTROLYTE AMOUNTS UP TO THE
+LABEL", supersedes the 2026-09-14 block on these amounts for new content)
+  A magnesium, potassium or fasting-sodium amount phrased as an instruction that
+  is ABOVE a common supplement label amount (LABEL_MAX_MG below):
+    magnesium      400 mg   (top of the usual 100-400 mg per-serving label)
+    potassium       99 mg   (the per-tablet amount on over-the-counter labels)
+    fasting sodium 1,000 mg per serving (one electrolyte packet), or 5,000 mg a
+                   day (the top of the house 3-5 g daily range)
+  Amounts at or under those may be stated, worded as what people typically do,
+  with the page's one safety line (scripts/check_doctor_line.py).
+  A prescription drug named next to a dose ("metformin 500 mg", "20 mEq of
+  potassium chloride"), on any site. We never give drug doses.
 
 NO LONGER FLAGGED (Brew, Command Centre DECISION_LOG 2026-10-17 "CONTENT LINE"):
   A daily sodium or salt range ("3-5 g of sodium a day"). The 2026-10-14 rule
@@ -80,6 +88,29 @@ DESCRIPTIVE = re.compile(r'\b(contains?|provides?|per 4 ?oz|per serving|per 100 
 # half-fix that kept this defect alive through three separate passes. A refusal about
 # one mineral must also not clear a different mineral's dose sitting next to it, which
 # is why this is checked against the text leading up to the figure only.
+# Common supplement label maxima, in mg (see the docstring).
+LABEL_MAX_MG = {"magnesium": 400, "potassium": 99}
+FASTING_NA_MAX_MG = {"serving": 1000, "day": 5000}
+PER_DAY = re.compile(r'\b(?:a day|per day|daily|each day|every day)\b|/day', re.I)
+MINERAL_WORD = re.compile(r'potassium|magnesium', re.I)
+
+# Drug doses. A prescription drug named next to a dose unit ("metformin 500 mg",
+# "500 mg of metformin", "10 units of insulin"). Lab values ("120 mg/dL") are not
+# doses, so a unit followed by "/" never counts. Potassium chloride is left to the
+# potassium check: it is also a salt substitute and an electrolyte-label ingredient.
+DRUG = (r'(?:metformin|glipizide|glyburide|glimepiride|sitagliptin|jardiance|'
+        r'empagliflozin|dapagliflozin|semaglutide|ozempic|wegovy|tirzepatide|mounjaro|'
+        r'lisinopril|losartan|amlodipine|hydrochlorothiazide|chlorthalidone|furosemide|'
+        r'lasix|spironolactone|metoprolol|atenolol|atorvastatin|rosuvastatin|'
+        r'simvastatin|pravastatin|levothyroxine|synthroid|warfarin|apixaban|'
+        r'eliquis|rivaroxaban|clopidogrel|prednisone|k-dur|klor-con|'
+        r'allopurinol|colchicine|lithium|digoxin)')
+DOSE_UNIT = (r'\d[\d,\.]*(?:\s*(?:-|–|to)\s*\d[\d,\.]*)?\s*'
+             r'(?:mg|mcg|µg|micrograms?|milligrams?|units?|iu|meq)\b(?!\s*/)')
+DRUG_DOSE = re.compile(rf'\b{DRUG}\b[^.!?\d]{{0,30}}{DOSE_UNIT}|{DOSE_UNIT}\s+(?:of\s+)?{DRUG}\b'
+                       rf'|\binsulin\b[^.!?\d]{{0,30}}\d[\d,\.]*\s*units?\b'
+                       rf'|\d[\d,\.]*\s*units?\s+of\s+insulin\b', re.I)
+
 REFUSAL = re.compile(r'\b(do not publish|don.t publish|we do not|used to (carry|list|print)|'
                      r'ask your (doctor|pharmacist)|cleared by your kidneys|'
                      r'no way to pick|instead of)\b', re.I)
@@ -90,9 +121,43 @@ def strip(raw):
     return re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', raw)))
 
 
+def max_mg(fig):
+    """The largest amount in a figure like "300-400 mg" or "1.5 g", in mg."""
+    nums = [float(x.replace(",", "")) for x in re.findall(r"\d[\d,]*(?:\.\d+)?", fig)]
+    if not nums:
+        return 0
+    top = max(nums)
+    return top * 1000 if re.search(r"\d\s*g\b", fig, re.I) and not re.search(r"mg", fig, re.I) else top
+
+
+def nearest_mineral(text, start, end):
+    """Potassium or magnesium, whichever word sits closest to the figure."""
+    lo = max(0, start - 70)
+    best, dist = None, None
+    for w in MINERAL_WORD.finditer(text, lo, min(len(text), end + 70)):
+        d = start - w.end() if w.end() <= start else w.start() - end
+        if dist is None or abs(d) < dist:
+            best, dist = w.group(0).lower(), abs(d)
+    return best
+
+
+def above_label(mineral, fig, window, text, start, end):
+    amount = max_mg(fig)
+    if mineral == "K/Mg":
+        which = nearest_mineral(text, start, end) or "potassium"
+        return amount > LABEL_MAX_MG[which]
+    cap = FASTING_NA_MAX_MG["day" if PER_DAY.search(window) else "serving"]
+    return amount > cap
+
+
 def scan(name, text, site="cw"):
-    """Return a list of (mineral, figure, context) that look like universal dosing."""
+    """Return (kind, figure, context) for amounts above the label, and drug doses."""
     out = []
+    for m in DRUG_DOSE.finditer(text):
+        if REFUSAL.search(text[max(0, m.start() - 220):m.start()]):
+            continue
+        out.append(("drug-dose", m.group(0).strip(),
+                    text[max(0, m.start() - 160):m.end() + 160].strip()))
     fasting_page = len(FASTING.findall(text)) >= 6
     for m in NUM.finditer(text):
         near = text[max(0, m.start() - 70):m.end() + 70]
@@ -107,6 +172,8 @@ def scan(name, text, site="cw"):
             continue
         pre = text[max(0, m.start() - 220):m.start()]
         if DESCRIPTIVE.search(window) or REFUSAL.search(pre) or not RX.search(window):
+            continue
+        if not above_label(mineral, m.group(0), window, text, m.start(), m.end()):
             continue
         out.append((mineral, m.group(0).strip(), window.strip()))
     return out
@@ -176,18 +243,19 @@ def main():
 
     print(f"Scanned {scanned} documents.")
     if not flagged:
-        print("PASS: no universal potassium, magnesium or fasting-sodium dosing found.")
+        print("PASS: no electrolyte amount above the label and no drug dose found.")
         return 0
 
-    print(f"\nFAIL: {len(flagged)} possible universal dosing instruction(s).\n")
+    print(f"\nFAIL: {len(flagged)} amount(s) above the label or drug dose(s).\n")
     for where, mineral, fig, ctx in flagged:
         print(f"  [{mineral}] {where}")
         print(f"      figure: {fig}")
         if verbose:
             print(f"      context: ...{ctx}...")
         print()
-    print("Suppress, never substitute. Do not swap the figure for a smaller one, and")
-    print("do not add a caveat after it. See docs/project-log/decisions.md, 2026-09-14.")
+    print("Bring the amount down to the label (magnesium 400 mg, potassium 99 mg, fasting")
+    print("sodium 1,000 mg a serving or 5,000 mg a day), worded as what people typically")
+    print("do, or remove it. Remove every drug dose. DECISION_LOG 2026-10-17.")
     print("A daily salt range is fine (CONTENT LINE, 2026-10-17); the page carries one")
     print("safety line, checked by scripts/check_doctor_line.py.")
     return 1
