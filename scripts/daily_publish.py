@@ -155,9 +155,9 @@ def run_generator():
 
 def check_electrolyte_doses(posts):
     """Exit 1 before publishing if any post prints a universal potassium,
-    magnesium or fasting-sodium dose (decisions.md 2026-09-14), or a daily
-    sodium target on CW/KD (deck 9abbfdc5, 2026-10-14). Nothing is
-    written, so the post stays "ready" and the run goes red."""
+    magnesium or fasting-sodium dose (decisions.md 2026-09-14). A daily salt
+    range is allowed (CONTENT LINE, 2026-10-17). Nothing is written, so the
+    post stays "ready" and the run goes red."""
     sys.path.insert(0, str(ROOT / "scripts"))
     from check_electrolyte_dosing import scan, strip
 
@@ -169,8 +169,7 @@ def check_electrolyte_doses(posts):
         for slug, fig in hits:
             print(f"   - {slug}: {fig}")
         print("   Suppress, never substitute. Remove the figure, say why, send the reader")
-        print("   to their pharmacist. Sodium: salt to taste, plus check with your doctor")
-        print("   first if you have high blood pressure or a salt limit.")
+        print("   to their pharmacist.")
         print("   Check: python3 scripts/check_electrolyte_dosing.py")
         sys.exit(1)
 
