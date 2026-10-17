@@ -20,7 +20,8 @@
         "P8"
       ],
       "pair_with": "P8",
-      "status": "queued"
+      "status": "published",
+      "slug": "is-shrimp-bad-for-cholesterol"
     },
     {
       "order": 2,
@@ -34,7 +35,8 @@
         "homepage calculator (/)",
         "paid 7-day plan"
       ],
-      "status": "queued"
+      "status": "published",
+      "slug": "7-day-pescatarian-meal-plan-weight-loss-after-50"
     },
     {
       "order": 3,
@@ -49,7 +51,8 @@
         "P4 (omega-3 gets one paragraph and a link)"
       ],
       "pair_with": "P7",
-      "status": "queued"
+      "status": "drafted",
+      "slug": "best-fish-for-high-cholesterol"
     },
     {
       "order": 4,
@@ -63,7 +66,8 @@
         "P8",
         "P5"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "fish-high-in-omega-3"
     },
     {
       "order": 5,
