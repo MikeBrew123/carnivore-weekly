@@ -1,0 +1,40 @@
+{
+  "subject": "Is shrimp bad for cholesterol? Your first weekly guide",
+  "title": "PescoDial weekly guide",
+  "preheader": "Plus a 20-minute one-pan cod dinner and a freezer-aisle tip.",
+  "date": "November 8, 2026",
+  "intro": {
+    "h1": "Shrimp, a one-pan cod dinner and the freezer aisle",
+    "greeting": "Hi there,",
+    "paragraphs": [
+      "Your starter emails are done, so this is the first of your weekly guides. Each Sunday you'll get one question answered, one easy dinner and one shopping tip. Short enough to read with your coffee.",
+      "Back on day 4 we touched on shrimp and cholesterol. This week I'm going a little further, because how shrimp is cooked matters as much as the shrimp itself.",
+      "And if you'd like a whole week of meals mapped out for you, my colleague Marcus just wrote a 7-day pescatarian meal plan for weight loss after 50: https://www.pescodial.com/guides/7-day-pescatarian-meal-plan-weight-loss-after-50/"
+    ],
+    "signoff": "Sarah"
+  },
+  "question": {
+    "question": "Is shrimp bad for cholesterol?",
+    "answer": "For most people, plain shrimp is not. It is high in cholesterol, about 160 mg in a 3 oz cooked serving. But it has almost no saturated fat, and saturated fat does more to raise LDL than the cholesterol in food. What usually turns shrimp into a problem is the butter, batter and cream it's cooked in. Grilled, or sautéed in a little olive oil with garlic and lemon, is a very different meal from a basket of fried shrimp. Some people's LDL rises more than average when they eat cholesterol, and only bloodwork can tell you which group you're in. If you take a statin or another cholesterol medicine, keep taking it as prescribed and bring any questions to your doctor or pharmacist.",
+    "link": "https://www.pescodial.com/guides/is-shrimp-bad-for-cholesterol/",
+    "link_label": "Read the full shrimp guide"
+  },
+  "recipe": {
+    "title": "One-pan cod with cherry tomatoes and olives",
+    "meta": "20 minutes · Serves 2",
+    "method": "Warm 2 tablespoons of olive oil in a large frying pan over medium heat. Add a pint of cherry tomatoes, 2 sliced garlic cloves and a small handful of olives. Cook for about 5 minutes, until the tomatoes start to soften and burst. Season 2 cod fillets with black pepper and set them in the pan between the tomatoes. Cover and cook for 8 to 10 minutes, until the fish is opaque and flakes easily with a fork (145°F inside if you use a thermometer). Finish with a squeeze of lemon and some chopped parsley. Serve with a green salad, or crusty bread to soak up the juices. Olives are already salty, so taste before you add any salt."
+  },
+  "tip": {
+    "title": "Skip the frosty bags",
+    "text": "In the freezer aisle, pass over any package with frost or ice crystals inside, or torn wrapping. Frost can mean the fish has been stored a long time, or thawed and refrozen along the way. When you get it home, thaw it in the fridge overnight, or cook it straight from frozen."
+  },
+  "calculator": {
+    "heading": "Your numbers are still there",
+    "text": "The free calculator gives you daily protein and calorie targets. If your weight or goal has changed since you first ran it, run it again and see whether your numbers moved. And if you ever want the cooking planned for you, there's a 7-day plan built from your answers, $29 USD, one time.",
+    "button": "See my numbers"
+  },
+  "reply": {
+    "lead": "Hit reply and tell me:",
+    "question": "What's your go-to fish dinner on a night when you're tired?"
+  }
+}

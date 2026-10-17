@@ -99,6 +99,7 @@ from the from address**, and KetoDial does not use one reply-to across its paths
 | CW newsletter | `newsletter@carnivoreweekly.com` | `newsletter@carnivoreweekly.com` | `scripts/send_newsletter.py` `SITES["cw"]` |
 | KD newsletter | `ketodial@ketodial.com` | **`newsletter@carnivoreweekly.com`** | `scripts/send_newsletter.py` `SITES["kd"]` |
 | KD Coach newsletter | `coach@carnivoreweekly.com` | **`newsletter@carnivoreweekly.com`** | `scripts/send_newsletter.py` `SITES["kd_coach"]` |
+| PD newsletter (weekly, Sunday, from 2026-11-08) | `PescoDial <sarah@pescodial.com>` | **`pescodial@carnivoreweekly.com`** | `scripts/send_newsletter.py` `SITES["pd"]`; issues are JSON in `data/newsletters/pd/`, drafted and sent by `scripts/pd_newsletter.py` via `.github/workflows/pd-newsletter.yml`, checks in `scripts/pd_newsletter_checks.py`. A failing check skips the issue and opens an alert issue. `<date>.sent.json` blocks a second live send. Plan: `docs/project-log/pd-newsletter-launch-plan-2026-10-17.md` |
 | Coach launch | `Sarah at Carnivore Weekly <newsletter@carnivoreweekly.com>` | **`sarah@carnivoreweekly.com`** | `scripts/send_coach_launch.py` `FROM` / `REPLY_TO` |
 
 Three things this table is here to stop you assuming:

@@ -1,0 +1,77 @@
+name: PescoDial Weekly Newsletter
+
+# Brew, 2026-10-17: weekly on Sunday morning, first live issue 2026-11-08.
+# Plan: docs/project-log/pd-newsletter-launch-plan-2026-10-17.md
+# Separate from weekly-update.yml on purpose: a PescoDial failure can never touch
+# the CW or KD sends. Any check failure skips the issue and opens an alert issue;
+# nothing weaker is ever sent. scripts/pd_newsletter.py does nothing before 11-08.
+
+on:
+  schedule:
+    # Sunday 14:00 UTC = 7am PDT / 6am PST
+    - cron: '0 14 * * 0'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Issue date YYYY-MM-DD (default: today)'
+        required: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: pd-newsletter
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests anthropic
+
+      - name: Draft and send the PescoDial issue
+        id: pd
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          python3 scripts/pd_newsletter.py ${DATE:+--date "$DATE"}
+
+      # Commit the issue file and its .sent.json marker even when the send
+      # failed part-way, so a re-run cannot mail the same issue twice.
+      - name: Commit issue record
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/newsletters/pd/
+          git diff --staged --quiet && exit 0
+          git commit -m "auto: PescoDial newsletter $(date -u +%F)"
+          git pull --rebase origin main && git push origin HEAD:main
+
+      - name: Alert on skipped or failed issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="🚨 PescoDial newsletter skipped or failed"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$EXISTING" ]; then
+            gh issue create --title "$TITLE" --body "scripts/pd_newsletter.py exited non-zero on $(date -u +%F). This week's PescoDial issue was skipped or only partly sent; the log says which check failed. Nothing retries it. Run: $RUN_URL"
+          else
+            gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL"
+          fi

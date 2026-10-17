@@ -2750,3 +2750,7 @@ numbers instead of "correcting to the house number". Backups `SKILL.md.bak-20261
 
 ## 2026-10-12: Brief Me moves to its own private repo (Brew)
 Brief Me now lives in the private repo MikeBrew123/brief-me (`~/Developer/brief-me`, history kept); its code and tests are removed from carnivore-weekly. The Mac mini runs brief-me's main and still keeps the `briefme-runner` CW worktree on main for the Command Center generator and the Etsy snapshot.
+
+## 2026-10-17 · PescoDial newsletter launch approved
+- Brew approved all three recommendations in `docs/project-log/pd-newsletter-launch-plan-2026-10-17.md`: weekly on Sunday; readers still in the 30-day drip are held (same rule as CW/KD), so the first live issue is Sun 2026-11-08; Sarah hand-writes issue 1, after which `scripts/pd_newsletter.py` drafts each week in her voice and skips with an alert if any check fails. Brew reads the --test of issue 1 before anything goes live.
+- Built: `SITES["pd"]` in `send_newsletter.py` (from sarah@pescodial.com, reply-to pescodial@carnivoreweekly.com), checks in `scripts/pd_newsletter_checks.py` (style, dose guard, live www.pescodial.com links only, unsubscribe tag, never sent twice), own workflow `pd-newsletter.yml` (Sun 14:00 UTC).
