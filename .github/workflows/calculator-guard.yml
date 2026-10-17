@@ -44,6 +44,10 @@ on:
       - 'pescodial/scripts/build_pd_drip.py'
       - 'pescodial/scripts/pd_email_shell.py'
       - 'tests/fixtures/pd_newsletter_sample.json'
+      - 'tests/test_pd_newsletter.py'
+      - 'scripts/pd_newsletter.py'
+      - 'scripts/pd_newsletter_checks.py'
+      - 'data/newsletters/pd/**'
       - 'scripts/send_newsletter.py'
       - 'tests/test_newsletter_site_feature.py'
       - 'scripts/generate_newsletter.py'
@@ -123,6 +127,10 @@ on:
       - 'pescodial/scripts/build_pd_drip.py'
       - 'pescodial/scripts/pd_email_shell.py'
       - 'tests/fixtures/pd_newsletter_sample.json'
+      - 'tests/test_pd_newsletter.py'
+      - 'scripts/pd_newsletter.py'
+      - 'scripts/pd_newsletter_checks.py'
+      - 'data/newsletters/pd/**'
       - 'scripts/send_newsletter.py'
       - 'tests/test_newsletter_site_feature.py'
       - 'scripts/generate_newsletter.py'
@@ -380,6 +388,13 @@ jobs:
         run: |
           python3 -m pip install --quiet requests
           python3 tests/test_pd_drip.py
+      # PescoDial weekly newsletter: issue 1 passes every check, checks catch
+      # dashes/doses/bad links, --test reaches only test inboxes, mid-drip readers
+      # are held, a failing issue is skipped and never sent twice.
+      - name: PescoDial newsletter
+        run: |
+          python3 -m pip install --quiet requests
+          python3 tests/test_pd_newsletter.py
       # CW newsletter sister-site feature: renders only inside its dated window,
       # UTM-tagged, no dashes, weekday, price or code.
       - name: CW newsletter site feature

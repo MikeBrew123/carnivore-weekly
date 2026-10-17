@@ -11,6 +11,7 @@ Usage:
     python3 scripts/send_newsletter.py                    # CW, latest newsletter
     python3 scripts/send_newsletter.py --date 2026-06-01  # CW, specific date
     python3 scripts/send_newsletter.py --site kd          # KetoDial newsletter
+    python3 scripts/send_newsletter.py --site pd --date 2026-11-08  # PescoDial issue (JSON)
     python3 scripts/send_newsletter.py --test             # Send test to iambrew@gmail.com only
     python3 scripts/send_newsletter.py --dry-run          # Show what would be sent, don't send
 """
@@ -34,6 +35,7 @@ import send_guard  # noqa: E402
 import resend_quota  # noqa: E402
 from subscriber_hygiene import filter_mailable  # noqa: E402
 import unsubscribe_link  # noqa: E402
+import pd_newsletter_checks  # noqa: E402
 
 # email (lowercased) -> newsletter_subscribers.id, filled by get_subscribers().
 # Only used to name the subscriber in a Resend quota refusal record.
@@ -63,6 +65,19 @@ SITES = {
         "reply_to": "newsletter@carnivoreweekly.com",
         "newsletter_dir": PROJECT_ROOT / "ketodial" / "coach-app" / "emails",
         "content_json": None,
+    },
+    # PescoDial (Brew, 2026-10-17). Issues are JSON (data/newsletters/pd/<date>.json)
+    # rendered through Brew's design in pescodial/scripts/pd_email_shell.py.
+    # Same sender and reply-to as the PD drip: pescodial.com has no inbound mail,
+    # so replies land on the @carnivoreweekly.com catch-all the writer-inbox sweep reads.
+    "pd": {
+        "name": "PescoDial",
+        "from_email": "sarah@pescodial.com",
+        "from_name": "PescoDial",
+        "reply_to": "pescodial@carnivoreweekly.com",
+        "newsletter_dir": PROJECT_ROOT / "data" / "newsletters" / "pd",
+        "content_json": None,
+        "issue_json": True,
     },
 }
 
@@ -129,7 +144,8 @@ def get_subscribers(secrets, site):
     # The drip lookup is deliberately NOT filtered by site: both sequences mail
     # from carnivoreweekly.com, so being mid-drip anywhere is enough to hold the
     # weekly back. kd_coach has no drip and is not suppressed.
-    if site in ("cw", "kd"):
+    # PD joined this rule at launch (Brew, 2026-10-17).
+    if site in ("cw", "kd", "pd"):
         drip_resp = requests.get(
             f"{url}/rest/v1/drip_subscribers",
             headers={
@@ -297,7 +313,7 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
 
 def main():
     parser = argparse.ArgumentParser(description="Send newsletter via Resend")
-    parser.add_argument("--site", choices=["cw", "kd", "kd_coach"], default="cw", help="Which site (default: cw)")
+    parser.add_argument("--site", choices=["cw", "kd", "kd_coach", "pd"], default="cw", help="Which site (default: cw)")
     parser.add_argument("--date", help="Specific newsletter date (YYYY-MM-DD)")
     parser.add_argument("--test", action="store_true", help="Send only to test email")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be sent")
@@ -307,8 +323,29 @@ def main():
     site = SITES[args.site]
     secrets = None
 
-    html, date_slug = load_newsletter_html(site, args.date)
-    subject = load_subject(site)
+    if site.get("issue_json"):
+        # PescoDial: the issue must name its date, so a re-run can never pick
+        # up a different week's file by accident.
+        if not args.date:
+            print("Error: --site pd needs --date YYYY-MM-DD (the issue file's date)")
+            sys.exit(1)
+        issue, html, subject = pd_newsletter_checks.load_issue(site["newsletter_dir"], args.date)
+        date_slug = args.date
+        if not args.test and not args.dry_run and pd_newsletter_checks.already_sent(site["newsletter_dir"], args.date):
+            print(f"ABORTING: the {args.date} PescoDial issue was already sent live. Not sending twice.")
+            sys.exit(1)
+        problems = pd_newsletter_checks.check_issue(issue, html)
+        if problems:
+            print(f"  ⚠️  {len(problems)} PescoDial check(s) failed:")
+            for pr in problems:
+                print(f"     {pr}")
+            if not args.test:
+                print("  ABORTING: a PescoDial issue that fails a check is skipped, never sent.")
+                sys.exit(1)
+            print("  (continuing in test mode so Brew can see it)")
+    else:
+        html, date_slug = load_newsletter_html(site, args.date)
+        subject = load_subject(site)
 
     if args.dry_run:
         to_emails = TEST_EMAILS
@@ -368,6 +405,9 @@ def main():
     for email, status, detail in results:
         icon = "✅" if status == "sent" else "❌"
         print(f"  {icon} {email} — {detail[:60]}")
+
+    if site.get("issue_json") and not args.test and sent:
+        pd_newsletter_checks.mark_sent(site["newsletter_dir"], args.date, sent=sent, failed=failed)
 
     if failed:
         pct = failed * 100 // max(len(results), 1)
