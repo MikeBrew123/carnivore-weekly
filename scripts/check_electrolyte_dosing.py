@@ -14,20 +14,21 @@ WHAT IT FLAGS
   Potassium or magnesium with a milligram figure, phrased as an instruction.
   Sodium with a milligram or gram figure inside a FASTING context, because that
   is a dose taken with no food rather than seasoning.
-  A daily sodium or salt target on CW/KD ("3-5 g of sodium a day", "3,000-5,000 mg
-  per day", "up to 6 g on training days", "1-2 teaspoons of salt a day", "2-3 g per
-  meal minimum"). Brew, deck 9abbfdc5, 2026-10-14: a daily sodium gram target is a
-  dose, because a fixed number can hurt a reader on a salt limit. The house line is
-  salt to taste, plus check with your doctor first if you have high blood pressure
-  or are on a salt limit. PD is exempt: its standing sodium line is the standard
-  "under 2,300 mg a day" ceiling, which is a limit, not a target.
+
+NO LONGER FLAGGED (Brew, Command Centre DECISION_LOG 2026-10-17 "CONTENT LINE"):
+  A daily sodium or salt range ("3-5 g of sodium a day"). The 2026-10-14 rule
+  that treated a daily sodium gram target as a dose (deck 9abbfdc5) is
+  superseded for new content: the diet's normal salt range is kept, worded as
+  what people on the diet typically do, and the page carries ONE safety line
+  (see scripts/check_doctor_line.py). Existing pages are not swept.
 
 WHAT IT DELIBERATELY DOES NOT FLAG, because these are correct and useful:
   Food facts          "beef has 300-400 mg potassium per 4 oz"
   Product labels      "LMNT (per packet): 1,000 mg sodium"
   Overdose warnings   "a teaspoon of potassium chloride is roughly 2,500 mg"
   Salt to taste       "salt your food to taste", outside a fast
-  Conversions         "one teaspoon of salt is about 2.3 g of sodium" (no daily target)
+  Daily salt ranges   "most people on carnivore land around 3-5 g of sodium a day"
+  Conversions         "one teaspoon of salt is about 2.3 g of sodium"
   Limits              "your doctor's limit of under 2,000 mg a day"
   Refusals            "we do not publish a potassium dose"
 
@@ -84,76 +85,6 @@ REFUSAL = re.compile(r'\b(do not publish|don.t publish|we do not|used to (carry|
                      r'no way to pick|instead of)\b', re.I)
 
 
-# Daily sodium target (deck 9abbfdc5, 2026-10-14). Grams, milligrams and teaspoons,
-# because "1-2 teaspoons of salt a day" is the same target in kitchen units.
-NA_QTY = re.compile(r'(?:\d[\d,\.]*|one|two|three|four|five|six|half an?|a half)'
-                    r'(?:\s*(?:-|–|to|or)\s*(?:\d[\d,\.]*|one|two|three|four|five|six))?'
-                    r'\s*(?:mg|g|grams?|milligrams?|tsp|teaspoons?)\b', re.I)
-NA_WORD = re.compile(r'sodium|\bsalt', re.I)
-# The figure is a per-day (or per-meal) amount the reader is meant to hit.
-NA_DAILY = re.compile(r'\b(?:per day|a day|each day|every day|daily|a-day|/day|per meal|'
-                      r'each meal|baseline|on (?:heavy |hard )?(?:training |workout )?days)\b'
-                      r'|/day', re.I)
-# A ceiling, not a target ("under 2,300 mg a day", "your doctor's limit").
-NA_LIMIT = re.compile(r'\b(?:under|less than|no more than|below|limit(?:ed)? (?:of|to)|'
-                      r'cap(?:ped)? at|restrict(?:ed)? to)\s+(?:about |roughly |around )?$', re.I)
-NA_REFUSAL = re.compile(r'\b(?:do not publish|don.t publish|we do not (?:give|publish|set)|'
-                        r'used to (?:carry|list|print|say)|no (?:daily )?(?:sodium )?(?:number|target))\b', re.I)
-OTHER_NUTRIENT = re.compile(r'protein|\bfat\b|carb|fibre|fiber|collagen|potassium|magnesium|'
-                            r'calorie|\bcal\b', re.I)
-SENTENCE_END = re.compile(r'(?<=[.!?])\s+(?=[A-Z0-9"\'(])')
-
-
-def sentence_at(text, start, end):
-    """The sentence holding text[start:end], capped at 300 characters each side."""
-    lo = max(0, start - 300)
-    hi = min(len(text), end + 300)
-    left = text[lo:start + 1]  # one char past, so a boundary right before start is seen
-    cuts = [m.end() for m in SENTENCE_END.finditer(left) if m.end() <= start - lo]
-    s0 = lo + (cuts[-1] if cuts else 0)
-    m = SENTENCE_END.search(text, end, hi)
-    s1 = m.start() if m else hi
-    return text[s0:s1]
-
-
-def scan_daily_sodium(text):
-    """Daily sodium or salt targets addressed to the reader. CW and KD only."""
-    out = []
-    for m in NA_QTY.finditer(text):
-        sent = sentence_at(text, m.start(), m.end())
-        # Salt is often named in the sentence before the amount ("Add extra salt to
-        # everything. I mean 2 teaspoons a day."), so look back 160 characters too.
-        named = NA_WORD.search(sent) or NA_WORD.search(text[max(0, m.start() - 160):m.start()])
-        if not named or not NA_DAILY.search(sent):
-            continue
-        # "40 g protein" beside a salted burger, "400 mg potassium" on a label that
-        # also lists sodium, "30 to 40 grams per meal" after "Protein first": the
-        # nearest nutrient word decides what the figure measures. First word after
-        # the figure wins; failing that, the last one before it.
-        after = text[m.end():m.end() + 15]
-        nxt = OTHER_NUTRIENT.search(after)
-        na_next = NA_WORD.search(after)
-        if nxt and (not na_next or nxt.start() < na_next.start()):
-            continue
-        if not na_next:
-            before = text[max(0, m.start() - 60):m.start()]
-            last_other = max((x.end() for x in OTHER_NUTRIENT.finditer(before)), default=-1)
-            last_na = max((x.end() for x in NA_WORD.finditer(before)), default=-1)
-            if last_other > last_na:
-                continue
-        # Product labels and food facts ("LMNT (per packet): 1,000 mg sodium").
-        if DESCRIPTIVE.search(text[max(0, m.start() - 80):m.end() + 40]):
-            continue
-        if NA_LIMIT.search(text[max(0, m.start() - 40):m.start()]):
-            continue
-        # Only a real refusal clears it. "Ask your doctor first if you have high blood
-        # pressure" in front of a target still leaves the target for everyone else.
-        if NA_REFUSAL.search(text[max(0, m.start() - 220):m.start()]):
-            continue
-        out.append(("daily-Na", m.group(0).strip(), sent.strip()))
-    return out
-
-
 def strip(raw):
     raw = re.sub(r'<(script|style)[^>]*>.*?</\1>', ' ', raw, flags=re.S | re.I)
     return re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', raw)))
@@ -161,7 +92,7 @@ def strip(raw):
 
 def scan(name, text, site="cw"):
     """Return a list of (mineral, figure, context) that look like universal dosing."""
-    out = scan_daily_sodium(text) if site in ("cw", "kd") else []
+    out = []
     fasting_page = len(FASTING.findall(text)) >= 6
     for m in NUM.finditer(text):
         near = text[max(0, m.start() - 70):m.end() + 70]
@@ -181,29 +112,7 @@ def scan(name, text, site="cw"):
     return out
 
 
-# Pages that carry a daily sodium target but sit inside an open measurement window,
-# so they cannot be edited yet (deck 9abbfdc5 exclusions, 2026-10-14). Until the
-# date they print as HELD and do not fail the gate; from that date they fail like
-# any other page. Never extend a date to make a run go green: fix the page.
-DAILY_NA_HELD = {
-    "2026-04-14-the-carnivore-mistake-i-wish-someone-warned-me": (
-        "2026-11-14", "control page in the writer-rewrites cohort, read 2026-11-13"),
-}
-
-
-def held(where, mineral, today=None):
-    """True if this daily-Na hit is on a frozen page whose window is still open."""
-    import datetime
-    if mineral != "daily-Na":
-        return False
-    today = today or datetime.date.today().isoformat()
-    for slug, (until, _why) in DAILY_NA_HELD.items():
-        if slug in where and today < until:
-            return True
-    return False
-
-
-def find_flags(root=ROOT, site=None, include_held=False):
+def find_flags(root=ROOT, site=None):
     """Return (scanned, flagged) for the whole corpus, or one site's share of it.
 
     site=None scans everything. site="kd" (or "pd") scans that site's JSON posts and
@@ -257,8 +166,6 @@ def find_flags(root=ROOT, site=None, include_held=False):
         for hit in scan(rel, strip(open(f, encoding="utf-8").read()), owner):
             flagged.append((rel,) + hit)
 
-    if not include_held:
-        flagged = [f for f in flagged if not held(f[0], f[1])]
     return scanned, flagged
 
 
@@ -266,16 +173,10 @@ def main():
     verbose = "--verbose" in sys.argv
     site = sys.argv[sys.argv.index("--site") + 1] if "--site" in sys.argv else None
     scanned, flagged = find_flags(site=site)
-    _, everything = find_flags(site=site, include_held=True)
-    on_hold = [f for f in everything if f not in flagged]
 
     print(f"Scanned {scanned} documents.")
-    for where, mineral, fig, _ctx in on_hold:
-        slug = next(s for s in DAILY_NA_HELD if s in where)
-        until, why = DAILY_NA_HELD[slug]
-        print(f"HELD (frozen until {until}, {why}): [{mineral}] {where}: {fig}")
     if not flagged:
-        print("PASS: no universal potassium, magnesium, fasting-sodium or daily-sodium dosing found.")
+        print("PASS: no universal potassium, magnesium or fasting-sodium dosing found.")
         return 0
 
     print(f"\nFAIL: {len(flagged)} possible universal dosing instruction(s).\n")
@@ -287,8 +188,8 @@ def main():
         print()
     print("Suppress, never substitute. Do not swap the figure for a smaller one, and")
     print("do not add a caveat after it. See docs/project-log/decisions.md, 2026-09-14.")
-    print("Sodium (2026-10-14): salt to taste, plus 'if you have high blood pressure or")
-    print("a salt limit, check with your doctor first'. No daily gram, mg or tsp target.")
+    print("A daily salt range is fine (CONTENT LINE, 2026-10-17); the page carries one")
+    print("safety line, checked by scripts/check_doctor_line.py.")
     return 1
 
 

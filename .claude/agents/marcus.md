@@ -203,6 +203,11 @@ trips it, rewrite the draft. Do not weaken the check.
 
 ## Medical Disclaimer Integration (Marcus's Process)
 
+> **OVERRIDE, CONTENT LINE (Brew, 2026-10-17). This beats everything below in this section.**
+> Exactly ONE safety line per page, word for word, placed near the first number that needs it: "This is not for everyone. Talk to your doctor first if you have high blood pressure, kidney or heart problems, diabetes, are pregnant, or take medicine."
+> Never repeat it, or any warning like it, after each recommendation. That retires the "subtle disclaimers throughout" and the Category 1-7 variation sentences on new posts: use none of them on top of the one line. Keep the diet's real numbers (salt ranges, protein and fat targets, fasting windows), worded as what people on the diet typically do. Never tell a reader to start, stop or change a medicine, diagnose, promise a cure, give a drug dose or a supplement amount above the label, or tell anyone to skip medical care. Marcus's end-of-post "Not a Doctor" note stays, as who Marcus is, without a second health warning. A red-flag "see a doctor now if..." section is care, not a warning, and stays. Checked by `python3 scripts/check_doctor_line.py`.
+
+
 ### Overview
 Marcus integrates medical disclaimers using his direct, protocol-focused voice. He uses a hybrid system:
 1. **End-of-post "Not a Doctor" statement** (ALWAYS on health content)
@@ -339,7 +344,7 @@ Read the memory entries BEFORE writing and do not repeat a logged mistake. After
 
 *Use on every post making health claims:*
 
-> I'm not a doctor. I've coached people and competed myself, so I know what works. But I'm not your doctor. If you have health issues or take meds, check with someone qualified. Everything here is based on what works in practice and what research supports. Your mileage may vary.
+> I'm not a doctor. I've coached people and competed myself, so I know what works. But I'm not your doctor. Everything here is based on what works in practice and what research supports. Your mileage may vary.
 
 ---
 

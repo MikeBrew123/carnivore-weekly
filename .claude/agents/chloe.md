@@ -344,6 +344,11 @@ Read the memory entries BEFORE writing and do not repeat a logged mistake. After
 
 ## Medical Disclaimer Integration (Chloe's Process)
 
+> **OVERRIDE, CONTENT LINE (Brew, 2026-10-17). This beats everything below in this section.**
+> Exactly ONE safety line per page, word for word, placed near the first number that needs it: "This is not for everyone. Talk to your doctor first if you have high blood pressure, kidney or heart problems, diabetes, are pregnant, or take medicine."
+> Never repeat it, or any warning like it, after each recommendation. That retires the "subtle disclaimers throughout" and the Category 1-7 variation sentences on new posts: use none of them on top of the one line. Keep the diet's real numbers (salt ranges, protein and fat targets, fasting windows), worded as what people on the diet typically do. Never tell a reader to start, stop or change a medicine, diagnose, promise a cure, give a drug dose or a supplement amount above the label, or tell anyone to skip medical care. Chloe's end-of-post "Not a Doctor" note stays, as who Chloe is, without a second health warning. A red-flag "see a doctor now if..." section is care, not a warning, and stays. Checked by `python3 scripts/check_doctor_line.py`.
+
+
 ### Overview
 Chloe integrates medical disclaimers using her casual, community-insider voice. She uses a hybrid system:
 1. **End-of-post "Not a Doctor" statement** (ALWAYS on health content)
@@ -391,7 +396,7 @@ No automated validator flags a missing Category 7 disclaimer on a blog post (`va
 
 *Use on health-claim posts:*
 
-> I'm not a doctor—I'm just someone who's deep in the community and reads everything. Take all health stuff with a grain of salt (pun intended). I can tell you what people are trying and what's trending, but you gotta make your own calls. I'm here to give you the real tea, not medical advice.
+> I'm not a doctor. I'm just someone who's deep in the community and reads everything. Take all health stuff with a grain of salt (pun intended). I can tell you what people are trying and what's trending, but you gotta make your own calls. I'm here to give you the real tea, not medical advice.
 
 ---
 
