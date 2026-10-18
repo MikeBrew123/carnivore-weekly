@@ -1,31 +1,45 @@
 {
-  "date": "2026-10-11",
-  "subject_line": "Why your husband's losing weight faster than you",
-  "opening": "<p style='margin:0;'>Hey, happy Sunday. This week we've got answers to the question that's quietly driving a lot of you a little bit crazy, plus a flank steak trick that'll save you money without sacrificing a single bite. Grab your coffee. Let's get into it.</p>",
+  "date": "2026-10-18",
+  "subject_line": "Your blood pressure moved faster than you think",
+  "opening": "<p style='margin:0;'>Hey, we've got a big week of reads lined up and one of them might be the most important thing you see all month. Whether you're coming back to carnivore after a break, wondering if your body is changing faster than you know, or just trying to figure out how much to eat after 50, we've got you covered. Grab something warm and let's get into it.</p>",
   "hero": {
-    "slug": "2026-10-09-husband-loses-weight-faster",
-    "title": "Why Your Husband Loses Weight Faster Than You",
-    "writer": "Chloe",
-    "teaser": "You're eating the exact same meals. You both started on the same day. And somehow he's down 15 pounds while you're staring at a scale that barely budged. It feels unfair, and honestly, it is. But here's the thing: the reason has nothing to do with your effort, your willpower, or whether you're doing carnivore right. Chloe breaks down what's actually going on, and what it means for how you should measure your own progress.",
-    "cta": "Read before you weigh in again"
+    "slug": "2026-10-15-how-long-carnivore-lower-blood-pressure",
+    "title": "How Long Carnivore Takes to Lower Blood Pressure",
+    "writer": "Sarah",
+    "teaser": "Blood pressure is one of those things most of us don't think about until a doctor makes a face at a reading. But community members report seeing it shift surprisingly fast on carnivore, sometimes within weeks, not months. The tricky part is that the timing isn't the same for everyone, and for some people, moving too fast creates its own problem. Sarah lays out the typical timeline and, more importantly, tells you exactly when you need a doctor in your corner before the numbers change.",
+    "cta": "Read before your next check-up"
   },
   "supporting": [
     {
-      "slug": "2026-10-08-how-to-cook-flank-steak-tender",
-      "title": "How to Cook Flank Steak So It Isn't Tough",
-      "teaser": "There's one slicing mistake almost everyone makes with flank steak, and Marcus says fixing it changes everything about how the meat eats."
+      "slug": "2026-10-16-back-on-carnivore-after-a-break-first-week",
+      "title": "Back on Carnivore After a Break: Your First Week",
+      "teaser": "Chloe's been hearing from a lot of people who took a long break and are nervous to start again, and what she found out about that first week might surprise you."
     },
     {
-      "slug": "2026-10-06-carbs-upset-stomach-after-carnivore",
-      "title": "Why Carbs Wreck Your Stomach After Carnivore",
-      "teaser": "Your gut was perfect for weeks, then one birthday dinner left you flattened, and Sarah explains exactly why your body reacted the way it did."
+      "slug": "2026-10-14-how-much-meat-a-day-carnivore-after-50",
+      "title": "How Much Meat a Day on Carnivore After 50",
+      "teaser": "Marcus skips the macro calculator entirely and gives you a single daily target that fits a 50+ appetite without making you feel like you're in a spreadsheet."
     },
     {
-      "slug": "2026-10-10-easy-carnivore-dinners-no-cooking",
-      "title": "Carnivore Dinners for Nights You Can't Face Cooking",
-      "teaser": "Chloe rounded up the lazy dinners that keep you on track when it's 7pm and you've got nothing left in the tank."
+      "slug": "2026-10-12-carnivore-tdee-calorie-number-looks-low",
+      "title": "Carnivore TDEE: Why Your Calorie Number Looks Low",
+      "teaser": "If your calorie calculator is spitting out a number that seems impossibly small, Marcus explains why that's actually normal after 45 and what it means for your plan."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Swap your measuring tape for the scale this week.</strong> If you're not seeing the number move the way you expected, grab a tape measure and check your waist, hips, and arms instead. Community members report that body measurements often tell a completely different story than the scale does, especially in the first few months.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something a lot of you have asked about: what actually happens to your hormones on carnivore, and whether the changes are working for you or against you.</p>"
+  "community_pulse": [
+    {
+      "question": "I quit low-carb a few months ago and felt terrible the whole time. I went back to it recently and felt better almost immediately. Is that real or am I just imagining it?",
+      "answer": "You're probably not imagining it. Many people find that mood, energy, and mental clarity shift noticeably when they return to low-carb eating, sometimes within hours of getting back into ketosis. The brain runs differently on fat than on glucose, and for some people that difference is really felt. It's worth paying attention to and sticking with it long enough to see if the pattern holds."
+    },
+    {
+      "question": "I'm in my 50s with blood sugar issues and I'm wondering if I need to cut calories too, or if just changing what I eat is enough.",
+      "answer": "This is one of the most common questions we get from women in perimenopause, and the honest answer is that it depends on your body and your goals. Many people find that eating more protein and fat naturally reduces how much they eat overall, without counting a thing. If you're curious about the calorie side of things, Marcus's piece this week on TDEE after 45 is a great place to start."
+    },
+    {
+      "question": "Someone in my family was told they'd have type 2 diabetes forever, but I keep hearing that people are reversing it with diet. Is that actually possible?",
+      "answer": "It's a conversation worth having with a doctor, but yes, many people have seen dramatic improvements in blood sugar through low-carb and ketogenic eating. Community members share stories of this regularly, and some research supports it as well. The key word is 'reversal' versus 'cure,' and working with a doctor who will monitor your numbers along the way is really important."
+    }
+  ],
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Check your blood pressure at home, twice.</strong> Take a reading in the morning before coffee and again in the evening after dinner, then write both numbers down. If you've been eating carnivore for more than two weeks, you might already be seeing a shift you haven't noticed yet. Sarah's piece this week tells you exactly what to look for and when to loop in your doctor.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something a lot of people over 50 are quietly dealing with but rarely talk about, and the carnivore angle on it is not what most people expect.</p>"
 }

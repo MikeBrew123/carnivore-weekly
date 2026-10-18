@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-10-14",
+  "last_updated": "2026-10-18",
   "leaderboard": [
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "KenDBerryMD",
       "rank": 1,
-      "appearances": 15,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "appearances": 3,
+      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
       "name": "Meet Carnivore",
       "rank": 2,
-      "appearances": 12,
+      "appearances": 13,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "HomeSteadHow",
-      "rank": 3,
-      "appearances": 14,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Vegetable Police",
-      "rank": 4,
-      "appearances": 1,
-      "channel_id": "UCFuLNktnqqBEF_9ZcmjC_bw"
-    },
-    {
-      "name": "Ketogenic Woman",
-      "rank": 5,
-      "appearances": 8,
-      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
-    },
-    {
-      "name": "MitchMinus250",
-      "rank": 6,
-      "appearances": 3,
-      "channel_id": "UCkpO6sioxV9cj_SmELVGAyw"
-    },
-    {
       "name": "Jenny Mitich",
-      "rank": 7,
-      "appearances": 15,
+      "rank": 3,
+      "appearances": 16,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "The Daily Ribeye",
-      "rank": 8,
-      "appearances": 6,
-      "channel_id": "UCVxyFso2QQ5-W6WhynYKENw"
+      "name": "The Few.",
+      "rank": 4,
+      "appearances": 2,
+      "channel_id": "UCSTGgw8iozb3XLEiNyroCLQ"
+    },
+    {
+      "name": "High Calorie Human",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCW9asLl8mXZkXcLUGsVJvKg"
+    },
+    {
+      "name": "Carnivore Claire",
+      "rank": 6,
+      "appearances": 3,
+      "channel_id": "UCeHelmNzByVLRNMgZDCeRxQ"
+    },
+    {
+      "name": "Simnett Nutrition",
+      "rank": 7,
+      "appearances": 1,
+      "channel_id": "UCpyhJZhJQWKDdJCR07jPY-Q"
     },
     {
       "name": "Ferrigno Freedom",
-      "rank": 9,
+      "rank": 8,
       "appearances": 11,
       "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
     },
     {
-      "name": "Carnivore Revolution",
+      "name": "No Carb Life",
+      "rank": 9,
+      "appearances": 13,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+    },
+    {
+      "name": "Patricia Delicious Nutrition",
       "rank": 10,
-      "appearances": 7,
-      "channel_id": "UCHlFeDkt3w0DXhrItDtS2_g"
+      "appearances": 3,
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     }
   ]
 }
