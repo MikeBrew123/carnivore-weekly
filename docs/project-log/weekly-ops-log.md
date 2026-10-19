@@ -245,3 +245,18 @@ Beads filed (carnivore-weekly): 5ggf (cycle), + writeback, #calc anchor, distrib
 **Handbook drift (flag only).** Loop step 3 calls 4532542805 "bundle $21.99", it is the Keto Starter Kit; step 4 still says replenish the pin queue; scoreboard metric 1 still labelled "July cumulative" and owners say "Hermes".
 **Beads.** None filed. **Recurring-issues.** No new ISSUE.
 **Deck (Step 6).** Published scoreboard 2026-10-12 and rewrote briefing via bobloblaw-nas; all three endpoints 200. Biggest WoW change: calculator page Google clicks 101 to 155 (28d) while Stripe sales stay at 0 for 4 weeks. No decision posted (5 pending from other sessions; due-today items listed as reads). No failures.
+
+## 2026-10-19 — Weekly Ops Review
+
+**Revenue.** Stripe 30d: 1 real charge, $29.00 (10-17 calculator, first real sale in 5 weeks). The two 10-12 charges ($29 CW gift, $10.99 KD gift) are Brew's live tests, both refunded. Checkout 7d: 9 sessions, 3 complete; only 1 real (the 10-17 sale); rest are gift tests + QA probes from 10-12. Scoreboard's checkout 9/3 counts them. Coupons lifetime unchanged (WELCOME5 1, 52fYA51M 2, PescoDial invite 0), 0 discounted sessions, so 0 redemptions. Etsy 90d $87.94 CAD, 16 receipts; by month Jul 1 (window-truncated) / Aug 4 / Sep 6 / **Oct 5** (all food lists, $2.24-$5.39). Tracked 4532542805 (Keto Starter Kit): 0 sales 90d, 18 lifetime views. Raw output not saved to repo (customer-free summary only here).
+**List + drip.** New 7d: CW 19, KD 11, PD 0 (30, ~4.3/day vs 2+/day target; prior 7d 33). drip_events 7d: CW 406 delivered / 298 opened / 115 clicked / 4 bounced / 6 skipped; KD 203 / 43 / **2 clicked** / 4 bounced / 4 skipped; PD 6 / 1. **0 complaints.** Newly retired: 2 (1 CW, 1 KD, both MailboxFull x3).
+**Bounce metric note.** Scoreboard shows 2.4% 🟡 = 8 bounces / 337 `sent`, but `sent` rows are drip-only while bounces come from the webhook across all sends. Against 615 delivered it is 1.3% (green). Denominator fix needed in `scripts/scoreboard_truth_pass.py` line ~289 (would-be bead, P3).
+**Search (GSC 28d to 10-16 vs prior 28d).** /calculator.html 1,267 imp / 142 clicks / pos 6.2 (prev 1,422 / 123 / 7.6). "macro calculator" queries 320 imp / 39 clicks / wpos 6.4 (prev 224 / 28 / 6.1); "paul saladino macro calculator" 31 clicks pos 4.7; head term "carnivore macro calculator" 13.0 (prev 10.2), still sliding. KD: 1 page, 11 imp, 0 clicks. Backlinks not measured.
+**Traffic (GA4 30d, snapshot).** CW 1,270 (prev 1,257), KD 297 (prev 298).
+**Queues.** CW 9 ready, 7 in next 7d, through 10-28 🟢. KD 2 (through 10-23) 🟢. PD 2 (through 10-23). Pin queue retired.
+**Crons.** Truth pass (Mini): "Scoreboard appended for 2026-10-19. Errors: none". Heartbeat 10-19 03:45 all clear (subscriber-backup 432h).
+**GH issues.** None open under health-check or automated.
+**Ledger (due this week, owned elsewhere).** Flagship mention read today (task keto-flagship-mention-14day-read); Etsy cheat sheet photo restore from 10-20; EXP-006 read ~10-20 gates PR #129; KD sender switch read 10-21; persona-claim-fix first run 10-20.
+**Handbook drift (flag only, unchanged from 10-12).** Step 3 calls 4532542805 "bundle $21.99" (it is the Keto Starter Kit); step 4 still says replenish the pin queue; step 1/2 Mini log paths now correct.
+**Beads.** None filed: `bd` has no beads.db on the Mini (ISSUE-104). Would-be: scoreboard bounce denominator (P3); KD drip clicks 2/203 delivered (P3, check after the 10-21 sender read). **Recurring-issues.** No new ISSUE.
+**Deck (Step 6).** Published scoreboard 2026-10-19 and rewrote briefing via bobloblaw-nas; all three endpoints 200. Biggest WoW change: first real calculator sale in 5 weeks (10-17). No decision posted (2 pending from other sessions, nothing new due). No failures.
