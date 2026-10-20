@@ -970,3 +970,10 @@ If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness fai
 - 2026-10-19 — weekly-operator-review hit it on the ops-log commit. Same workaround (scanners clean, PATH without `~/.local/bin`). Also means no session on the Mini can `bd create`; beads for this run went into weekly-ops-log.md instead.
 - 2026-10-20 — persona-claim-fix run (queue #1) hit it in a worktree on the content commit. Same workaround (scanners clean, PATH without `~/.local/bin`), merged as PR #142.
 **If recurs / rule:** proper fix needs a decision: either `bd init` on the Mini or make the hook skip when no `beads.db` exists, and switch the scanner paths to `$(git rev-parse --show-toplevel)`. Until then, run both scanners by hand before using the PATH workaround. Never `--no-verify`.
+
+## ISSUE-105 — Paid calculator report never emailed unless buyer taps "Email me"
+**Status:** 🟢 FIXED (pending deploy) | **Found:** 2026-10-20
+**Pattern:** `report/init` built and saved the report but sent no email. The only send was the results-page "Email me" button. A $29 buyer on 2026-10-17 finished Step 4, never tapped it, and had nothing in their inbox for 3 days.
+**Attempts:**
+- 2026-10-20: resent manually via `email-report`. `handleReportInit` now mails the report once after it is built (shared `sendReportEmail`, `ctx.waitUntil`). Retries hit `already_generated` and send nothing. Pinned by `tests/report-init-auto-email.test.mjs` (mutation-tested), wired into both calculator workflows. Applies to PescoDial too (same endpoint).
+**If recurs:** check Resend for "Your Personalized Carnivore Protocol" to the buyer, then worker logs for `[handleReportInit] report email`.
