@@ -191,6 +191,12 @@ regeneration produces no surprise diff.
   otherwise. `templates/index_template.html` was fixed in the same commit, so the
   Sunday refresh will regenerate these two files identically. Comment only, no
   markup or behaviour touched.
+- **2026-10-20 — `public/index.html` and `public/blog/index.html`.** Sarah's credit
+  changed from "health coach" to "your carnivore guide" (homepage) and "Writer and
+  guide" (blog index author card), under Brew's 10-20 wording rule. Same edit made
+  in `templates/index_template.html` and `templates/blog_index_template.html`, so
+  regeneration matches. Per-post bylines (`author_title` in `blog_posts.json`) were
+  NOT changed and still say "Health Coach" on 114 posts, pending Brew.
 
 ## Outstanding TODOs
 
