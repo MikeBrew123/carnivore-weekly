@@ -1182,7 +1182,7 @@
                     <!-- SOCIAL PROOF -->
                     <blockquote style="border-left: 4px solid #d4a574; margin: 32px 0 0 0; padding: 16px 24px; background: rgba(212,165,116,0.08); border-radius: 0 8px 8px 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; line-height: 1.7; color: #444; font-style: italic;">
                         "I had a reader message me last month, six weeks into carnivore, convinced she was doing everything right. Turned out she was eating 80g of protein a day. Her target was 130g. She increased it over two weeks and wrote back to say the afternoon crashes were gone. She didn't change what she ate. She changed how much."
-                        <cite style="display: block; margin-top: 10px; font-style: normal; font-weight: 600; color: #8b4513; font-size: 15px;">Sarah, Carnivore Weekly Health Coach</cite>
+                        <cite style="display: block; margin-top: 10px; font-style: normal; font-weight: 600; color: #8b4513; font-size: 15px;">Sarah, your carnivore guide at Carnivore Weekly</cite>
                     </blockquote>
 
                     <p style="margin-top: 24px; margin-bottom: 0;">
@@ -1816,6 +1816,16 @@
                 script.src = '/js/refund-modal.js';
                 document.body.appendChild(script);
             });
+    </script>
+    <script>
+    // Scrolling over a focused number field changes its value on desktop
+    // (175 became 174). Blur it so the wheel scrolls the page instead.
+    document.addEventListener('wheel', function (e) {
+        var el = e.target;
+        if (el && el.tagName === 'INPUT' && el.type === 'number' && el === document.activeElement) {
+            el.blur();
+        }
+    }, { passive: true });
     </script>
 </body>
 </html>
