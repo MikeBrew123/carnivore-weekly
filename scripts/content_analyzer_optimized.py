@@ -59,6 +59,40 @@ AI_TELLS = {
 }
 
 
+# Dated editor's notes Chloe must work into the homepage roundup (Brew, 2026-10-23).
+# Each note is active from `start` to `end` (inclusive, YYYY-MM-DD, runner's date).
+ROUNDUP_NOTES_PATH = Path(__file__).parent.parent / "data" / "roundup_notes.json"
+
+
+def _active_roundup_notes() -> list:
+    try:
+        notes = json.loads(ROUNDUP_NOTES_PATH.read_text()).get("notes", [])
+    except Exception:
+        return []
+    today = datetime.now().strftime("%Y-%m-%d")
+    return [n for n in notes if n.get("start", "") <= today <= n.get("end", "")]
+
+
+def _roundup_notes_prompt() -> str:
+    notes = _active_roundup_notes()
+    if not notes:
+        return ""
+    lines = "\n".join(f"- {n['brief']} Link: {n['must_link']}" for n in notes)
+    return f"""
+Editor's note for this week. You MUST work this into the roundup, in your own words, 1-2 sentences, with the exact link as a markdown link:
+{lines}
+"""
+
+
+def _apply_roundup_note_fallbacks(text: str) -> str:
+    """If Chloe left out a required link, append her pre-written fallback paragraph."""
+    for n in _active_roundup_notes():
+        if n["must_link"] not in text:
+            print(f"  ⚠️  Roundup missed editor's note link {n['must_link']}; appending fallback")
+            text = text.rstrip() + "\n\n" + n["fallback"]
+    return text
+
+
 def humanize_text(text: str) -> str:
     """
     Apply humanization rules to remove AI tells and formatting issues.
@@ -252,7 +286,7 @@ Style:
 - End with a genuine reflection or question, not a motivational quote
 - Contractions throughout
 - If a teammate's recent post fits the week's theme, weave in a cheeky one-liner about it with a link — don't force it if it doesn't fit
-{recent_posts_text}
+{recent_posts_text}{_roundup_notes_prompt()}
 Analyze this YouTube data and write the roundup."""
             elif "trending" in analysis_type.lower():
                 # Load wiki keywords and blog posts to help Chloe pick linkable topics
@@ -358,6 +392,7 @@ Focus on actionable insights and specific examples."""
         # ISSUE-038 guard: strip any dead CW /blog/ link the LLM cited before it
         # gets persisted to analyzed_content.json and rendered onto the homepage.
         _pub = str(Path(__file__).parent.parent / "public")
+        analyses["weekly_summary"] = _apply_roundup_note_fallbacks(analyses["weekly_summary"])
         analyses["weekly_summary"], _dead = sanitize_cw_blog_links(analyses["weekly_summary"], _pub)
         if _dead:
             print(f"  ⚠️  ISSUE-038 guard stripped dead CW /blog/ links: {_dead}")
