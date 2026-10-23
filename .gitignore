@@ -63,6 +63,7 @@ data/*.csv
 !data/content-refresh-cohorts.json
 !data/scheduled_posts_batch.json
 !data/blog_topics_queue.json
+!data/roundup_notes.json
 !data/published_blogs.json
 !data/wiki-keywords.json
 !data/newsletter_content.json

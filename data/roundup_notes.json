@@ -1,0 +1,13 @@
+{
+  "_comment": "Dated editor's notes Chloe must work into the homepage roundup (scripts/content_analyzer_optimized.py). Active from start to end inclusive, by the runner's date (UTC). fallback is Chloe-written and appended only if her roundup leaves out must_link. Only link to things that are public on the dates the note is active.",
+  "notes": [
+    {
+      "id": "cw-shorts-launch",
+      "start": "2026-10-26",
+      "end": "2026-10-29",
+      "brief": "Sarah's first YouTube Shorts are up (her week-one 'only down 3 pounds' story, and how to cook flank steak so it isn't tough). It's our first time making videos, so ask readers to tell us what they think in the comments or by replying to the newsletter. More are on the way, we hope.",
+      "must_link": "https://www.youtube.com/@CarnivoreWeekly/shorts",
+      "fallback": "Okay so, we made videos. [Sarah's first YouTube Shorts](https://www.youtube.com/@CarnivoreWeekly/shorts) are up: her week-one \"only down 3 pounds\" story and how to cook flank steak so it isn't tough. It's our first try, so be kind and tell us what you think in the comments or reply to the newsletter, and more are on the way, we hope."
+    }
+  ]
+}
