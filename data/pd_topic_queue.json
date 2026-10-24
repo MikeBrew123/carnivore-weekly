@@ -81,7 +81,8 @@
         "homepage (/)",
         "/about/"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "is-pescatarian-healthy-after-50"
     },
     {
       "order": 6,
@@ -94,7 +95,8 @@
       "must_not_cannibalize": [
         "P4"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "how-much-fish-per-week-after-60"
     }
   ],
   "later": [
