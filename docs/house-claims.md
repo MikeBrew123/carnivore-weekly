@@ -37,9 +37,13 @@ published pages are not swept or re-edited for this.
 ## Electrolytes
 
 Enforced by `scripts/check_electrolyte_dosing.py` (pre-push Gate 11, daily publish,
-both generation tasks). A post that prints a potassium or magnesium dose, or a
-sodium milligram amount during a fast, does not publish. A daily salt range is
-allowed again (2026-10-17, see changelog).
+both generation tasks). New content may state magnesium, potassium and
+fasting-salt amounts up to a common supplement label amount, with the page's
+one safety line (Brew, DECISION_LOG 2026-10-17 "ELECTROLYTE AMOUNTS UP TO THE
+LABEL", supersedes the 2026-09-14 block). A post that prints an amount ABOVE the
+label, or any prescription drug dose, does not publish. The guard's label
+maxima: magnesium 350 mg, potassium 99 mg, sodium during a fast 1,000 mg a
+serving or 5,000 mg a day. A daily salt range is allowed (2026-10-17).
 
 - Sodium: **most people on carnivore and keto land around 3-5 g of sodium a day**
   (about 1.5-2 teaspoons of salt), a bit more on hot or hard-training days
@@ -50,22 +54,28 @@ allowed again (2026-10-17, see changelog).
   and put the page's one safety line next to it. Food facts and labels are fine
   ("a cup of broth can carry 800-1,200 mg", "LMNT has 1,000 mg per packet"), and
   1 tsp of salt is about 2.3 g of sodium.
-- Magnesium: **no milligram amount, ever** (rule of 2026-09-14, see changelog
-  2026-10-13). Name the form and timing (glycinate, in the evening; avoid oxide,
-  poor absorption), then say why there is no number and send the reader to their
-  pharmacist: the kidneys clear magnesium, and blood pressure medicine, water
-  pills and reduced kidney function all change the safe amount. That routing is
-  the page's one safety line plus "ask your pharmacist" in the same sentence, not
-  a second warning paragraph.
-- Potassium: **no daily target and no supplement amount addressed to the reader**
-  (rule of 2026-09-14). Food first: meat and bone broth cover most of it. Say why
-  we give no number: too much potassium is dangerous, and blood pressure medicine
-  (ACE inhibitors, ARBs, some water pills) and reduced kidney function change the
-  answer, so the reader asks their doctor or pharmacist. Food facts ("beef has
-  about 300-400 mg per 4 oz") and overdose warnings are fine. Never publish the
-  retired 3,000-4,700 range or a bare 4,700 "target" anywhere, even as history
-  told to the reader as a goal. The 2019 NASEM Adequate Intakes (2,600 mg women,
-  3,400 mg men) are background for writers, not a number to print as a target.
+- Magnesium: **up to the label, typically 200-350 mg** of glycinate or citrate
+  in the evening (avoid oxide, poor absorption), worded as what people on the
+  diet typically take. Never above 350 mg a day from supplements: that is the
+  adult Tolerable Upper Intake Level (NIH Office of Dietary Supplements), and
+  food magnesium does not count toward it. 400 mg is the RDA for total intake,
+  not a supplement ceiling. Say why it matters: the kidneys
+  clear magnesium, so kidney problems and some medicines change the safe amount;
+  the page's one safety line covers the doctor check, so add no second warning.
+- Potassium: **food first** (meat and bone broth cover most of it). A supplement
+  amount may be stated only up to the over-the-counter label, 99 mg a tablet.
+  Never print a daily potassium target to hit from supplements, never the
+  retired 3,000-4,700 range or a bare 4,700 "target", and never a salt-substitute
+  (potassium chloride) spoon measure: too much potassium is dangerous, and the
+  guard fails any instructed potassium amount above 99 mg. The 2019 NASEM
+  Adequate Intakes (2,600 mg women, 3,400 mg men) stay background for writers.
+  Food facts ("beef has about 300-400 mg per 4 oz") and overdose warnings are
+  fine.
+- Sodium during a fast: amounts may be stated up to an electrolyte packet label
+  (1,000 mg a serving) and within the 3-5 g daily range, worded as what people on
+  longer fasts typically do, with the page's one safety line.
+- Drug doses: never, on any site. Name the medicine and say the prescriber
+  decides; never print its dose.
 - Timing: spread sodium through the day. A small salty drink before bed is a fine
   fix for night cramps and 3am waking; we do not simultaneously warn against
   evening sodium.
@@ -236,8 +246,14 @@ the sections above do not apply to PD unless a line below says so.
   guard no longer flags a daily salt range. No retro sweep: the 36 pages edited
   on 2026-10-14 stay as they are. Paid reports keep their salt numbers.
   `scripts/check_doctor_line.py` checks queued CW/KD posts for exactly one line.
-  Unchanged and still open for Brew: the 2026-09-14 magnesium and potassium
-  no-number rule and the fasting-sodium rule (Gate 11 still fails those).
+- 2026-10-17: **ELECTROLYTE AMOUNTS UP TO THE LABEL (extends the content line).**
+  Brew answered the open item above, 2026-10-17 06:5x: "Allow up to the label
+  amount". Magnesium, potassium and fasting-salt amounts may be stated in new
+  content, never above the supplement label, always with the page's one safety
+  line. Supersedes the 2026-09-14 block on those amounts for new content only;
+  pages cleaned under it are not re-edited. The guard now fails only amounts
+  above the label (magnesium 350 mg, potassium 99 mg, fasting sodium 1,000 mg a
+  serving or 5,000 mg a day) and any prescription drug dose.
 
 - 2026-08-24: file created from the content-quality review. Open items needing
   Brew's decision: (1) confirm the protein formula matches the calculator's
