@@ -42,7 +42,7 @@ and bounce over attempts; complaint and both unique rates over delivered;
 fixtures excluded from the whole cohort before anything is counted).
 
 Pulls every data source into a single self-contained HTML page + JSON:
-  - GA4 traffic (CW + KD properties, incl. realtime active users)
+  - GA4 traffic (CW + KD + PD properties, incl. realtime active users)
   - GA4 paid-funnel events (step1 → free results → offer → modal → checkout)
   - Google Search Console (both sites, week-over-week)
   - Bing Webmaster Tools (when secrets/api-keys.json has bing.api_key)
@@ -83,6 +83,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -513,14 +514,19 @@ def fetch_pescodial():
         metrics=[Metric(name='sessions'), Metric(name='eventCount')],
         date_ranges=[DateRange(start_date=PD_LAUNCH, end_date='today')], dimension_filter=f))
     got = {r.dimension_values[0].value: int(r.metric_values[0].value) for r in resp.rows}
-    paid = supa_fetch('calculator_sessions_v2', select='amount_paid_cents,email',
-                      filters=f'diet_type=like.pesco*&amount_paid_cents=gt.0&created_at=gte.{PD_LAUNCH}',
-                      limit=500)
+    # PD checkouts are written to cw_assessment_sessions (form_data.diet = pesco-*),
+    # never to calculator_sessions_v2, which is why this card read 0 sales until
+    # 2026-10-23. That table has no amount column; money comes from Stripe
+    # (by_product_30d 'PD 7-day plan').
+    paid = supa_fetch('cw_assessment_sessions', select='email',
+                      filters=f'form_data->>diet=ilike.pesco*&payment_status=eq.completed'
+                              f'&created_at=gte.{PD_LAUNCH}', limit=500)
+    hidden = sum(1 for r in paid if is_test_email(r.get('email')))
     paid = [r for r in paid if not is_test_email(r.get('email'))]
     return {'since': PD_LAUNCH,
             'events': [{'name': n, 'label': l, 'sessions': got.get(n, 0)} for n, l in PD_EVENTS],
             'paid_orders': len(paid),
-            'paid_usd': round(sum(r['amount_paid_cents'] for r in paid) / 100, 2),
+            'paid_test_hidden': hidden,
             'note': 'GA4 sessions containing each event since launch; launch-night QA visits are in here.'}
 
 
@@ -1057,7 +1063,7 @@ def compute_email_metrics(rows, is_fixture):
     events in the denominators would flatter every rate on the page.
     """
     out = {}
-    for site in ('cw', 'kd'):
+    for site in ('cw', 'kd', 'pd'):
         site_rows = [r for r in rows if r.get('site') == site]
         prod = [r for r in site_rows if not is_fixture(r.get('email'))]
 
@@ -1103,7 +1109,7 @@ def fetch_email_engagement():
     prev = compute_email_metrics(_fetch_events(d14, d8), is_fixture)
 
     out = {'fixture_filter_active': fixture_ok, 'fixture_note': FIXTURE_EXCLUDED_NOTE}
-    for site in ('cw', 'kd'):
+    for site in ('cw', 'kd', 'pd'):
         s = dict(cur[site])
         s['previous_7d'] = prev[site]
         out[site] = s
@@ -1147,7 +1153,13 @@ def fetch_revenue():
             headers={'Authorization': f'Bearer {stripe_key}'}).get('data', [])
         for s in sessions:
             md = s.get('metadata') or {}
-            if md.get('assessment_session_id'):
+            surl = s.get('success_url') or ''
+            # PD plans share the CW checkout (same assessment_session_id metadata);
+            # only the return URL says PescoDial.
+            if md.get('assessment_session_id') and ('pescodial' in surl
+                                                    or '/calculator/?payment=' in surl):
+                label = 'PD 7-day plan'
+            elif md.get('assessment_session_id'):
                 # 2026-09-27: a report bought from the abandoned-checkout recovery
                 # email is its own revenue line, not part of the organic report sales.
                 if md.get('acquisition_source') == X.RECOVERY_CAMPAIGN:
@@ -1319,7 +1331,7 @@ def fetch_queues():
             bp = json.load(fh)
         posts = bp.get('blog_posts', bp) if isinstance(bp, dict) else bp
         cutoff = iso_days_ago(28)[:10]
-        for site in ('cw', 'kd'):
+        for site in ('cw', 'kd', 'pd'):
             sp = [p for p in posts if p.get('site', 'cw') == site]
             pub = sorted(p.get('publish_date', '') for p in sp
                          if (p.get('status') == 'published' or p.get('published'))
@@ -1351,7 +1363,7 @@ def fetch_yesterday():
         out[f'calc_sessions_{label}'] = supa_count('calculator_sessions_v2', base)
         out[f'calc_emails_{label}'] = supa_count('calculator_sessions_v2',
                                                  f'{base}&email=not.is.null')
-    for site in ('cw', 'kd'):
+    for site in ('cw', 'kd', 'pd'):
         s = f'site=eq.{site}&{SUBSCRIBER_TEST_FILTER}'
         out[f'newsletter_signups_{site}'] = supa_count('newsletter_subscribers', f'{s}&{day}')
         out[f'drip_signups_{site}'] = supa_count(
@@ -1405,7 +1417,7 @@ def build_insights(d):
     def add(sev, text):
         ins.append({'severity': sev, 'text': text})
 
-    for site, label in [('cw', 'Carnivore Weekly'), ('kd', 'KetoDial')]:
+    for site, label in [('cw', 'Carnivore Weekly'), ('kd', 'KetoDial'), ('pd', 'PescoDial')]:
         t = d['traffic'].get(site)
         if not t or t.get('error'):
             add('watch', f'{label} traffic data unavailable this run — GA4 fetch failed.')
@@ -1488,7 +1500,7 @@ def build_insights(d):
                              f'({g["sessions"]} sessions from {g["users"]} users, about one visit each). '
                              f'That is the crawler signature, not readers, so treat totals as inflated.')
 
-    for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+    for site, label in [('cw', 'CW'), ('kd', 'KD'), ('pd', 'PD')]:
         g = d['search'].get(site)
         if not g or g.get('error'):
             continue
@@ -1542,13 +1554,25 @@ def build_insights(d):
             add('watch', f'CW calculator sessions fell {abs(wk["change_pct"]):.0f}% this week '
                          f'({wk["previous"]} → {wk["current"]}).')
 
-    for dsite, dlabel in [('cw', 'CW'), ('kd', 'KD')]:
+    for dsite, dlabel in [('cw', 'CW'), ('kd', 'KD'), ('pd', 'PD')]:
         drip = f.get(f'drip_{dsite}', {})
         if drip and not drip.get('error') and drip.get('active', 0) > 0 and drip.get('last_send'):
             try:
                 last = datetime.fromisoformat(drip['last_send'].replace('Z', '+00:00'))
                 hours = (datetime.now(timezone.utc) - last).total_seconds() / 3600
-                if hours > 48:
+                # A big list always has someone due, so 48h of silence is a stall.
+                # A small list can all sit inside one scheduled gap (PD day 14 -> 21),
+                # so there the limit is the longest gap in that site's sequence + 1 day.
+                limit = 48
+                ddir = os.path.join(PROJECT_ROOT, 'data', 'drip-emails', dsite)
+                if not os.path.isdir(ddir):  # CW's sequence sits at the top level
+                    ddir = os.path.dirname(ddir)
+                if drip['active'] < 10 and os.path.isdir(ddir):
+                    days = sorted(int(n[4:-5]) for n in os.listdir(ddir)
+                                  if re.fullmatch(r'day-\d+\.html', n))
+                    if len(days) > 1:
+                        limit = max(48, (max(b - a for a, b in zip(days, days[1:])) + 1) * 24)
+                if hours > limit:
                     why = drip.get('blocked_reason')
                     add('alert', f'{dlabel} drip pipeline looks stalled — {drip["active"]} active '
                                  f'subscribers but no send in {hours / 24:.1f} days. '
@@ -1558,7 +1582,7 @@ def build_insights(d):
             except Exception:
                 pass
 
-    for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+    for site, label in [('cw', 'CW'), ('kd', 'KD'), ('pd', 'PD')]:
         nl = f.get(f'newsletter_{site}', {})
         if nl and not nl.get('error'):
             if nl.get('new_7d', 0) == 0:
@@ -1596,7 +1620,7 @@ def build_insights(d):
     # These rules previously read eng['complained']['current_7d'], a shape that
     # no longer exists, so none of them could fire.
     eng = d.get('email_engagement', {}) or {}
-    for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+    for site, label in [('cw', 'CW'), ('kd', 'KD'), ('pd', 'PD')]:
         e = eng.get(site) or {}
         if not e or e.get('error'):
             continue
@@ -1633,7 +1657,7 @@ def build_insights(d):
                     f'because processor fees and COGS are not fed into this dashboard.')
 
     q = d.get('queues') or {}
-    for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+    for site, label in [('cw', 'CW'), ('kd', 'KD'), ('pd', 'PD')]:
         s = q.get(site) or {}
         if s and s.get('ready') == 0:
             add('alert', f'{label} blog queue is EMPTY — publishing stalls unless the next '
@@ -1716,11 +1740,13 @@ def model_narrative(data, model=NARRATIVE_MODEL):
     if not api_key:
         return None
     digest = {
-        'traffic_week': {s: data['traffic'].get(s, {}).get('week') for s in ('cw', 'kd')},
+        'traffic_week': {s: data['traffic'].get(s, {}).get('week') for s in ('cw', 'kd', 'pd')},
         'search_google': {s: {'current': data['search'].get(s, {}).get('current'),
-                              'previous': data['search'].get(s, {}).get('previous')} for s in ('cw', 'kd')},
+                              'previous': data['search'].get(s, {}).get('previous')}
+                          for s in ('cw', 'kd', 'pd')},
         'search_bing': {s: {k: v for k, v in (data['search'].get(f'bing_{s}') or {}).items()
-                            if k != 'top_queries'} for s in ('cw', 'kd')},
+                            if k != 'top_queries'} for s in ('cw', 'kd', 'pd')},
+        'pescodial': data.get('pescodial'),
         'funnels': data.get('funnels'),
         'demographics_cw': {k: v for k, v in (data.get('demographics', {}).get('cw') or {}).items()
                             if k in ('sessions', 'share_45_plus', 'email_capture_pct', 'sex', 'goal')},
@@ -1995,7 +2021,7 @@ def collect(use_model=True):
     data['revenue_exec'] = X.build_revenue(data.get('revenue'), NET_TARGET_MONTHLY, TODAY)
     data['changes'] = X.build_changes(data, TODAY)
     data['signal'] = {s: X.clean_traffic((data.get('traffic') or {}).get(s), today_iso)
-                      for s in ('cw', 'kd')}
+                      for s in ('cw', 'kd', 'pd')}
     data['experiments'] = X.build_experiments(load_experiments(), offer_organic, TODAY)
     data['needs_attention'] = X.build_needs_attention(data, data['changes'], TODAY)
     data['dont_overreact'] = X.build_dont_overreact(data, data['changes'],
@@ -2426,10 +2452,14 @@ def pescodial_html(d):
     if drip and not f.get('error'):
         stats += [(drip.get('active', 0), 'in drip'), (nl.get('new_7d', 0), 'signups 7d')]
     # A failed read must never render as zero sales.
-    if 'paid_usd' in pd:
-        stats += [(pd['paid_orders'], 'paid plans'), (f'${pd["paid_usd"]:,.2f}', 'revenue')]
+    if 'paid_orders' in pd:
+        stats += [(pd['paid_orders'], 'paid plans')]
     else:
         stats += [('n/a', 'paid plans (read failed)')]
+    rev = d.get('revenue') or {}
+    if rev.get('configured') and not rev.get('error'):
+        usd = (rev.get('by_product_30d') or {}).get('PD 7-day plan', 0)
+        stats += [(f'${usd:,.2f}', 'collected 30d')]
     srow = ''.join(f'<div class="stat"><b>{esc(v)}</b><span>{esc(k)}</span></div>' for v, k in stats)
     ev = pd.get('events') or []
     top = max([e['sessions'] for e in ev] + [1])
@@ -2490,6 +2520,22 @@ def scorecard_html(d, site, label, ident):
             if key in st and st[key]['sessions'] is not None:
                 add('Buying intent', f'{nm} (28d)', st[key]['sessions'], base=bs,
                     note='single window — no comparable prior period fetched')
+    if site == 'pd':
+        pdd = d.get('pescodial') or {}
+        ev = {e['name']: e['sessions'] for e in pdd.get('events') or []}
+        for nm, key in (('Saw free results', 'calc_results_viewed'),
+                        ('Clicked $29 plan', 'upgrade_click'),
+                        ('Checkouts started', 'begin_checkout')):
+            if key in ev:
+                add('Buying intent', f'{nm} (since launch)', ev[key], base='purchases',
+                    note='GA4 sessions, single window')
+        if 'paid_orders' in pdd:
+            add('Revenue', 'Paid plans (since launch)', pdd['paid_orders'], base='purchases',
+                note='single window')
+        rv = d.get('revenue') or {}
+        if rv.get('configured') and not rv.get('error'):
+            add('Revenue', 'Collected (30d)', (rv.get('by_product_30d') or {}).get('PD 7-day plan', 0),
+                unit='money', base='revenue', note='single window')
     r = d.get('revenue_exec') or {}
     if site == 'cw' and not r.get('unavailable'):
         add('Revenue', 'Purchases (30d)', r['purchases_30d'], base='purchases',
@@ -2709,7 +2755,8 @@ def experiments_html(d):
 def signal_html(d):
     sig = d.get('signal') or {}
     rows = ''
-    for site, label, ident in (('cw', 'Carnivore Weekly', 'cw'), ('kd', 'KetoDial', 'kd')):
+    for site, label, ident in (('cw', 'Carnivore Weekly', 'cw'), ('kd', 'KetoDial', 'kd'),
+                               ('pd', 'PescoDial', 'pd')):
         s = sig.get(site)
         if not s:
             rows += (f'<div class="sig site-{ident}"><h3><span class="rule"></span>'
@@ -3008,7 +3055,7 @@ def render_html(d):
     queue_html = ''
     if q and not q.get('error'):
         parts = []
-        for site, label in [('cw', 'CW posts'), ('kd', 'KD posts')]:
+        for site, label in [('cw', 'CW posts'), ('kd', 'KD posts'), ('pd', 'PD posts')]:
             s = q.get(site) or {}
             if s:
                 warn = ' style="color:var(--red)"' if s.get('ready', 0) == 0 else ''
@@ -3025,9 +3072,10 @@ def render_html(d):
             (ydata.get('calc_sessions_cw', 0), 'CW calc sessions'),
             (ydata.get('calc_sessions_kd', 0), 'KD calc sessions'),
             (ydata.get('calc_emails_cw', 0) + ydata.get('calc_emails_kd', 0), 'emails captured'),
-            (ydata.get('newsletter_signups_cw', 0) + ydata.get('newsletter_signups_kd', 0),
-             'newsletter signups'),
-            (ydata.get('drip_signups_cw', 0) + ydata.get('drip_signups_kd', 0), 'drip signups'),
+            (ydata.get('newsletter_signups_cw', 0) + ydata.get('newsletter_signups_kd', 0)
+             + ydata.get('newsletter_signups_pd', 0), 'newsletter signups'),
+            (ydata.get('drip_signups_cw', 0) + ydata.get('drip_signups_kd', 0)
+             + ydata.get('drip_signups_pd', 0), 'drip signups'),
         ]
         if rev_y:
             ystats.append((f'${rev_y.get("net", 0):.2f}', 'revenue'))
@@ -3067,8 +3115,10 @@ def render_html(d):
     coach = f.get('coach', {}) if not f.get('error') else {}
     drip_cw = f.get('drip_cw', {}) if not f.get('error') else {}
     drip_kd = f.get('drip_kd', {}) if not f.get('error') else {}
+    drip_pd = f.get('drip_pd', {}) if not f.get('error') else {}
     nl_cw = f.get('newsletter_cw', {})
     nl_kd = f.get('newsletter_kd', {})
+    nl_pd = f.get('newsletter_pd', {})
 
     fb = d.get('feedback', {})
     fb_recent = fb.get('recent', []) if not fb.get('error') else []
@@ -3153,7 +3203,7 @@ def render_html(d):
     eng = d.get('email_engagement', {})
     eng_html = ''
     if eng and not eng.get('error'):
-        for esite, elabel in [('cw', 'CW'), ('kd', 'KD')]:
+        for esite, elabel in [('cw', 'CW'), ('kd', 'KD'), ('pd', 'PD')]:
             se = eng.get(esite, {})
             if not se:
                 continue
@@ -3227,6 +3277,7 @@ def render_html(d):
 
     drip_cw_html = drip_block(drip_cw)
     drip_kd_html = drip_block(drip_kd)
+    drip_pd_html = drip_block(drip_pd)
 
     def nl_block(nl):
         if not nl:
@@ -3386,7 +3437,9 @@ def render_html(d):
     .site-title{display:flex;align-items:center;gap:9px;font:600 13px/1 var(--sans)!important;
       text-transform:none!important;letter-spacing:-.01em!important;color:var(--text)!important}
     .site-title .rule{width:3px;height:15px;border-radius:2px;display:block}
-    .site-cw .rule{background:var(--cw)} .site-kd .rule{background:var(--kd)} .site-pd{border-top:2px solid var(--pd)}
+    .site-cw .rule{background:var(--cw)} .site-kd .rule{background:var(--kd)} .site-pd .rule{background:var(--pd)}
+    .site-pd{border-top:2px solid var(--pd)} .sig.site-pd{border-top:none}
+    #scorecards.row2{grid-template-columns:repeat(3,minmax(0,1fr))}
     .score table{width:100%;border-collapse:collapse}
     .score th{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;
       color:var(--faint);text-align:left;padding:0 0 7px;font-weight:400;
@@ -3623,6 +3676,7 @@ def render_html(d):
       .cockpit{grid-template-columns:1fr}
       .row3{grid-template-columns:1fr 1fr}
       .row3>*:first-child{grid-column:1/-1}
+      #scorecards.row2{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
     @media(max-width:760px){
       main{padding:14px}
@@ -3632,7 +3686,7 @@ def render_html(d):
       .sb-state{border-right:none;border-bottom:1px solid var(--line);min-width:0}
       .sb-cell{min-width:50%;flex-basis:50%;padding:11px 14px;
         border-bottom:1px solid var(--line-soft)}
-      .row2,.row3{grid-template-columns:1fr}
+      .row2,.row3,#scorecards.row2{grid-template-columns:1fr}
       .row3>*:first-child{grid-column:auto}
       .exp-grid{grid-template-columns:repeat(2,1fr)}
       .sig-pair{grid-template-columns:1fr 1fr}
@@ -3715,7 +3769,7 @@ def render_html(d):
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Command Centre &#8212; CW + KD</title><style>{css}</style></head>
+<title>Command Centre &#8212; CW + KD + PD</title><style>{css}</style></head>
 <body>
 <header class="top">
 <h1>Command Centre</h1>
@@ -3742,6 +3796,7 @@ def render_html(d):
 <div class="row2" id="scorecards">
 {scorecard_html(d, 'cw', 'Carnivore Weekly', 'cw')}
 {scorecard_html(d, 'kd', 'KetoDial', 'kd')}
+{scorecard_html(d, 'pd', 'PescoDial', 'pd')}
 </div>
 
 {pescodial_html(d)}
@@ -3806,6 +3861,9 @@ def render_html(d):
 <div class="card"><h3>30-day drip (KD)</h3>{drip_kd_html or funnels_unreadable or ''}</div>
 <div class="card"><h3>Newsletter (CW)</h3>{funnels_unreadable or f'<div class="statrow">{nl_block(nl_cw)}</div>'}</div>
 <div class="card"><h3>Newsletter (KD)</h3>{funnels_unreadable or f'<div class="statrow">{nl_block(nl_kd)}</div>'}</div>
+<div class="card"><h3>PD calculator demographics</h3><p class="muted small">Not collected: the PescoDial calculator runs in the browser and stores no answers until checkout. Its step-by-step counts are in the PescoDial card.</p></div>
+<div class="card"><h3>30-day drip (PD)</h3>{drip_pd_html or funnels_unreadable or ''}</div>
+<div class="card"><h3>Newsletter (PD)</h3>{funnels_unreadable or f'<div class="statrow">{nl_block(nl_pd)}</div>'}</div>
 <div class="card"><h3>Coach (KD)</h3>{coach_html or funnels_unreadable or ''}</div>
 </div></div>
 
@@ -3969,8 +4027,10 @@ def email_report(data, html, nas_ok=False):
         cells = [
             f'{y.get("calc_sessions_cw", 0)}/{y.get("calc_sessions_kd", 0)} calc sessions (CW/KD)',
             f'{y.get("calc_emails_cw", 0) + y.get("calc_emails_kd", 0)} emails captured',
-            f'{y.get("newsletter_signups_cw", 0) + y.get("newsletter_signups_kd", 0)} newsletter + '
-            f'{y.get("drip_signups_cw", 0) + y.get("drip_signups_kd", 0)} drip signups',
+            f'{y.get("newsletter_signups_cw", 0) + y.get("newsletter_signups_kd", 0) + y.get("newsletter_signups_pd", 0)}'
+            f' newsletter + '
+            f'{y.get("drip_signups_cw", 0) + y.get("drip_signups_kd", 0) + y.get("drip_signups_pd", 0)}'
+            f' drip signups',
         ]
         if rev_y:
             cells.append(f'${rev_y.get("net", 0):.2f} revenue')
@@ -3991,7 +4051,7 @@ def email_report(data, html, nas_ok=False):
     qd = data.get('queues') or {}
     q_bits = []
     if qd and not qd.get('error'):
-        for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+        for site, label in [('cw', 'CW'), ('kd', 'KD'), ('pd', 'PD')]:
             s = qd.get(site) or {}
             if s:
                 n = s.get('ready', '?')
