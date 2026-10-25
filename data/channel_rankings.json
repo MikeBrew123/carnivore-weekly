@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-10-21",
+  "last_updated": "2026-10-25",
   "leaderboard": [
     {
       "name": "KenDBerryMD",
       "rank": 1,
-      "appearances": 3,
+      "appearances": 4,
       "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
@@ -14,52 +14,52 @@
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "Coach Carnivore Cam ",
       "rank": 3,
+      "appearances": 4,
+      "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
+    },
+    {
+      "name": "Meet Carnivore",
+      "rank": 4,
       "appearances": 14,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Jenny Mitich",
-      "rank": 4,
-      "appearances": 17,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
-    },
-    {
-      "name": "High Calorie Human",
+      "name": "Carnivore Quest",
       "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCW9asLl8mXZkXcLUGsVJvKg"
+      "appearances": 11,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Simnett Nutrition",
+      "name": "Literal Meathead",
       "rank": 6,
       "appearances": 1,
-      "channel_id": "UCpyhJZhJQWKDdJCR07jPY-Q"
-    },
-    {
-      "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 7,
-      "appearances": 3,
-      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
+      "channel_id": "UCxM1O8_QRcOLYB5uphoAf2g"
     },
     {
       "name": "Ferrigno Freedom",
-      "rank": 8,
+      "rank": 7,
       "appearances": 12,
       "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
     },
     {
-      "name": "Carnivore Quest",
-      "rank": 9,
-      "appearances": 10,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "name": "Jenny Mitich",
+      "rank": 8,
+      "appearances": 18,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "No Carb Life",
+      "name": "Claire Vesper ",
+      "rank": 9,
+      "appearances": 4,
+      "channel_id": "UCeHelmNzByVLRNMgZDCeRxQ"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
       "rank": 10,
-      "appearances": 13,
-      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+      "appearances": 16,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     }
   ]
 }
