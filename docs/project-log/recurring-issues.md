@@ -973,6 +973,7 @@ If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness fai
 - 2026-10-17 — content-editor queue review hit it again. Same workaround (scanners clean, PATH without `~/.local/bin`), pushed as d44c6314. Fourth hit in a week; the hook fix decision is overdue.
 - 2026-10-19 — weekly-operator-review hit it on the ops-log commit. Same workaround (scanners clean, PATH without `~/.local/bin`). Also means no session on the Mini can `bd create`; beads for this run went into weekly-ops-log.md instead.
 - 2026-10-20 — persona-claim-fix run (queue #1) hit it in a worktree on the content commit. Same workaround (scanners clean, PATH without `~/.local/bin`), merged as PR #142.
+- 2026-10-26 — weekly-operator-review: `bd` on the Mini now reported "LEGACY DATABASE DETECTED" (a `beads.db` exists since ~10-24). Ran `bd migrate --update-repo-id`; `bd` works again (fresh, empty issue list, Mini-local). The pre-commit hook then passed on this run's commit (ca73a12a) with `~/.local/bin` on PATH, no workaround. Likely resolved; watch the next scheduled commit.
 **If recurs / rule:** proper fix needs a decision: either `bd init` on the Mini or make the hook skip when no `beads.db` exists, and switch the scanner paths to `$(git rev-parse --show-toplevel)`. Until then, run both scanners by hand before using the PATH workaround. Never `--no-verify`.
 
 ## ISSUE-105 — Paid calculator report never emailed unless buyer taps "Email me"
@@ -981,3 +982,10 @@ If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness fai
 **Attempts:**
 - 2026-10-20: resent manually via `email-report`. `handleReportInit` now mails the report once after it is built (shared `sendReportEmail`, `ctx.waitUntil`). Retries hit `already_generated` and send nothing. Pinned by `tests/report-init-auto-email.test.mjs` (mutation-tested), wired into both calculator workflows. Applies to PescoDial too (same endpoint).
 **If recurs:** check Resend for "Your Personalized Carnivore Protocol" to the buyer, then worker logs for `[handleReportInit] report email`.
+
+## ISSUE-106 — Headless scheduled task exits while a background job is still running (KD batch lost)
+**Status:** 🔴 OPEN (2026-10-26)
+**Pattern:** `~/bin/claude-task.sh` runs `claude -p` once per fire. On 2026-10-24 04:30 the kd-blog-content-generation run handed image generation to a background job and ended its turn with "I'll pick back up once it finishes rather than poll for it". In `-p` mode there is no next turn, so the process exited: no posts written, nothing committed, log 125 bytes. KD queue reached 0 ready and the week of 10-27 publishes nothing (no catch-up run per the KD cadence rule in CLAUDE.md).
+**Attempts:**
+- 2026-10-26 — found by the weekly ops review (`kd-blog-content-generation-20261024-0430.log`). No fix applied; bead filed P2. The 10-25 CW run was unaffected.
+**If recurs / rule:** headless task prompts must say to run image generation in the foreground and wait, never background it; or `claude-task.sh` must detect a transcript ending in a background hand-off and re-invoke with `--continue`. Fast check for any task: a `~/Library/Logs/aihub/tasks/<task>-<date>.log` under 1 KB means the run did nothing.
