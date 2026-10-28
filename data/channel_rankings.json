@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-10-25",
+  "last_updated": "2026-10-28",
   "leaderboard": [
     {
       "name": "KenDBerryMD",
@@ -8,22 +8,22 @@
       "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
-      "name": "HomeSteadHow",
-      "rank": 2,
-      "appearances": 15,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
       "name": "Coach Carnivore Cam ",
-      "rank": 3,
+      "rank": 2,
       "appearances": 4,
       "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "Anthony Chaffee MD",
+      "rank": 3,
+      "appearances": 1,
+      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
+    },
+    {
+      "name": "No Carb Life",
       "rank": 4,
-      "appearances": 14,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+      "appearances": 15,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     },
     {
       "name": "Carnivore Quest",
@@ -32,34 +32,34 @@
       "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Literal Meathead",
+      "name": "Boston Carnivore Diane Ladd",
       "rank": 6,
       "appearances": 1,
-      "channel_id": "UCxM1O8_QRcOLYB5uphoAf2g"
+      "channel_id": "UC-sYtwiuqvi94zMKsRPc5Ww"
     },
     {
-      "name": "Ferrigno Freedom",
+      "name": "Emmathecarnivore",
       "rank": 7,
       "appearances": 12,
-      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
-      "name": "Jenny Mitich",
+      "name": "Meet Carnivore",
       "rank": 8,
-      "appearances": 18,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+      "appearances": 15,
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Claire Vesper ",
+      "name": "Kent Carnivore",
       "rank": 9,
-      "appearances": 4,
-      "channel_id": "UCeHelmNzByVLRNMgZDCeRxQ"
+      "appearances": 6,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "Loving Life Over 50",
       "rank": 10,
-      "appearances": 16,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "appearances": 2,
+      "channel_id": "UCNYcP-p8kCE8eSal_jHzTxg"
     }
   ]
 }
