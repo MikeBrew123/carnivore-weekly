@@ -22,34 +22,35 @@
     meal: /meal plan|what to eat|recipe|cooking|food list|shopping/i,
   };
 
-  let headline = 'Know Exactly What to Eat';
-  let subtext = 'Get personalized macros and a 30-day meal plan built from your body stats, age, and goals. Takes 60 seconds.';
-  let cta = 'Get Your Free Macros';
+  // Promise only what the free calculator gives: targets plus one sample day.
+  // The 30-day plan is the paid $29 report; never imply it is free here.
+  let headline = 'Know What to Eat, and How Much';
+  let subtext = 'Get your daily protein, fat and calorie targets for your age, weight and goal, plus a sample day of meals. Takes about two minutes.';
+  let cta = 'Get My Free Targets';
 
   if (topics.weightLoss.test(title + body.slice(0, 2000))) {
-    headline = 'Ready to Dial In Your Fat Loss?';
-    subtext = 'Get your exact fat-loss macros, a 30-day meal plan, and a custom protocol built for your body and goals.';
-    cta = 'Calculate Your Fat-Loss Macros';
+    headline = 'How Much Should You Be Eating?';
+    subtext = 'See the protein, fat and calories that fit your age, weight and goal, plus a sample day of meals. Free, and about two minutes.';
+    cta = 'See My Free Numbers';
   } else if (topics.muscle.test(title + body.slice(0, 2000))) {
-    headline = 'Optimize Your Performance';
-    subtext = 'Get precise muscle-building macros, meal timing, and a custom protocol tailored to your training.';
-    cta = 'Get Your Performance Macros';
+    headline = 'Protein That Protects Your Muscle';
+    subtext = 'See how much protein you need each day to hold on to muscle, with fat and calorie targets and a sample day of meals.';
+    cta = 'Get My Free Targets';
   } else if (topics.beginner.test(title + body.slice(0, 2000))) {
     headline = 'Not Sure Where to Start?';
-    subtext = 'Our free calculator gives you exact macros and a sample meal plan in 60 seconds — no guesswork required.';
-    cta = 'Start Your Personalized Plan';
+    subtext = 'Answer a few questions and get your daily food targets, plus a sample day of meals for carnivore, keto, low carb or pescatarian.';
+    cta = 'Show Me Where to Start';
   } else if (topics.digestion.test(title + body.slice(0, 2000))) {
-    headline = 'Get the Ratios Right';
-    subtext = 'Many digestion issues come from incorrect fat-to-protein ratios. Get your exact macros dialed in.';
-    cta = 'Calculate Your Ideal Ratios';
+    headline = 'Getting the Balance Right';
+    subtext = 'A sudden jump in fat can be hard on your stomach. See a protein and fat balance sized for you, plus a sample day of meals.';
+    cta = 'Get My Free Targets';
   } else if (topics.electrolyte.test(title + body.slice(0, 2000))) {
-    headline = 'Your Protocol Is Incomplete';
-    subtext = 'Electrolytes are just one piece. Get your complete protocol — macros, meal timing, and supplementation.';
-    cta = 'Get Your Complete Protocol';
+    // Keeps the default copy. Electrolyte doses are withheld for many readers
+    // on safety grounds, so this box must not promise anything about them.
   } else if (topics.meal.test(title + body.slice(0, 2000))) {
-    headline = 'Your Personalized Meal Plan';
-    subtext = 'Stop guessing. Get a 30-day meal plan built from your exact macros, preferences, and goals.';
-    cta = 'Build Your Meal Plan';
+    headline = 'See a Day of Meals Built for You';
+    subtext = 'Get a sample day of meals sized to your own protein, fat and calorie targets. A 30-day plan is an optional paid extra.';
+    cta = 'See My Sample Day';
   }
 
   // Build the CTA HTML — matches Carnivore Weekly brand.

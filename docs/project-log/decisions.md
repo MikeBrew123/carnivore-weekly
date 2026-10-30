@@ -2757,3 +2757,6 @@ Brief Me now lives in the private repo MikeBrew123/brief-me (`~/Developer/brief-
 
 ## 2026-10-28 · Women's health post safety copy fix (deck 9bb2e6f5)
 - Brew approved Command Deck card 9bb2e6f5 (2026-10-27 22:01 PT). `2026-01-05-womens-health`: magnesium "300-400 mg" replaced with the tier-2 no-number pharmacist wording already live on the September-fixed posts; "You're reversing insulin resistance" softened to "You're likely improving insulin sensitivity". Line "PCOS is fundamentally a disease of insulin resistance" kept (description, not a carnivore claim). Meta description and JSON-LD carried neither. Edited in `data/blog_posts.json`, `blog/` and `public/blog/`. Commit 552c23ee. Unblocks the post for the KD deep-link batch (kd-deep-link-plan-2026-10-20).
+
+## 2026-10-30: Blog calculator button stops promising a free 30-day plan
+Brew: "Ship it". `public/js/calculator-cta.js` promised a free 30-day meal plan, custom protocol, meal timing and supplements; the calculator gives targets plus a sample day. Sarah rewrote all variants; electrolyte posts fall back to default copy (doses are withheld for many readers). Tracked in `dashboard/experiments.json` ("CW honest blog calculator button"). Baseline 10-02 to 10-29: 75 blog-referred starts, 4 offer clicks, 2 sales; about 1,200 box views and 4 button clicks since 10-20.
