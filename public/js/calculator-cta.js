@@ -121,7 +121,7 @@
           font-size: 0.8rem;
           margin: 16px 0 0 0;
           font-family: 'Source Sans 3', sans-serif;
-        ">Free results in 60 seconds · Email required · Unsubscribe anytime</p>
+        ">Free results in about two minutes · Email required · Unsubscribe anytime</p>
       </div>
     </div>
   `;
