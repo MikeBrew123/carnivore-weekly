@@ -17,6 +17,23 @@
       "outcome_label": "Purchase sessions in same measurement window",
       "min_sample": 100,
       "notes": "Replaces the 09-13 bridge revision, which Brew ended 2026-10-03 as LOST (0 sales from 113 offer views vs 6 from 193 on the pre-09-13 card; 2 offer clicks logged since 09-20). Bar to beat: the pre-09-13 card, about 8% of viewers opened the payment box (10 of 118). Carnivore is about 58% of traffic and carries the read; keto, low carb and pescatarian variants are too thin to read alone. Do not change the bridge card, its copy, or the price while this reads KEEP MEASURING."
+    },
+    {
+      "name": "CW honest blog calculator button",
+      "shipped": "2026-10-30",
+      "shipped_ref": "see decisions.md 2026-10-30 (honest blog calculator button)",
+      "started": "2026-10-31",
+      "start_rationale": "Ships 2026-10-30 at the earliest; 10-31 is the first full day. Move this forward to the day after the PR actually merges.",
+      "denominator_event": "blog_calculator_cta_impression",
+      "denominator_label": "Blog calculator box seen",
+      "numerator_event": "blog_calculator_cta_click",
+      "numerator_label": "Blog calculator button clicked",
+      "checkout_event": "begin_checkout",
+      "checkout_label": "Checkout sessions in same measurement window",
+      "outcome_event": "purchase",
+      "outcome_label": "Purchase sessions in same measurement window",
+      "min_sample": 1000,
+      "notes": "The box stopped promising a free 30-day meal plan, custom protocol, meal timing and supplements; it now promises targets plus a sample day (Sarah's copy, Brew approved 10-30). Baseline: about 1,200 box views and 4 clicks from 10-20 (click event start) to 10-29. Supabase baseline 10-02 to 10-29: 75 blog-referred calculator starts, 4 offer clicks, 2 sales. Expected: clicks may dip because the promise is smaller; the win is a higher share of blog-referred starters clicking the $29 offer. Read both. Overlaps the diet bridge card read, which is still uncalled."
     }
   ]
 }
