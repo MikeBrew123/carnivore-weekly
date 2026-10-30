@@ -2757,3 +2757,6 @@ Brief Me now lives in the private repo MikeBrew123/brief-me (`~/Developer/brief-
 
 ## 2026-10-28 · Women's health post safety copy fix (deck 9bb2e6f5)
 - Brew approved Command Deck card 9bb2e6f5 (2026-10-27 22:01 PT). `2026-01-05-womens-health`: magnesium "300-400 mg" replaced with the tier-2 no-number pharmacist wording already live on the September-fixed posts; "You're reversing insulin resistance" softened to "You're likely improving insulin sensitivity". Line "PCOS is fundamentally a disease of insulin resistance" kept (description, not a carnivore claim). Meta description and JSON-LD carried neither. Edited in `data/blog_posts.json`, `blog/` and `public/blog/`. Commit 552c23ee. Unblocks the post for the KD deep-link batch (kd-deep-link-plan-2026-10-20).
+
+## 2026-10-30: Carnivore picker label includes eggs
+Brew approved. The picker said "beef, lamb, organs only"; the sample day leads with eggs. Label now "beef, lamb, eggs, organs" (PR #153). Diet bridge card read since 10-04: ~160 offer views, 6 offer clicks (~4
