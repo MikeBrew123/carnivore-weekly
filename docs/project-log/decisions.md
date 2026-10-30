@@ -2760,3 +2760,5 @@ Brief Me now lives in the private repo MikeBrew123/brief-me (`~/Developer/brief-
 
 ## 2026-10-30: Carnivore picker label includes eggs
 Brew approved. The picker said "beef, lamb, organs only"; the sample day leads with eggs. Label now "beef, lamb, eggs, organs" (PR #153). Diet bridge card read since 10-04: about 160 offer views, 6 offer clicks (about 4 percent, bar 8), 2 real sales, both after a recovery email (confound: recovery turned on 10-12). Call pending with Brew.
+## 2026-10-30: Blog calculator button stops promising a free 30-day plan
+Brew: "Ship it". `public/js/calculator-cta.js` promised a free 30-day meal plan, custom protocol, meal timing and supplements; the calculator gives targets plus a sample day. Sarah rewrote all variants; electrolyte posts fall back to default copy (doses are withheld for many readers). Tracked in `dashboard/experiments.json` ("CW honest blog calculator button"). Baseline 10-02 to 10-29: 75 blog-referred starts, 4 offer clicks, 2 sales; about 1,200 box views and 4 button clicks since 10-20.
