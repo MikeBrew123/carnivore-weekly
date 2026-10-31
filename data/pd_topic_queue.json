@@ -103,25 +103,29 @@
     {
       "id": "L1",
       "working_title": "Low Mercury Fish",
-      "writer": null,
+      "writer": "sarah",
       "keyword_evidence": "low mercury fish 1,200/mo; FDA ranks first",
       "safety_note": "Cite FDA/EPA fish advice directly; pregnancy and children guidance is out of scope for this audience, link to FDA.",
       "must_not_cannibalize": [
         "P5"
       ],
-      "status": "later"
+      "status": "drafted",
+      "slug": "low-mercury-fish",
+      "category": "health"
     },
     {
       "id": "L2",
       "working_title": "Is Canned Tuna Healthy?",
-      "writer": null,
+      "writer": "sarah",
       "keyword_evidence": "is canned tuna healthy 2,100/mo",
       "safety_note": "Mercury by tuna type from FDA/EPA; sodium for blood-pressure readers.",
       "must_not_cannibalize": [
         "P5",
         "L1"
       ],
-      "status": "later"
+      "status": "drafted",
+      "slug": "is-canned-tuna-healthy",
+      "category": "nutrition"
     },
     {
       "id": "L3",
