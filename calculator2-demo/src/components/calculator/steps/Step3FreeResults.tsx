@@ -7,6 +7,7 @@ import { acquisitionGaParams } from '../../../lib/acquisitionSource'
 import { ADULT_MIN_AGE, ADULT_ONLY_MESSAGE } from '../../../lib/calculations'
 // @ts-ignore — shared plain-JS module, same pattern as api/goal-semantics.js
 import { buildSampleDay, getDietSampleDay } from '../../../../../api/sample-day.js'
+import { resolveGoal } from '../../../../../api/goal-semantics.js'
 
 declare global {
   interface Window {
@@ -48,16 +49,20 @@ const dietConfig: Record<string, {
   // The $29 bridge card, written per diet (Brew, 2026-10-03). Short on purpose: the
   // buyers are mostly 55+ on a phone, and the 09-13 long card sold 0 of 113.
   // See reports/offer-card-audience-analysis-2026-10-03.md in the BSM vault.
-  bridge: { headline: string; subline: string; bullets: string[] }
+  // fatLossLastBullet replaces the last bullet for fat-loss readers only. The report's
+  // stall section goes to fat-loss readers alone (resolveGoal in calculator-api.js), so
+  // only they may be promised it (Brew, 2026-10-31).
+  bridge: { headline: string; subline: string; bullets: string[]; fatLossLastBullet?: string }
 }> = {
   'carnivore': {
     label: 'Carnivore',
     troubleshooting: 'Fixes for night sweats and digestive stalls',
     socialProof: 'carnivores',
     bridge: {
-      headline: 'Meat and salt is the whole plan.',
-      subline: 'We\'ll write down the rest.',
-      bullets: ['30 days of meals at your numbers', 'A grocery list each week', 'What to do when you stall'],
+      headline: 'Your numbers are the easy part.',
+      subline: 'Here\'s what to eat, every day, for 30 days.',
+      bullets: ['Meals planned around your goal', 'One grocery list a week', 'What to expect, week by week'],
+      fatLossLastBullet: 'What to do when the scale stops',
     },
   },
   'keto': {
@@ -295,6 +300,9 @@ export default function Step3FreeResults({
   // macros.calories is the FINAL target: if the floor capped it, the sample day
   // is built around the capped number, never the raw one.
   const sampleDay = buildSampleDay(getDietSampleDay(data.diet), macros.calories)
+  const bridgeBullets = config.bridge.fatLossLastBullet && resolveGoal(data).key === 'lose'
+    ? [...config.bridge.bullets.slice(0, -1), config.bridge.fatLossLastBullet]
+    : config.bridge.bullets
 
   return (
     <div className="space-y-8">
@@ -444,8 +452,8 @@ export default function Step3FreeResults({
 
         {/* Three short lines, large and full contrast for older eyes on a phone. */}
         <div style={{ textAlign: 'left', marginBottom: '22px' }}>
-          {config.bridge.bullets.map((text, i) => (
-            <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: i < config.bridge.bullets.length - 1 ? '10px' : 0 }}>
+          {bridgeBullets.map((text, i) => (
+            <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: i < bridgeBullets.length - 1 ? '10px' : 0 }}>
               <span style={{ color: '#ffd700', fontSize: '16px', flexShrink: 0, lineHeight: '1.5' }}>✓</span>
               <p style={{ ...bodyFont, color: '#f4e4d4', fontSize: '16px', margin: 0, lineHeight: '1.5' }}>
                 {text}
