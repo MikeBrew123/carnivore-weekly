@@ -832,7 +832,7 @@ Attempts:
 If recurs: add the command as a case in the test file first, then fix the rule it hits.
 
 ## ISSUE-080 — Apify monthly free credit exhausted, blog-gen loses its trend source
-🟡 RECURRING (last 2026-10-31)
+🟡 RECURRING (last 2026-11-01)
 Pattern: `fetch_reddit_trends.py` printed `HTTP Error 403: Forbidden` for all 4 subreddits and
 wrote 0 posts. Looks exactly like ISSUE-014 (Reddit blocking scrapes) but is not: the 403 comes
 from `api.apify.com`, not reddit.com. Body: `{"type":"platform-feature-disabled","message":
@@ -852,6 +852,8 @@ Attempts:
 - 2026-10-31: recurred in the KD weekly batch, still 11.98 vs 5. Snapshot (newest thread 10-14) now
   outside the 14-day window, so topics came from WebSearch (fallback, reported) and comment mining was
   skipped. Resets with the monthly cycle; no plan change.
+- 2026-11-01: recurred in the CW weekly batch, still 11.98 vs 5; cycle ends 2026-11-13. Snapshot 18 days
+  old, 0 fresh threads, so topics came from GSC query movers (fallback, reported) and comment mining was skipped.
 If recurs: check `/v2/users/me/limits` -> `current.monthlyUsageUsd` against `plan.maxMonthlyUsageUsd`
 BEFORE blaming the actor or the token. A 403 with all subreddits failing identically and an instant
 return is a billing wall; a hang is ISSUE-075. Recovery: `git log --diff-filter=AM -- data/reddit-trends-<site>.json`,
