@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-10-28",
+  "last_updated": "2026-11-01",
   "leaderboard": [
     {
-      "name": "KenDBerryMD",
+      "name": "HomeSteadHow",
       "rank": 1,
-      "appearances": 4,
-      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
-    },
-    {
-      "name": "Coach Carnivore Cam ",
-      "rank": 2,
-      "appearances": 4,
-      "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
+      "appearances": 16,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "Anthony Chaffee MD",
-      "rank": 3,
+      "rank": 2,
       "appearances": 1,
       "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
     },
     {
-      "name": "No Carb Life",
-      "rank": 4,
-      "appearances": 15,
-      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
-    },
-    {
-      "name": "Carnivore Quest",
-      "rank": 5,
-      "appearances": 11,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
-    },
-    {
-      "name": "Boston Carnivore Diane Ladd",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UC-sYtwiuqvi94zMKsRPc5Ww"
-    },
-    {
-      "name": "Emmathecarnivore",
-      "rank": 7,
-      "appearances": 12,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "name": "Shawn Baker MD",
+      "rank": 3,
+      "appearances": 9,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
       "name": "Meet Carnivore",
-      "rank": 8,
-      "appearances": 15,
+      "rank": 4,
+      "appearances": 16,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Kent Carnivore",
-      "rank": 9,
-      "appearances": 6,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "name": "Emmathecarnivore",
+      "rank": 5,
+      "appearances": 13,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
-      "name": "Loving Life Over 50",
-      "rank": 10,
+      "name": "kierunek zdrowie",
+      "rank": 6,
       "appearances": 2,
-      "channel_id": "UCNYcP-p8kCE8eSal_jHzTxg"
+      "channel_id": "UCKno3LMkrQLdbXgIU7cKo1A"
+    },
+    {
+      "name": "KetoFocus",
+      "rank": 7,
+      "appearances": 1,
+      "channel_id": "UCx83l0vZEKMkz93qR2m8CTA"
+    },
+    {
+      "name": "Appalachia's Homestead with Patara",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
+    },
+    {
+      "name": "No Carb Life",
+      "rank": 9,
+      "appearances": 16,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+    },
+    {
+      "name": "Kent Carnivore",
+      "rank": 10,
+      "appearances": 6,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     }
   ]
 }
