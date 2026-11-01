@@ -119,6 +119,17 @@ BING_CW = 'https://carnivoreweekly.com'
 BING_KD = 'https://ketodial.com'
 BING_PD = 'https://www.pescodial.com'
 PD_LAUNCH = '2026-10-03'
+# My Little Shadow (mylittleshadow.com, whistlerbrew-demos repo). Sales share the
+# CW Stripe account and are told apart by Checkout metadata.app.
+MLS_GA4 = 'properties/561753960'
+MLS_APPS = {'rainbow-bridge': 'Rainbow Bridge reading', 'what-theyd-tell-you': "What they'd tell you"}
+MLS_USAGE_URL = 'https://mylittleshadow.com/api/bridge/usage?days=14'
+# List prices, USD, checked 2026-11-01. Claude Sonnet 5.5 per token; OpenAI
+# gpt-4o-mini-tts about $0.015 a spoken minute (~900 characters), so per character;
+# gpt-4o-mini-transcribe $0.003 a minute, or per token when it reports tokens.
+MLS_PRICES = {'claude_in': 2.00e-6, 'claude_out': 10.00e-6, 'claude_cache_read': 0.20e-6,
+              'claude_cache_write': 2.50e-6, 'tts_chars': 0.015 / 900,
+              'stt_seconds': 0.003 / 60, 'stt_in': 1.25e-6, 'stt_out': 5.00e-6}
 NET_TARGET_MONTHLY = 1000.0  # CW goal: $1k/month NET profit
 CW_DEMO_BASELINE = {'45_plus_share': 66, 'female_share': 53, 'weight_loss_share': 84}
 
@@ -1158,6 +1169,8 @@ def fetch_revenue():
                     label = 'CW calculator report'
             elif md.get('items') or str(md.get('session_token', '')).startswith('kd_'):
                 label = f"KD {md.get('items') or 'protocol'}"
+            elif md.get('app') in MLS_APPS:
+                label = f"MLS {MLS_APPS[md['app']]}"
             elif md.get('shop_product'):
                 label = f"{(md.get('site') or 'cw').upper()} shop: {md['shop_product']}"
             else:
@@ -1195,11 +1208,48 @@ def fetch_revenue():
         'month_pace': pace,
         'target': NET_TARGET_MONTHLY,
         'by_product_30d': by_product,
+        'mls_7d': window([c for c in ok if c['created'] >= now_ts - 7 * 86400
+                          and str(pi_label.get(c.get('payment_intent'), '')).startswith('MLS ')]),
+        'mls_30d': window([c for c in ok if str(pi_label.get(c.get('payment_intent'), '')).startswith('MLS ')]),
         'recent': [{'desc': charge_label(c),
                     'amount': round(c['amount'] / 100, 2),
                     'date': datetime.fromtimestamp(c['created']).strftime('%Y-%m-%d'),
                     'refunded': bool(c.get('refunded'))} for c in ok[:10]],
     }
+
+
+def _env_value(name):
+    if os.environ.get(name):
+        return os.environ[name]
+    for path in (os.path.join(PROJECT_ROOT, '.env'), os.path.join(SCRIPT_DIR, '.env')):
+        try:
+            for line in open(path):
+                if line.startswith(name + '='):
+                    return line.split('=', 1)[1].strip().strip('"\'')
+        except OSError:
+            pass
+    return ''
+
+
+def fetch_mls_cost():
+    """My Little Shadow API spend, priced here from the site's daily raw usage
+    (Claude tokens, voice characters, transcription). An estimate from list prices."""
+    key = _env_value('MLS_USAGE_KEY')
+    if not key:
+        return {'configured': False}
+    days = http_json(MLS_USAGE_URL, headers={'x-usage-key': key, 'User-Agent': 'command-center'}).get('days') or {}
+    today_start = TODAY.isoformat()
+
+    def cost(rows):
+        return round(sum(v * MLS_PRICES.get(k, 0) for r in rows for k, v in r.items()), 2)
+
+    last7 = [r for d, r in days.items() if d >= (TODAY - timedelta(days=7)).isoformat() and d < today_start]
+    prev7 = [r for d, r in days.items() if (TODAY - timedelta(days=14)).isoformat() <= d
+             < (TODAY - timedelta(days=7)).isoformat()]
+    return {'configured': True, 'cost_7d': cost(last7), 'cost_prev_7d': cost(prev7),
+            'claude_calls_7d': int(sum(r.get('claude_calls', 0) for r in last7)),
+            'voice_calls_7d': int(sum(r.get('tts_calls', 0) + r.get('stt_calls', 0) for r in last7)),
+            'days_logged': len(days), 'since': min(days) if days else None}
 
 
 # ── Insights (rule-based; always runs) ───────────────────────────────
@@ -1944,7 +1994,8 @@ def collect(use_model=True):
     print('  GA4 traffic...')
     data['traffic'] = {'cw': guarded('GA4 CW', fetch_traffic, CW_GA4),
                        'kd': guarded('GA4 KD', fetch_traffic, KD_GA4),
-                       'pd': guarded('GA4 PD', fetch_traffic, PD_GA4)}
+                       'pd': guarded('GA4 PD', fetch_traffic, PD_GA4),
+                       'mls': guarded('GA4 MLS', fetch_traffic, MLS_GA4)}
     print('  Search Console...')
     data['search'] = {'cw': guarded('GSC CW', fetch_gsc, GSC_CW),
                       'kd': guarded('GSC KD', fetch_gsc, GSC_KD),
@@ -1978,6 +2029,8 @@ def collect(use_model=True):
     data['offer_events'] = guarded('Offer events', fetch_offer_events, CW_GA4)
     print('  PescoDial...')
     data['pescodial'] = guarded('PescoDial', fetch_pescodial)
+    print('  My Little Shadow API cost...')
+    data['mls_cost'] = guarded('MLS cost', fetch_mls_cost)
     data['decisions'] = load_open_decisions()
 
     # ── Executive layer (deterministic; see dashboard/command_center_exec.py) ──
