@@ -996,3 +996,14 @@ If recurs: read the "PD publish failed", "PescoDial deploy or guide liveness fai
 - 2026-10-26 — found by the weekly ops review (`kd-blog-content-generation-20261024-0430.log`). No fix applied; bead filed P2. The 10-25 CW run was unaffected.
 - 2026-11-02 — 10-31 KD run completed normally (log 3.3 KB, 2 posts queued through 11-06). Not recurred, but no fix applied to the task prompt or `claude-task.sh`; bead `4g3` stays open.
 **If recurs / rule:** headless task prompts must say to run image generation in the foreground and wait, never background it; or `claude-task.sh` must detect a transcript ending in a background hand-off and re-invoke with `--continue`. Fast check for any task: a `~/Library/Logs/aihub/tasks/<task>-<date>.log` under 1 KB means the run did nothing.
+
+---
+
+## ISSUE-107 — Redirect stub at a path the deploy sweep hard-codes fails the deploy
+🟢 FIXED — Last: 2026-11-02
+
+Pattern: `full-validation-sweep.py` has hard-coded page lists that skip missing files. A new stub at a listed path (`public/blog.html`) gets checked as a real page, fails on analytics and description, and blocks every deploy. `validate_before_commit.py` passes, so PR checks stay green.
+Attempts:
+- 2026-11-02 — #161 merged green, deploy failed at validate. #162 repointed the entry to `public/blog/index.html`, deploy green, 11 redirects verified live.
+Prevention: before merging new pages or stubs, run `check_baselines.py`, `full-validation-sweep.py` and `validate_canonicals.py` locally. PR checks do not run deploy.yml's validators.
+If recurs: read the failed deploy log first, then fix the list entry. Do not add analytics to a stub.
