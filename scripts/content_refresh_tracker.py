@@ -46,14 +46,20 @@ def page_stats(svc, start, end):
     rows = svc.searchanalytics().query(siteUrl=SITE, body={
         "startDate": start, "endDate": end, "dimensions": ["page"], "rowLimit": 25000,
     }).execute().get("rows", [])
-    out = {}
+    # Google can list one page under several URLs (/x.html and /x), so add them up.
+    totals = {}
     for r in rows:
         u = r["keys"][0]
         if "/blog/" not in u:
             continue
         slug = u.split("/blog/")[-1].replace(".html", "").strip("/")
-        out[slug] = {"impr": r["impressions"], "clicks": r["clicks"], "pos": round(r["position"], 1)}
-    return out
+        t = totals.setdefault(slug, {"impr": 0, "clicks": 0, "pos_sum": 0.0})
+        t["impr"] += r["impressions"]
+        t["clicks"] += r["clicks"]
+        t["pos_sum"] += r["position"] * r["impressions"]
+    return {s: {"impr": t["impr"], "clicks": t["clicks"],
+                "pos": round(t["pos_sum"] / t["impr"], 1) if t["impr"] else None}
+            for s, t in totals.items()}
 
 
 def index_state(svc, slug):

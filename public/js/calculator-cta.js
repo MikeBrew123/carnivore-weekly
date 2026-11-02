@@ -82,7 +82,8 @@
         ">Free Carnivore Calculator</p>
 
         <h3 style="
-          color: #f5f5f0;
+          /* !important: blog-post.css forces every heading to burgundy with !important */
+          color: #f5f5f0 !important;
           font-family: 'Libre Baskerville', Georgia, serif;
           font-size: 1.6rem;
           font-weight: 700;
