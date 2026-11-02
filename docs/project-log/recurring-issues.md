@@ -99,7 +99,7 @@ If recurs: confirm `daily_publish.py` still invokes `generate_blog_pages.py`. We
 Pattern: Meta-refresh stubs created to "fix" 404s. GitHub Pages can't do 301s. GSC sees meta-refresh as un-indexable redirect; orphan scan re-adds stubs to sitemap.
 Attempts:
 - 2026-05 — Deleted stubs; patched `generate_blog_pages.py` to skip meta-refresh files in orphan discovery.
-If recurs: someone added a new meta-refresh stub. Don't. Update the source link instead.
+If recurs: expected for removed URLs. CLAUDE.md (2026-09-07) requires a stub for every removed post and overrides the older "don't add stubs" advice. Only act if a stub is in the sitemap.
 
 ---
 
@@ -266,6 +266,7 @@ Prevention: Same validator gate as ISSUE-019.
 Pattern: 10 real 404s found via GSC URL Inspection API on pages with actual search impressions. Root cause: a batch of Feb 2026 posts had their dates changed to 2026-02-08 (from 02-10, 02-12, 02-13, etc.), creating dead URLs Google had already indexed. Two deleted posts (`acne-purge`, `carnivore-didnt-fix-everything-content`) and one no-date slug also 404ing. Initial sitemap-only scan found 0 errors — the 404s only surfaced when scanning pages with Google impressions via search analytics API.
 Attempts:
 - 2026-06-10 — First scan (sitemap URLs only): found 0 actual 404s, misdiagnosed as indexing-only issue. Second scan (search analytics pages with impressions): found 10 real 404s. Created meta-refresh redirects for all 10: 7 date-renamed posts → correct 02-08 URLs, 1 no-date slug → dated version, 2 deleted posts → /blog/. Also created 14 preventive redirects for old slug patterns. Fixed broken `/calculator/` link in 404.html. Updated `redirects.json` with all 27 mappings. Resubmitted sitemap to GSC.
+- 2026-11-02 — GSC Not found showed 12 URLs, four from the 08-24 unpublish (f0e31058) with no stubs. Added 11 stubs (PR #161); insulin-resistance-morning-glucose held to 11-14 for the 11-13 read. Gate 12 now blocks a commit when an unpublished CW post or redirects.json entry has no stub.
 Prevention: Pre-commit validator exempts redirect stubs. `redirects.json` tracks all mappings. **Key lesson:** always scan pages with impressions (search analytics API), not just sitemap URLs — the 404s are URLs Google crawled BEFORE they were renamed/deleted, and those old URLs aren't in the current sitemap.
 
 ---
