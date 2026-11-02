@@ -1031,6 +1031,27 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
             'caveat after it. decisions.md 2026-09-14.'
         )
 
+    # Gate 12: a removed URL must not serve a 404. Every unpublished CW post and
+    # every data/redirects.json entry needs its stub on disk. A checker that
+    # cannot load is CRITICAL, same as Gate 11.
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from check_unpublished_redirects import find_missing as missing_redirects
+        redirect_gaps = missing_redirects(project_root)
+    except Exception as e:
+        results.add_critical(
+            'scripts/check_unpublished_redirects.py', 1,
+            f'Unpublished redirect guard could not run: {e}',
+            'Fix the checker. Removed URLs are unchecked until it runs.'
+        )
+        redirect_gaps = []
+    for where, message in redirect_gaps:
+        results.add_critical(
+            where, 1, message,
+            'Add a meta-refresh stub and a data/redirects.json entry pointing at a '
+            'stronger live page. Pull page-level GSC for both URLs first.'
+        )
+
     return results
 
 
