@@ -24,7 +24,6 @@
         "2026-04-20-diabetes-reversed-60-days-carnivore-clinical-picture",
         "2026-03-05-why-your-dental-cleanings-are-easier-now-and-what-youre-not",
         "2026-04-14-the-carnivore-mistake-i-wish-someone-warned-me",
-        "2026-05-09-carnivore-digestion-transition",
         "2026-06-01-we-built-something-for-the-keto-questions",
         "2026-02-08-autoimmune-remission",
         "2026-02-08-strength-gains",
@@ -81,9 +80,9 @@
             "index": "Discovered - currently not indexed"
           },
           "2026-05-20-pork-chops-performance-meat": {
-            "impr": 1,
-            "clicks": 0,
-            "pos": 1,
+            "impr": 535,
+            "clicks": 1,
+            "pos": 8.1,
             "index": "Submitted and indexed"
           },
           "2026-03-02-the-first-2-weeks-weight-gain-phenomenon-what-your-body-is-a": {
@@ -130,11 +129,6 @@
             "impr": 0,
             "clicks": 0,
             "pos": null
-          },
-          "2026-05-09-carnivore-digestion-transition": {
-            "impr": 1,
-            "clicks": 0,
-            "pos": 2
           },
           "2026-06-01-we-built-something-for-the-keto-questions": {
             "impr": 0,
@@ -224,7 +218,11 @@
         },
         "extra": {}
       },
-      "control_note": "Untouched posts from the same writers bottom-10 lists, limited to 5 or fewer impressions in the before window so they start where the rewritten pages start."
+      "control_note": "Untouched posts from the same writers bottom-10 lists, limited to 5 or fewer impressions in the before window so they start where the rewritten pages start.",
+      "control_excluded": {
+        "2026-05-09-carnivore-digestion-transition": "Removed 2026-11-02. Baseline bug: real before-window numbers were 858 impressions, 20 clicks, position 5.2, so it never met the 5-or-fewer rule for this control group."
+      },
+      "baseline_corrected": "2026-11-02: page_stats let a no-.html URL row overwrite the real page. Pork chops corrected from 1 impression to 535; index states unchanged."
     },
     {
       "id": "restaurant-merge-2026-10-13",

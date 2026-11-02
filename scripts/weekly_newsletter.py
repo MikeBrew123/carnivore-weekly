@@ -810,7 +810,7 @@ def build_kd_newsletter_html(content):
           <tr><td style="padding:26px 28px;">
             <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#38bdf8;padding-bottom:9px;">Free tool</div>
             <div style="font-family:Georgia,serif;font-weight:500;font-size:22px;color:#ffffff;letter-spacing:-0.01em;padding-bottom:6px;">Dial in your fat-to-protein ratio</div>
-            <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#9fc0d6;padding-bottom:18px;">Get your personalized keto macros in about 30 seconds. No signup, completely free.</div>
+            <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#9fc0d6;padding-bottom:18px;">Get your personalized keto macros in about 30 seconds, free. Your email comes first, and your free plan is sent there.</div>
             <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#38bdf8;border-radius:11px;">
               <a href="https://ketodial.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign={utm}#calc" style="display:inline-block;font-family:Arial,sans-serif;font-weight:700;font-size:14px;color:#062234;padding:13px 22px;text-decoration:none;">Open the calculator →</a>
             </td></tr></table>
