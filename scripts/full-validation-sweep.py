@@ -122,7 +122,7 @@ def check_html_validation(report):
 
     pages_to_check = [
         'public/index.html',
-        'public/blog.html',
+        'public/blog/index.html',
         'public/channels.html',
         'public/wiki.html',
         'public/calculator.html',
@@ -332,7 +332,7 @@ def check_404s(report):
 
     pages_to_check = [
         'public/index.html',
-        'public/blog.html',
+        'public/blog/index.html',
         'public/channels.html',
         'public/wiki.html',
         'public/calculator.html',
@@ -426,7 +426,7 @@ def check_seo_basics(report):
 
     pages_to_check = [
         'public/index.html',
-        'public/blog.html',
+        'public/blog/index.html',
     ]
 
     # Add blog posts (skip redirect stubs)
