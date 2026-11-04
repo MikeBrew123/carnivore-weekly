@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-11-01",
+  "last_updated": "2026-11-04",
   "leaderboard": [
     {
       "name": "HomeSteadHow",
       "rank": 1,
-      "appearances": 16,
+      "appearances": 17,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Anthony Chaffee MD",
+      "name": "Shawn Baker MD",
       "rank": 2,
-      "appearances": 1,
-      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
+      "appearances": 10,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "Shawn Baker MD",
+      "name": "kierunek zdrowie",
       "rank": 3,
-      "appearances": 9,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+      "appearances": 3,
+      "channel_id": "UCKno3LMkrQLdbXgIU7cKo1A"
     },
     {
       "name": "Meet Carnivore",
       "rank": 4,
-      "appearances": 16,
+      "appearances": 17,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Emmathecarnivore",
+      "name": "TacoTina11",
       "rank": 5,
-      "appearances": 13,
+      "appearances": 1,
+      "channel_id": "UCXNTmPJiRDuSifwFjiRL0pQ"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 6,
+      "appearances": 14,
       "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
-      "name": "kierunek zdrowie",
-      "rank": 6,
-      "appearances": 2,
-      "channel_id": "UCKno3LMkrQLdbXgIU7cKo1A"
-    },
-    {
-      "name": "KetoFocus",
+      "name": "Receitas para diab\u00e9ticos",
       "rank": 7,
-      "appearances": 1,
-      "channel_id": "UCx83l0vZEKMkz93qR2m8CTA"
-    },
-    {
-      "name": "Appalachia's Homestead with Patara",
-      "rank": 8,
-      "appearances": 1,
-      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
+      "appearances": 4,
+      "channel_id": "UCdUqcTMKMNLuHoCqFy13K1g"
     },
     {
       "name": "No Carb Life",
-      "rank": 9,
+      "rank": 8,
       "appearances": 16,
       "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     },
     {
-      "name": "Kent Carnivore",
+      "name": "Butter Bob Briggs",
+      "rank": 9,
+      "appearances": 2,
+      "channel_id": "UCiue5Soilcbqp3XS2c1P1PA"
+    },
+    {
+      "name": "Spanky Gibson",
       "rank": 10,
-      "appearances": 6,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "appearances": 1,
+      "channel_id": "UCmDJhjCiBqrkps9Agr4Sp_A"
     }
   ]
 }
