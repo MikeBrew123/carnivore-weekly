@@ -11501,7 +11501,13 @@
       "seo": {
         "meta_description": "Net carbs for every classic Thanksgiving side dish, the low-carb swaps that taste like the holiday, and a simple three-step keto plate plan for the big dinner."
       },
-      "site": "kd"
+      "site": "kd",
+      "review": {
+        "passed": true,
+        "date": "2026-11-07",
+        "edited": false,
+        "notes": "clean: 20-30 g net matches house, one safety line, Chloe voice fits, 3 live KD links; no natural CW cross-link"
+      }
     },
     {
       "slug": "2026-11-13-diet-soda-keto-water-swap-study",
@@ -11528,7 +11534,13 @@
       "seo": {
         "meta_description": "An 18-month trial found swapping one diet drink for water meant about 2 kg more weight loss. What it means for keto, and a simple two-week soda test to try."
       },
-      "site": "kd"
+      "site": "kd",
+      "review": {
+        "passed": true,
+        "date": "2026-11-07",
+        "edited": false,
+        "notes": "clean: stall order, pace and coffee stance match house, study limits hedged, Sarah voice fits; no CW sweetener post to cross-link"
+      }
     }
   ]
 }
