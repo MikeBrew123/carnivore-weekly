@@ -1009,3 +1009,13 @@ Attempts:
 - 2026-11-02 — #161 merged green, deploy failed at validate. #162 repointed the entry to `public/blog/index.html`, deploy green, 11 redirects verified live.
 Prevention: before merging new pages or stubs, run `check_baselines.py`, `full-validation-sweep.py` and `validate_canonicals.py` locally. PR checks do not run deploy.yml's validators.
 If recurs: read the failed deploy log first, then fix the list entry. Do not add analytics to a stub.
+
+---
+
+## ISSUE-108 — Sunday staleness job alarms on the retired Pinterest queue
+🔴 OPEN — Last: 2026-11-08
+
+Pattern: `weekly-health-check.yml` (automation-staleness step, ~line 457) flags `ketodial/marketing/pinterest-pin-queue.json` when its last commit is >4 days old. Pinterest was retired 2026-09-29, so the file never changes again and every Sunday opens a "⚠️ Automation staleness" issue (#78, #79, #88, #106, #141, #151, #158, #168) that someone closes by hand. A permanent false alarm trains everyone to ignore a real one.
+Attempts:
+- 2026-11-09 — weekly ops review closed #168 and filed bead `8zg` (P3). No workflow change made.
+If recurs: delete the PIN_LAST block from the staleness step (and the pin rows in `scoreboard_truth_pass.py` if still wanted gone). Do not just raise the threshold.
