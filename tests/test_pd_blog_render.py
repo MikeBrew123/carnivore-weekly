@@ -253,13 +253,18 @@ def test_non_pd_and_draft_posts_are_not_validated():
 def test_topic_queue_shape():
     q = json.loads((ROOT / "data" / "pd_topic_queue.json").read_text())
     items = q["queue"] + q["later"]
-    assert [i["id"] for i in q["queue"]] == ["P7", "P2", "P8", "P4", "P3", "P5"]
+    assert [i["id"] for i in q["queue"]][:6] == ["P7", "P2", "P8", "P4", "P3", "P5"]
     assert len({i["id"] for i in items}) == len(items)
     for i in items:
         assert i["status"] in ("queued", "drafted", "published", "later"), i
         for k in ("id", "working_title", "keyword_evidence", "writer", "safety_note", "must_not_cannibalize", "status"):
             assert k in i, (i["id"], k)
-    assert all(i["status"] == "later" for i in q["later"])
+        # The Saturday task cannot pick a writer itself: anything pickable needs one.
+        if i["status"] == "queued":
+            assert i["writer"] in ("sarah", "marcus"), i["id"]
+        # Once written, an item carries its post slug (later items move on too).
+        if i["status"] in ("drafted", "published"):
+            assert i.get("slug"), i["id"]
     assert next(i for i in q["queue"] if i["id"] == "P2")["writer"] == "marcus"
     assert "P1" not in {i["id"] for i in items}
 

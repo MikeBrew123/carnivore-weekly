@@ -6,7 +6,7 @@
     "published",
     "later"
   ],
-  "updated": "2026-10-12",
+  "updated": "2026-11-10",
   "queue": [
     {
       "order": 1,
@@ -97,6 +97,35 @@
       ],
       "status": "drafted",
       "slug": "how-much-fish-per-week-after-60"
+    },
+    {
+      "order": 7,
+      "id": "P13",
+      "working_title": "Canned Fish Recipes: Easy Sardine and Canned Salmon Meals",
+      "writer": "sarah",
+      "category": "meal-plan",
+      "keyword_evidence": "canned fish recipes 220/mo (page title keyword, keyword map P13); sardine recipes 3,200/mo and canned sardine recipes 810/mo (sardine section); canned salmon recipes 2,000/mo (canned salmon section); heart healthy fish recipes 420/mo; tinned fish recipes 50/mo. Merges former L3 Sardine Recipes and L4 Canned Salmon Recipes into one page per the keyword map (Brew-approved, deck 64f6c751, 2026-11-10)",
+      "safety_note": "Sodium in canned sardines and salmon for blood-pressure readers; nutrient numbers from USDA FoodData Central at writing time, never from memory; fish allergy note; no supplement doses.",
+      "must_not_cannibalize": [
+        "L5 (no health-benefits section beyond a link)",
+        "L2 (no canned tuna healthiness or mercury verdict, link instead)",
+        "P2 (recipes, not a weekly plan)"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 8,
+      "id": "L5",
+      "working_title": "Sardines Benefits: What a Can of Sardines Does for Your Heart and Bones",
+      "writer": "marcus",
+      "category": "nutrition",
+      "keyword_evidence": "sardines benefits 360/mo; sardines health benefits 320/mo; canned sardines benefits 44/mo; sardines vs salmon 90/mo (section); anchovies and mackerel health benefits as one 'small oily fish' section (keyword map P12)",
+      "safety_note": "Food first, no supplement doses; blood thinners note for omega-3. Sodium in canned sardines for blood-pressure readers.",
+      "must_not_cannibalize": [
+        "P4 (omega-3 gets one paragraph and a link)",
+        "P13 (no recipes beyond a link)"
+      ],
+      "status": "queued"
     }
   ],
   "later": [
@@ -126,40 +155,6 @@
       "status": "drafted",
       "slug": "is-canned-tuna-healthy",
       "category": "nutrition"
-    },
-    {
-      "id": "L3",
-      "working_title": "Sardine Recipes",
-      "writer": null,
-      "keyword_evidence": "sardine recipes 3,200/mo",
-      "safety_note": "Sodium in canned sardines for blood-pressure readers.",
-      "must_not_cannibalize": [
-        "L5"
-      ],
-      "status": "later"
-    },
-    {
-      "id": "L4",
-      "working_title": "Canned Salmon Recipes",
-      "writer": null,
-      "keyword_evidence": "canned salmon recipes 2,000/mo",
-      "safety_note": "Sodium in canned fish for blood-pressure readers.",
-      "must_not_cannibalize": [
-        "P2"
-      ],
-      "status": "later"
-    },
-    {
-      "id": "L5",
-      "working_title": "Sardines Benefits",
-      "writer": null,
-      "keyword_evidence": "sardines benefits 360/mo",
-      "safety_note": "Food first, no supplement doses; blood thinners note for omega-3.",
-      "must_not_cannibalize": [
-        "P4",
-        "L3"
-      ],
-      "status": "later"
     }
   ],
   "not_a_post": [
