@@ -16,6 +16,14 @@ Usage:
     python3 scripts/pd_newsletter.py --date 2026-11-15 --generate-only
     python3 scripts/pd_newsletter.py --date 2026-11-15 --test
 """
+
+if __name__ == "__main__":
+    # First, before anything can print: no subscriber address reaches the
+    # public Actions log (scripts/log_redaction.py). Child send_newsletter.py
+    # runs install their own guard.
+    import log_redaction
+    log_redaction.install()
+
 import argparse
 import json
 import os

@@ -182,7 +182,8 @@ def test_dedupe_http_error_skips_reader():
     check("the unconfirmed reader is NOT mailed", "somebody@gmail.com" not in net.resend_calls)
     check("the unconfirmed reader is NOT advanced (retries tomorrow)", not advanced(net, B))
     check("the healthy reader is advanced", advanced(net, A))
-    check("the skip is logged loudly", "DEDUPE CHECK FAILED" in out and "SKIPPED: day 3 -> somebody@gmail.com" in out)
+    check("the skip is logged loudly", "DEDUPE CHECK FAILED" in out and f"SKIPPED: day 3 -> sub:{B[:8]}" in out
+          and "somebody@gmail.com" not in out)
     check("a GitHub error annotation is printed", "::error title=Drip dedupe check failed::" in out)
     check("the run exits non-zero so the drip-failure issue opens", code == 1)
 

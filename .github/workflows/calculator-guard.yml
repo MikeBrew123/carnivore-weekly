@@ -49,6 +49,10 @@ on:
       - 'scripts/pd_newsletter_checks.py'
       - 'data/newsletters/pd/**'
       - 'scripts/send_newsletter.py'
+      - 'scripts/log_redaction.py'
+      - 'scripts/resend_quota.py'
+      - 'scripts/weekly_newsletter.py'
+      - 'tests/test_log_redaction.py'
       - 'tests/test_newsletter_site_feature.py'
       - 'scripts/generate_newsletter.py'
       - 'templates/newsletter_template.html'
@@ -132,6 +136,10 @@ on:
       - 'scripts/pd_newsletter_checks.py'
       - 'data/newsletters/pd/**'
       - 'scripts/send_newsletter.py'
+      - 'scripts/log_redaction.py'
+      - 'scripts/resend_quota.py'
+      - 'scripts/weekly_newsletter.py'
+      - 'tests/test_log_redaction.py'
       - 'tests/test_newsletter_site_feature.py'
       - 'scripts/generate_newsletter.py'
       - 'templates/newsletter_template.html'
@@ -405,6 +413,14 @@ jobs:
         run: |
           python3 -m pip install --quiet jinja2
           python3 tests/test_newsletter_site_feature.py
+
+      # Public Actions logs must never carry subscriber addresses (incident
+      # 2026-11-10): senders name readers by row id, and stdout/stderr redact
+      # any address before it is written.
+      - name: Subscriber addresses stay out of run logs
+        run: |
+          python3 -m pip install --quiet requests jinja2
+          python3 tests/test_log_redaction.py
 
   bundle-builds:
     runs-on: ubuntu-latest

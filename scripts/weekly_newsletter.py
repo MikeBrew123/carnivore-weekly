@@ -14,6 +14,13 @@ Usage:
     python3 scripts/weekly_newsletter.py --dry-run           # Show what would happen
 """
 
+if __name__ == "__main__":
+    # First, before anything can print: no subscriber address reaches the
+    # public Actions log (scripts/log_redaction.py). Child send_newsletter.py
+    # runs install their own guard.
+    import log_redaction
+    log_redaction.install()
+
 import argparse
 import json
 import os

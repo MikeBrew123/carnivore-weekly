@@ -26,6 +26,12 @@ Usage:
                                                      # fallback promo, no minting)
 """
 
+if __name__ == "__main__":
+    # First, before anything can print: no subscriber address reaches the
+    # public Actions log (scripts/log_redaction.py).
+    import log_redaction
+    log_redaction.install()
+
 import argparse
 import json
 import os
@@ -44,6 +50,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import send_guard  # noqa: E402
 import unsubscribe_link  # noqa: E402
 import resend_quota  # noqa: E402
+import log_redaction  # noqa: E402
+from log_redaction import redact  # noqa: E402
 from subscriber_hygiene import is_undeliverable_fixture  # noqa: E402
 
 TEST_EMAIL = "iambrew@gmail.com"
@@ -221,7 +229,7 @@ def mint_promo_code(stripe_key, day, email):
     import secrets as pysecrets
     # Choke point: minting creates a real Stripe object, so a dry run must not.
     # Returning None puts the caller on its existing no-expiry fallback copy.
-    if not send_guard.allow(f"mint a day-{day} Stripe promo code for {email}"):
+    if not send_guard.allow(f"mint a day-{day} Stripe promo code for {log_redaction.ref(email=email)}"):
         return None
     prefix = PROMO_DAYS[day]
     for attempt in range(2):
@@ -246,9 +254,9 @@ def mint_promo_code(stripe_key, day, email):
             # livemode check: a test-mode key would mint codes live checkout rejects
             if resp.status_code == 200 and body.get("livemode") and body.get("active"):
                 return code
-            print(f"  ⚠️  promo mint attempt {attempt + 1} failed: {str(body.get('error', body))[:120]}")
+            print(f"  ⚠️  promo mint attempt {attempt + 1} failed: {redact(str(body.get('error', body)))[:120]}")
         except Exception as e:
-            print(f"  ⚠️  promo mint attempt {attempt + 1} error: {e}")
+            print(f"  ⚠️  promo mint attempt {attempt + 1} error: {redact(e)}")
     return None
 
 
@@ -279,7 +287,7 @@ def fetch_buyer_emails(secrets):
         print(f"  buyers on file: {len(emails)} (offer suppressed for these)")
         return emails
     except Exception as e:
-        print(f"  ⚠️  buyer lookup FAILED ({e}) — offers will be suppressed this run")
+        print(f"  ⚠️  buyer lookup FAILED ({redact(e)}) — offers will be suppressed this run")
         return None
 
 
@@ -408,7 +416,7 @@ def supabase_query(secrets, table, params):
 def supabase_update(secrets, table, row_id, data):
     # Choke point: a dry run must never reach the database, whatever branch
     # called this. See scripts/send_guard.py for why.
-    if not send_guard.allow(f"update {table} row {row_id} with {data}"):
+    if not send_guard.allow(f"update {table} row {row_id} with {redact(data)}"):
         return
     sb = secrets["supabase"]
     key = sb["service_role_key"]
@@ -427,7 +435,7 @@ def supabase_update(secrets, table, row_id, data):
 
 def supabase_insert(secrets, table, data):
     # Choke point, same reason as supabase_update above.
-    if not send_guard.allow(f"insert into {table}: {data}"):
+    if not send_guard.allow(f"insert into {table}: {redact(data)}"):
         return None
     sb = secrets["supabase"]
     key = sb["service_role_key"]
@@ -487,7 +495,7 @@ def personalised_days(secrets):
     except Exception as e:
         # Fail OPEN: if we cannot tell, send. Silently skipping a real subscriber
         # because a lookup failed is the worse error by a wide margin.
-        print(f"  ⚠️  could not read personalised days ({e}); sending normally")
+        print(f"  ⚠️  could not read personalised days ({redact(e)}); sending normally")
         return set()
 
 
@@ -513,7 +521,7 @@ def calculator_context_for(secrets, email):
         })
         return rows[0] if rows else None
     except Exception as e:
-        print(f"  ⚠️  calculator lookup failed ({e}); treating as eligible")
+        print(f"  ⚠️  calculator lookup failed ({redact(e)}); treating as eligible")
         return {"_lookup_failed": True}
 
 
@@ -634,7 +642,7 @@ RESEND_MAX_RETRIES = 4
 
 def send_email(resend_key, to, subject, html, tags=None, log=True, from_email=None):
     # Choke point: no Resend call in a dry run, from any caller.
-    if not send_guard.allow(f'send "{subject}" to {to}'):
+    if not send_guard.allow(f'send "{subject}" to {log_redaction.ref(email=to)}'):
         return False, "blocked by dry-run"
     payload = {
         "from": from_email or CFG["from_email"],
@@ -669,7 +677,7 @@ def send_email(resend_key, to, subject, html, tags=None, log=True, from_email=No
             if resend_quota.quota_error_name(429, resend_quota.response_body(resp)):
                 break
             backoff = RESEND_SLEEP * (2 ** attempt) + 1.0
-            print(f"  429 rate limited on {to}, retrying in {backoff:.1f}s")
+            print(f"  429 rate limited on {log_redaction.ref(email=to)}, retrying in {backoff:.1f}s")
             time.sleep(backoff)
             continue
         break
@@ -754,6 +762,11 @@ def established_list_cap(pending, now=None):
         if ts <= cutoff:
             established += 1
     return int(established * 1.25) + 5
+
+
+def who(sub):
+    """How a run log names a subscriber: row-id reference, never the address."""
+    return log_redaction.ref(sub.get("id"), sub.get("email"))
 
 
 class DedupeCheckFailed(Exception):
@@ -842,13 +855,13 @@ def preview_all(resend_key, to):
     if not days:
         print(f"No templates found in {CFG['drip_dir']}")
         sys.exit(1)
-    print(f"📬 Preview: sending {len(days)} {CFG['name']} drip emails to {to}\n")
+    print(f"📬 Preview: sending {len(days)} {CFG['name']} drip emails to the preview address\n")
     for day in days:
         subject, html = load_drip_email(day)
         html = apply_promo(html, day, to, stripe_key="", buyers=set())  # preview: render the OFFER variant
         ok, detail = send_email(resend_key, to, f"[PREVIEW d{day}] {subject}",
                                 personalize(html, to), log=False)
-        print(f"  {'✅' if ok else '❌'} day {day}: {subject}" + ("" if ok else f" — {str(detail)[:80]}"))
+        print(f"  {'✅' if ok else '❌'} day {day}: {subject}" + ("" if ok else f" — {redact(detail)[:80]}"))
 
 
 def main():
@@ -885,7 +898,7 @@ def main():
         if not html:
             print(f"Error: day-1.html not found in {CFG['drip_dir']}")
             sys.exit(1)
-        print(f"🧪 TEST MODE ({SITE}) — would send to {TEST_EMAIL}: {subject}")
+        print(f"🧪 TEST MODE ({SITE}) — would send to the test inbox: {subject}")
         print(f"   HTML size: {len(html):,} bytes")
         print(f"   ⚠️  No email sent. Use normal run to send.")
         return
@@ -946,7 +959,7 @@ def main():
     if blocked:
         pending = [s for s in pending if not is_undeliverable_fixture(s.get("email"))]
         for sub in blocked:
-            print(f"  🚫 {sub.get('email')} — test fixture address, never mailed live")
+            print(f"  🚫 {who(sub)} — test fixture address, never mailed live")
 
     if not pending:
         print(f"No pending {SITE} drip subscribers")
@@ -985,6 +998,7 @@ def main():
     buyers = fetch_buyer_emails(secrets)
     for sub in pending:
         next_day = sub["current_day"] + 1
+        sub_ref = who(sub)  # what the log names them by; never the address
         # 48h buffer before day-1 (Brew, 2026-08-30): KD signup triggers an
         # instant plan email, so day-1 landing on the next cron run meant two
         # emails in under 24h. KD ONLY for now — CW sends nothing at signup
@@ -996,7 +1010,7 @@ def main():
             try:
                 sub_at = datetime.fromisoformat(sub["subscribed_at"].replace("Z", "+00:00"))
                 if datetime.now(timezone.utc) - sub_at < timedelta(hours=48):
-                    print(f"  ⏳ {sub['email']}: subscribed {sub['subscribed_at'][:16]}, day-1 waits for the 48h buffer")
+                    print(f"  ⏳ {sub_ref}: subscribed {sub['subscribed_at'][:16]}, day-1 waits for the 48h buffer")
                     skipped_new += 1
                     continue
             except ValueError:
@@ -1007,7 +1021,7 @@ def main():
             # against anyone sitting on the final day really did mark them
             # completed and really did insert them into the weekly list.
             if args.dry_run:
-                print(f"  Would graduate {sub['email']}: mark drip completed and add to {CFG['name']} weekly")
+                print(f"  Would graduate {sub_ref}: mark drip completed and add to {CFG['name']} weekly")
                 continue
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "completed": True,
@@ -1019,7 +1033,7 @@ def main():
                 "signup_source": "direct",
             })
             graduated += 1
-            print(f"  🎓 {sub['email']} — completed drip, added to {CFG['name']} weekly")
+            print(f"  🎓 {sub_ref} — completed drip, added to {CFG['name']} weekly")
             continue
 
         cw_intro = use_cw_intro(sub, next_day)
@@ -1027,12 +1041,12 @@ def main():
         if not html:
             # Sparse sequence: no email defined for this day — advance silently
             if args.dry_run:
-                print(f"  Would advance {sub['email']} to day {next_day} (quiet day, no email)")
+                print(f"  Would advance {sub_ref} to day {next_day} (quiet day, no email)")
                 continue
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "current_day": next_day,
             })
-            print(f"  💤 {sub['email']} — day {next_day} is a quiet day, advanced without sending")
+            print(f"  💤 {sub_ref} — day {next_day} is a quiet day, advanced without sending")
             continue
 
         # Eligibility for a personalised day. Checked here, after the template exists
@@ -1041,14 +1055,14 @@ def main():
             eligible, skip_reason = day5_eligibility(secrets, sub["email"])
             if not eligible:
                 if args.dry_run:
-                    print(f"  Would SKIP day {next_day} for {sub['email']}: {skip_reason}")
+                    print(f"  Would SKIP day {next_day} for {sub_ref}: {skip_reason}")
                     continue
                 log_skip(secrets, sub["email"], next_day, skip_reason, subject)
                 supabase_update(secrets, "drip_subscribers", sub["id"], {
                     "current_day": next_day,
                 })
                 skipped_ineligible += 1
-                print(f"  ⏭️  {sub['email']} — day {next_day} skipped ({skip_reason}), advanced without sending")
+                print(f"  ⏭️  {sub_ref} — day {next_day} skipped ({skip_reason}), advanced without sending")
                 continue
 
         # Decided before the dry-run print on purpose: a dry run that shows the
@@ -1062,7 +1076,7 @@ def main():
             mark = "  [BUYER: offer suppressed]" if is_buyer else ""
             if cw_intro:
                 mark += "  [CW intro: from Carnivore Weekly]"
-            print(f"  Would send day {next_day} to {sub['email']}: {subject_out}{mark}")
+            print(f"  Would send day {next_day} to {sub_ref}: {subject_out}{mark}")
             continue
 
         # Dedup: skip if already sent today (prevents double-sends from re-runs).
@@ -1070,11 +1084,11 @@ def main():
         try:
             if already_sent_today(secrets, sub["id"]):
                 skipped_dup += 1
-                print(f"  ⏭️  {sub['email']} — already sent today, skipping")
+                print(f"  ⏭️  {sub_ref} — already sent today, skipping")
                 continue
         except DedupeCheckFailed as e:
-            dedupe_failed.append((sub["email"], next_day, str(e)[:90]))
-            print(f"  🛑 {sub['email']} — could not confirm day {next_day} was not already sent today ({e}); SKIPPED, retries tomorrow")
+            dedupe_failed.append((sub_ref, next_day, redact(e)[:90]))
+            print(f"  🛑 {sub_ref} — could not confirm day {next_day} was not already sent today ({redact(e)}); SKIPPED, retries tomorrow")
             continue
 
         tags = [
@@ -1097,7 +1111,7 @@ def main():
                 "last_sent_at": now,
             })
             sent += 1
-            print(f"  ✅ Day {next_day} → {sub['email']}: {subject}")
+            print(f"  ✅ Day {next_day} → {sub_ref}: {subject}")
         else:
             if isinstance(detail, resend_quota.QuotaRefused):
                 # Resend quota alarm (deck 920ebe5a): durable record + alarm.
@@ -1110,8 +1124,8 @@ def main():
                     notes="current_day not advanced: the next daily drip run tries this day again on its own. Hand-send only if that run also fails.",
                 )
                 quota_refused += 1
-            failed.append((sub["email"], next_day, str(detail)[:90]))
-            print(f"  ❌ Day {next_day} → {sub['email']}: {str(detail)[:80]}")
+            failed.append((sub_ref, next_day, redact(detail)[:90]))
+            print(f"  ❌ Day {next_day} → {sub_ref}: {redact(detail)[:80]}")
 
     summary = f"\nDone: {sent} sent, {graduated} graduated to weekly"
     if failed:
@@ -1136,8 +1150,8 @@ def main():
         print("  they were not mailed (fail closed). current_day was not")
         print("  advanced; the next daily run sends them this same email.")
         print("=" * 62)
-        for email, day, detail in dedupe_failed:
-            print(f"  SKIPPED: day {day} -> {email} — {detail[:70]}")
+        for ref, day, detail in dedupe_failed:
+            print(f"  SKIPPED: day {day} -> {ref} — {detail[:70]}")
         print(f"::error title=Drip dedupe check failed::{len(dedupe_failed)} {SITE} reader(s) skipped today because the already-sent check failed")
 
     if failed:
@@ -1147,8 +1161,8 @@ def main():
         print("  current_day was not advanced, so these retry on the next run,")
         print("  but each subscriber's sequence slips by a day.")
         print("=" * 62)
-        for email, day, detail in failed:
-            print(f"  MISSED: day {day} -> {email} — {detail[:70]}")
+        for ref, day, detail in failed:
+            print(f"  MISSED: day {day} -> {ref} — {detail[:70]}")
 
     if failed or dedupe_failed:
         # Non-zero so the workflow's drip-failure alert opens a GitHub issue.
