@@ -16,6 +16,12 @@ Usage:
     python3 scripts/send_newsletter.py --dry-run          # Show what would be sent, don't send
 """
 
+if __name__ == "__main__":
+    # First, before anything can print: no subscriber address reaches the
+    # public Actions log (scripts/log_redaction.py).
+    import log_redaction
+    log_redaction.install()
+
 import argparse
 import json
 import os
@@ -33,6 +39,8 @@ SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import send_guard  # noqa: E402
 import resend_quota  # noqa: E402
+import log_redaction  # noqa: E402
+from log_redaction import redact  # noqa: E402
 from subscriber_hygiene import filter_mailable  # noqa: E402
 import unsubscribe_link  # noqa: E402
 import pd_newsletter_checks  # noqa: E402
@@ -82,6 +90,11 @@ SITES = {
 }
 
 TEST_EMAILS = ["iambrew@gmail.com", "assistantbrew@gmail.com"]
+
+
+def who(email):
+    """How a run log names a subscriber: row-id reference, never the address."""
+    return log_redaction.ref(SUBSCRIBER_IDS.get((email or "").lower()), email)
 
 
 def load_secrets():
@@ -237,7 +250,7 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
         # Choke point (scripts/send_guard.py). The dry-run path returns long
         # before this loop, so in a live run this changes nothing. It is here
         # so a future edit that reorders main() cannot mail anyone in a dry run.
-        if not send_guard.allow(f"send \"{subject}\" to {email}"):
+        if not send_guard.allow(f"send \"{subject}\" to {who(email)}"):
             results.append((email, "blocked", "dry-run"))
             continue
         personalized = personalize_html(html, email, site, unsub_secret)
@@ -285,7 +298,7 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
                 if resend_quota.quota_error_name(429, resend_quota.response_body(resp)):
                     break
                 backoff = RESEND_SLEEP * (2 ** attempt) + 1.0
-                print(f"  429 rate limited on {email}, retrying in {backoff:.1f}s")
+                print(f"  429 rate limited on {who(email)}, retrying in {backoff:.1f}s")
                 time.sleep(backoff)
                 continue
             break
@@ -351,7 +364,7 @@ def main():
         to_emails = TEST_EMAILS
     elif args.test:
         to_emails = TEST_EMAILS
-        print(f"TEST MODE: sending to {', '.join(TEST_EMAILS)}")
+        print(f"TEST MODE: sending to the {len(TEST_EMAILS)} test inboxes only")
     else:
         secrets = load_secrets()
         to_emails = get_subscribers(secrets, args.site)
@@ -359,7 +372,7 @@ def main():
 
     print(f"\n{'=' * 60}")
     print(f"  Site:    {site['name']}")
-    print(f"  From:    {site['from_name']} <{site['from_email']}>")
+    print(f"  From:    {site['from_name']} ({site['from_email'].rsplit('@', 1)[-1]})")
     print(f"  Subject: {subject}")
     print(f"  To:      {len(to_emails)} recipient(s)")
     print(f"  HTML:    {len(html):,} bytes")
@@ -380,7 +393,7 @@ def main():
     if args.dry_run:
         print("DRY RUN — no emails sent")
         for email in to_emails:
-            print(f"  Would send to: {email}")
+            print(f"  Would send to: {who(email)}")
         return
 
     if not secrets:
@@ -404,7 +417,7 @@ def main():
     print(f"\nResults: {sent} sent, {failed} failed")
     for email, status, detail in results:
         icon = "✅" if status == "sent" else "❌"
-        print(f"  {icon} {email} — {detail[:60]}")
+        print(f"  {icon} {who(email)} — {redact(detail)[:60]}")
 
     if site.get("issue_json") and not args.test and sent:
         pd_newsletter_checks.mark_sent(site["newsletter_dir"], args.date, sent=sent, failed=failed)
@@ -418,7 +431,7 @@ def main():
         print("=" * 62)
         for email, status, detail in results:
             if status == "failed":
-                print(f"  MISSED: {email} — {detail[:70]}")
+                print(f"  MISSED: {who(email)} — {redact(detail)[:70]}")
         sys.exit(1)
 
 

@@ -45,6 +45,7 @@ from datetime import datetime, timezone
 
 import requests
 
+import log_redaction
 import send_guard
 
 QUOTA_ERROR_NAMES = ("daily_quota_exceeded", "monthly_quota_exceeded")
@@ -132,10 +133,10 @@ def _insert_row(secrets, row):
             timeout=15,
         )
     except Exception as e:
-        return False, str(e)[:120]
+        return False, log_redaction.redact(e)[:120]
     if 200 <= resp.status_code < 300:
         return True, ""
-    return False, f"HTTP {resp.status_code} {str(getattr(resp, 'text', ''))[:120]}"
+    return False, log_redaction.redact(f"HTTP {resp.status_code} {str(getattr(resp, 'text', ''))[:120]}")
 
 
 def _raise_alarm(line):
@@ -148,7 +149,7 @@ def _raise_alarm(line):
                 if new:
                     f.write("| refused at (UTC) | site | list | subscriber id | template | Resend error | saved to Supabase |\n")
                     f.write("|---|---|---|---|---|---|---|\n")
-                f.write(line + "\n")
+                f.write(log_redaction.redact(line) + "\n")
         except OSError as e:
             print(f"  RESEND QUOTA ALERT FILE NOT WRITTEN ({path}): {e}")
     output = os.environ.get("GITHUB_OUTPUT")
@@ -167,7 +168,8 @@ def record_refusal(secrets, *, site, list_name, subscriber_id, email, template,
     Returns True when the Supabase row was written. The alarm fires either way,
     and the alert line says whether the row made it.
     """
-    if not send_guard.allow(f"record a Resend quota refusal for {list_name} {template} to {email}"):
+    if not send_guard.allow(f"record a Resend quota refusal for {list_name} {template} to "
+                            f"{log_redaction.ref(subscriber_id, email)}"):
         return False
     refused_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     row = {
@@ -186,8 +188,13 @@ def record_refusal(secrets, *, site, list_name, subscriber_id, email, template,
     }
     ok, detail = _insert_row(secrets, row)
     if not ok:
+        # The address is left out: this log is public. The subscriber id finds
+        # it in drip_subscribers / newsletter_subscribers for a hand re-send.
+        public = {k: v for k, v in row.items() if k != "email"}
+        public["error_message"] = log_redaction.redact(public.get("error_message") or "")
+        public["subscriber_ref"] = log_redaction.ref(subscriber_id, email)
         print(f"  RESEND QUOTA REFUSAL NOT SAVED TO SUPABASE ({detail}). "
-              f"Full record for a hand re-send: {json.dumps(row)}")
+              f"Record for a hand re-send (address via subscriber_id): {json.dumps(public)}")
     _raise_alarm(f"| {refused_at} | {site} | {list_name} | {subscriber_id or 'unknown'} | "
                  f"{template} | {error_name} | {'yes' if ok else 'NO, see run log'} |")
     # A GitHub annotation on the run page. Subscriber id only: this repo is public.

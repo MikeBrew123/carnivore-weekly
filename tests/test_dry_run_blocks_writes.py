@@ -124,11 +124,11 @@ def test_drip_dry_run_touches_nothing():
     check("no PATCH was issued (no subscriber row updated)", fake.patches == [])
     check("no POST was issued (no insert, no email, no Stripe mint)", fake.posts == [])
     check("the final-day subscriber is reported, not graduated",
-          "Would graduate user@gmail.com" in out)
+          "Would graduate sub:r3" in out and "user@gmail.com" not in out)
     check("the due subscriber is reported, not mailed",
-          "Would send day 3 to someone@gmail.com" in out)
+          "Would send day 3 to sub:r1" in out and "someone@gmail.com" not in out)
     check("the quiet day is reported, not advanced",
-          "Would advance somebody@gmail.com" in out)
+          "Would advance sub:r2" in out and "somebody@gmail.com" not in out)
     if FAILED:
         print("\n----- captured output -----")
         print(out.rstrip())
