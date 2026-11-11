@@ -902,6 +902,8 @@ def build_experiments(specs, events, today, min_impressions=100):
 
         den = 0 if not_open else since(spec.get('denominator_event'))
         num = 0 if not_open else since(spec.get('numerator_event'))
+        if den is not None and num is None:
+            num = 0     # box seen, never clicked: GA4 has no rows for an event that never fired
         checkouts = 0 if not_open else since(spec.get('checkout_event') or 'begin_checkout')
         purchases = 0 if not_open else since(spec.get('outcome_event') or 'purchase')
         floor = spec.get('min_sample', min_impressions)

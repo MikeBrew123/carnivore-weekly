@@ -345,6 +345,20 @@ def ga4_run(property_id, dimensions, metrics, date_ranges, limit=25, order_desc_
     return resp
 
 
+def range_values(resp, n_metrics, as_int=False):
+    """{0: [...], 1: [...]} metric values per date range, matched by GA4's
+    dateRange name. GA4 does not return ranges in request order: on 2026-11-11 it
+    sent date_range_1 first, so reading rows[0] as "this week" swapped the weeks
+    (CW showed +10% when it was down 9%)."""
+    out = {}
+    for i, r in enumerate(resp.rows):
+        name = r.dimension_values[-1].value if r.dimension_values else f'date_range_{i}'
+        if name.startswith('date_range_'):
+            cast = (lambda v: int(float(v))) if as_int else float
+            out[int(name.rsplit('_', 1)[1])] = [cast(v.value) for v in r.metric_values]
+    return {k: out.get(k, [0] * n_metrics) for k in (0, 1)}
+
+
 def fetch_traffic(property_id):
     """Traffic block for one site. Week-over-week, today, realtime, 28d daily, sources, pages."""
     out = {}
@@ -355,8 +369,8 @@ def fetch_traffic(property_id):
     # "today so far" and never enters a comparison.
     resp = ga4_run(property_id, [], metrics,
                    [('7daysAgo', 'yesterday'), ('14daysAgo', '8daysAgo')], order_desc_metric=False)
-    cur = [float(v.value) for v in resp.rows[0].metric_values] if resp.rows else [0] * 6
-    prev = [float(v.value) for v in resp.rows[1].metric_values] if len(resp.rows) > 1 else [0] * 6
+    rv = range_values(resp, 6)
+    cur, prev = rv[0], rv[1]
     out['week'] = {m: {'current': c, 'previous': p, 'change_pct': pct_change(c, p)}
                    for m, c, p in zip(metrics, cur, prev)}
 
@@ -390,14 +404,18 @@ def fetch_traffic(property_id):
     out['daily_median_28d'] = med
     out['spike_days'] = [x for x in daily if med >= 5 and x['sessions'] > 3 * med]
     spike_dates = {x['date'] for x in out['spike_days']}
-    if len(daily) >= 14:
-        cur_days = [x for x in daily[-7:] if x['date'] not in spike_dates]
-        prev_days = [x for x in daily[-14:-7] if x['date'] not in spike_dates]
+    # Complete days only: the 28-day list runs to today, so daily[-7:] held a
+    # partial today and pushed a full day into the prior week (2026-11-11: -37%
+    # shown for a -9% week).
+    full = [x for x in daily if x['date'] < TODAY.isoformat()]
+    if len(full) >= 14:
+        cur_days = [x for x in full[-7:] if x['date'] not in spike_dates]
+        prev_days = [x for x in full[-14:-7] if x['date'] not in spike_dates]
         cur_s = sum(x['sessions'] for x in cur_days)
         prev_s = sum(x['sessions'] for x in prev_days)
         out['week_ex_spike'] = {
             'current': cur_s, 'previous': prev_s, 'change_pct': pct_change(cur_s, prev_s),
-            'excluded': sorted(spike_dates & {x['date'] for x in daily[-14:]})}
+            'excluded': sorted(spike_dates & {x['date'] for x in full[-14:]})}
 
     resp = ga4_run(property_id, ['sessionSourceMedium'], ['sessions'], [('7daysAgo', 'today')], limit=10)
     out['sources_7d'] = [{'source': r.dimension_values[0].value, 'sessions': int(r.metric_values[0].value)}
@@ -436,7 +454,10 @@ FUNNEL_EVENTS = ('calculator_step1_viewed', 'calculator_step1_engaged', 'calcula
                  'calculator_payment_modal_opened', 'begin_checkout', 'purchase',
                  # 2026-09-27: fires only on arrival from the abandoned-checkout
                  # recovery email. Split out by split_recovery, never an organic stage.
-                 X.RECOVERY_LANDING_EVENT)
+                 X.RECOVERY_LANDING_EVENT,
+                 # 2026-11-11: the honest blog calculator button experiment (XR-07)
+                 # reads these; without them its counts were None since 11-03.
+                 'blog_calculator_cta_impression', 'blog_calculator_cta_click')
 
 
 def fetch_offer_events(property_id, days=28):
@@ -589,7 +610,7 @@ def ga4_bing_sessions(property_id):
         DateRange, Filter, FilterExpression, Metric, RunReportRequest)
     resp = ga4_client().run_report(RunReportRequest(
         property=property_id,
-        date_ranges=[DateRange(start_date='7daysAgo', end_date='today'),
+        date_ranges=[DateRange(start_date='7daysAgo', end_date='yesterday'),
                      DateRange(start_date='14daysAgo', end_date='8daysAgo')],
         metrics=[Metric(name='sessions')],
         dimension_filter=FilterExpression(filter=Filter(
@@ -597,8 +618,8 @@ def ga4_bing_sessions(property_id):
             string_filter=Filter.StringFilter(
                 value='bing', match_type=Filter.StringFilter.MatchType.CONTAINS))),
     ))
-    cur = int(float(resp.rows[0].metric_values[0].value)) if resp.rows else 0
-    prev = int(float(resp.rows[1].metric_values[0].value)) if len(resp.rows) > 1 else 0
+    rv = range_values(resp, 1, as_int=True)
+    cur, prev = rv[0][0], rv[1][0]
     return cur, prev
 
 
