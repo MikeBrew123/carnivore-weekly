@@ -1,17 +1,17 @@
 {
-  "last_updated": "2026-11-08",
+  "last_updated": "2026-11-11",
   "leaderboard": [
     {
       "name": "HomeSteadHow",
       "rank": 1,
-      "appearances": 18,
+      "appearances": 19,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Shawn Baker MD",
+      "name": "KenDBerryMD",
       "rank": 2,
-      "appearances": 10,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+      "appearances": 5,
+      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
       "name": "Carnivore Quest",
@@ -20,46 +20,46 @@
       "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "kierunek zdrowie",
-      "rank": 4,
-      "appearances": 3,
-      "channel_id": "UCKno3LMkrQLdbXgIU7cKo1A"
-    },
-    {
-      "name": "Meet Carnivore",
-      "rank": 5,
-      "appearances": 17,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
-    },
-    {
-      "name": "TacoTina11",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCXNTmPJiRDuSifwFjiRL0pQ"
-    },
-    {
       "name": "Emmathecarnivore",
-      "rank": 7,
-      "appearances": 15,
+      "rank": 4,
+      "appearances": 16,
       "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
+      "name": "Chris Cooking Nashville",
+      "rank": 5,
+      "appearances": 6,
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
+    },
+    {
+      "name": "Receitas para diab\u00e9ticos.",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCLyGXkwFX26Oaa5dQEOvMsQ"
+    },
+    {
       "name": "Ketogenic Woman",
-      "rank": 8,
-      "appearances": 10,
+      "rank": 7,
+      "appearances": 11,
       "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
     },
     {
-      "name": "Claire Vesper ",
-      "rank": 9,
-      "appearances": 5,
-      "channel_id": "UCeHelmNzByVLRNMgZDCeRxQ"
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 8,
+      "appearances": 17,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Jeremy London, MD",
+      "name": "Meet Carnivore",
+      "rank": 9,
+      "appearances": 18,
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+    },
+    {
+      "name": "Shawn Baker MD",
       "rank": 10,
-      "appearances": 1,
-      "channel_id": "UCD7amT5yMTtEnAgVhA68vgQ"
+      "appearances": 11,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     }
   ]
 }
