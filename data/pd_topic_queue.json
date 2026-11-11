@@ -6,7 +6,7 @@
     "published",
     "later"
   ],
-  "updated": "2026-11-10",
+  "updated": "2026-11-11",
   "queue": [
     {
       "order": 1,
@@ -124,6 +124,65 @@
       "must_not_cannibalize": [
         "P4 (omega-3 gets one paragraph and a link)",
         "P13 (no recipes beyond a link)"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 9,
+      "id": "P6",
+      "working_title": "Pescatarian Protein Sources: How to Hit Your Protein After 50 Without Meat",
+      "writer": "marcus",
+      "category": "nutrition",
+      "keyword_evidence": "pescatarian protein sources 110/mo (difficulty 33, page title keyword, keyword map P6); high protein pescatarian meals 80/mo (difficulty 22, sample days section); pescatarian macros 65/mo (section). Ranked protein per serving from fish, eggs, dairy and legumes, routing to /calculator/ for personal numbers. Brew-approved, deck 1714fb84, 2026-11-11 (candidate C2, PescoDial-Topic-Candidates-2026-11-10)",
+      "safety_note": "Protein numbers from USDA FoodData Central at writing time, never from memory; kidney disease readers go to their doctor before raising protein; no protein powder or supplement doses; no personalised targets, route to the calculator for numbers.",
+      "must_not_cannibalize": [
+        "/calculator/ (tool page, this post feeds it)",
+        "P4 (omega-3 gets a link only)",
+        "P2 (sample days, not a weekly plan)"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 10,
+      "id": "P10",
+      "working_title": "Pescatarian Breakfast Ideas: High-Protein Mornings Without Bacon",
+      "writer": "marcus",
+      "category": "meal-plan",
+      "keyword_evidence": "pescatarian breakfast ideas 80/mo (Fresh 70, difficulty 20, lowest left on the keyword map, reddit at #1; keyword map P10). Ten quick breakfasts built around eggs, smoked fish, yogurt and canned fish, aimed at staying full until lunch. Brew-approved, deck 1714fb84, 2026-11-11 (candidate C3, PescoDial-Topic-Candidates-2026-11-10)",
+      "safety_note": "Sodium in smoked and canned fish for blood-pressure readers; nutrient numbers from USDA FoodData Central at writing time, never from memory; fish and egg allergy note; no supplement doses.",
+      "must_not_cannibalize": [
+        "P2 (breakfasts, not a weekly plan)",
+        "P13 (canned fish breakfasts get one link, no recipes repeated)",
+        "P6 (protein numbers get a link only)"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 11,
+      "id": "P11",
+      "working_title": "Pescatarian vs Vegetarian: Which Is Better for Your Heart After 50?",
+      "writer": "sarah",
+      "category": "health",
+      "keyword_evidence": "pescatarian vs vegetarian 220/mo (Fresh 360, difficulty 38, rising +50% in Trends, reddit at #1; keyword map P11). Side-by-side on protein, omega-3, B12 and iron, ending in what a typical week looks like on each. Brew-approved, deck 1714fb84, 2026-11-11 (candidate C1, PescoDial-Topic-Candidates-2026-11-10)",
+      "safety_note": "Food first, no supplement doses (B12 and iron included); B12 and iron numbers from NIH ODS and USDA FoodData Central at writing time, never from memory; statin and blood-thinner readers go to their doctor or pharmacist. Must not drift into an opinion piece.",
+      "must_not_cannibalize": [
+        "P3 (one link, no repeated benefits list)",
+        "P4 (omega-3 gets one paragraph and a link)"
+      ],
+      "status": "queued"
+    },
+    {
+      "order": 12,
+      "id": "P14",
+      "working_title": "Pescatarian Dinner Ideas: Easy Fresh Fish Dinners for Weeknights",
+      "writer": "sarah",
+      "category": "meal-plan",
+      "keyword_evidence": "pescatarian dinner ideas 135/mo (Fresh 260, difficulty 33, page title keyword); pescatarian lunch ideas 44/mo (Fresh 170) as a short lunch-leftovers section. Keyword map lists these as 'later recipe hub'; this is one narrow page of 30-minute weeknight dinners from fresh and frozen fish, not a hub. Brew-approved, deck 1714fb84, 2026-11-11 (candidate C4, PescoDial-Topic-Candidates-2026-11-10)",
+      "safety_note": "Fish and shellfish allergy note; nutrient numbers from USDA FoodData Central at writing time, never from memory; watch salt in sauces for blood-pressure readers; no supplement doses.",
+      "must_not_cannibalize": [
+        "P13 (fresh and frozen fish only, link P13 for canned fish)",
+        "P7 (shrimp gets a link, no cholesterol section)",
+        "P2 (dinners, not a weekly plan)"
       ],
       "status": "queued"
     }
