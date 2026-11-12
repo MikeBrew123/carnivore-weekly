@@ -2,7 +2,7 @@
 /**
  * tests/blog-first-question.test.mjs
  *
- * XR-18: the calculator's first real question (biological sex) near the top of
+ * XR-18: the calculator's goal question (Fat Loss, Maintenance, Muscle Gain) near the top of
  * the posts listed in data/first_question_cta.json, and nowhere else.
  *
  * Run it:
@@ -39,13 +39,14 @@ for (const slug of posts) {
   if (start === -1 || end === -1) continue
   const block = html.slice(start, end + blockEnd.length)
 
-  for (const sex of ['female', 'male']) {
-    const href = `/calculator.html?sex=${sex}&amp;src=blog-q1-${slug}#calculator-start`
-    check(block.includes(`href="${href}"`), `${slug}: ${sex} button links to the calculator with the answer`)
-    check(block.includes(`answer:'${sex}'`), `${slug}: ${sex} button reports its click`)
+  for (const goal of ['lose', 'maintain', 'gain']) {
+    const href = `/calculator.html?goal=${goal}&amp;src=blog-q1-${slug}#calculator-start`
+    check(block.includes(`href="${href}"`), `${slug}: ${goal} button links to the calculator with the answer`)
+    check(block.includes(`answer:'${goal}'`), `${slug}: ${goal} button reports its click`)
   }
+  check(!/[?&]sex=/.test(block), `${slug}: block no longer asks sex`)
   check(!/<p[\s>]/.test(block), `${slug}: block uses no <p>, so paragraph counts stay put`)
-  check(!/30-day|meal plan|—/i.test(block), `${slug}: block promises only what is free, no em dash`)
+  check(!/30-day|meal plan|\u2014/i.test(block), `${slug}: block promises only what is free, no em dash`)
   const early = html.indexOf('early-calc-cta')
   check(early === -1 || early > start, `${slug}: block sits above the early calculator line`)
 }
@@ -57,18 +58,21 @@ for (const file of readdirSync(blogDir)) {
 }
 
 const app = readFileSync(join(root, 'calculator2-demo/src/components/calculator/CalculatorApp.tsx'), 'utf8')
-check(app.includes("params.get('sex')"), 'CalculatorApp reads ?sex=')
-check(app.includes("sex === 'male' || sex === 'female'"), 'CalculatorApp accepts only male or female')
+check(app.includes("params.get('goal')"), 'CalculatorApp reads ?goal=')
+check(
+  app.includes("goal === 'lose' || goal === 'maintain' || goal === 'gain'"),
+  'CalculatorApp accepts only lose, maintain or gain',
+)
 
 const bundle = /assets\/calculator2\/assets\/(index-[\w-]+\.js)/.exec(readFileSync(join(root, 'public/calculator.html'), 'utf8'))
 check(Boolean(bundle), 'calculator.html names a bundle')
 if (bundle) {
   const js = readFileSync(join(root, 'public/assets/calculator2/assets', bundle[1]), 'utf8')
-  check(js.includes('get("sex")'), `live bundle ${bundle[1]} reads ?sex=`)
+  check(js.includes('get("goal")'), `live bundle ${bundle[1]} reads ?goal=`)
 }
 
 if (failed) {
   console.error(`\n${failed} check(s) failed`)
   process.exit(1)
 }
-console.log(`OK: first-question block on ${posts.length} posts, absent elsewhere, calculator reads ?sex=`)
+console.log(`OK: first-question block on ${posts.length} posts, absent elsewhere, calculator reads ?goal=`)

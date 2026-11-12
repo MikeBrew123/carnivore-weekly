@@ -99,11 +99,11 @@ export default function CalculatorApp({
               setFormData({ diet: normalized })
             }
           }
-          // Preselect sex when a reader answered the first question on a blog post
-          // (?sex=female or ?sex=male, test XR-18). Anything else is ignored.
-          const sex = params.get('sex')
-          if (sex === 'male' || sex === 'female') {
-            setFormData({ sex })
+          // Preselect the goal when a reader answered the goal question on a blog post
+          // (?goal=lose, maintain or gain, test XR-18). Anything else is ignored.
+          const goal = params.get('goal')
+          if (goal === 'lose' || goal === 'maintain' || goal === 'gain') {
+            setFormData({ goal })
           }
         }
       } catch (e) {

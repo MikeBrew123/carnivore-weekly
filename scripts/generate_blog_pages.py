@@ -98,17 +98,18 @@ def insert_early_calculator_cta(content, slug, lead):
 
 
 def insert_first_question_block(content, slug):
-    """Calculator's first real question (biological sex) after paragraph 1. Test XR-18.
+    """Calculator's goal question after paragraph 1. Test XR-18.
 
-    The tapped answer travels to the calculator as ?sex=, which CalculatorApp preselects.
+    The tapped answer travels to the calculator as ?goal=, which CalculatorApp preselects.
+    Labels and values match the calculator's own "What's Your Goal?" question.
     Built from divs, never <p>, so it cannot shift the paragraph counts other inserts rely on.
     Promise only what is free (targets plus a sample day) and say an email is required.
     """
 
     def button(value, label):
         return (
-            f'<a href="/calculator.html?sex={value}&amp;src=blog-q1-{slug}#calculator-start" '
-            'style="flex:1 1 0;text-align:center;padding:12px 8px;'
+            f'<a href="/calculator.html?goal={value}&amp;src=blog-q1-{slug}#calculator-start" '
+            'style="text-align:center;padding:12px 8px;'
             "background:#2d5016;color:#fff !important;font-weight:600;font-size:1.05rem;text-decoration:none;"
             'border-radius:4px;" '
             f"onclick=\"try{{gtag('event','blog_first_question_click',{{event_category:'engagement',"
@@ -121,9 +122,9 @@ def insert_first_question_block(content, slug):
         '<div style="font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;color:#5a5a4a;">'
         "Free Carnivore Calculator</div>"
         '<div style="font-size:1.15rem;font-weight:600;margin:6px 0 12px;">'
-        "First question: what is your biological sex?</div>"
-        '<div style="display:flex;gap:12px;margin-bottom:12px;">'
-        f'{button("female", "Female")}{button("male", "Male")}</div>'
+        "What's your goal?</div>"
+        '<div style="display:flex;flex-direction:column;gap:10px;max-width:340px;margin-bottom:12px;">'
+        f'{button("lose", "Fat Loss")}{button("maintain", "Maintenance")}{button("gain", "Muscle Gain")}</div>'
         '<div style="font-size:0.9rem;color:#5a5a4a;">Your answer carries over. A few more questions '
         "give you protein, fat and calorie targets for your age, weight and goal, plus a sample day "
         "of meals. Free, about two minutes. Email required.</div>"
@@ -342,7 +343,7 @@ def generate_blog_posts(env, posts, validator=None):
         if early_lead:
             content = insert_early_calculator_cta(content, post.get("slug"), early_lead)
 
-        # Calculator's first question near the top, XR-18 test posts only (data/first_question_cta.json).
+        # Calculator's goal question near the top, XR-18 test posts only (data/first_question_cta.json).
         # Runs after the early line so that line's paragraph positions are unchanged.
         if post.get("slug") in FIRST_QUESTION_POSTS:
             content = insert_first_question_block(content, post.get("slug"))
