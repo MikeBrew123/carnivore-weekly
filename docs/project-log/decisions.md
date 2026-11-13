@@ -2765,3 +2765,11 @@ Brew: "Ship it". `public/js/calculator-cta.js` promised a free 30-day meal plan,
 
 ## 2026-10-31: Carnivore $29 card replaced with Draft 1; diet bridge cards ended LOST
 Brew 2026-10-30: "End it, Draft 1", then "Add the stall line". Diet cards since 10-04: about 160 offer views, 6 clicks (about 4 percent vs 8 percent bar), 2 sales, both after a recovery email. New carnivore card (Sarah): "Your numbers are the easy part." / "Here's what to eat, every day, for 30 days." / "Meals planned around your goal", "One grocery list a week", and a third bullet chosen by goal: fat-loss readers see "What to do when the scale stops" (the stall section is fat-loss only, same `resolveGoal` rule as the report), everyone else "What to expect, week by week". Other diets unchanged. Tracked as "CW carnivore Draft 1 card" from 11-01, bar 5 percent clicks within 100 viewers.
+
+## 2026-11-13: 28-day read of the 10-13 content refresh (read only, no site changes)
+Report: `docs/archive/reports-archive/2026-11-13-content-refresh-read.md`. Windows 09-14..10-11 vs 10-14..11-10, GSC page dimension, `scripts/content_refresh_tracker.py read all`.
+- Writer rewrites: DID NOT WORK. Pages shown 1/9 -> 1/9; impressions 535 -> 127 (-76%) vs untouched blog -8%; control 3 -> 1. 8 of 9 pages are not indexed or never shown, so the rewrite had nothing to act on. Pork chops (title and angle changed) fell from about 135 to about 20 impressions a week, position flat. Index: 1 better, 3 worse.
+- Restaurant merge: keeper HELD (pos 5.9 -> 6.3, impressions 77 -> 112, clicks 1 -> 3). Fast-food page still not indexed (now "unknown to Google"). No revert; step 2 not recommended yet.
+- Alcohol quick answer: too small to call (clicks 4 -> 3, pos 7.0 -> 8.1, impressions -8% in line with the blog). No revert. Page had zero impressions 10-19..10-25.
+- Recommendation pending Brew: do not start the 2-week cadence. Next run, if any, targets indexed pages with impressions and low CTR, keeps titles, and verifies picks against live page-level GSC.
+- Note: the two 10-13 plan files referenced by the task are not on disk or in git history.
