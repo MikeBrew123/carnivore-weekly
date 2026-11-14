@@ -51,8 +51,11 @@ Add these four to the `ketodial.com` zone. Enter names **relative** to the domai
 **The MX record is on the `send` subdomain, not the root.** It does not touch
 `ketodial.com`'s root MX, so adding a real inbox on ketodial.com later stays possible.
 
-DMARC needs no change: ketodial.com already carries GoDaddy's default
-`v=DMARC1; p=quarantine; adkim=r; aspf=r`. Relaxed alignment means the Resend DKIM
+DMARC (changed 2026-10-31): `_dmarc` is `v=DMARC1; p=quarantine; adkim=r; aspf=r;
+rua=mailto:dmarc-reports@carnivoreweekly.com`. It used to carry GoDaddy's default rua
+(a GoDaddy registrar address), so nobody saw the reports. Cross-domain reports need the
+authorization TXT `ketodial.com._report._dmarc` = `v=DMARC1` in the carnivoreweekly.com zone;
+do not delete it. Relaxed alignment means the Resend DKIM
 signature aligns on its own.
 
 All four went live at the nameserver within 30 seconds and Resend verified the domain
