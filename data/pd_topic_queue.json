@@ -6,7 +6,7 @@
     "published",
     "later"
   ],
-  "updated": "2026-11-11",
+  "updated": "2026-11-14",
   "queue": [
     {
       "order": 1,
@@ -111,7 +111,8 @@
         "L2 (no canned tuna healthiness or mercury verdict, link instead)",
         "P2 (recipes, not a weekly plan)"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "canned-fish-recipes"
     },
     {
       "order": 8,
@@ -125,7 +126,8 @@
         "P4 (omega-3 gets one paragraph and a link)",
         "P13 (no recipes beyond a link)"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "sardines-benefits"
     },
     {
       "order": 9,
