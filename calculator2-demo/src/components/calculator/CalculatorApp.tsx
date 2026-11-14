@@ -99,6 +99,12 @@ export default function CalculatorApp({
               setFormData({ diet: normalized })
             }
           }
+          // Preselect the goal when a reader answered the goal question on a blog post
+          // (?goal=lose, maintain or gain, test XR-18). Anything else is ignored.
+          const goal = params.get('goal')
+          if (goal === 'lose' || goal === 'maintain' || goal === 'gain') {
+            setFormData({ goal })
+          }
         }
       } catch (e) {
         console.warn('[CalculatorApp] URL param preselect failed:', e)
