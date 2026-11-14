@@ -859,6 +859,10 @@ Attempts:
   WebSearch (fallback, reported); sources were not Reddit threads, so comment mining was skipped.
 - 2026-11-11: recurred in the CW weekly batch, still 11.99 vs 5; cycle ends 2026-11-13. Snapshot 28 days
   old, so topics came from GSC movers (2) plus WebSearch sources dated 11-05 to 11-10 (7); no comment mining.
+- 2026-11-14: cycle reset (0.50 vs 5). KD batch: trends pull worked (24 threads, both sites), but
+  `fetch_reddit_comments.py` returned 0 comments for 2 brand-new threads (1 day old) with exit 0 and
+  quota fine. Not the billing wall. Posts written without comments, no retry (spend). Unexplained: check
+  the comment actor's output on the next run before assuming quota.
 If recurs: check `/v2/users/me/limits` -> `current.monthlyUsageUsd` against `plan.maxMonthlyUsageUsd`
 BEFORE blaming the actor or the token. A 403 with all subreddits failing identically and an instant
 return is a billing wall; a hang is ISSUE-075. Recovery: `git log --diff-filter=AM -- data/reddit-trends-<site>.json`,
