@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-11-11",
+  "last_updated": "2026-11-15",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
+      "name": "Max German",
       "rank": 1,
-      "appearances": 19,
+      "appearances": 3,
+      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
+    },
+    {
+      "name": "HomeSteadHow",
+      "rank": 2,
+      "appearances": 20,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "KenDBerryMD",
-      "rank": 2,
+      "rank": 3,
       "appearances": 5,
       "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
-      "name": "Carnivore Quest",
-      "rank": 3,
-      "appearances": 13,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
-    },
-    {
-      "name": "Emmathecarnivore",
-      "rank": 4,
-      "appearances": 16,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
-    },
-    {
-      "name": "Chris Cooking Nashville",
-      "rank": 5,
-      "appearances": 6,
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
-    },
-    {
-      "name": "Receitas para diab\u00e9ticos.",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCLyGXkwFX26Oaa5dQEOvMsQ"
-    },
-    {
-      "name": "Ketogenic Woman",
-      "rank": 7,
-      "appearances": 11,
-      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
-    },
-    {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 8,
-      "appearances": 17,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
-    },
-    {
       "name": "Meet Carnivore",
-      "rank": 9,
-      "appearances": 18,
+      "rank": 4,
+      "appearances": 19,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
       "name": "Shawn Baker MD",
-      "rank": 10,
+      "rank": 5,
       "appearances": 11,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 6,
+      "appearances": 17,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 7,
+      "appearances": 17,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Appalachia's Homestead with Patara",
+      "rank": 8,
+      "appearances": 2,
+      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
+    },
+    {
+      "name": "Butter Bob Briggs",
+      "rank": 9,
+      "appearances": 4,
+      "channel_id": "UCiue5Soilcbqp3XS2c1P1PA"
+    },
+    {
+      "name": "Carnivore Quest",
+      "rank": 10,
+      "appearances": 14,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     }
   ]
 }
