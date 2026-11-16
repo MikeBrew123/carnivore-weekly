@@ -1019,9 +1019,20 @@ If recurs: read the failed deploy log first, then fix the list entry. Do not add
 ---
 
 ## ISSUE-108 — Sunday staleness job alarms on the retired Pinterest queue
-🔴 OPEN — Last: 2026-11-08
+🔴 OPEN — Last: 2026-11-15
 
 Pattern: `weekly-health-check.yml` (automation-staleness step, ~line 457) flags `ketodial/marketing/pinterest-pin-queue.json` when its last commit is >4 days old. Pinterest was retired 2026-09-29, so the file never changes again and every Sunday opens a "⚠️ Automation staleness" issue (#78, #79, #88, #106, #141, #151, #158, #168) that someone closes by hand. A permanent false alarm trains everyone to ignore a real one.
 Attempts:
 - 2026-11-09 — weekly ops review closed #168 and filed bead `8zg` (P3). No workflow change made.
+- 2026-11-16 — ninth false alarm (#174), closed by the weekly ops review. Still no workflow change; bead `8zg` open.
 If recurs: delete the PIN_LAST block from the staleness step (and the pin rows in `scoreboard_truth_pass.py` if still wanted gone). Do not just raise the threshold.
+
+---
+
+## ISSUE-109 — Homebrew auto-upgrade repoints python3 to a new minor with empty site-packages (Mini jobs fail on import)
+🔴 OPEN — Last: 2026-11-16
+
+Pattern: Mini jobs call bare `/opt/homebrew/bin/python3` (`~/bin/py-job.sh`, `command-center.sh`, subscriber-backup, deck-explainer, sayulita-*, trip-dash, mls-inbox, market-prices). On 2026-11-15 10:54 a Homebrew upgrade of `yt-dlp` installed `python@3.15` and relinked `python3` to it. 3.15 has no pip packages (3.14 has 133), so the 11-16 truth pass and command-center runs died with `ModuleNotFoundError: No module named 'requests'`. The heartbeat did not flag either. Mini auto-updates are on by Brew's choice (deck `e19b0d27`).
+Attempts:
+- 2026-11-16 — weekly ops review re-ran the truth pass with `/opt/homebrew/bin/python3.14` (clean). No system change made; bead P1 filed, deck decision `5703b9b1` posted.
+If recurs: check `ls -la /opt/homebrew/bin/python3` first. Fix by pinning job wrappers and plists to an explicit `python3.X` (or a project venv), never bare `python3`; do not just pip-install into the new minor, the next minor bump breaks it again.
