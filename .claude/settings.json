@@ -10,6 +10,17 @@
       "mcp__0d9c57e1-d333-42da-b7fd-c24c3f412226__get_message",
       "mcp__Google_Workspace_MCP__search_gmail_messages",
       "mcp__claude-in-chrome__get_page_text"
+    ],
+    "deny": [
+      "Bash(git * --no-verify*)",
+      "Bash(git config *core.hooksPath*)",
+      "Bash(git config *emailguard.skip*)",
+      "Bash(*echo $SUPABASE_ACCESS_TOKEN*)",
+      "Bash(env)",
+      "Bash(printenv*)",
+      "Read(~/.ssh/id_*)",
+      "Edit(//**/docs/project-log/daily/**)",
+      "Bash(git reset --hard*)"
     ]
   },
   "hooks": {
