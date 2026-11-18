@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-11-15",
+  "last_updated": "2026-11-18",
   "leaderboard": [
     {
       "name": "Max German",
@@ -8,58 +8,58 @@
       "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
     },
     {
-      "name": "HomeSteadHow",
+      "name": "Meet Carnivore",
       "rank": 2,
       "appearances": 20,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "KenDBerryMD",
-      "rank": 3,
-      "appearances": 5,
-      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
-    },
-    {
-      "name": "Meet Carnivore",
-      "rank": 4,
-      "appearances": 19,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Shawn Baker MD",
-      "rank": 5,
-      "appearances": 11,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+      "name": "Carnivore Quest",
+      "rank": 3,
+      "appearances": 14,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 6,
-      "appearances": 17,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "name": "HomeSteadHow",
+      "rank": 4,
+      "appearances": 21,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "MISSMEAT Carnivore",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCIKX1-4yMDWkUR7gaKhxtWQ"
     },
     {
       "name": "Emmathecarnivore",
-      "rank": 7,
-      "appearances": 17,
+      "rank": 6,
+      "appearances": 18,
       "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
-      "name": "Appalachia's Homestead with Patara",
-      "rank": 8,
-      "appearances": 2,
-      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
+      "name": "Ketogenic Woman",
+      "rank": 7,
+      "appearances": 12,
+      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
     },
     {
       "name": "Butter Bob Briggs",
-      "rank": 9,
+      "rank": 8,
       "appearances": 4,
       "channel_id": "UCiue5Soilcbqp3XS2c1P1PA"
     },
     {
-      "name": "Carnivore Quest",
+      "name": "Courtney Luna",
+      "rank": 9,
+      "appearances": 5,
+      "channel_id": "UCzgj3pQycdp7SUUbz56wNCw"
+    },
+    {
+      "name": "No Carb Life",
       "rank": 10,
-      "appearances": 14,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "appearances": 18,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     }
   ]
 }

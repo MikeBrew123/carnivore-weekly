@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-11-15",
+  "last_updated": "2026-11-18",
   "creators": {
     "UCzcoPGdDRiPiWZYV4_EkzPQ": {
       "appearances": 18,
@@ -35,16 +35,16 @@
       "name": "No Carb Life",
       "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ",
       "first_seen": "2026-07-26",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "WMjLvWeiY5k",
           "title": "I&#39;d Been Keto for Years. Then Everything Changed at 46\u2026",
-          "view_count": 5468,
+          "view_count": 5920,
           "published_at": "2026-11-12T21:00:08Z"
         }
       ],
-      "engagement_score": 9258,
+      "engagement_score": 9830,
       "thumbnail_url": "https://yt3.ggpht.com/WmS4ZXTghKbXOaOSNoapz2EEQ0mzxMXHmz69RjvH7kSt_CDyrzwGO9MurXzbVPNc1L2vgzbzVtU=s800-c-k-c0x00ffffff-no-rj"
     },
     "UC9HogCphFdf-Ykerc1Wsl_g": {
@@ -151,8 +151,8 @@
       "thumbnail_url": "https://yt3.ggpht.com/YtMLl-Uii2Eopgmn85d1zydF_VHw2HByiyL4cKY6QPZkyjQU39O7wzNZwsI0phYr80qMi6PkRg=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCHXjZagCrWdnkkx1rlpuqVg": {
-      "appearances": 20,
-      "last_counted": "2026-11-15",
+      "appearances": 21,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "1N9vvZ8sXXk",
         "3waYJ9ROqpc",
@@ -160,6 +160,7 @@
         "BroP3Mi9A1A",
         "C_M5AclZkxI",
         "EkC1VRA8XBk",
+        "Myl9fIw2_jw",
         "PJhxLBk9TNE",
         "PN0WtvLEYsw",
         "S2kdPlxpKtc",
@@ -183,32 +184,26 @@
         "xeuFUTIDcUU",
         "zZB6nwdZt1M"
       ],
-      "total_videos": 28,
+      "total_videos": 29,
       "name": "HomeSteadHow",
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg",
       "first_seen": "2026-07-26",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
-          "video_id": "_hdvX4h8ioY",
-          "title": "23 Days Lion Diet- I FAILED and QUIT",
-          "view_count": 68732,
-          "published_at": "2026-11-08T12:18:25Z"
-        },
-        {
-          "video_id": "tn6oz-YnDI8",
-          "title": "4 Foods Inflaming You Worse Than Red Meat",
-          "view_count": 11024,
-          "published_at": "2026-11-10T15:00:23Z"
+          "video_id": "Myl9fIw2_jw",
+          "title": "The Lion Diet Did THIS to My Menopause",
+          "view_count": 19355,
+          "published_at": "2026-11-17T13:46:53Z"
         },
         {
           "video_id": "qaT3EWgSgiM",
           "title": "4 Days Lion Diet on a Cruise Full of Desserts",
-          "view_count": 10134,
+          "view_count": 13378,
           "published_at": "2026-11-13T12:57:48Z"
         }
       ],
-      "engagement_score": 135830,
+      "engagement_score": 49313,
       "thumbnail_url": "https://yt3.ggpht.com/hvQLOMbWz-eWJvLVMLEmNMlsWgSV8nHkGrRWlm2i8V0iAB14kD36gplPctXjsv7NvoSJdDF6uqY=s800-c-k-c0x00ffffff-no-rj"
     },
     "UC1ev_bT3u-m6b6BoN39h1Ow": {
@@ -281,14 +276,15 @@
       "thumbnail_url": "https://yt3.ggpht.com/xnT5_NX7vJ79yMzatEU_P8jkSDiKalz5m43j6VIive2ZBxm-GOcTi5K2GldXB1oxr93eZrSJFg=s800-c-k-c0x00ffffff-no-rj"
     },
     "UC3ymdZTdzHvpDEFhEXqQqpQ": {
-      "appearances": 17,
-      "last_counted": "2026-11-11",
+      "appearances": 18,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "00GBZZDsNnM",
         "18N8Zy3FA_A",
         "3YT3LciDINk",
         "3a1wzQjS9uA",
         "4TyXVZHoLOk",
+        "EMrMSKl8srY",
         "MRjuRKlsJok",
         "OjVNKVfF6EY",
         "R-uAplYIA68",
@@ -302,20 +298,20 @@
         "uXklranlZTA",
         "yXq00-3xd4E"
       ],
-      "total_videos": 17,
+      "total_videos": 18,
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ",
       "first_seen": "2026-07-26",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
-          "video_id": "3a1wzQjS9uA",
-          "title": "Your Diet Should Include ZERO Carbs - And I Can Prove It To You",
-          "view_count": 31522,
-          "published_at": "2026-11-08T13:00:23Z"
+          "video_id": "EMrMSKl8srY",
+          "title": "Are BUGS A Carnivore Food?",
+          "view_count": 3406,
+          "published_at": "2026-11-14T13:00:03Z"
         }
       ],
-      "engagement_score": 46572,
+      "engagement_score": 6776,
       "thumbnail_url": "https://yt3.ggpht.com/UkyK-myXSUDGqITxWZk7uKobyFj3ak7oy8J65vBkrOq0ZsODSN46EMFEw63pUIfMN7FcZGdq=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCIO1xKFtrqOC4-rZg1pFxiw": {
@@ -389,32 +385,33 @@
       "thumbnail_url": "https://yt3.ggpht.com/db9OFosbfjWeU55noL3ESA7lbKFbzl5S2IWENSdBag3_CG9DHmriL_qOTOqsq-bZeKKIclGV=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCC0t5RvSq30NmeCVxVgMtWg": {
-      "appearances": 3,
-      "last_counted": "2026-10-11",
+      "appearances": 4,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "452x4rP_azo",
         "Q-X4Gck2_PY",
-        "kSlqwmtLZeg"
+        "kSlqwmtLZeg",
+        "xbA35RyVwSA"
       ],
-      "total_videos": 3,
+      "total_videos": 4,
       "name": "Hoosier Ali",
       "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg",
       "first_seen": "2026-07-26",
-      "last_seen": "2026-10-11",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
-          "video_id": "Q-X4Gck2_PY",
-          "title": "3.5 Years Carnivore: 3 MORE Meal Preps I Make Every Week",
-          "view_count": 5474,
-          "published_at": "2026-10-06T17:21:10Z"
+          "video_id": "xbA35RyVwSA",
+          "title": "What a Pot of Carnivore Chili Actually Costs Us (Almost 4 Years In)",
+          "view_count": 3458,
+          "published_at": "2026-11-15T18:50:45Z"
         }
       ],
-      "engagement_score": 7904,
+      "engagement_score": 4838,
       "thumbnail_url": "https://yt3.ggpht.com/yXFnFJ4L_Dq79PA9doDZYaOAc0Tn42IQwrOyg3-MBrRm_7l_q7C6P108a0hGB6UPv_mVyFM-=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCYyYDEO8jSlpnJ2omzHXlGA": {
-      "appearances": 19,
-      "last_counted": "2026-11-15",
+      "appearances": 20,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "-6Nq1sKQyks",
         "0-2b1ywByUQ",
@@ -433,31 +430,32 @@
         "dp7nBl7MJ8w",
         "eIA0sMrMjbE",
         "g68NszGHsZU",
+        "kJXcyD5haLI",
         "nKamDw9AWSY",
         "nvZmJUWM_nw",
         "qfuNCXqFpW8",
         "v7aXmZG5444"
       ],
-      "total_videos": 21,
+      "total_videos": 22,
       "name": "Meet Carnivore",
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA",
       "first_seen": "2026-07-26",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
-        {
-          "video_id": "eIA0sMrMjbE",
-          "title": "This Carnivore Pizza Bowl Is All I Want to Eat",
-          "view_count": 27282,
-          "published_at": "2026-11-09T21:15:37Z"
-        },
         {
           "video_id": "ZTiW5rrH8Kk",
           "title": "This 2-Ingredient Carnivore Snack Is Way Too Good",
-          "view_count": 26149,
+          "view_count": 37187,
           "published_at": "2026-11-12T21:30:15Z"
+        },
+        {
+          "video_id": "kJXcyD5haLI",
+          "title": "This Carnivore Lasagna Soup Destroyed My Junk Food Cravings",
+          "view_count": 8454,
+          "published_at": "2026-11-15T21:28:17Z"
         }
       ],
-      "engagement_score": 81341,
+      "engagement_score": 67611,
       "thumbnail_url": "https://yt3.ggpht.com/Ux3edQoBEdRA4mB6yzwaaVyqRRtNOZBMkGVu04_lzOUA4avuIUHyIpz9_K_b1YyRgI_KWpmR8-A=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCXSU6RrQk5er2YeFCjN4OHw": {
@@ -507,22 +505,22 @@
       "name": "Carnivore Quest",
       "channel_id": "UCMXFshWv04QJPsjKMgtreFQ",
       "first_seen": "2026-07-26",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "Av176ESFuN4",
           "title": "ALDI&#39;s Meat Sales Are A Scam!",
-          "view_count": 13376,
+          "view_count": 25674,
           "published_at": "2026-11-12T23:00:34Z"
         },
         {
           "video_id": "JFdYCTKbLII",
           "title": "Laura Spath Stranded in Mexico: What is Going On?",
-          "view_count": 5898,
+          "view_count": 12592,
           "published_at": "2026-11-14T19:15:07Z"
         }
       ],
-      "engagement_score": 28874,
+      "engagement_score": 51916,
       "thumbnail_url": "https://yt3.ggpht.com/fmpMyVaVzdv-eRYghhq_1SCU4HZIC1Svbqhx2_B5jxxL1UY6eUsW0mHHLPRq_RaZRevPMWbFVOo=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCnTWB12SynwEJaA3ZqzojPg": {
@@ -1555,8 +1553,8 @@
       "thumbnail_url": "https://yt3.ggpht.com/uoT23C-GeLZMChdKnHXdf0i4jtrunBz6iDEOhpYNPDl_00nEAycB-oBV1kJ0pH3ot4v2z8ZnTg=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCbd6oeyqTJnjf0lvjXv2w1Q": {
-      "appearances": 17,
-      "last_counted": "2026-11-15",
+      "appearances": 18,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "0-DQKRINJ0M",
         "26I9pasfSNk",
@@ -1575,38 +1573,39 @@
         "h6KSegMhPwo",
         "jw9nix6wCtw",
         "oafZARG1wwo",
+        "p-Z-884NKB0",
         "p0Ux6JUV3Dk",
         "rmCNeXEQ1ZU",
         "vskFeC4W-b8",
         "ywWlzEEsjTo",
         "zQBGs0xUYRI"
       ],
-      "total_videos": 22,
+      "total_videos": 23,
       "name": "Emmathecarnivore",
       "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q",
       "first_seen": "2026-08-02",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "IUUrk2ISgoU",
           "title": "I Can\u2019t Stop Making These 5 Carnivore Desserts",
-          "view_count": 11259,
+          "view_count": 12192,
           "published_at": "2026-11-11T16:40:41Z"
-        },
-        {
-          "video_id": "zQBGs0xUYRI",
-          "title": "I Only Eat THESE 6 Meals on Carnivore",
-          "view_count": 8181,
-          "published_at": "2026-11-09T16:48:39Z"
         },
         {
           "video_id": "bfCgWJ6Hrls",
           "title": "My 7 Go-To Carnivore Snacks (All Homemade)",
-          "view_count": 5202,
+          "view_count": 7676,
           "published_at": "2026-11-13T16:22:45Z"
+        },
+        {
+          "video_id": "p-Z-884NKB0",
+          "title": "EASY Carnivore Pumpkin Spice Cheesecake (No Bake)",
+          "view_count": 7479,
+          "published_at": "2026-11-16T16:01:32Z"
         }
       ],
-      "engagement_score": 40792,
+      "engagement_score": 44877,
       "thumbnail_url": "https://yt3.ggpht.com/wl8SMs4C4WTP--aekF7Yzb7GeeleYx33pOmiap5hRdaOGkgsRjRLef5Hdd6ICuZxNMV0I4DZ8A=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCIma2WOQs1Mz2AuOt6wRSUw": {
@@ -1778,14 +1777,15 @@
       "thumbnail_url": "https://yt3.ggpht.com/T9otmk4AGVxkzbUCtC4__Yjg7-yccMNCDHjtKITuX9qO3C-bnAajp-jfBHLcgPAOkkBFWr1T=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCFunJX1wNIoqrfb-1CSa9aw": {
-      "appearances": 11,
-      "last_counted": "2026-11-11",
+      "appearances": 12,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "9hU8RGrgRxM",
         "FO9Xy4Kja5g",
         "HbWqGcnG1sk",
         "JWfjjg7eNDc",
         "QUFTXJhDRwE",
+        "RTnBZSBRG9M",
         "UmVNg3DJ7Vg",
         "Usq_6iACaMY",
         "bof41NbCu8A",
@@ -1794,26 +1794,20 @@
         "rOubddSUd-0",
         "xKEMygziR_g"
       ],
-      "total_videos": 12,
+      "total_videos": 13,
       "name": "Ketogenic Woman",
       "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw",
       "first_seen": "2026-08-02",
-      "last_seen": "2026-11-11",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
-          "video_id": "xKEMygziR_g",
-          "title": "Carnivore Smash Burgers! My Easy Cast Iron Meal Prep Method",
-          "view_count": 19072,
-          "published_at": "2026-11-07T13:53:40Z"
-        },
-        {
-          "video_id": "bof41NbCu8A",
-          "title": "MN 06 Breaking Down Sirloin CapCut 1",
-          "view_count": 3009,
-          "published_at": "2026-11-06T17:00:05Z"
+          "video_id": "RTnBZSBRG9M",
+          "title": "Forget the Slow Cooker! My Favorite Oven Chuck Roast",
+          "view_count": 20844,
+          "published_at": "2026-11-12T18:00:00Z"
         }
       ],
-      "engagement_score": 35881,
+      "engagement_score": 31974,
       "thumbnail_url": "https://yt3.ggpht.com/dYQQmTpJ1da8unj-fvty4woJeRJ6Ds2SL-iIkmGaxk_VoXyxbA6Q2yg6KNc9QmlhFWBptunOlzs=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCl6fmp49U7zd-8ozbvzLQKg": {
@@ -1865,16 +1859,16 @@
       "name": "Courtney Luna",
       "channel_id": "UCzgj3pQycdp7SUUbz56wNCw",
       "first_seen": "2026-08-02",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "ev5E--tO50s",
           "title": "Carnivore Mashed Potatoes?! You Won&#39;t Believe What&#39;s in These! (No potato, no cauliflower)",
-          "view_count": 6618,
+          "view_count": 8206,
           "published_at": "2026-11-12T18:53:49Z"
         }
       ],
-      "engagement_score": 10848,
+      "engagement_score": 13456,
       "thumbnail_url": "https://yt3.ggpht.com/IsXFvCTnafjgYDDBgoszJXAUCzUie5rjUJFdDfawdszQzdSMNvixH6--5kgh9WO4e0t7BNpYW70=s800-c-k-c0x00ffffff-no-rj"
     },
     "UChYgCTjjOcGqnWi1f0Ff0AQ": {
@@ -2220,22 +2214,16 @@
       "name": "Butter Bob Briggs",
       "channel_id": "UCiue5Soilcbqp3XS2c1P1PA",
       "first_seen": "2026-08-09",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
-        {
-          "video_id": "yhpqQ0cthNI",
-          "title": "151 Lbs | 10 Months | Father &amp; Son",
-          "view_count": 8438,
-          "published_at": "2026-11-08T18:37:11Z"
-        },
         {
           "video_id": "RFQD212B6io",
           "title": "Keep Your Meals Simple",
-          "view_count": 7856,
+          "view_count": 8660,
           "published_at": "2026-11-12T21:08:15Z"
         }
       ],
-      "engagement_score": 30084,
+      "engagement_score": 14630,
       "thumbnail_url": "https://yt3.ggpht.com/miRKMtsc7Q-nEG8e_1WcYCPa8HwU0v5TdETJ42TVqf91hqtaRtwgOovb-E_ToNHSY2uWhUfJ30Q=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCbyLaRbhy4PeUgjDsZwoT6Q": {
@@ -2261,35 +2249,30 @@
       "thumbnail_url": "https://yt3.ggpht.com/TwaqJpjhhMZZtySoEptnfXywsZa2OPRqrwp1-t5QYzkrZsKIPnrL1y6S2gAqLNjI7qO2Ccclsvg=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCdUqcTMKMNLuHoCqFy13K1g": {
-      "appearances": 4,
-      "last_counted": "2026-11-04",
+      "appearances": 5,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "LeXW-plXHTs",
         "WgGwLzWYnbg",
         "_bUZCM8AGg0",
         "fzNGLq2p3hM",
-        "jt5x7_EaqkI"
+        "jt5x7_EaqkI",
+        "wsok6ELnwtM"
       ],
-      "total_videos": 5,
+      "total_videos": 6,
       "name": "Receitas para diab\u00e9ticos",
       "channel_id": "UCdUqcTMKMNLuHoCqFy13K1g",
       "first_seen": "2026-08-09",
-      "last_seen": "2026-11-04",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
-          "video_id": "jt5x7_EaqkI",
-          "title": "Bolo (2 ingredientes) para DIAB\u00c9TICOS zero carboidrato ",
-          "view_count": 9287,
-          "published_at": "2026-10-28T22:10:11Z"
-        },
-        {
-          "video_id": "fzNGLq2p3hM",
-          "title": "Caldo grosso para DIAB\u00c9TICOS (de inverno) zero carboidrato ",
-          "view_count": 6395,
-          "published_at": "2026-10-28T23:05:28Z"
+          "video_id": "wsok6ELnwtM",
+          "title": "Doce para DIAB\u00c9TICOS zero carboidrato e zero a\u00e7\u00facar ",
+          "view_count": 3008,
+          "published_at": "2026-11-11T20:30:37Z"
         }
       ],
-      "engagement_score": 21122,
+      "engagement_score": 4418,
       "thumbnail_url": "https://yt3.ggpht.com/g4-ZqtZ4OOCkWsI-1IMrtYP3wcHF1NPIi6R5IO_p8cgtkTjyI5iN9tJf84RKeRhL1EKKS8p-Mw=s800-c-k-c0x00ffffff-no-rj"
     },
     "UC-FvxtGu0YyHyGUCkh_wyXg": {
@@ -2568,27 +2551,28 @@
       "thumbnail_url": "https://yt3.ggpht.com/J4k-xJEA69XGPus71TkMtTzRWuENszwZp9ArIfm9zTfWqChSpaA8k1ORA6oh82QusVtPVClR2g=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCyZia0TtezGqjGcXwXJhDoQ": {
-      "appearances": 3,
-      "last_counted": "2026-11-01",
+      "appearances": 4,
+      "last_counted": "2026-11-18",
       "video_ids": [
         "D0cggSfQnwA",
+        "Ma57xYnALm4",
         "cVeEQZc0m4o",
         "n9K2x1bOhvE"
       ],
-      "total_videos": 3,
+      "total_videos": 4,
       "name": "Maria Emmerich",
       "channel_id": "UCyZia0TtezGqjGcXwXJhDoQ",
       "first_seen": "2026-08-16",
-      "last_seen": "2026-11-01",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
-          "video_id": "D0cggSfQnwA",
-          "title": "High Protein Carnivore Alfredo",
-          "view_count": 6337,
-          "published_at": "2026-10-27T14:00:17Z"
+          "video_id": "Ma57xYnALm4",
+          "title": "High Protein French Silk Pie With a Carnivore Crust",
+          "view_count": 3392,
+          "published_at": "2026-11-16T14:00:39Z"
         }
       ],
-      "engagement_score": 9557,
+      "engagement_score": 4862,
       "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_mCNiSteGFJGYjCY32T4JSPN2sik660xoX5m-FsERyQ1bU=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCbM-Cio0L1Yg_Pl4SsmMFhA": {
@@ -2965,16 +2949,16 @@
       "name": "Carnivore Squad",
       "channel_id": "UCna2tBELEcgMUTA451I_4xA",
       "first_seen": "2026-08-23",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "tlrjbDgLz6g",
           "title": "Carnivore Food Elimination: What To Remove From Your Meals",
-          "view_count": 434,
+          "view_count": 474,
           "published_at": "2026-11-11T19:00:38Z"
         }
       ],
-      "engagement_score": 534,
+      "engagement_score": 594,
       "thumbnail_url": "https://yt3.ggpht.com/74P6wgAknmGaVay55qejsaAM5HbU9uvtRfpBdob_k5EWCPggv3pr_oA7-FZjhIWU4PRzydYncQ=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCeHelmNzByVLRNMgZDCeRxQ": {
@@ -3130,16 +3114,16 @@
       "name": "Max German",
       "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww",
       "first_seen": "2026-08-30",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "pQ-uZBkSOvA",
           "title": "I Tried EVERY Version Of Carnivore (Don&#39;t Waste Your Time)",
-          "view_count": 100738,
+          "view_count": 129130,
           "published_at": "2026-11-12T17:25:58Z"
         }
       ],
-      "engagement_score": 149478,
+      "engagement_score": 186640,
       "thumbnail_url": "https://yt3.ggpht.com/6TB6HT81ZJXI6fngmJnguS0Y5alBMkBgDyembTLa4FQFMlPqgofBmtPBpBJdVGx9ZssgdYMBWw=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCMq43NX1Te_znYtVCWaMTwA": {
@@ -4202,26 +4186,27 @@
       "thumbnail_url": "https://yt3.ggpht.com/I4ROsTRVuefHD6ZvA7Kb_UUOWbtB9jovvX4xzRaYd55-HtICtDC_k6EACSkSQjJW67GPgzFO5g=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCfTFC21wySyEZcoxtXAqi3w": {
-      "appearances": 2,
-      "last_counted": "2026-10-11",
+      "appearances": 3,
+      "last_counted": "2026-11-18",
       "video_ids": [
+        "4LAzkXAnsXA",
         "FWzcMv7_AhA",
         "zVKohQZpMeA"
       ],
-      "total_videos": 2,
+      "total_videos": 3,
       "name": "Maurice Daher",
       "channel_id": "UCfTFC21wySyEZcoxtXAqi3w",
       "first_seen": "2026-09-20",
-      "last_seen": "2026-10-11",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
-          "video_id": "FWzcMv7_AhA",
-          "title": "Carnivore? Are You Losing Muscle Despite All That Protein?",
-          "view_count": 1763,
-          "published_at": "2026-10-04T13:00:22Z"
+          "video_id": "4LAzkXAnsXA",
+          "title": "They Ate Only Meat for a Year in 1928. Doctors Tested Everything.",
+          "view_count": 1356,
+          "published_at": "2026-11-15T13:00:19Z"
         }
       ],
-      "engagement_score": 3103,
+      "engagement_score": 2246,
       "thumbnail_url": "https://yt3.ggpht.com/Ri5WeNN1QcSFZFTUwEFGBwZUoquTQmsiz5agHxmIXXwlZJ2A9hO6L0cjeOMRcTtwwh2MTP7-=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCdhV2E2vYOTGZCrxSRYMw-A": {
@@ -5446,16 +5431,16 @@
       "name": "FrankyFreakyEyes",
       "channel_id": "UCXXxSX8dQBOJXGmYvBcAYjA",
       "first_seen": "2026-10-14",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "Q3eO6b60318",
           "title": "2018 08 6 years eating ONLY MEAT, when will I die - Frank Tufano",
-          "view_count": 16,
+          "view_count": 30,
           "published_at": "2026-11-11T14:43:14Z"
         }
       ],
-      "engagement_score": 16,
+      "engagement_score": 30,
       "thumbnail_url": "https://yt3.ggpht.com/zI6stTQ-3xTS_72yQVJYWub-iFORQZ0e8doOb4zM-mXKBjkbLVvoCdQZCEAPC2_leO4pSAE88A=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCek0wqtpB6FQcPyIEpdEa6A": {
@@ -6852,16 +6837,16 @@
       "name": "MISSMEAT Carnivore",
       "channel_id": "UCIKX1-4yMDWkUR7gaKhxtWQ",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "bcRq6u9qirE",
           "title": "3 Years on the Carnivore Diet\u2026 Here&#39;s What Really Happened",
-          "view_count": 10663,
+          "view_count": 34239,
           "published_at": "2026-11-14T15:18:55Z"
         }
       ],
-      "engagement_score": 14663,
+      "engagement_score": 45329,
       "thumbnail_url": "https://yt3.ggpht.com/vmuvjAYVVvoUTM5IbpXyIqL9oqNRLQFgv2kDRy9cIvdtt_wV8eCrNPxPNcAsw5xcF8mVhFpu=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCLE9M1ijia88VRAnlpa7bPw": {
@@ -6874,16 +6859,16 @@
       "name": "The Carnivore Vet Dr. SK",
       "channel_id": "UCLE9M1ijia88VRAnlpa7bPw",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "O-fVdMHPqu8",
           "title": "Carnivore Diet &amp; Lipid Profile Explained | High LDL \u0938\u0947 Heart Attack \u0915\u093e \u0916\u0924\u0930\u093e? | Science Simplified",
-          "view_count": 4463,
+          "view_count": 5355,
           "published_at": "2026-11-11T13:14:31Z"
         }
       ],
-      "engagement_score": 5463,
+      "engagement_score": 6455,
       "thumbnail_url": "https://yt3.ggpht.com/YQjlaR7Vk6QeHmWt22VJrzFEm-yvCKg1vHuq_d1TrC1S3m-DsTsRqLVUwYgN7f_6ouextdsC2A=s800-c-k-c0x00ffffff-no-rj"
     },
     "UChRktEt4Wno_neHMzIco9fA": {
@@ -6940,16 +6925,16 @@
       "name": "Better Health Better Man",
       "channel_id": "UC_OGZEOZMNHyCpjFn0DLzmw",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "FobPFog1_W8",
           "title": "5 Foods I Avoid on Keto (The Last One Might Surprise You)",
-          "view_count": 56,
+          "view_count": 487,
           "published_at": "2026-11-15T00:47:48Z"
         }
       ],
-      "engagement_score": 66,
+      "engagement_score": 587,
       "thumbnail_url": "https://yt3.ggpht.com/wuajr8mKWqe7xblobmMWzBHHkYbGnyKC_FxiwyyPAMo-Hg5WnZ904u9f_D9n5N9c-KoTCDbT=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCJIhLydksP44xu4gyI2PUKg": {
@@ -6962,16 +6947,16 @@
       "name": "Healing by Nutrition",
       "channel_id": "UCJIhLydksP44xu4gyI2PUKg",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "_wml2bppXk4",
           "title": "Carnivore Life: Why We Eat This Way",
-          "view_count": 21,
+          "view_count": 23,
           "published_at": "2026-11-11T13:01:38Z"
         }
       ],
-      "engagement_score": 41,
+      "engagement_score": 43,
       "thumbnail_url": "https://yt3.ggpht.com/yQ77uuahlaqbsCBKI-xcopMC6yPKxxF3yoR0hcglQW-wY2weNeHTibVT6I-zGrYN1ZkKoicZ=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCy2CwkNU9VdA84wEKf6ImZQ": {
@@ -6984,16 +6969,16 @@
       "name": "Made by Anton",
       "channel_id": "UCy2CwkNU9VdA84wEKf6ImZQ",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "UBmofQ-b2A8",
           "title": "I Tried a No Carb Diet for 1 Week and Failed in 3 Days",
-          "view_count": 10,
+          "view_count": 13,
           "published_at": "2026-11-12T01:55:04Z"
         }
       ],
-      "engagement_score": 10,
+      "engagement_score": 13,
       "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_lPAu5LcUW1h_9K92DDPIFAt7oKeKn1gaScOAfzdeLy0FyHMrhcwYmEo-u21qNz3kJRkA=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCZlaWgv46WMCWEZuJd1hRCA": {
@@ -7006,7 +6991,7 @@
       "name": "STICKMAN USA",
       "channel_id": "UCZlaWgv46WMCWEZuJd1hRCA",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "a2fFEXUQIuY",
@@ -7019,22 +7004,29 @@
       "thumbnail_url": "https://yt3.ggpht.com/Bu6gnCop7_Gpp1HR6MqOOUCPp1KiKbzj-8AGBV9i1HRQJm3PJ2733myPfW4CZVHToZAjL0go9A=s800-c-k-c0x00ffffff-no-rj"
     },
     "UC3LAABfgk5zEwEDELl6DWWA": {
-      "appearances": 1,
-      "last_counted": "2026-11-15",
+      "appearances": 2,
+      "last_counted": "2026-11-18",
       "video_ids": [
-        "BrnWAwp_7Cw"
+        "BrnWAwp_7Cw",
+        "wCFg8rhiULM"
       ],
-      "total_videos": 1,
+      "total_videos": 2,
       "name": "Free Audiobook",
       "channel_id": "UC3LAABfgk5zEwEDELl6DWWA",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "BrnWAwp_7Cw",
           "title": "The Carnivore Diet for Weight Loss: Special Edition - Two Books Audiobook by Mason Brooks",
           "view_count": 1,
           "published_at": "2026-11-11T23:29:53Z"
+        },
+        {
+          "video_id": "wCFg8rhiULM",
+          "title": "The Carnivore Diet: Meal Plans and Recipe Cookbook Audiobook by Michael D Kaiser",
+          "view_count": 0,
+          "published_at": "2026-11-15T04:35:08Z"
         }
       ],
       "engagement_score": 1,
@@ -7050,7 +7042,7 @@
       "name": "Free Audiobook",
       "channel_id": "UCIq8pLzS6q7F4M9naWKHgsA",
       "first_seen": "2026-11-15",
-      "last_seen": "2026-11-15",
+      "last_seen": "2026-11-18",
       "top_videos": [
         {
           "video_id": "wmg8fY9JnTA",
@@ -7083,6 +7075,182 @@
       ],
       "engagement_score": 1,
       "thumbnail_url": "https://yt3.ggpht.com/iuCyaRshRsUT21I86hnwNgU8uaUWQwZ1DUfJPSLJ7LIgADQbuLhwVMDGCUapiOX_4yTBmn2UPA=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UCyf4v0HhGiHc8_ZIiSfd3Ug": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "ASU0aMmeyzQ"
+      ],
+      "total_videos": 1,
+      "name": "Heart & Soil ",
+      "channel_id": "UCyf4v0HhGiHc8_ZIiSfd3Ug",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "ASU0aMmeyzQ",
+          "title": "Animal-Based Shepard&#39;s Pie Recipe - Healthy Fall Recipe Tutorial",
+          "view_count": 517,
+          "published_at": "2026-11-16T16:00:06Z"
+        }
+      ],
+      "engagement_score": 667,
+      "thumbnail_url": "https://yt3.ggpht.com/cWbUMwhHNHo2eGydfu5EoF5H5fMhPz2MxyPeee0a3kv9EsoyJLVsb4OQexhpmwh-MEjmOiiK1w=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UCZxhmnvxWX2azV6FSqq2oWQ": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "wNjOHViCLe0"
+      ],
+      "total_videos": 1,
+      "name": "Ludas Road to Redemption ",
+      "channel_id": "UCZxhmnvxWX2azV6FSqq2oWQ",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "wNjOHViCLe0",
+          "title": "Day 51 Carnivore Diet at 600+ LBS | I Only Ate ONE Meal Today?! (OMAD)",
+          "view_count": 273,
+          "published_at": "2026-11-16T01:18:27Z"
+        }
+      ],
+      "engagement_score": 543,
+      "thumbnail_url": "https://yt3.ggpht.com/nLASM0FOYYHl4X5qZspzM9tr-0qp48V1eU9c0T3968AI8dxsVzZZbFhjhIwydGc8aZX4KTdXBVc=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UCyKkvzj91yPAS7unVvBVIww": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "QsWSSxyTUbQ"
+      ],
+      "total_videos": 1,
+      "name": "Shikkum Subba",
+      "channel_id": "UCyKkvzj91yPAS7unVvBVIww",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "QsWSSxyTUbQ",
+          "title": "How the Animal-Based Diet Boosted My Mental Health",
+          "view_count": 11,
+          "published_at": "2026-11-15T21:00:17Z"
+        }
+      ],
+      "engagement_score": 11,
+      "thumbnail_url": "https://yt3.ggpht.com/IuX4sHd3sop5H7wKktft4mqXFJ7A7HhVfFLpl7cG1-qeQQVzVIPAhpBLorEUuP7B4UfL9BJMnzk=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UC6wXaGraBV3Ofp5eVKyQMCA": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "xEBkzNxzxrw"
+      ],
+      "total_videos": 1,
+      "name": "Corbin Dassie",
+      "channel_id": "UC6wXaGraBV3Ofp5eVKyQMCA",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "xEBkzNxzxrw",
+          "title": "Are Supplements Needed on Carnivore?",
+          "view_count": 9,
+          "published_at": "2026-11-13T02:08:12Z"
+        }
+      ],
+      "engagement_score": 39,
+      "thumbnail_url": "https://yt3.ggpht.com/_IfPH01w-HHfq20Hwa3tEIE0qe91SCAVzzQ99AVx3doYGIkXVFUBJmetYvBj7LHku9xVEjJZ0Q=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UCxPcGRCdqNpmZfYbk_SiZlg": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "7mRvH5dIdd8"
+      ],
+      "total_videos": 1,
+      "name": "Exercise Your Mind",
+      "channel_id": "UCxPcGRCdqNpmZfYbk_SiZlg",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "7mRvH5dIdd8",
+          "title": "Carnivore Diet: Is Eating Only Meat Healthy? What Science Says",
+          "view_count": 9,
+          "published_at": "2026-11-17T13:30:13Z"
+        }
+      ],
+      "engagement_score": 9,
+      "thumbnail_url": "https://yt3.ggpht.com/CDHl9DEOpmEFjs44z_nGoJar7odm7eBQ2FzLqy6HQeoads9DRDJ48WQpoJKcYpfDLbB4jD8NIQ=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UCRhCJFtZgdceCHBe2ZVFEJA": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "1YCiyphWOTo"
+      ],
+      "total_videos": 1,
+      "name": "bedtime sleepy historian",
+      "channel_id": "UCRhCJFtZgdceCHBe2ZVFEJA",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "1YCiyphWOTo",
+          "title": "Why Do Pandas Only Eat Bamboo But Have a Carnivore&#39;s Gut",
+          "view_count": 5,
+          "published_at": "2026-11-15T17:30:24Z"
+        }
+      ],
+      "engagement_score": 5,
+      "thumbnail_url": "https://yt3.ggpht.com/3GT3vg7ieosCgcHLwdWomdDohhWj6egBafgVIzkv5VYNIspwvFMU-q0hcXjChGEpXMExUwLWqA=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UCVgGozhTcHMPJIq3Dal53lg": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "rwFzG5K2Q-c"
+      ],
+      "total_videos": 1,
+      "name": "Ken Berry Health Talks",
+      "channel_id": "UCVgGozhTcHMPJIq3Dal53lg",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "rwFzG5K2Q-c",
+          "title": "15 Carnivore Diet Mistakes That Could Hurt Your Health After 50!",
+          "view_count": 1,
+          "published_at": "2026-11-17T00:00:00Z"
+        }
+      ],
+      "engagement_score": 1,
+      "thumbnail_url": "https://yt3.ggpht.com/PGJ1Mk_f9Q7X0CXo-ZQkHV-h7vwLzt33IBYMfRuY3O7q9F0sGc3r4NYyKqrQRMgZ7S4ei-xS5Q=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UCW9DVO3tCe0MTPZC2YDAFtA": {
+      "appearances": 1,
+      "last_counted": "2026-11-18",
+      "video_ids": [
+        "PWR9aaTYwkA"
+      ],
+      "total_videos": 1,
+      "name": "What If, Hoodlo?",
+      "channel_id": "UCW9DVO3tCe0MTPZC2YDAFtA",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "top_videos": [
+        {
+          "video_id": "PWR9aaTYwkA",
+          "title": "100 Days of Only Meat \u2014 What Happens to Your Body?",
+          "view_count": 0,
+          "published_at": "2026-11-15T16:06:45Z"
+        }
+      ],
+      "engagement_score": 0,
+      "thumbnail_url": "https://yt3.ggpht.com/O533G7xcp7QsnqMw1YQ14mXhNQmPfbfgOLFPU3aGvzwyuz9CJxU9yN7xa1zXXKlL2SSVTWGtdA=s800-c-k-c0x00ffffff-no-rj"
     }
   }
 }
