@@ -2773,3 +2773,8 @@ Report: `docs/archive/reports-archive/2026-11-13-content-refresh-read.md`. Windo
 - Alcohol quick answer: too small to call (clicks 4 -> 3, pos 7.0 -> 8.1, impressions -8% in line with the blog). No revert. Page had zero impressions 10-19..10-25.
 - Recommendation pending Brew: do not start the 2-week cadence. Next run, if any, targets indexed pages with impressions and low CTR, keeps titles, and verifies picks against live page-level GSC.
 - Note: the two 10-13 plan files referenced by the task are not on disk or in git history.
+
+## 2026-11-19 — CW drip day 17: cravings and boredom (Brew: "Ship it")
+- New `data/drip-emails/day-17.html` (Sarah). Source: voice-of-customer trial using boring-marketing-skills `audience-research`; files in BSM `growth/CW-VOC-2026-11-19.md` and `CW-Audience-2026-11-19.md`.
+- Day 14 closing line now says the next email is day 17. Sender unchanged (sends any `day-N.html`). Day 4 stays quiet.
+- Read: day-17 opens/clicks vs days 14 and 21 once 20+ subscribers have received it.
