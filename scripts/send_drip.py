@@ -5,7 +5,7 @@ Daily drip email sender for the 30-day starter sequences.
 Runs one site per invocation (CW by default, KetoDial with --site kd).
 Queries drip_subscribers for anyone on that site not completed/unsubscribed,
 sends the next day's email via Resend, bumps the counter.
-Both sequences are sparse past day 7 (days 10, 14, 21, 28); days with no
+Both sequences are sparse past day 7 (CW: days 10, 14, 17, 21, 28; KD: 10, 14, 21, 28); days with no
 day-N.html advance the counter silently without sending.
 
 CW: only carnivore-diet signups enter (keto/low-carb are deflected to the KD

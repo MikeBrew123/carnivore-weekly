@@ -133,8 +133,8 @@ Two exceptions to the table, both deliberate:
 
 ### Drip sequences
 
-Two sequences, one per site, eleven emails each: day 1 through day 7 daily, then
-day 10, 14, 21 and 28.
+Two sequences, one per site. CW: days 1, 2, 3, 5, 6, 7 (day 4 is a quiet day since
+2026-09-22), then 10, 14, 17, 21 and 28. KD: day 1 through day 7 daily, then 10, 14, 21 and 28.
 
 | | CW | KD |
 |---|---|---|
