@@ -334,6 +334,7 @@ def generate_blog_posts(env, posts, validator=None):
             # visible FAQ section in the post body (Google requirement)
             date_modified=post.get("date_modified"),
             faq=post.get("faq"),
+            sources=post.get("sources"),
         )
 
         # Validate content (warn-only — template output is source of truth)

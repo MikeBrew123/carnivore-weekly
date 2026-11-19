@@ -2778,3 +2778,12 @@ Report: `docs/archive/reports-archive/2026-11-13-content-refresh-read.md`. Windo
 - New `data/drip-emails/day-17.html` (Sarah). Source: voice-of-customer trial using boring-marketing-skills `audience-research`; files in BSM `growth/CW-VOC-2026-11-19.md` and `CW-Audience-2026-11-19.md`.
 - Day 14 closing line now says the next email is day 17. Sender unchanged (sends any `day-N.html`). Day 4 stays quiet.
 - Read: day-17 opens/clicks vs days 14 and 21 once 20+ subscribers have received it.
+
+## 2026-11-19 — Research sources on new posts, PubMed only (Brew: "Go as proposed")
+- Plan: BSM `00 Command Centre/Sources-Plan-2026-11-19.md`. Contact email for NCBI: research@carnivoreweekly.com. Health posts need at least 2 sources.
+- `scripts/pubmed_lookup.py`: search, show, source (JSON entry), verify. NCBI rules: 3 req/s max, tool + email sent, metadata only.
+- New `sources` field on posts; CW template and KD generator render a "Sources" list after the body plus Article JSON-LD `citation`. Pages without sources render byte-identical (all CW posts re-rendered, zero diffs).
+- `daily_publish.py` holds (keeps ready) CW/KD posts dated 2026-11-25 or later whose sources fail PubMed, any post that already has sources and fails, any post linking consensus.app, and fails closed when PubMed is unreachable. PD keeps its in-body Sources contract.
+- Consensus not used: terms are personal-use and bar acts that boost another site's rankings. Chloe's old Consensus Science Check is retired.
+- Tests: `tests/test_post_sources.py` (19). Mutation-tested: 7 protections broken one at a time, each turned a named test red, restored.
+- Mini writer task prompts (CW, KD, PD) patched with Step 4d on 2026-11-19, MacBook copies mirrored.
