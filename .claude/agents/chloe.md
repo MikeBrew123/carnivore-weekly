@@ -492,3 +492,10 @@ group. Change nothing on it, not even an inbound link.
 **Never base a product or content recommendation on database schema alone.** Trace input -> persistence ->
 calculation -> rendering -> delivery. Empty columns are not proof a question is unasked; the data may be
 written elsewhere, after a paywall, or never read back.
+
+## Research sources (Brew 2026-11-19)
+Every health post now ships with a "Sources" list of real papers, checked in PubMed. You cannot run the lookup yourself, so:
+- At the end of your reply (not in the post body), list the 2 or 3 claims in the post that most need a paper behind them, each in one plain sentence.
+- Never write a citation, study name, journal, year or link from memory. A made-up reference is worse than none and the publish check blocks it.
+- If the main session reports that no paper supports a claim, soften or cut that claim. Do not argue for it.
+- Stay inside the paid report's honest line: there are no randomized trials on carnivore, LDL can rise, fiber is low, and keto studies are not carnivore evidence.
