@@ -53,6 +53,18 @@ def load_early_ctas():
         return {}
 
 
+FIRST_QUESTION_PATH = Path(__file__).resolve().parent.parent / "data" / "first_question_cta.json"
+
+
+def load_first_question_posts():
+    """Slugs that show the calculator's first question near the top (data/first_question_cta.json)."""
+    try:
+        with open(FIRST_QUESTION_PATH) as fh:
+            return set(json.load(fh).get("posts", []))
+    except FileNotFoundError:
+        return set()
+
+
 def _insert_after_paragraph(html, n, snippet):
     """Insert snippet after the nth closing </p>; leave html unchanged if it has fewer."""
     pos = -1
@@ -83,6 +95,42 @@ def insert_early_calculator_cta(content, slug, lead):
         links = " and our ".join(f'<a href="{href}">{text}</a>' for href, text in guides)
         content = _insert_after_paragraph(content, 6, f"<p>New to carnivore? Start with our {links}.</p>")
     return content
+
+
+def insert_first_question_block(content, slug):
+    """Calculator's goal question after paragraph 1. Test XR-18.
+
+    The tapped answer travels to the calculator as ?goal=, which CalculatorApp preselects.
+    Labels and values match the calculator's own "What's Your Goal?" question.
+    Built from divs, never <p>, so it cannot shift the paragraph counts other inserts rely on.
+    Promise only what is free (targets plus a sample day) and say an email is required.
+    """
+
+    def button(value, label):
+        return (
+            f'<a href="/calculator.html?goal={value}&amp;src=blog-q1-{slug}#calculator-start" '
+            'style="text-align:center;padding:12px 8px;'
+            "background:#2d5016;color:#fff !important;font-weight:600;font-size:1.05rem;text-decoration:none;"
+            'border-radius:4px;" '
+            f"onclick=\"try{{gtag('event','blog_first_question_click',{{event_category:'engagement',"
+            f"post:'{slug}',answer:'{value}'}})}}catch(e){{}}\">{label}</a>"
+        )
+
+    block = (
+        '<div class="first-question-cta" style="background:#f8f6f0;border-left:4px solid #2d5016;'
+        'padding:16px 18px;margin:24px 0;line-height:1.5;">'
+        '<div style="font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;color:#5a5a4a;">'
+        "Free Carnivore Calculator</div>"
+        '<div style="font-size:1.15rem;font-weight:600;margin:6px 0 12px;">'
+        "What's your goal?</div>"
+        '<div style="display:flex;flex-direction:column;gap:10px;max-width:340px;margin-bottom:12px;">'
+        f'{button("lose", "Fat Loss")}{button("maintain", "Maintenance")}{button("gain", "Muscle Gain")}</div>'
+        '<div style="font-size:0.9rem;color:#5a5a4a;">Your answer carries over. A few more questions '
+        "give you protein, fat and calorie targets for your age, weight and goal, plus a sample day "
+        "of meals. Free, about two minutes. Email required.</div>"
+        "</div>"
+    )
+    return _insert_after_paragraph(content, 1, block)
 
 
 def get_post_image_dims(image_url):
@@ -247,6 +295,7 @@ def find_related_posts(current_post, all_posts, n=3):
 
 
 EARLY_CTAS = load_early_ctas()
+FIRST_QUESTION_POSTS = load_first_question_posts()
 
 
 def generate_blog_posts(env, posts, validator=None):
@@ -293,6 +342,11 @@ def generate_blog_posts(env, posts, validator=None):
         early_lead = EARLY_CTAS.get(post.get("slug"))
         if early_lead:
             content = insert_early_calculator_cta(content, post.get("slug"), early_lead)
+
+        # Calculator's goal question near the top, XR-18 test posts only (data/first_question_cta.json).
+        # Runs after the early line so that line's paragraph positions are unchanged.
+        if post.get("slug") in FIRST_QUESTION_POSTS:
+            content = insert_first_question_block(content, post.get("slug"))
 
         # Prepare SEO data
         seo = post.get("seo", {})
