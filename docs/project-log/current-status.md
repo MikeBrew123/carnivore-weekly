@@ -179,6 +179,7 @@ Executing the Jul 4-7 revenue sprint (`Brew-Vault/00-Core/Fable-Sprint-2026-07.m
 ---
 
 ## MANUAL EDITS LOG
+- 2026-11-19: `public/wiki/index.html` Consensus links swapped to PubMed/DOI, dead links removed, Consensus boilerplate removed (decisions.md 2026-11-19).
 
 Edits made directly to a generated output file rather than through its template.
 Each entry names the template that was fixed alongside it, so the next
