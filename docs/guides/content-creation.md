@@ -54,7 +54,7 @@ All content is written through three personas. See `agents/*.md` for full profil
 
 ## Medical Disclaimers
 
-New content (CONTENT LINE, Brew 2026-10-17, replaces the 7-category system): exactly ONE safety line per page, word for word, near the first number that needs it: "This is not for everyone. Talk to your doctor first if you have high blood pressure, kidney or heart problems, diabetes, are pregnant, or take medicine." Never repeat it after each recommendation. Keep the diet's real numbers, worded as what people on the diet typically do. Never tell a reader to start, stop or change a medicine, diagnose, promise a cure, give drug doses or supplement amounts above the label, or skip medical care. Full rule: `docs/house-claims.md`, "Content line". Checked by `scripts/check_doctor_line.py`. Published posts are not re-edited.
+New content (CONTENT LINE, Brew 2026-10-17, replaces the 7-category system): exactly ONE safety line per page, word for word, near the first number that needs it: "This is not for everyone. Talk to your doctor first if you have high blood pressure, kidney or heart problems, diabetes, are pregnant, or take medicine." Never repeat it after each recommendation. Keep the diet's real numbers, worded as what people on the diet typically do, including magnesium, potassium and fasting-salt amounts up to the supplement label (never above it, 2026-10-17). Never tell a reader to start, stop or change a medicine, diagnose, promise a cure, give drug doses or supplement amounts above the label, or skip medical care. Full rule: `docs/house-claims.md`, "Content line". Checked by `scripts/check_doctor_line.py`. Published posts are not re-edited.
 
 ## Publishing Pipeline
 
