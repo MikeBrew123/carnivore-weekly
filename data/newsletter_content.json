@@ -1,31 +1,45 @@
 {
-  "date": "2026-11-08",
-  "subject_line": "90 Days In and Nothing Changed? Read This.",
-  "opening": "<p style='margin:0;'>Hey, we've got a big one this week and you're going to want to read it before you decide whether carnivore is actually working for you. We're also talking long Covid, perimenopause, and the age-old question of what to cook when your partner thinks steak for dinner is 'extreme.' Grab your coffee. Let's get into it.</p>",
+  "date": "2026-11-15",
+  "subject_line": "The scale went up. Here's why that's fine.",
+  "opening": "<p style='margin:0;'>Hey, it's Chloe. We've got a big one this week for anyone whose body has been doing something unexpected on carnivore. Plus, cruises, headaches, and the most satisfying 2,000 calories you'll ever plan. Grab something warm and let's get into it.</p>",
   "hero": {
-    "slug": "2026-11-07-three-months-carnivore-after-50",
-    "title": "3 Months of Carnivore After 50: What Should Have Changed",
+    "slug": "2026-11-13-gaining-weight-carnivore-menopause",
+    "title": "Gaining Weight on Carnivore in Menopause? Read This",
     "writer": "Sarah",
-    "teaser": "Three months in, and you're staring at the scale wondering if any of this is actually doing something. It's a question Sarah hears constantly from readers over 50, and the answer is more nuanced than you'd expect. Some things that feel like nothing are actually signs the process is working. And some things you're waiting for? They take longer than the internet tells you.",
-    "cta": "Read before you quit"
+    "teaser": "You did everything right. You cut the carbs, you stayed the course, and then the scale went up anyway. If you're in menopause, this is one of the most common and most misunderstood things Sarah hears. The good news is that what you're seeing on the scale is probably not what you think it is. Sarah breaks down exactly what's happening in your body, and what to do next.",
+    "cta": "Read this before you quit"
   },
   "supporting": [
     {
-      "slug": "2026-11-06-carnivore-long-covid-readers-over-50",
-      "title": "Carnivore for Long Covid: What Readers Over 50 Report",
-      "teaser": "Readers who couldn't walk to the mailbox without crashing share what happened after they switched to meat and salt, and the pattern Sarah noticed surprised even her."
+      "slug": "2026-11-14-carnivore-on-a-cruise-after-60",
+      "title": "Eating Carnivore on a Cruise After 60",
+      "teaser": "Readers over 60 figured out how to stay carnivore through seven days of all-you-can-eat buffets, and their tricks are surprisingly simple."
     },
     {
-      "slug": "2026-11-04-carnivore-perimenopause-cycle-changes",
-      "title": "Carnivore in Perimenopause: Why Your Cycle Goes Haywire",
-      "teaser": "If your cycle stopped making sense right after you went carnivore, Sarah explains the one question you need to ask before blaming the diet."
+      "slug": "2026-11-12-2000-calorie-carnivore-day",
+      "title": "What a 2,000 Calorie Carnivore Day Looks Like",
+      "teaser": "Marcus built a full day of meals with exact ounces you can shop for today, and the numbers might surprise you."
     },
     {
-      "slug": "2026-11-05-starting-carnivore-husband-wont-join",
-      "title": "Starting Carnivore When Your Husband Won't Join You",
-      "teaser": "Chloe asked the community how they cook one dinner for two very different eaters, and the answer is simpler than you think."
+      "slug": "2026-11-11-carnivore-headache-first-week",
+      "title": "Headaches on Carnivore: Why Week One Hurts",
+      "teaser": "Sarah explains why day three feels like the worst decision you ever made, and when it actually stops."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Print the 30-day meal plan and do one grocery run from it.</strong> Marcus put portions in ounces, the lists are short, and the whole point is to stop making decisions at 5 pm when your willpower is shot. Grab it, pick a start date, and put it on the fridge tonight.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something Marcus has been tracking with performance clients over 55, and the number that keeps showing up in their labs is not the one anyone expects.</p>"
+  "community_pulse": [
+    {
+      "question": "I'm not a coffee drinker. Now that it's cold, I want something hot to sip on. What do I do?",
+      "answer": "Bone broth is the answer so many carnivore folks land on, and it's genuinely satisfying in a way that nothing sweet can match. Warm, salty, rich fat on a cold morning hits a completely different spot than a sugary drink ever could. Many community members keep a thermos of it going all day once the weather turns."
+    },
+    {
+      "question": "I keep trying to tell friends about carnivore because it helped me so much, but nobody wants to hear it. Anyone else?",
+      "answer": "You're definitely not alone in this. Many people find that the most effective thing is just to look good and feel great and let curiosity do the talking. When a friend asks what you're doing differently, that's your opening, and it lands a lot better than an unsolicited pitch."
+    },
+    {
+      "question": "How do I know if I'm eating too much fat? I'm a smaller person and I'm not sure where my numbers should be.",
+      "answer": "Many people find that hunger is the most honest guide here, especially in the early weeks. If you're eating to satiety, not forcing fat, and your energy is stable, you're likely in a good place. If you're feeling sluggish or your digestion is off, those are the signals worth paying attention to."
+    }
+  ],
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pick one meal this week and write down exactly what you ate and how you felt two hours later.</strong> That's it. No app, no spreadsheet required. Marcus says this single habit is what separates people who troubleshoot effectively from people who guess. One meal, one note, real data.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something a lot of you have asked about: what carnivore actually looks like when the dining room controls the menu, and the charm moves that make it work every time.</p>"
 }

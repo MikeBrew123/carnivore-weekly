@@ -46,6 +46,7 @@ Search the web for:
 - What would a 55-year-old woman type into Google? Every topic needs a plausible target search query
 - Community trends are language input only. No topic gets assigned without search demand + audience fit (use the Topic Brief Gate in `agents/chloe.md`)
   - **Known migration debt (2026-09-14):** `agents/chloe.md` is the retired 2026-06 persona and is NOT what the Agent tool loads. It is cited here only because the Topic Brief Gate, the Consensus Science Check and the KetoDial Content Intelligence Protocol live there and have not been migrated into `.claude/agents/chloe.md`. Read those sections as reference. Do **not** load that file as Chloe's persona.
+  - **The Consensus Science Check is retired (Brew 2026-11-19).** Consensus's terms are personal-use and bar boosting another site's rankings. Check health claims in PubMed instead and attach the papers as the post's `sources` (cw-blog-publish Step 3b, `scripts/pubmed_lookup.py`). Posts dated 2026-11-25 or later without valid sources are held by `daily_publish.py`.
 
 Then query Supabase for what we've already covered:
 ```sql

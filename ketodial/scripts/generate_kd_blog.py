@@ -156,7 +156,31 @@ def build_json_ld(post: dict, kd_slug: str) -> str:
             "@id": f"https://ketodial.com/blog/{kd_slug}.html"
         }
     }
+    sources = post.get("sources") or []
+    if sources:
+        schema["citation"] = [
+            {"@type": "ScholarlyArticle", "name": s.get("title", ""), "url": s.get("url", ""),
+             **({"sameAs": f"https://doi.org/{s['doi']}"} if s.get("doi") else {})}
+            for s in sources
+        ]
     return json.dumps(schema, indent=2)
+
+
+def build_sources_html(post: dict) -> str:
+    """Research sources list (PubMed-verified, scripts/pubmed_lookup.py). Empty when none."""
+    sources = post.get("sources") or []
+    if not sources:
+        return ""
+    items = "\n".join(
+        f'        <li>{escape(s.get("authors", ""))}. <a href="{escape(s.get("url", ""))}" target="_blank" '
+        f'rel="noopener noreferrer">{escape(s.get("title", ""))}</a>. <em>{escape(s.get("journal", ""))}</em>, '
+        f'{escape(str(s.get("year", "")))}.</li>'
+        for s in sources
+    )
+    return ('\n    <section class="post-sources" aria-labelledby="post-sources-heading" '
+            'style="margin:28px 0 0;padding-top:18px;border-top:1px solid #dfe7ee;font-size:15px;line-height:1.6">\n'
+            '      <h2 id="post-sources-heading" style="font-size:1.1rem;margin:0 0 10px">Sources</h2>\n'
+            f'      <ol style="padding-left:20px;margin:0">\n{items}\n      </ol>\n    </section>')
 
 
 # ---------------------------------------------------------------------------
@@ -298,7 +322,7 @@ pintrk('page');
   <div class="byline"><b>{author_display}</b> · {author_title} · {date_formatted}</div>
   <div class="content">
     {article_image}
-    {content}
+    {content}{sources_html}
     <div class="cta-box">
       <h3>Ready to dial in your macros?</h3>
       <p>Free results in 90 seconds. No account needed.</p>
@@ -385,6 +409,7 @@ def generate_post_html(post: dict) -> str:
         author_title=post.get("author_title") or author_info["title"],
         date_formatted=format_date(pub_date),
         content=content,
+        sources_html=build_sources_html(post),
         article_image=article_image,
         og_image=og_image,
         json_ld=json_ld,

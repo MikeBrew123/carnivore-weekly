@@ -53,9 +53,19 @@ ALL fields required; partial entries fail silently.
   "tags": ["tag1", "tag2"],
   "meta_description": "<150-160 chars>",
   "seo": { "meta_description": "<same as above>" },
-  "site": "cw|kd"
+  "site": "cw|kd",
+  "sources": [ { "pmid": "...", "pmcid": "...", "doi": "...", "title": "...", "authors": "...", "journal": "...", "year": "...", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC.../", "supports": "<the claim in this post it backs>" } ]
 }
 ```
+### Step 3b: Research sources (Brew 2026-11-19; required for posts dated 2026-11-25 or later)
+Add `"sources": [...]` to the post. Health posts (category health or nutrition, or medical tags) need **at least 2**; lifestyle and recipe posts may have none. PubMed is the only source of record: never Consensus (its terms are personal-use), never a made-up or remembered citation.
+1. The writer marks the 2 or 3 claims in the post that most need backing (in their reply, not in the body).
+2. The main session finds candidates: `python3 scripts/pubmed_lookup.py search '"carnivore diet"[Title] AND cholesterol' -n 8`. Use `[Title]` or MeSH terms; a bare "carnivore diet" search returns pet-food papers.
+3. Keep a paper only if its title and type actually support the claim AND it agrees with the paid report's Report #8 stance (no RCTs on carnivore, LDL may rise, fiber shortfall; keto trials are not carnivore evidence). If nothing supports a claim, soften or cut the claim. Never leave a strong claim with a weak source.
+4. Build each entry with `python3 scripts/pubmed_lookup.py source <PMID> --supports "<the claim it backs>"` and paste the JSON. Titles and metadata only, never abstract text.
+5. Check: `python3 scripts/pubmed_lookup.py verify --slug <slug>`. `daily_publish.py` runs the same check and holds (keeps "ready") any post that fails or cannot be checked.
+The templates render a "Sources" list under the body and add `citation` to the Article JSON-LD. PD keeps its in-body `<h2>Sources</h2>` contract (`pescodial/docs/post-contract.md`); use this same lookup for its links.
+
 `publish_date`, `date`, and `scheduled_date` MUST match: `daily_publish.py` reads the first, the blog index sorts by the second, the homepage bento by the third. Dates are today or past, never future. Status flow: `draft` → `ready` → `published`.
 
 ## Step 4: Render

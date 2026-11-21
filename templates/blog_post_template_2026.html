@@ -58,7 +58,10 @@
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "https://carnivoreweekly.com/blog/{{ slug }}.html"
-      }
+      }{% if sources %},
+      "citation": [{% for s in sources %}
+        {"@type": "ScholarlyArticle", "name": {{ s.title | tojson }}, "url": {{ s.url | tojson }}{% if s.doi %}, "sameAs": {{ ("https://doi.org/" ~ s.doi) | tojson }}{% endif %}}{{ "," if not loop.last }}{% endfor %}
+      ]{% endif %}
     }
     </script>
 
@@ -320,7 +323,17 @@
                 {% endif %}
                 {{ content | safe }}
                 </div>
-                <!-- END Post Content -->
+                <!-- END Post Content -->{% if sources %}
+                <!-- Research sources (PubMed-verified, scripts/pubmed_lookup.py) -->
+                <section class="post-sources" aria-labelledby="post-sources-heading" style="margin: 32px 0 0 0; padding: 20px 0 0 0; border-top: 1px solid #e5dccb; font-family: 'Inter', sans-serif;">
+                    <h2 id="post-sources-heading" style="font-family: 'Libre Baskerville', Georgia, serif; font-size: 1.1rem; color: #2c1810; margin: 0 0 12px 0;">Sources</h2>
+                    <ol style="margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.6; color: #444;">
+                        {% for s in sources %}
+                        <li style="margin-bottom: 8px;">{{ s.authors }}. <a href="{{ s.url }}" target="_blank" rel="noopener noreferrer" style="color: #8b4513;">{{ s.title }}</a>. <em>{{ s.journal }}</em>, {{ s.year }}.</li>
+                        {% endfor %}
+                    </ol>
+                </section>
+{% endif %}
 
         <!-- Calculator CTA (post body) -->
         <div class="calc-cta-block" style="background: linear-gradient(135deg, #f8f6f0 0%, #f0ede4 100%); border: 1px solid #d4c9a8; border-left: 4px solid #2d5016; border-radius: 8px; padding: 28px 24px; margin: 40px 0;">

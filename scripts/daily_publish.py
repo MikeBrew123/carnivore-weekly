@@ -174,6 +174,44 @@ def check_electrolyte_doses(posts):
         sys.exit(1)
 
 
+# Research sources (Brew 2026-11-19, BSM 00 Command Centre/Sources-Plan-2026-11-19.md).
+# CW and KD posts dated on or after this day must carry PubMed-verified `sources`
+# (health posts at least 2). Posts dated earlier were written before the rule and
+# are only checked if they already have sources. PD keeps its in-body Sources
+# contract (pescodial/docs/post-contract.md), checked by its own generator.
+SOURCES_REQUIRED_FROM = "2026-11-25"
+
+
+def split_failed_sources(posts):
+    """Hold (keep "ready") any post whose sources fail the PubMed check, publish the rest.
+    Fails closed: if PubMed cannot be reached, posts that need checking are held."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from pubmed_lookup import check_sources, LookupError_
+
+    ok, held = [], []
+    for p in posts:
+        content = p.get("content", "") or ""
+        problems = []
+        if "consensus.app" in content:
+            problems.append("links consensus.app in the body; use the PMC or DOI link")
+        needs_check = p.get("site") in ("cw", "kd") and (
+            p.get("sources") or p.get("publish_date", "") >= SOURCES_REQUIRED_FROM)
+        if needs_check:
+            try:
+                problems += check_sources(p)
+            except LookupError_ as e:
+                problems.append(f"PubMed unreachable ({e}); held, retries next run")
+        (held if problems else ok).append((p, problems))
+    for p, problems in held:
+        slug = p.get("slug", "?")
+        print(f"::error title=Sources check held {slug}::{'; '.join(problems)}")
+        print(f"⏸️  Holding {slug}: sources check failed:")
+        for pr in problems:
+            print(f"   - {pr}")
+        print(f"   Check: python3 scripts/pubmed_lookup.py verify --slug {slug}")
+    return [p for p, _ in ok], [p for p, _ in held]
+
+
 def run_validator():
     """
     Run validate_before_commit.py — block on CRITICAL errors only.
@@ -308,6 +346,12 @@ def main():
     if not to_publish:
         print(f"No publishable posts today ({TODAY}) after image check")
         print(f"Total published: {already_published}")
+        sys.exit(0)
+
+    # Research sources must resolve in PubMed (CW, KD). Failing posts stay "ready".
+    to_publish, _held_sources = split_failed_sources(to_publish)
+    if not to_publish:
+        print(f"No publishable posts today ({TODAY}) after sources check")
         sys.exit(0)
 
     # Electrolyte dose guard, every site, before anything is written. The CW

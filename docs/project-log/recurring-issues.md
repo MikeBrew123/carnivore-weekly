@@ -310,6 +310,17 @@ If recurs: Run `git ls-files --stage | grep 160000` to find all submodule entrie
 
 ---
 
+## ISSUE-110 — Daily Publisher red: KD submodule push rejected (parent gitlink behind KD main)
+🟢 FIXED — 2026-11-21
+
+Pattern: a PR merged straight into the KD repo (MikeBrew123/ketodial #13, 2026-11-14) moved its `main` to `fbf492f`, but nobody bumped the parent's `ketodial/public` gitlink (still `3a7b52a`). `daily-publish.yml` checks out the stale gitlink, commits the day's KD posts on top, and `git push origin HEAD:main` is rejected non-fast-forward. Runs failed 11-17 to 11-20; KD posts dated 11-17 and 11-20 sat in "ready" unpublished.
+Attempts:
+- 2026-11-21 — KD weekly content task found it. Bumped the parent gitlink to `fbf492f` (a pure fast-forward). Next scheduled run should publish both held posts.
+Prevention: any PR merged directly in the KD repo needs a matching parent commit bumping `ketodial/public`. Tell: `git ls-tree HEAD ketodial/public` vs `git -C ketodial/public rev-parse origin/main`.
+If recurs: have the workflow fetch `origin/main` in the submodule and rebase its publish commit onto it before pushing.
+
+---
+
 ## ISSUE-081 — KD submodule working copy goes stale after a push from a worktree
 🟡 RECURRING — Last: 2026-09-12
 
@@ -1019,9 +1030,20 @@ If recurs: read the failed deploy log first, then fix the list entry. Do not add
 ---
 
 ## ISSUE-108 — Sunday staleness job alarms on the retired Pinterest queue
-🔴 OPEN — Last: 2026-11-08
+🔴 OPEN — Last: 2026-11-15
 
 Pattern: `weekly-health-check.yml` (automation-staleness step, ~line 457) flags `ketodial/marketing/pinterest-pin-queue.json` when its last commit is >4 days old. Pinterest was retired 2026-09-29, so the file never changes again and every Sunday opens a "⚠️ Automation staleness" issue (#78, #79, #88, #106, #141, #151, #158, #168) that someone closes by hand. A permanent false alarm trains everyone to ignore a real one.
 Attempts:
 - 2026-11-09 — weekly ops review closed #168 and filed bead `8zg` (P3). No workflow change made.
+- 2026-11-16 — ninth false alarm (#174), closed by the weekly ops review. Still no workflow change; bead `8zg` open.
 If recurs: delete the PIN_LAST block from the staleness step (and the pin rows in `scoreboard_truth_pass.py` if still wanted gone). Do not just raise the threshold.
+
+---
+
+## ISSUE-109 — Homebrew auto-upgrade repoints python3 to a new minor with empty site-packages (Mini jobs fail on import)
+🔴 OPEN — Last: 2026-11-16
+
+Pattern: Mini jobs call bare `/opt/homebrew/bin/python3` (`~/bin/py-job.sh`, `command-center.sh`, subscriber-backup, deck-explainer, sayulita-*, trip-dash, mls-inbox, market-prices). On 2026-11-15 10:54 a Homebrew upgrade of `yt-dlp` installed `python@3.15` and relinked `python3` to it. 3.15 has no pip packages (3.14 has 133), so the 11-16 truth pass and command-center runs died with `ModuleNotFoundError: No module named 'requests'`. The heartbeat did not flag either. Mini auto-updates are on by Brew's choice (deck `e19b0d27`).
+Attempts:
+- 2026-11-16 — weekly ops review re-ran the truth pass with `/opt/homebrew/bin/python3.14` (clean). No system change made; bead P1 filed, deck decision `5703b9b1` posted.
+If recurs: check `ls -la /opt/homebrew/bin/python3` first. Fix by pinning job wrappers and plists to an explicit `python3.X` (or a project venv), never bare `python3`; do not just pip-install into the new minor, the next minor bump breaks it again.
