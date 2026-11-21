@@ -142,7 +142,8 @@
         "P4 (omega-3 gets a link only)",
         "P2 (sample days, not a weekly plan)"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "pescatarian-protein-sources"
     },
     {
       "order": 10,
@@ -157,7 +158,8 @@
         "P13 (canned fish breakfasts get one link, no recipes repeated)",
         "P6 (protein numbers get a link only)"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "pescatarian-breakfast-ideas"
     },
     {
       "order": 11,
