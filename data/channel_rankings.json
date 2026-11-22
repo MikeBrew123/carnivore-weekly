@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-11-18",
+  "last_updated": "2026-11-22",
   "leaderboard": [
     {
-      "name": "Max German",
-      "rank": 1,
-      "appearances": 3,
-      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
-    },
-    {
-      "name": "Meet Carnivore",
-      "rank": 2,
-      "appearances": 20,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
-    },
-    {
-      "name": "Carnivore Quest",
-      "rank": 3,
-      "appearances": 14,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
-    },
-    {
       "name": "HomeSteadHow",
-      "rank": 4,
-      "appearances": 21,
+      "rank": 1,
+      "appearances": 22,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "MISSMEAT Carnivore",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCIKX1-4yMDWkUR7gaKhxtWQ"
+      "name": "Dr. Eric Westman - Adapt Your Life",
+      "rank": 2,
+      "appearances": 4,
+      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 3,
+      "appearances": 19,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+    },
+    {
+      "name": "Meet Carnivore",
+      "rank": 4,
+      "appearances": 21,
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
       "name": "Emmathecarnivore",
-      "rank": 6,
+      "rank": 5,
       "appearances": 18,
       "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
-      "name": "Ketogenic Woman",
-      "rank": 7,
-      "appearances": 12,
-      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
-    },
-    {
-      "name": "Butter Bob Briggs",
-      "rank": 8,
-      "appearances": 4,
-      "channel_id": "UCiue5Soilcbqp3XS2c1P1PA"
-    },
-    {
-      "name": "Courtney Luna",
-      "rank": 9,
-      "appearances": 5,
-      "channel_id": "UCzgj3pQycdp7SUUbz56wNCw"
+      "name": "Vegetable Police",
+      "rank": 6,
+      "appearances": 2,
+      "channel_id": "UCFuLNktnqqBEF_9ZcmjC_bw"
     },
     {
       "name": "No Carb Life",
-      "rank": 10,
-      "appearances": 18,
+      "rank": 7,
+      "appearances": 19,
       "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+    },
+    {
+      "name": "Catherine's Plates",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCuvgtfqhHTKI5kymcLKeyxg"
+    },
+    {
+      "name": "Maria Emmerich",
+      "rank": 9,
+      "appearances": 4,
+      "channel_id": "UCyZia0TtezGqjGcXwXJhDoQ"
+    },
+    {
+      "name": "Hoosier Ali",
+      "rank": 10,
+      "appearances": 4,
+      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
     }
   ]
 }

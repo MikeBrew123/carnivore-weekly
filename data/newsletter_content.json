@@ -1,45 +1,45 @@
 {
-  "date": "2026-11-15",
-  "subject_line": "The scale went up. Here's why that's fine.",
-  "opening": "<p style='margin:0;'>Hey, it's Chloe. We've got a big one this week for anyone whose body has been doing something unexpected on carnivore. Plus, cruises, headaches, and the most satisfying 2,000 calories you'll ever plan. Grab something warm and let's get into it.</p>",
+  "date": "2026-11-22",
+  "subject_line": "Cook Once, Eat All Week on Carnivore",
+  "opening": "<p style='margin:0;'>Hey, it's Chloe. This week's issue is packed: a batch-cooking plan that takes one afternoon and covers five days of meals, plus some real talk about what happens to your body in week one. We've also got something for anyone hosting Thanksgiving while eating carnivore, because that situation is its own adventure. Let's get into it.</p>",
   "hero": {
-    "slug": "2026-11-13-gaining-weight-carnivore-menopause",
-    "title": "Gaining Weight on Carnivore in Menopause? Read This",
-    "writer": "Sarah",
-    "teaser": "You did everything right. You cut the carbs, you stayed the course, and then the scale went up anyway. If you're in menopause, this is one of the most common and most misunderstood things Sarah hears. The good news is that what you're seeing on the scale is probably not what you think it is. Sarah breaks down exactly what's happening in your body, and what to do next.",
-    "cta": "Read this before you quit"
+    "slug": "2026-11-21-carnivore-meal-prep-one-afternoon",
+    "title": "Carnivore Meal Prep: One Afternoon, Five Days of Food",
+    "writer": "Marcus",
+    "teaser": "Most people fall off carnivore not because the diet is hard, but because they're standing in the kitchen at 7pm with nothing ready. Marcus put together a batch-cooking plan that fits into one afternoon and keeps you fed, with portions already sized for weight loss, all the way through the week. The sequence matters more than you'd think. See the protocol before your next grocery run.",
+    "cta": "See the protocol"
   },
   "supporting": [
     {
-      "slug": "2026-11-14-carnivore-on-a-cruise-after-60",
-      "title": "Eating Carnivore on a Cruise After 60",
-      "teaser": "Readers over 60 figured out how to stay carnivore through seven days of all-you-can-eat buffets, and their tricks are surprisingly simple."
+      "slug": "2026-11-18-hosting-thanksgiving-carnivore-at-60",
+      "title": "Hosting Thanksgiving at 60 When You Eat Carnivore",
+      "teaser": "Chloe found a way to host twelve people without cooking two separate dinners, and the trick is simpler than you'd expect."
     },
     {
-      "slug": "2026-11-12-2000-calorie-carnivore-day",
-      "title": "What a 2,000 Calorie Carnivore Day Looks Like",
-      "teaser": "Marcus built a full day of meals with exact ounces you can shop for today, and the numbers might surprise you."
+      "slug": "2026-11-20-carnivore-frequent-urination-first-week",
+      "title": "Peeing All Night on Carnivore? Why Week One Does It",
+      "teaser": "Sarah explains what's actually happening in your body during week one, and at what point you can stop setting your alarm for 3am."
     },
     {
-      "slug": "2026-11-11-carnivore-headache-first-week",
-      "title": "Headaches on Carnivore: Why Week One Hurts",
-      "teaser": "Sarah explains why day three feels like the worst decision you ever made, and when it actually stops."
+      "slug": "2026-11-19-carnivore-fatty-liver-after-50",
+      "title": "Fatty Liver After 50: What Carnivore Changes",
+      "teaser": "Your doctor said lose weight, but Sarah goes deeper into what cutting carbs actually does to liver fat, and the answer isn't what most people expect."
     }
   ],
   "community_pulse": [
     {
-      "question": "I'm not a coffee drinker. Now that it's cold, I want something hot to sip on. What do I do?",
-      "answer": "Bone broth is the answer so many carnivore folks land on, and it's genuinely satisfying in a way that nothing sweet can match. Warm, salty, rich fat on a cold morning hits a completely different spot than a sugary drink ever could. Many community members keep a thermos of it going all day once the weather turns."
+      "question": "I've been eating carnivore for a couple of weeks now and I'm still waking up two or three times a night to pee. Is something wrong with me?",
+      "answer": "Nothing's wrong. Many people find that the first week or two brings a noticeable increase in bathroom trips, especially at night. It's your body releasing stored water as glycogen drops. Sarah's piece this week, 'Peeing All Night on Carnivore? Why Week One Does It,' walks through exactly when this tends to settle down."
     },
     {
-      "question": "I keep trying to tell friends about carnivore because it helped me so much, but nobody wants to hear it. Anyone else?",
-      "answer": "You're definitely not alone in this. Many people find that the most effective thing is just to look good and feel great and let curiosity do the talking. When a friend asks what you're doing differently, that's your opening, and it lands a lot better than an unsolicited pitch."
+      "question": "I want to tell my friends about carnivore because it's helped me so much, but I don't know how to bring it up without sounding preachy. Anyone else feel this way?",
+      "answer": "This one comes up a lot in our community. Many people find that leading with their own results, without prescribing anything, keeps the conversation relaxed and curious rather than defensive. A short, honest 'here's what changed for me' tends to land better than any amount of explaining the science."
     },
     {
-      "question": "How do I know if I'm eating too much fat? I'm a smaller person and I'm not sure where my numbers should be.",
-      "answer": "Many people find that hunger is the most honest guide here, especially in the early weeks. If you're eating to satiety, not forcing fat, and your energy is stable, you're likely in a good place. If you're feeling sluggish or your digestion is off, those are the signals worth paying attention to."
+      "question": "Keto stopped working for me after a couple of years. My weight crept back and my energy tanked. Is carnivore actually different, or will the same thing happen?",
+      "answer": "It's a fair question, and the honest answer is that it depends on what caused the stall. Many people find that going full carnivore removes the food variables that quietly slow progress on broader keto, things like hidden carbs or snacking on foods that feel compliant but aren't. Protein satiety tends to be stronger too, which makes sticking to it easier over time."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pick one meal this week and write down exactly what you ate and how you felt two hours later.</strong> That's it. No app, no spreadsheet required. Marcus says this single habit is what separates people who troubleshoot effectively from people who guess. One meal, one note, real data.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something a lot of you have asked about: what carnivore actually looks like when the dining room controls the menu, and the charm moves that make it work every time.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pick one cook-once anchor protein this week.</strong> Before you go grocery shopping, choose a single large cut, a brisket, a pork shoulder, a whole chicken, that you'll cook in bulk and portion out. Even one anchor protein ready in the fridge removes the 'nothing to eat' moment that derails most people. That's the first move in Marcus's prep plan, and it works on its own even if you don't do the rest yet.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something a lot of you have asked about: what your blood work is actually supposed to look like after 90 days on carnivore, and which numbers your doctor might flag that aren't actually a problem.</p>"
 }
