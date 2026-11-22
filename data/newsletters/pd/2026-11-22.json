@@ -1,0 +1,40 @@
+{
+  "subject": "What's in one can of sardines? Your weekly guide",
+  "title": "PescoDial weekly guide",
+  "preheader": "Plus an easy sheet-pan salmon dinner, and a tip for reading cans at the store.",
+  "date": "November 22, 2026",
+  "intro": {
+    "h1": "Sardines, sheet-pan salmon and a label tip",
+    "greeting": "Hi there,",
+    "paragraphs": [
+      "Happy Sunday. This week we're looking at a small can with a big label: sardines.",
+      "A lot of you ask what one can actually gives you for your heart and your bones. I've pulled the real facts from the guide, plus the one thing to check before the can goes in your cart.",
+      "Below you'll also find an easy salmon dinner and a quick tip for the store."
+    ],
+    "signoff": "Sarah"
+  },
+  "question": {
+    "question": "What do sardines do for your heart and bones?",
+    "answer": "One can is about one serving of fatty fish. For Atlantic sardines canned in oil, drained, with the bones in, a 3 ounce serving has about 21 grams of protein, plus the omega-3 fats called EPA and DHA, vitamin D and calcium. For your heart, the American Heart Association recommends 2 servings of fish a week, and it points people toward fatty fish like sardines, salmon, herring and Atlantic mackerel. Two cans a week fits that pattern. Sardines are also small fish, so the FDA and EPA put them on the Best Choices list, the lowest-mercury group. For your bones, the calcium is in the soft bones of the fish, so eat them. One serving gives roughly a quarter of the daily calcium the NIH lists for women 51 and over, without a glass of milk. Vitamin D helps your body absorb calcium, and fatty fish is one of the few foods that naturally has some. A serving of sardines gives roughly a quarter of the daily vitamin D the NIH lists for adults up to 70. If you buy boneless, skinless sardines, check the calcium line on the label, because the bones are where it lives. The number to watch is sodium. A serving of sardines in oil is roughly 11% of the day's sodium limit, and sardines in tomato sauce have a bit more. Flip the can over, check the serving size, and compare a few brands. If you like a milder fish, canned salmon with bones is a similar package. No single food does the job alone, so think of sardines as one useful piece of your week. If you take a blood thinner, blood-pressure medicine, a statin or diabetes medicine, ask your pharmacist or doctor before you change how much fish you eat. And talk with your doctor first if you have high blood pressure, kidney or heart problems, diabetes, or are pregnant.",
+    "link": "https://www.pescodial.com/guides/sardines-benefits/",
+    "link_label": "Read the full sardines guide"
+  },
+  "recipe": {
+    "title": "Sheet-pan lemon salmon with broccoli",
+    "meta": "25 minutes · Serves 2",
+    "method": "Heat your oven to 425°F and line a baking sheet with parchment. Cut 1 large head of broccoli into small florets and toss them on the pan with 1 tablespoon of olive oil and a few grinds of black pepper. Roast for 10 minutes. While the broccoli cooks, pat two salmon fillets dry and rub them with a little more olive oil. Take the pan out and push the broccoli to the sides. Set the salmon in the middle, skin side down. Lay 2 or 3 thin lemon slices on top of the fish. Return the pan to the oven and bake for 10 to 12 minutes, until the salmon flakes easily with a fork. Squeeze a little fresh lemon over everything and taste before adding any salt. Serve right from the pan."
+  },
+  "tip": {
+    "title": "Flip the can over",
+    "text": "The front of a can tells you the story the brand wants to tell. The back tells you the facts. Turn it over and find the sodium line on the Nutrition Facts panel, then check the serving size, since some labels count the whole can and some count only part of it. Compare two or three brands, and look for a \"no salt added\" version. It takes about a minute and makes the choice easy."
+  },
+  "calculator": {
+    "heading": "See where your own numbers land",
+    "text": "The free calculator gives you daily protein and calorie targets based on your age, height and weight. It's a nice place to start when you're deciding how a can of fish fits into your day. If you'd like the planning done for you, there's also a 7-day plan built from your answers, $29 USD, one time. No pressure either way.",
+    "button": "See my numbers"
+  },
+  "reply": {
+    "lead": "Hit reply and tell me:",
+    "question": "Do you keep sardines or canned salmon in your cupboard, and how do you like to eat them?"
+  }
+}
