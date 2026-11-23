@@ -1,0 +1,254 @@
+{
+ "note": "Weekly coupon-card swap queue (Brew 2026-11-23: 3 a week, best sellers first). Old card file is removed and the new QR/link card added. Excluded: 4464219356 and 4575891585 (XR-17, Dec 9 task) and the 3 pescatarian listings (PescoDial card decision, Dec 9).",
+ "old_file_ids": {
+  "cw": "1515218127430",
+  "kd": "1516478390109"
+ },
+ "queue": [
+  {
+   "id": 4464219372,
+   "deck": "cw",
+   "units90": 4,
+   "title": "Lion Diet Food List Printable",
+   "files": 3
+  },
+  {
+   "id": 4464217679,
+   "deck": "cw",
+   "units90": 3,
+   "title": "Carnivore Diet Food List Printable",
+   "files": 3
+  },
+  {
+   "id": 4495055944,
+   "deck": "cw",
+   "units90": 3,
+   "title": "Carnivore Diet Food Cheat Sheet, Animal-Based Foods Lis",
+   "files": 3
+  },
+  {
+   "id": 4489981356,
+   "deck": "cw",
+   "units90": 1,
+   "title": "Modern Carnivore Diet Food List",
+   "files": 3
+  },
+  {
+   "id": 4489982664,
+   "deck": "kd",
+   "units90": 1,
+   "title": "Modern Keto Diet Food List",
+   "files": 3
+  },
+  {
+   "id": 4495049647,
+   "deck": "kd",
+   "units90": 1,
+   "title": "Keto Food Cheat Sheet",
+   "files": 3
+  },
+  {
+   "id": 4495083368,
+   "deck": "cw",
+   "units90": 1,
+   "title": "Carnivore Diet Starter Bundle",
+   "files": 4
+  },
+  {
+   "id": 4464128243,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Carnivore Grocery List \u2013 Printable Diet Food Shopping S",
+   "files": 3
+  },
+  {
+   "id": 4464217665,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Diet Food List Printable Bundle",
+   "files": 5
+  },
+  {
+   "id": 4482132169,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Mediterranean Diet Food List Printable Poster",
+   "files": 3
+  },
+  {
+   "id": 4495052093,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Lion Diet Guide and 14-Day Tracker (PDF Download)",
+   "files": 3
+  },
+  {
+   "id": 4495056564,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Low Carb Food Cheat Sheet Printable",
+   "files": 3
+  },
+  {
+   "id": 4495077633,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Keto Diet Guide & 14-Day Tracker Printable",
+   "files": 3
+  },
+  {
+   "id": 4495077741,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Keto Diet Starter Bundle",
+   "files": 4
+  },
+  {
+   "id": 4495083274,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Carnivore Diet Guide & 14-Day Tracker",
+   "files": 3
+  },
+  {
+   "id": 4495083342,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Low Carb Diet Guide & 14-Day Tracker (PDF Download)",
+   "files": 3
+  },
+  {
+   "id": 4495083454,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Low Carb Diet Starter Bundle",
+   "files": 4
+  },
+  {
+   "id": 4495089980,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Low Carb Keto Carnivore Diet Mega Bundle",
+   "files": 3
+  },
+  {
+   "id": 4513433391,
+   "deck": "kd",
+   "units90": 0,
+   "title": "20 Keto Dessert Recipe Cards, Macro-Counted Low Carb Sw",
+   "files": 3
+  },
+  {
+   "id": 4513506781,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Lion Diet Food Pyramid Poster",
+   "files": 3
+  },
+  {
+   "id": 4513508098,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Keto Food Pyramid Poster",
+   "files": 3
+  },
+  {
+   "id": 4513508118,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Carnivore Diet Food Pyramid Poster",
+   "files": 3
+  },
+  {
+   "id": 4513508150,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Diet Pyramids Printable Bundle",
+   "files": 3
+  },
+  {
+   "id": 4513517597,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Carnivore Diet Food List Printable",
+   "files": 3
+  },
+  {
+   "id": 4513518786,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Mediterranean Diet Food List Printable",
+   "files": 3
+  },
+  {
+   "id": 4514204763,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Keto Grocery List Printable Bundle",
+   "files": 3
+  },
+  {
+   "id": 4516511462,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Anti-Inflammatory Food List Chart",
+   "files": 5
+  },
+  {
+   "id": 4516511480,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Low Carb Anti-Inflammatory Food List",
+   "files": 5
+  },
+  {
+   "id": 4516511490,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Keto Anti-Inflammatory Food List Printable",
+   "files": 5
+  },
+  {
+   "id": 4532542805,
+   "deck": "kd",
+   "units90": 0,
+   "title": "Keto Starter Kit for Beginners",
+   "files": 5
+  },
+  {
+   "id": 4540678283,
+   "deck": "cw",
+   "units90": 0,
+   "title": "Lion Diet 30-Day Protocol & Meal Plan (Printable PDF)",
+   "files": 3
+  },
+  {
+   "id": 4540695544,
+   "deck": "cw",
+   "units90": 0,
+   "title": "30-Day Carnivore Meal Plan",
+   "files": 3
+  },
+  {
+   "id": 4540695558,
+   "deck": "kd",
+   "units90": 0,
+   "title": "28-Day Keto Meal Plan",
+   "files": 3
+  },
+  {
+   "id": 4540695566,
+   "deck": "kd",
+   "units90": 0,
+   "title": "28-Day Low Carb Meal Plan",
+   "files": 3
+  },
+  {
+   "id": 4540695604,
+   "deck": "kd",
+   "units90": 0,
+   "title": "7-Day Mediterranean Meal Plan with Grocery List (Printa",
+   "files": 3
+  }
+ ]
+}
