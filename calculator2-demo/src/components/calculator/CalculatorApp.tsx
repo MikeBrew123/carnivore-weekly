@@ -228,6 +228,18 @@ export default function CalculatorApp({
     }
   }, [paymentState.isPremium, isPremium, setIsPremium])
 
+  // GA4 purchase, keyed on the Stripe return itself, not on the premium flip above.
+  // Since 2026-09-09 the late-return restore (App.tsx) marks the store premium
+  // before this component mounts, so the flip never happens and no purchase was
+  // sent from 09-09 to 11-23 (5 real sales, 0 events). Paid returns only: a 100%
+  // coupon ('free') is not revenue. Deduped per browser by localStorage, and the
+  // webhook's server-side event uses the same transaction_id, so GA4 counts one.
+  useEffect(() => {
+    if (paymentState.paymentStatus === 'success' && paymentState.stripeSessionId) {
+      firePurchaseOnce(paymentState.stripeSessionId)
+    }
+  }, [paymentState.paymentStatus, paymentState.stripeSessionId])
+
   // Scroll to success message when success page shows after payment redirect
   useEffect(() => {
     if (isPaymentSuccess && currentStep !== 4) {
@@ -378,6 +390,13 @@ export default function CalculatorApp({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: formData.email, source: 'calculator', diet_type: formData.diet || '' }),
+        }).then((res) => {
+          // GA4 signup. Until 2026-11-23 this, the path behind 306 of 323 CW
+          // signups, sent no event at all (GA4 saw 20). Fired only once the worker
+          // accepted the address; no email or name goes to GA4.
+          if (res.ok && window.gtag) {
+            window.gtag('event', 'generate_lead', { method: 'calculator', diet_type: formData.diet || '' })
+          }
         }).catch(() => {})
       }
     }
@@ -449,8 +468,7 @@ export default function CalculatorApp({
     setShowPaymentModal(true)
   }
 
-  const handlePaymentSuccess = () => {
-    const sessionId = paymentState.stripeSessionId || 'unknown'
+  function firePurchaseOnce(sessionId: string) {
     const dedupKey = `purchase_fired_${sessionId}`
     if (window.gtag && !localStorage.getItem(dedupKey)) {
       const paidCents = parseInt(localStorage.getItem('amountPaidCents') || '2900', 10)
@@ -469,6 +487,9 @@ export default function CalculatorApp({
       })
       localStorage.setItem(dedupKey, '1')
     }
+  }
+
+  const handlePaymentSuccess = () => {
     setIsPremium(true)
     setShowPaymentModal(false)
     setCurrentStep(4) // Go to premium health profile

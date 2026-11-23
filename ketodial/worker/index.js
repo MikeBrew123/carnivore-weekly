@@ -197,7 +197,10 @@ async function handleSession(request, env) {
       calculated_macros: b.macros || null,
       referrer: b.referrer || null,
       device_type: b.device_type || null,
-      landing_page: '/',
+      // Parity with CW rows (2026-11-23): the page sends where the visit landed and
+      // GA4's client id, so a KD run can be tied to its GA4 visit. Validated, never trusted.
+      landing_page: (typeof b.landing_page === 'string' && /^\/[^\s]{0,199}$/.test(b.landing_page)) ? b.landing_page : '/',
+      ga_client_id: (typeof b.ga_client_id === 'string' && /^\d{1,12}\.\d{1,12}$/.test(b.ga_client_id)) ? b.ga_client_id : null,
       utm_source: b.utm_source || null,
       utm_medium: b.utm_medium || null,
       utm_campaign: b.utm_campaign || null,
@@ -1353,7 +1356,24 @@ async function handlePurchaseStatus(stripeSessionId, env) {
     }
   }
 
-  return jsonResponse(200, { paid: true, purchased, profileComplete, recoverable: !profileComplete, missing });
+  return jsonResponse(200, { paid: true, purchased, profileComplete, recoverable: !profileComplete, missing, ...saleFacts(stripeSessionId, resolved.session) });
+}
+
+/**
+ * What the page needs to count a sale in GA4 exactly once (2026-11-23). The page
+ * used to fire kd_payment_complete on any ?success=true URL, unverified: 12 events
+ * against 1 real sale in 90 days (gift redemptions, other devices, reopened links,
+ * made-up session ids). A gift is not a sale; a link reopened later is not a new one.
+ */
+function saleFacts(ref, session) {
+  const gift = KD_GIFT_REF_RE.test(ref || '');
+  const createdMs = session && session.created ? session.created * 1000 : 0;
+  return {
+    gift,
+    amount_cents: gift ? 0 : (session && Number.isFinite(session.amount_total) ? session.amount_total : null),
+    currency: ((session && session.currency) || 'usd').toUpperCase(),
+    fresh: !gift && createdMs > 0 && Date.now() - createdMs < 6 * 60 * 60 * 1000,
+  };
 }
 
 /**

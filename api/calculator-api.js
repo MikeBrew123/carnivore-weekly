@@ -713,6 +713,8 @@ async function validatePromotionCode(upperCode, env) {
 
 // ===== ROUTE HANDLERS =====
 
+const PD_DIET_TYPES = ['pesco-mediterranean', 'pesco-keto', 'pesco-lowcarb', 'pesco-carnivore'];
+
 /**
  * POST /api/v1/calculator/session
  */
@@ -741,6 +743,11 @@ async function handleCreateSession(request, env) {
           // which also let the Stripe webhook's email-fallback match the row and
           // mark it paid — the cause of revenue under-counting in the v2 funnel.
           ...(body.email ? { email: correctEmailTypo(body.email).email } : {}),
+          // PescoDial's free calculator saves its run here too (2026-11-23); before,
+          // nothing PD wrote a row, so PD had no first-touch attribution. Allowlisted:
+          // anything else keeps the column default ('cw'), so CW rows are unchanged.
+          ...(body.source === 'pd' ? { source: 'pd' } : {}),
+          ...(body.source === 'pd' && PD_DIET_TYPES.includes(body.diet_type) ? { diet_type: body.diet_type } : {}),
         };
       }
     } catch (_) { /* no body is fine */ }
@@ -9862,19 +9869,26 @@ async function handleStripeWebhook(request, env) {
     // Recovery-source revenue line in our own database. Payment is confirmed by now.
     await recordRecoveryConversionIfTagged(env, obj, sessionUUID, patchHeaders);
 
-    // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
+    // Server-side GA4 purchase event via Measurement Protocol
     if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
       // ga_client_id lives on the funnel row we just patched (the old lookup
       // by assessment id could never find it)
       const clientId = patchedCalcRows[0]?.ga_client_id || sessionUUID;
-      fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
+      // Awaited (with a short timeout). It used to be fire-and-forget, and the
+      // runtime cancels a pending fetch once the response is sent: no server-side
+      // purchase ever reached GA4 (every purchase event on record came from the
+      // browser). transaction_id is the assessment id, the same one the browser
+      // sends, so GA4 keeps one purchase when both arrive (2026-11-23).
+      await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
         method: 'POST',
+        signal: AbortSignal.timeout(4000),
         body: JSON.stringify({
           client_id: clientId,
           events: [{
             name: 'purchase',
             params: {
-              transaction_id: obj.id,
+              transaction_id: sessionUUID,
+              stripe_session_id: obj.id,
               value: (amountTotal || 0) / 100,
               currency: obj.currency?.toUpperCase() || 'USD',
               items: [{ item_id: 'carnivore-protocol', item_name: 'Personalized Carnivore Protocol', price: (amountTotal || 0) / 100, quantity: 1 }],

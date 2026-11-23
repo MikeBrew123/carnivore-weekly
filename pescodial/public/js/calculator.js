@@ -107,6 +107,24 @@ window.pdEmail = (function () {
 
 (function () {
   var API = 'https://carnivore-report-api-production.iambrew.workers.dev';
+  // First touch for this visit: kept from the first calculator page seen, so the
+  // saved run still knows where she came from after moving between pages.
+  function firstTouch() {
+    var KEY = 'pd_first_touch', t = null;
+    try { t = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) { t = null; }
+    if (t) return t;
+    var q = new URLSearchParams(location.search);
+    t = { utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'), utm_campaign: q.get('utm_campaign'),
+      utm_content: q.get('utm_content'), utm_term: q.get('utm_term'),
+      referrer: document.referrer || null, landing_page: location.pathname };
+    try { sessionStorage.setItem(KEY, JSON.stringify(t)); } catch (e) { /* private mode */ }
+    return t;
+  }
+  firstTouch();
+  function gaClientId() {
+    var m = document.cookie.match(/(?:^|;\s*)_ga=GA\d\.\d\.(\d+\.\d+)/);
+    return m ? m[1] : null;
+  }
   var root = document.querySelector('.calc');
   if (!root) return;
   var steps = root.querySelectorAll('[data-step], [data-state]');
@@ -347,6 +365,19 @@ window.pdEmail = (function () {
     try {
       fetch(API + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: em, site: 'pd', source: 'calculator', diet_type: DIET[data.style] || DIET.med }) })
+        .catch(function () {});
+    } catch (err) { /* offline */ }
+    // Save the run, the way CW and KetoDial already do (2026-11-23). Before this a
+    // PescoDial run left no calculator row, so there was no first-touch record.
+    // Attribution and email go to our own database only, never to GA4.
+    try {
+      var t = firstTouch();
+      fetch(API + '/api/v1/calculator/session', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'pd', email: em, diet_type: DIET[data.style] || DIET.med,
+          ga_client_id: gaClientId(), utm_source: t.utm_source, utm_medium: t.utm_medium,
+          utm_campaign: t.utm_campaign, utm_content: t.utm_content, utm_term: t.utm_term,
+          referrer: t.referrer, landing_page: t.landing_page,
+          device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : (/iPad|Tablet/i.test(navigator.userAgent) ? 'tablet' : 'desktop') }) })
         .catch(function () {});
     } catch (err) { /* offline */ }
     renderResults();
