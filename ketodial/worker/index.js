@@ -693,6 +693,15 @@ async function handleEmailPlan(request, env) {
 // ──────────────────────────────────────────────
 // CHECKOUT
 // ──────────────────────────────────────────────
+// Pre-applied promo codes, keyed by the code a reader arrives with (?promo=, kept by
+// ketodial.js and sent as body.promo). SERVER-SIDE ALLOWLIST: nothing else a browser
+// sends is ever honoured. ETSY25 is printed on the Etsy coupon card; its Stripe
+// promotion code sits on coupon NV7xcM9C (25% off, restricted in Stripe to the Full
+// Protocol Bundle product), so it is only pre-applied when 'protocol' is in the cart.
+const KD_PROMO_CODES = {
+  ETSY25: { promotionCode: 'promo_1UG2yPEVDfkpGz8wt2rbVih6', item: 'protocol', acq: 'etsy' },
+};
+
 async function handleCheckout(request, env) {
   try {
     const body = await request.json();
@@ -777,7 +786,13 @@ async function handleCheckout(request, env) {
     sessionParams.append('mode', 'payment');
     sessionParams.append('ui_mode', 'embedded');
     sessionParams.append('return_url', returnUrl(env));
-    sessionParams.append('allow_promotion_codes', 'true');
+    // Stripe refuses discounts and allow_promotion_codes together, so a pre-applied
+    // promo replaces the "add promotion code" box; every other checkout keeps it.
+    const promoKey = typeof body.promo === 'string' ? body.promo.toUpperCase() : '';
+    const promo = Object.prototype.hasOwnProperty.call(KD_PROMO_CODES, promoKey) &&
+      items.includes(KD_PROMO_CODES[promoKey].item) ? KD_PROMO_CODES[promoKey] : null;
+    if (promo) sessionParams.append('discounts[0][promotion_code]', promo.promotionCode);
+    else sessionParams.append('allow_promotion_codes', 'true');
 
     line_items.forEach((item, i) => {
       sessionParams.append(`line_items[${i}][price]`, item.price);
@@ -797,6 +812,11 @@ async function handleCheckout(request, env) {
     // customer with more than about 183 characters of free text, and free-text
     // length tracks medical complexity.
     sessionParams.append('metadata[session_token]', token);
+    // Attribution for a pre-applied promo, so a redemption is traceable to its source.
+    if (promo) {
+      sessionParams.append('metadata[promo]', promoKey);
+      sessionParams.append('metadata[acq]', promo.acq);
+    }
 
     const session = await stripeAPI('checkout/sessions', sessionParams, env);
 

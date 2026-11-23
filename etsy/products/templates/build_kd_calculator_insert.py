@@ -23,8 +23,13 @@ from memory. That is the rule the CW card was built under and it holds here:
     says so, because a code that silently fails on the other four tiers would be
     worse than no code.
   * KD's checkout takes codes through Stripe's native allow_promotion_codes
-    (ketodial/worker/index.js), so the buyer types it. The card says "enter it at
-    checkout" and never claims it auto-applies.
+    (ketodial/worker/index.js), so typing it in the promotion code box always
+    works. Since 2026-11-23 the card also carries a QR code and a clickable link
+    to ketodial.com/?promo=ETSY25 (Etsy print UTMs, #calc), and ketodial.com
+    applies ?promo= at checkout, so the card says "applied" for scan or click
+    and keeps the printed code as the typed fallback. The QR is generated
+    locally with the python qrcode package (error correction M, 4-module quiet
+    zone, dark on white), never an AI image.
   * The kidney gate is real, not marketing: ketodial.js prints a referral where
     the protein target would be, rather than a smaller number.
 
@@ -33,9 +38,13 @@ Copy by Sarah, 2026-09-15.
 Usage:
   python3 build_kd_calculator_insert.py                 -> DRAFT, placeholder code
   python3 build_kd_calculator_insert.py --code ETSY25   -> shippable card
+Run with: uv run --with playwright --with qrcode --with pillow python3 ...
 """
 import argparse
+import base64
+import io
 import subprocess
+from html import escape as html_escape
 import sys
 from pathlib import Path
 
@@ -50,6 +59,21 @@ CODES = {
     "ETSY25": dict(code="ETSY25", off="25% off", was="$10.99", now="$8.24"),
 }
 PLACEHOLDER = dict(code="XXXXXX", off="XX% off", was="$10.99", now="$X.XX")
+
+LINK = ("https://ketodial.com/?promo={code}"
+        "&utm_source=etsy&utm_medium=print&utm_campaign=kd_coupon_card#calc")
+
+
+def qr_data_uri(url):
+    """PNG data URI for url: error correction M, 4-module quiet zone."""
+    import qrcode
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M,
+                       box_size=20, border=4)
+    qr.add_data(url)
+    qr.make(fit=True)
+    buf = io.BytesIO()
+    qr.make_image(fill_color="black", back_color="white").save(buf, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 # Computed from ketodial.js computeMacros(), profile: female, 57, 5ft4, 168lb,
 # lightly active (1.375), losing. Recompute with --verify if that code changes.
@@ -114,7 +138,13 @@ PAGE = """<!DOCTYPE html>
   ul {{ list-style:none; margin-bottom:10px; }}
   li {{ font-size:9pt; line-height:1.35; color:{SOFT}; padding-left:13px; position:relative; margin-bottom:2px; }}
   li:before {{ content:"\\2022"; color:{ACCENT}; font-weight:700; position:absolute; left:0; }}
-  .offer {{ border:2px dashed {ACCENT}; border-radius:10px; padding:10px; text-align:center; margin-bottom:9px; }}
+  a {{ color:inherit; text-decoration:none; }}
+  .offer {{ border:2px dashed {ACCENT}; border-radius:10px; padding:8px 10px; margin-bottom:8px;
+    display:flex; gap:14px; align-items:center; }}
+  .qr {{ flex:0 0 auto; background:#fff; text-align:center; }}
+  .qr img {{ display:block; width:1.25in; height:1.25in; image-rendering:pixelated; }}
+  .qr .go {{ font-size:7.5pt; letter-spacing:1.2px; text-transform:uppercase; color:{SOFT}; }}
+  .offer-text {{ flex:1; text-align:center; }}
   .offer .code {{ font-family:'Libre Baskerville',Georgia,serif; font-size:19pt; font-weight:700;
     color:{ACCENT}; letter-spacing:3px; line-height:1.1; }}
   .offer .terms {{ font-size:9.5pt; color:{SOFT}; margin-top:6px; line-height:1.45; }}
@@ -156,12 +186,15 @@ PAGE = """<!DOCTYPE html>
   <ul>{bullets}</ul>
 
   <div class="offer">
-    <div class="code">{code}</div>
-    <div class="price"><s>{was}</s> &rarr; <strong>{now}</strong></div>
-    <div class="terms">{off} the Full Protocol Bundle. Enter it at checkout. The code works on the Full Protocol Bundle only.</div>
+    <a class="qr" href="{link}"><img src="{qr}" alt="QR code"><div class="go">Scan me</div></a>
+    <div class="offer-text">
+      <div class="code">{code}</div>
+      <div class="price"><s>{was}</s> &rarr; <strong>{now}</strong></div>
+      <div class="terms">Scan or click and {off} the Full Protocol Bundle is applied at checkout ({was} to {now}). Or type {code} in the promotion code box at checkout. Works on the Full Protocol Bundle only.</div>
+    </div>
   </div>
 
-  <div class="cta">{url}</div>
+  <div class="cta"><a href="{link}">{url}</a></div>
   <p class="closing">{closing}</p>
 </div>
 </body></html>"""
@@ -170,9 +203,10 @@ PAGE = """<!DOCTYPE html>
 def build(code_key):
     d = CODES.get(code_key) or PLACEHOLDER
     draft = "" if code_key in CODES else '<div class="draft">DRAFT</div>'
+    link = LINK.format(code=d["code"])
     html = PAGE.format(
         BG=BG, INK=INK, ACCENT=ACCENT, SOFT=SOFT, BOXBG=BOXBG, LINE=LINE,
-        DRAFT=draft, bullets="".join(f"<li>{b}</li>" for b in C["paid_bullets"]),
+        DRAFT=draft, link=html_escape(link), qr=qr_data_uri(link), bullets="".join(f"<li>{b}</li>" for b in C["paid_bullets"]),
         **{k: v for k, v in C.items() if k != "paid_bullets"}, **EXAMPLE, **d)
 
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
@@ -192,6 +226,7 @@ def build(code_key):
                margin={"top": "0", "right": "0", "bottom": "0", "left": "0"})
         b.close()
     print(f"  {out.relative_to(ROOT)}  ({out.stat().st_size // 1024} KB)")
+    print(f"  link {link}")
     return out
 
 

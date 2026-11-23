@@ -72,6 +72,11 @@ export default function StripePaymentModal({
   processingRef.current = isProcessing
   const cancelRef = useRef(onCancel)
   cancelRef.current = onCancel
+  // 2026-11-23: the Etsy print card links ?coupon=ETSY50. Prefill alone left
+  // buyers who skipped the small Apply button paying $29, so an Etsy code from
+  // the URL is applied once on open. Every other code (WEEK1-/GRAD- drip) is
+  // still prefill-only, unchanged.
+  const etsyAutoApplyRef = useRef<string | null>(null)
 
   useEffect(() => {
     console.log('[StripePaymentModal] Mounted for tier:', tierId, tierTitle)
@@ -81,6 +86,7 @@ export default function StripePaymentModal({
     const urlCoupon = params.get('coupon')
     if (urlCoupon && !couponCode) {
       setCouponCode(urlCoupon.toUpperCase())
+      if (/^ETSY\d*R?$/i.test(urlCoupon)) etsyAutoApplyRef.current = urlCoupon.toUpperCase()
     }
 
     // Track payment modal opened
@@ -192,6 +198,14 @@ export default function StripePaymentModal({
       setDiscountApplied(null)
     }
   }
+
+  // Runs once, after the URL Etsy code has landed in couponCode (see etsyAutoApplyRef).
+  useEffect(() => {
+    if (etsyAutoApplyRef.current && couponCode === etsyAutoApplyRef.current) {
+      etsyAutoApplyRef.current = null
+      applyCoupon()
+    }
+  }, [couponCode])
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
