@@ -2790,3 +2790,10 @@ Report: `docs/archive/reports-archive/2026-11-13-content-refresh-read.md`. Windo
 - Consensus not used: terms are personal-use and bar acts that boost another site's rankings. Chloe's old Consensus Science Check is retired.
 - Tests: `tests/test_post_sources.py` (19). Mutation-tested: 7 protections broken one at a time, each turned a named test red, restored.
 - Mini writer task prompts (CW, KD, PD) patched with Step 4d on 2026-11-19, MacBook copies mirrored.
+
+## 2026-11-23 — Tracking instrumentation repaired and shipped (Brew: "Ship it")
+- Brew approved shipping PR #182 + MikeBrew123/ketodial#14 (Deck card efb6f29b). Instrumentation only: no content, offer, price or email copy change; XR-08/11/12/13/18 untouched.
+- GA4 now: CW `purchase` fires on the Stripe return and from the webhook (awaited, same transaction_id); CW `generate_lead` on calculator signup (added as a CW key event); KD `kd_payment_complete` only after the server confirms a fresh, paid, non-gift sale.
+- CW drip links to carnivoreweekly.com get utm_source=drip / utm_medium=email / utm_campaign=dayN unless already tagged. Expect GA4 Email sessions to rise and Direct to fall from 2026-11-24: a tracking change, not a traffic change. Do not trend Email/Direct or purchase/signup counts across 2026-11-23.
+- PescoDial calculator runs now save to calculator_sessions_v2 with source 'pd'.
+- Root causes: ISSUE-110 in recurring-issues.md.
