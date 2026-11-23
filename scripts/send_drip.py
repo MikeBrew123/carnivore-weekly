@@ -630,9 +630,38 @@ def unsub_url(email):
     return unsubscribe_link.unsubscribe_url(email, SITE, UNSUB_SECRET)
 
 
-def personalize(html, email, checkin_token=None):
+CW_HREF_RE = re.compile(r'href="(https://carnivoreweekly\.com/[^"#]*)(#[^"]*)?"')
+
+
+def add_email_utm(html, day):
+    """Tag untagged carnivoreweekly.com links so GA4 files the visit under Email.
+
+    Until 2026-11-23 only the offer links carried UTMs; check-in, one-tap and blog
+    links arrived untagged and GA4 counted them as Direct (about 1,100 clicks vs
+    141 Email sessions over 90 days). CW drip only: KD and PD drips are left
+    exactly as they were (XR-11 is reading the KD sender). Links that already
+    carry utm_source keep their own tags, and other hosts (ketodial.com for
+    XR-12, affiliates, Etsy) are never touched. Runs before the unsubscribe merge
+    tag is filled, so the signed unsubscribe link is never tagged.
+    """
+    if SITE != "cw" or not day:
+        return html
+    tag = f"utm_source=drip&amp;utm_medium=email&amp;utm_campaign=day{int(day)}"
+
+    def _tag(m):
+        url, frag = m.group(1), m.group(2) or ""
+        if "utm_source=" in url:
+            return m.group(0)
+        sep = "&amp;" if "?" in url else "?"
+        return f'href="{url}{sep}{tag}{frag}"'
+
+    return CW_HREF_RE.sub(_tag, html)
+
+
+def personalize(html, email, checkin_token=None, day=None):
     """Substitute merge tags. {$unsubscribe} was previously sent literally (dead link)."""
     unsub = unsub_url(email)
+    html = add_email_utm(html, day)
     return add_checkin_token(html.replace("{$unsubscribe}", unsub), checkin_token)
 
 
@@ -860,7 +889,7 @@ def preview_all(resend_key, to):
         subject, html = load_drip_email(day)
         html = apply_promo(html, day, to, stripe_key="", buyers=set())  # preview: render the OFFER variant
         ok, detail = send_email(resend_key, to, f"[PREVIEW d{day}] {subject}",
-                                personalize(html, to), log=False)
+                                personalize(html, to, day=day), log=False)
         print(f"  {'✅' if ok else '❌'} day {day}: {subject}" + ("" if ok else f" — {redact(detail)[:80]}"))
 
 
@@ -1101,7 +1130,7 @@ def main():
         html_merged = apply_promo(html, next_day, sub["email"], stripe_key, buyers)
         ok, detail = send_email(
             resend_key, sub["email"], subject_out,
-            personalize(html_merged, sub["email"], sub.get("checkin_token")),
+            personalize(html_merged, sub["email"], sub.get("checkin_token"), day=next_day),
             tags=tags,
             from_email=CW_INTRO_FROM if cw_intro else None,
         )

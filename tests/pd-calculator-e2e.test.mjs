@@ -36,12 +36,20 @@ let failed = 0;
 const check = (name, ok, extra = '') => { console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${ok ? '' : ' ' + extra}`); if (!ok) failed++; };
 
 const browser = await chromium.launch();
+// Every page intercepts the run-save call (added 2026-11-23) so a test run never
+// reaches the production worker; page.sessions keeps what would have been saved.
+const _newPage = browser.newPage.bind(browser);
+browser.newPage = async (...a) => {
+  const p = await _newPage(...a); p.sessions = [];
+  await p.route('**/api/v1/calculator/session', r => { p.sessions.push(JSON.parse(r.request().postData() || '{}')); r.fulfill({ status: 201, body: '{"success":true}' }); });
+  return p;
+};
 const STYLES = { med: 'pesco-mediterranean', lowcarb: 'pesco-lowcarb', keto: 'pesco-keto', carn: 'pesco-carnivore' };
 for (const [style, diet] of Object.entries(STYLES)) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   const posts = [];
   await page.route('**/api/v1/subscribe', r => { posts.push(JSON.parse(r.request().postData() || '{}')); r.fulfill({ status: 200, body: '{"success":true}' }); });
-  await page.goto(base + '/');
+  await page.goto(base + '/?utm_source=e2e_src&utm_medium=email&utm_campaign=e2e');
   await page.check(`input[name="style"][value="${style}"]`, { force: true });
   await page.click('form[data-step="1"] button[type="submit"]');
   // Brew 2026-10-04: activity descriptions wrapped one word per line (desc in the radio column).
@@ -63,6 +71,9 @@ for (const [style, diet] of Object.entries(STYLES)) {
   const order = await page.evaluate(() => { const s4 = document.querySelector('[data-step="4"]').innerHTML; return s4.indexOf('check with your doctor') < s4.indexOf('data-r="kcal"'); });
   check(`B. ${style} doctor line above numbers`, order);
   check(`C. ${style} sign-up is PescoDial`, posts.length === 1 && posts[0].site === 'pd' && posts[0].diet_type === diet, JSON.stringify(posts));
+  const sv = page.sessions;
+  check(`S. ${style} run saved once as a PescoDial calculator row`, sv.length === 1 && sv[0].source === 'pd' && sv[0].diet_type === diet
+    && sv[0].email === 'e2e@example.com' && sv[0].landing_page === '/' && sv[0].utm_source === 'e2e_src' && sv[0].utm_medium === 'email' && 'referrer' in sv[0] && sv[0].device_type === 'desktop', JSON.stringify(sv));
   const basis = await page.textContent('[data-r="basis"]');
   check(`R7. ${style} Lose explainer numbers come from the engine`, basis.includes(want.tdee.toLocaleString('en-US') + ' calories a day')
     && basis.includes('target of ' + want.calories.toLocaleString('en-US') + ' is 20% less') && basis.includes('goal weight of 150 lb'), basis);
