@@ -2797,3 +2797,10 @@ Report: `docs/archive/reports-archive/2026-11-13-content-refresh-read.md`. Windo
 - CW drip links to carnivoreweekly.com get utm_source=drip / utm_medium=email / utm_campaign=dayN unless already tagged. Expect GA4 Email sessions to rise and Direct to fall from 2026-11-24: a tracking change, not a traffic change. Do not trend Email/Direct or purchase/signup counts across 2026-11-23.
 - PescoDial calculator runs now save to calculator_sessions_v2 with source 'pd'.
 - Root causes: ISSUE-110 in recurring-issues.md.
+
+## 2026-11-23 — Day-28 welcome email: discount replaced by sister-site calculators (Brew)
+- 362 day-28 GRAD codes minted in 90 days, 0 used. Day 28 removed from PROMO_DAYS: no more GRAD codes are minted; existing codes in Stripe are left to expire.
+- CW day 28 (Sarah): offer slot now leads with the KetoDial calculator, one line for PescoDial. Heading "If you're staying carnivore" became "If you want real numbers for month two" (Sarah: the old heading would have read as a bait and switch). Rest of the email unchanged.
+- KD day 28 (Chloe): "A graduation gift" replaced by "Curious about the next dial?" pointing to the CW calculator; preheader no longer names a gift.
+- Tags: utm_campaign cw_day28_sister (utm_source=carnivoreweekly, utm_content ketodial_calculator / pescodial_calculator) and kd_day28_sister (utm_source=ketodial, utm_content cw_calculator).
+- Day 7 on CW, KD and PD renders byte-identical before and after (buyer and non-buyer). Sender settings untouched (XR-11 reads Dec 1). Not an A/B test.

@@ -71,7 +71,11 @@ STRIPE_VERSION = "2024-06-20"  # newer account-default versions changed the prom
 DRIP_COUPON_ID = "52fYA51M"    # 50% off — same Stripe coupon behind DRIP50/ETSY50
 PROMO_EXPIRY_HOURS = 48
 PROMO_FALLBACK_CODE = "DRIP50"
-PROMO_DAYS = {7: "WEEK1", 28: "GRAD"}
+# Day 28 removed 2026-11-23 (Brew): 362 GRAD codes minted in 90 days, 0 ever used.
+# The day-28 slot now points to the sister sites instead (no code, no Stripe
+# object). Day 7 is unchanged and still mints WEEK1 codes. Existing GRAD codes
+# in Stripe are left alone and simply expire.
+PROMO_DAYS = {7: "WEEK1"}
 PROMO_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # no 0/O/1/I/L lookalikes
 
 # Per-site promo copy. "real" may claim the 48h window because Stripe enforces
@@ -85,11 +89,9 @@ PROMO_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # no 0/O/1/I/L lookalik
 BUYER_BLOCK = {
     "cw": {
         7: '<p style="margin:0 0 16px 0">You already have the Complete Carnivore Protocol, so the part most people are still deciding about this week is settled for you. My one suggestion: open it to week one, pull that shopping list, and do a single grocery run against it instead of reading the whole thing end to end. The plan works best one week at a time, and week one is the only week you need right now.</p>',
-        28: '<p style="margin:0 0 16px 0">You finished the month and you already have the Complete Carnivore Protocol, so month two doesn\'t need to be invented from scratch. Go back to your plan and run it again with what you know now: the meals you actually looked forward to move to the front, the ones you only tolerated come out, and the shopping list gets shorter every time you repeat it. Most of the drift I see in month two is a decision problem rather than a discipline problem, and you already own the fix for that. Keep the plan on the fridge for another four weeks and let it do the deciding.</p>',
     },
     "kd": {
         7: '<p style="margin:0 0 16px 0">You\'ve already got your report, which means you\'re past the guessing that most of week one gets spent on. Use it narrowly this week: pick the next few days of meals, build one shopping list from them, and leave the rest of the report alone until you need it. A report you cook from beats a report you read once, every time.</p>',
-        28: '<p style="margin:0 0 16px 0">Twenty-eight days done, and you\'re walking into month two with your own numbers already in hand instead of somebody\'s generic plan. Here\'s what I\'d do: open your report again and read it as a graduate this time, because the parts that felt like homework in week one tend to look obvious now. Rebuild one week of meals from the ones you know you\'ll actually eat, and let that week repeat. You\'ve already done the hardest month, and you\'ve still got the plan that got you through it.</p>',
     },
 }
 
@@ -99,7 +101,6 @@ BUYER_PREHEADER = {
     "cw": {},
     "kd": {
         7: "Your week-1 recap, and what to do with the report you have",
-        28: "You finished the month. Here is what month two looks like.",
     },
 }
 
@@ -125,19 +126,11 @@ PROMO_COPY = {
             "real": "Your code {code} was made just for you: it works once, and it stops working 48 hours after this email went out. That's a real window Stripe enforces, not a marketing countdown, so if life gets in the way and it lapses, no hard feelings, the plan's still here at $29 whenever you're ready.",
             "fallback": "This is my one-week milestone reward, and $14.50 is the best price I'll ever put on it. Your code {code} has no countdown clock. It's here when you're ready.",
         },
-        28: {
-            "real": "It's $29, but you finished all 30 days, so I made you a graduation code: {code} brings it down to $14.50. It's yours alone, it works once, and it expires 48 hours after this email went out. That's a real window, not pressure, so if the timing's wrong, let it go and know the plan's still here at full price whenever you want it.",
-            "fallback": "It's $29, but the code {code} brings it down to $14.50, the same deal I gave you at the one-week mark. There's no countdown clock on this one. It's here whenever you're ready.",
-        },
     },
     "kd": {
         7: {
             "real": "Your code {code} was made just for you. It works once, on any report in the calculator, and it stops working 48 hours after this email went out. That's a real window Stripe enforces, not a countdown gimmick. If it lapses, no stress, the reports are still there at full price whenever you want them.",
             "fallback": "This is my one-week reward for you: code {code} takes half off any report in the calculator. No countdown clock on this one. It's here when you're ready.",
-        },
-        28: {
-            "real": "You finished the month, so I made you a graduation code: {code} takes half off any report in the calculator. It's yours alone, it works once, and it expires 48 hours after this email went out. That's a real deadline, not pressure. If the timing's wrong, let it go and grab the reports at full price whenever it suits you.",
-            "fallback": "Code {code} takes half off any report in the calculator, the same deal I gave you at the one-week mark. There's no countdown on this one. It's here whenever you're ready.",
         },
     },
 }
