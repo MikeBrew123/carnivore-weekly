@@ -31,6 +31,14 @@ was read out of the code or the live site, not written from memory:
     support those diets, so the card says which four it covers rather than
     implying all of them.
 
+QR and link (2026-11-23): the card carries a QR code and a clickable link to
+calculator.html?coupon=<CODE> with Etsy print UTMs. The calculator reads
+?coupon= and applies the code at checkout, so the instructions say "applied",
+with the printed code kept as the typed fallback for the "Have a coupon code?"
+box. The QR is generated locally with the python qrcode package (error
+correction M, 4-module quiet zone, dark on white), never an AI image. Needs:
+  uv run --with playwright --with qrcode --with pillow python3 build_calculator_insert.py --code ETSY50
+
 Discount code: parameterised on purpose. Which code survives the coupon
 ladder is an open question for Brew, and a printed code on a downloaded PDF
 can never be recalled. With no --code the build emits a clearly marked DRAFT
@@ -43,8 +51,13 @@ Usage:
 Outputs to etsy/products/pdfs/.
 """
 import argparse
+import base64
+from html import escape as html_escape
+import io
 import sys
 from pathlib import Path
+
+import qrcode
 
 from playwright.sync_api import sync_playwright
 
@@ -64,6 +77,20 @@ CODES = {
 }
 PLACEHOLDER = dict(code="XXXXXX", off="XX% off", price="$XX.XX")
 
+LINK = ("https://carnivoreweekly.com/calculator.html?coupon={code}"
+        "&utm_source=etsy&utm_medium=print&utm_campaign=cw_coupon_card")
+
+
+def qr_data_uri(url: str) -> str:
+    """PNG data URI for url: error correction M, 4-module quiet zone."""
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M,
+                       box_size=20, border=4)
+    qr.add_data(url)
+    qr.make(fit=True)
+    buf = io.BytesIO()
+    qr.make_image(fill_color="black", back_color="white").save(buf, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+
 PAGE = """<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
@@ -78,10 +105,10 @@ PAGE = """<!DOCTYPE html>
 
   .kicker {{ color: {ACCENT}; font-weight: 700; letter-spacing: 2.5px;
     font-size: 10pt; text-transform: uppercase; text-align: center; margin-bottom: 10px; }}
-  h1 {{ font-family: 'Libre Baskerville', Georgia, serif; font-size: 25pt;
+  h1 {{ font-family: 'Libre Baskerville', Georgia, serif; font-size: 22pt;
     line-height: 1.18; text-align: center; margin-bottom: 12px; }}
-  .lede {{ font-size: 11.5pt; line-height: 1.6; color: {SOFT};
-    text-align: center; margin-bottom: 20px; }}
+  .lede {{ font-size: 11pt; line-height: 1.5; color: {SOFT};
+    text-align: center; margin-bottom: 16px; }}
   .lede strong {{ color: {INK}; }}
 
   /* The results tile: this is the part that SHOWS instead of telling */
@@ -89,12 +116,12 @@ PAGE = """<!DOCTYPE html>
   .results-head {{ background: {ACCENT}; color: {BG}; padding: 7px 14px;
     font-size: 9pt; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 700;
     display: flex; justify-content: space-between; }}
-  .results-body {{ background: {BOXBG}; padding: 14px; }}
+  .results-body {{ background: {BOXBG}; padding: 11px 14px; }}
   .profile {{ font-size: 9.5pt; color: {SOFT}; text-align: center;
     padding-bottom: 11px; margin-bottom: 12px; border-bottom: 1px solid rgba(168,52,31,0.22); }}
   .tiles {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }}
   .tile {{ background: {BG}; border: 1px solid rgba(168,52,31,0.2);
-    border-radius: 8px; padding: 10px 6px; text-align: center; }}
+    border-radius: 8px; padding: 7px 6px; text-align: center; }}
   .tile .lab {{ font-size: 8pt; letter-spacing: 0.9px; text-transform: uppercase;
     color: {SOFT}; margin-bottom: 4px; }}
   .tile .num {{ font-family: 'Libre Baskerville', Georgia, serif;
@@ -103,39 +130,50 @@ PAGE = """<!DOCTYPE html>
   .caption {{ font-size: 8.5pt; color: {SOFT}; text-align: center;
     margin-top: 11px; font-style: italic; }}
 
-  .freeline {{ font-size: 11pt; line-height: 1.6; color: {SOFT};
-    text-align: center; margin: 16px 0 20px; }}
+  .freeline {{ font-size: 10.5pt; line-height: 1.5; color: {SOFT};
+    text-align: center; margin: 12px 0 14px; }}
   .freeline strong {{ color: {INK}; }}
 
-  .rule {{ height: 1px; background: rgba(168,52,31,0.28); margin: 0 0 18px; }}
+  .rule {{ height: 1px; background: rgba(168,52,31,0.28); margin: 0 0 14px; }}
 
   h2 {{ font-family: 'Libre Baskerville', Georgia, serif; font-size: 15pt;
     text-align: center; margin-bottom: 9px; }}
   .paid-lede {{ font-size: 10.5pt; line-height: 1.55; color: {SOFT};
-    text-align: center; margin-bottom: 14px; }}
+    text-align: center; margin-bottom: 10px; }}
   ul {{ list-style: none; display: grid; grid-template-columns: 1fr 1fr;
-    gap: 6px 18px; margin-bottom: 14px; }}
+    gap: 5px 18px; margin-bottom: 10px; }}
   li {{ font-size: 10pt; line-height: 1.4; color: {SOFT}; padding-left: 14px;
     position: relative; }}
   li:before {{ content: "\\2022"; color: {ACCENT}; font-weight: 700;
     position: absolute; left: 2px; }}
   li strong {{ color: {INK}; font-weight: 600; }}
-  .price {{ text-align: center; font-size: 10.5pt; color: {SOFT}; margin-bottom: 18px; }}
+  .price {{ text-align: center; font-size: 10.5pt; color: {SOFT}; margin-bottom: 14px; }}
   .price strong {{ color: {INK}; font-size: 12pt; }}
 
-  .cta {{ display: flex; gap: 12px; }}
-  .box {{ background: {BOXBG}; border: 2.5px solid {ACCENT};
-    border-radius: 12px; padding: 14px 10px; text-align: center; }}
-  .box .go {{ font-size: 8.5pt; letter-spacing: 1.4px; text-transform: uppercase;
-    color: {SOFT}; margin-bottom: 5px; }}
-  .box .big {{ font-family: 'Libre Baskerville', Georgia, serif;
-    font-size: 16pt; font-weight: 700; color: {ACCENT}; white-space: nowrap; }}
-  .box-url {{ flex: 1.62; }}
-  .box-url .big {{ font-size: 12.5pt; }}
+  a {{ color: inherit; text-decoration: none; }}
+  .cta {{ display: flex; gap: 12px; align-items: stretch; }}
+  .qr {{ background: #ffffff; border: 2.5px solid {ACCENT}; border-radius: 12px;
+    padding: 6px 6px 5px; text-align: center; flex: 0 0 auto; }}
+  .qr img {{ display: block; width: 1.25in; height: 1.25in; image-rendering: pixelated; }}
+  .qr .go {{ font-size: 8pt; letter-spacing: 1.2px; text-transform: uppercase;
+    color: {SOFT}; margin-top: 3px; }}
+  .stack {{ flex: 1; display: flex; gap: 12px; }}
+  .stack .box {{ display: flex; flex-direction: column; justify-content: center; }}
+  .box-url {{ flex: 1.75; }}
   .box-code {{ flex: 1; }}
-  .box .sub {{ font-size: 8.5pt; color: {SOFT}; margin-top: 5px; }}
+  .box {{ background: {BOXBG}; border: 2.5px solid {ACCENT};
+    border-radius: 12px; padding: 9px 10px; text-align: center; }}
+  .box .go {{ font-size: 8.5pt; letter-spacing: 1.4px; text-transform: uppercase;
+    color: {SOFT}; margin-bottom: 3px; }}
+  .box .big {{ font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 15pt; font-weight: 700; color: {ACCENT}; white-space: nowrap; }}
+  .box-url .big {{ font-size: 12pt; }}
+  .box .sub {{ font-size: 8.5pt; color: {SOFT}; margin-top: 3px; }}
+  .how {{ font-size: 9pt; line-height: 1.45; color: {SOFT}; text-align: center;
+    margin-top: 10px; }}
+  .how strong {{ color: {INK}; }}
 
-  .foot {{ font-size: 9.5pt; color: {SOFT}; margin-top: 20px; text-align: center; }}
+  .foot {{ font-size: 9.5pt; color: {SOFT}; margin-top: 12px; text-align: center; }}
 
   .draftbar {{ position: absolute; top: 50%; left: 0; right: 0;
     transform: translateY(-50%) rotate(-32deg); text-align: center;
@@ -190,17 +228,22 @@ PAGE = """<!DOCTYPE html>
     within 30 days for a full refund.</p>
 
     <div class="cta">
-      <div class="box box-url">
-        <div class="go">Start free at</div>
-        <div class="big">carnivoreweekly.com/calculator</div>
-        <div class="sub">Free, no card</div>
-      </div>
-      <div class="box box-code">
-        <div class="go">Your code, {OFF}</div>
-        <div class="big">{CODE}</div>
-        <div class="sub">Enter it at checkout: {PRICE}</div>
+      <a class="qr" href="{LINK}"><img src="{QR}" alt="QR code"><div class="go">Scan me</div></a>
+      <div class="stack">
+        <a class="box box-url" href="{LINK}">
+          <div class="go">Or go to</div>
+          <div class="big">carnivoreweekly.com/calculator</div>
+          <div class="sub">Free to start, no card</div>
+        </a>
+        <div class="box box-code">
+          <div class="go">Your code, {OFF}</div>
+          <div class="big">{CODE}</div>
+          <div class="sub">Type it at checkout</div>
+        </div>
       </div>
     </div>
+    <p class="how">Scan or click and your {OFF} is applied at checkout (<strong>{PRICE}</strong>).
+    Or type {CODE} in the &ldquo;Have a coupon code?&rdquo; box when you check out.</p>
 
     <p class="foot">Keep it simple. Stay consistent. Become unstoppable.</p>
   </div>
@@ -217,14 +260,18 @@ def main() -> int:
     args = ap.parse_args()
 
     draft = args.code is None
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     codeinfo = PLACEHOLDER if draft else CODES[args.code]
     out = OUT_DIR / ("bonus-insert-calculator-DRAFT.pdf" if draft
                      else "bonus-insert-calculator.pdf")
     draftbar = ('<div class="draftbar">DRAFT, CODE NOT SET</div>'
                 if draft else "")
 
+    link = LINK.format(code=codeinfo["code"])
     html = PAGE.format(DRAFTBAR=draftbar, CODE=codeinfo["code"],
-                       OFF=codeinfo["off"], PRICE=codeinfo["price"], **PALETTE)
+                       OFF=codeinfo["off"],
+                       PRICE=codeinfo["price"], LINK=html_escape(link),
+                       QR=qr_data_uri(link), **PALETTE)
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -237,6 +284,7 @@ def main() -> int:
         browser.close()
 
     print("built", out)
+    print("link", link)
     if draft:
         print("DRAFT build: discount code is a placeholder. Do NOT upload to Etsy.")
     return 0
