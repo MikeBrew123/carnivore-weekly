@@ -2790,3 +2790,10 @@ Report: `docs/archive/reports-archive/2026-11-13-content-refresh-read.md`. Windo
 - Consensus not used: terms are personal-use and bar acts that boost another site's rankings. Chloe's old Consensus Science Check is retired.
 - Tests: `tests/test_post_sources.py` (19). Mutation-tested: 7 protections broken one at a time, each turned a named test red, restored.
 - Mini writer task prompts (CW, KD, PD) patched with Step 4d on 2026-11-19, MacBook copies mirrored.
+
+## 2026-11-19 — Wiki: Consensus links swapped to PubMed/DOI (Sources plan step 6, Brew "Go as proposed")
+- `public/wiki/index.html` (hand-maintained, no template): 143 links now point at the paper itself (75 PMC, 68 DOI); 0 consensus.app links remain. Mapping kept in BSM vault `Legacy Project/reports/wiki-link-map-2026-11-19.json`.
+- 38 Consensus paper links matched nothing in PubMed or Crossref. Spot check in Chrome: 15 of the first 17 opened "This scientific finding is missing" (dead, most likely AI-invented); 1 was real and is now its DOI. Dead and unverifiable links were removed, the sentence text kept.
+- Removed Consensus GPT boilerplate ("Try Consensus at consensus.app", "Like our GPT?", "Compiled by GPT-5 with Consensus-verified research"); "Consensus Score/Summary" labels renamed "Evidence rating/summary". No other wording changed.
+- NOT done, separate item: the wiki's evidence ratings were AI-compiled and some contradict Report #8 ("Carnivore in healthy adults: Safe if balanced", "Long-term safety: generally safe", LDL rise "not pathological"). Needs a writer and evidence pass.
+- Baseline (GSC page level, 2026-08-18 to 11-16): 688 impressions, 0 clicks, position 25.2. Read 2026-12-17.
