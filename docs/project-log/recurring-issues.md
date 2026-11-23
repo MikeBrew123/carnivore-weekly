@@ -1041,9 +1041,10 @@ If recurs: delete the PIN_LAST block from the staleness step (and the pin rows i
 ---
 
 ## ISSUE-109 — Homebrew auto-upgrade repoints python3 to a new minor with empty site-packages (Mini jobs fail on import)
-🔴 OPEN — Last: 2026-11-16
+🟡 MITIGATED — Last: 2026-11-23
 
 Pattern: Mini jobs call bare `/opt/homebrew/bin/python3` (`~/bin/py-job.sh`, `command-center.sh`, subscriber-backup, deck-explainer, sayulita-*, trip-dash, mls-inbox, market-prices). On 2026-11-15 10:54 a Homebrew upgrade of `yt-dlp` installed `python@3.15` and relinked `python3` to it. 3.15 has no pip packages (3.14 has 133), so the 11-16 truth pass and command-center runs died with `ModuleNotFoundError: No module named 'requests'`. The heartbeat did not flag either. Mini auto-updates are on by Brew's choice (deck `e19b0d27`).
 Attempts:
 - 2026-11-16 — weekly ops review re-ran the truth pass with `/opt/homebrew/bin/python3.14` (clean). No system change made; bead P1 filed, deck decision `5703b9b1` posted.
+- 2026-11-23 — found mitigated: `python3` relinked to python@3.14 at 11-16 14:05 and python@3.14 brew-pinned; truth pass + command-center ran clean. Wrappers still call bare `python3` and python@3.15 is still installed; bead `4at` lowered to P2.
 If recurs: check `ls -la /opt/homebrew/bin/python3` first. Fix by pinning job wrappers and plists to an explicit `python3.X` (or a project venv), never bare `python3`; do not just pip-install into the new minor, the next minor bump breaks it again.
