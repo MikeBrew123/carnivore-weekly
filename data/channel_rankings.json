@@ -1,47 +1,47 @@
 {
-  "last_updated": "2026-11-22",
+  "last_updated": "2026-11-25",
   "leaderboard": [
     {
       "name": "HomeSteadHow",
       "rank": 1,
-      "appearances": 22,
+      "appearances": 23,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 2,
-      "appearances": 4,
-      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
-    },
-    {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 3,
+      "rank": 2,
       "appearances": 19,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
+      "name": "Dr. Eric Westman - Adapt Your Life",
+      "rank": 3,
+      "appearances": 4,
+      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
+    },
+    {
       "name": "Meet Carnivore",
       "rank": 4,
-      "appearances": 21,
+      "appearances": 22,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 5,
-      "appearances": 18,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
-    },
-    {
       "name": "Vegetable Police",
-      "rank": 6,
+      "rank": 5,
       "appearances": 2,
       "channel_id": "UCFuLNktnqqBEF_9ZcmjC_bw"
     },
     {
       "name": "No Carb Life",
-      "rank": 7,
+      "rank": 6,
       "appearances": 19,
       "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+    },
+    {
+      "name": "Carnivore Quest",
+      "rank": 7,
+      "appearances": 15,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
       "name": "Catherine's Plates",
@@ -50,16 +50,16 @@
       "channel_id": "UCuvgtfqhHTKI5kymcLKeyxg"
     },
     {
-      "name": "Maria Emmerich",
+      "name": "Ferrigno Freedom",
       "rank": 9,
-      "appearances": 4,
-      "channel_id": "UCyZia0TtezGqjGcXwXJhDoQ"
+      "appearances": 14,
+      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
     },
     {
-      "name": "Hoosier Ali",
+      "name": "Receitas para diab\u00e9ticos.",
       "rank": 10,
-      "appearances": 4,
-      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
+      "appearances": 2,
+      "channel_id": "UCLyGXkwFX26Oaa5dQEOvMsQ"
     }
   ]
 }
