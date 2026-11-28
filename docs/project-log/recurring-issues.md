@@ -311,11 +311,12 @@ If recurs: Run `git ls-files --stage | grep 160000` to find all submodule entrie
 ---
 
 ## ISSUE-110 — Daily Publisher red: KD submodule push rejected (parent gitlink behind KD main)
-🟢 FIXED — 2026-11-21
+🟡 RECURRING — Last: 2026-11-28
 
 Pattern: a PR merged straight into the KD repo (MikeBrew123/ketodial #13, 2026-11-14) moved its `main` to `fbf492f`, but nobody bumped the parent's `ketodial/public` gitlink (still `3a7b52a`). `daily-publish.yml` checks out the stale gitlink, commits the day's KD posts on top, and `git push origin HEAD:main` is rejected non-fast-forward. Runs failed 11-17 to 11-20; KD posts dated 11-17 and 11-20 sat in "ready" unpublished.
 Attempts:
 - 2026-11-21 — KD weekly content task found it. Bumped the parent gitlink to `fbf492f` (a pure fast-forward). Next scheduled run should publish both held posts.
+- 2026-11-28 — RECURRED. KD PR #15 moved KD main to `a258ec1`; gitlink stuck at `3c1379c`; runs 11-24 to 11-27 red, posts dated 11-24 and 11-27 held. Bumped gitlink (`535bb9f1`) and added `git fetch origin main && git rebase origin/main` before the KD push in `daily-publish.yml` (new angle: the workflow, not the pointer).
 Prevention: any PR merged directly in the KD repo needs a matching parent commit bumping `ketodial/public`. Tell: `git ls-tree HEAD ketodial/public` vs `git -C ketodial/public rev-parse origin/main`.
 If recurs: have the workflow fetch `origin/main` in the submodule and rebase its publish commit onto it before pushing.
 
