@@ -340,6 +340,7 @@ jobs:
               "10|promotes sweet treats|CW sweet-treat brand rule" \
               "11|Universal K/Mg dose|electrolyte dose (potassium/magnesium)" \
               "11|Universal fasting-Na dose|electrolyte dose (fasting sodium)" \
+              "11|Universal drug-dose dose|prescription drug dose" \
               "11|Electrolyte dosing guard could not run|electrolyte guard failed to load"
             do
               IFS='|' read -r n text desc <<<"$entry"
