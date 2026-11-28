@@ -1,6 +1,6 @@
 {
  "site": "cw",
- "fetched_at": "2026-11-14T11:34:03.022041+00:00",
+ "fetched_at": "2026-11-28T11:37:02.383321+00:00",
  "window": "top posts of the last 7 days",
  "subreddits": [
   "carnivorediet",
@@ -11,264 +11,274 @@
  "shared_pull": true,
  "posts": [
   {
-   "title": "Hot drink that isn\u2019t coffee?",
-   "subreddit": "keto",
-   "score": 17,
-   "num_comments": 95,
-   "comment_to_score_ratio": 5.59,
-   "created": "2026-11-14T03:23:26.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvrzsv/hot_drink_that_isnt_coffee/",
-   "body_preview": "I\u2019m not a coffee drinker. But in the colder weather I like to have hot drinks. I tried some keto hot chocolate and it wasn\u2019t great. (Maybe the brand I tried wasn\u2019t the best?) Tea is only ok. Any recommendations?"
-  },
-  {
-   "title": "Why keto doesn\u2019t work for me anymore",
-   "subreddit": "keto",
-   "score": 17,
-   "num_comments": 41,
-   "comment_to_score_ratio": 2.41,
-   "created": "2026-11-13T20:36:52.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvizf3/why_keto_doesnt_work_for_me_anymore/",
-   "body_preview": "I have PCOS, and one of the best things that ever helped me manage my symptoms and improve my energy levels was the keto diet. I first tried it about six years ago. I lost a good amount of weight and felt amazing. I had no problems getting into ketosis, didn\u2019t experience keto flu"
-  },
-  {
-   "title": "Anyone frustrated with slow weight loss on keto?",
-   "subreddit": "keto",
-   "score": 2,
-   "num_comments": 35,
-   "comment_to_score_ratio": 17.5,
-   "created": "2026-11-13T16:37:25.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvcmcd/anyone_frustrated_with_slow_weight_loss_on_keto/",
-   "body_preview": "I should preface this by saying I am very happy to finally see the scale moving down. I have been on a hell of a weight loss journey, and it has been incredibly frustrating. I even started tirzepatide and have finally hit 10lb's lost this year.\n\n  \n About 4 years ago I did very s"
-  },
-  {
-   "title": "Mixing Keto with one-meal-a-day (OMAD) is S-Tier for weight loss and energy",
-   "subreddit": "keto",
-   "score": 224,
-   "num_comments": 35,
-   "comment_to_score_ratio": 0.16,
-   "created": "2026-11-13T16:52:03.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvd0ls/mixing_keto_with_onemealaday_omad_is_stier_for/",
-   "body_preview": "First few days are a bit harder to get used to eating one meal a day but afterwards it feels incredible . That one meal hits differently and you feel so full after for the rest of the night.\n\n  \nExample:  \n\\- Ate my first and only meal at 5pm last night. I went out with my partne"
-  },
-  {
-   "title": "How much fat is too much fat?",
+   "title": "Not Exercising on Carnivore",
    "subreddit": "carnivorediet",
-   "score": 4,
+   "score": 55,
+   "num_comments": 115,
+   "comment_to_score_ratio": 2.09,
+   "created": "2026-11-25T13:39:03.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y57kje/not_exercising_on_carnivore/",
+   "body_preview": "It pains me everytime someone on this subreddit says they are sedentary. Consuming so much high quality protein and fats and being sedentary seems like such a waste.\n\nEven people with mobility issues can find ways to train. When I had spinal surgery almost 10 years ago I was trai"
+  },
+  {
+   "title": "Lion Diet Healing my Very Severe Autoimmune (Psoriasis)",
+   "subreddit": "carnivorediet",
+   "score": 836,
+   "num_comments": 110,
+   "comment_to_score_ratio": 0.13,
+   "created": "2026-11-22T04:23:15.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y2gav8/lion_diet_healing_my_very_severe_autoimmune/",
+   "body_preview": "TLDR: Been on lion diet since August (with cheats in between, unfortunately due to traveling). But even then, look at the results\u2026.\n\nVERY SEVERE PSORIASIS - BUT I REFUSE TO BE IN MEDS FOR THE REST OF MY LIFE.\n\nFor the haters out there who say you can only control autoimmune with "
+  },
+  {
+   "title": "Refeeding after a 60 day fast progress.",
+   "subreddit": "carnivorediet",
+   "score": 118,
+   "num_comments": 62,
+   "comment_to_score_ratio": 0.53,
+   "created": "2026-11-24T17:21:25.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y4j23q/refeeding_after_a_60_day_fast_progress/",
+   "body_preview": "My fast ended on Nov 9th, with just a couple of 48 hour and 36 hour fasts since. \n\nI have reached the point now where I can handle a little bit more than 16oz or about 454 grams in a meal. Still mostly OMAD and strictly lion diet.\n\nThis was breakfast."
+  },
+  {
+   "title": "Refeeding after 60 day fast update",
+   "subreddit": "carnivorediet",
+   "score": 49,
+   "num_comments": 43,
+   "comment_to_score_ratio": 0.88,
+   "created": "2026-11-21T15:23:30.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y1zjh5/refeeding_after_60_day_fast_update/",
+   "body_preview": "So, my 60 day fast (for medical reasons) technically ended on November 9th, though there have been a number of days since that I wasn't able to eat due to reactions to eating. (See prior posts for details) \n\nThis was breakfast, 8oz or 227gram Lamb steak, air fried, then sprinkled"
+  },
+  {
+   "title": "What do you guys meal prep?",
+   "subreddit": "carnivore",
+   "score": 11,
    "num_comments": 33,
-   "comment_to_score_ratio": 8.25,
-   "created": "2026-11-13T20:58:57.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvjjw8/how_much_fat_is_too_much_fat/",
-   "body_preview": "I\u2019m a small guy 155lbs \n\nEating 110g of protein and 76g of fats. Reason why I switched my diet was due to an extreme weird fatigue syndrome that just wouldn\u2019t go away. Doctors still don\u2019t know what\u2019s causing it. Anyway, so far haven\u2019t dropped any weight but my goal is to go back "
-  },
-  {
-   "title": "Where's the clinical research?",
-   "subreddit": "carnivorediet",
-   "score": 8,
-   "num_comments": 29,
-   "comment_to_score_ratio": 3.62,
-   "created": "2026-11-14T02:31:15.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvqz17/wheres_the_clinical_research/",
-   "body_preview": "Given how many people claim to experience substantial health improvements on the carnivore diet, why has there been so little effort to collect proper clinical data on those people?\n\nWhy haven't doctors who are themselves enthusiastic about the diet tried to do something comparab"
-  },
-  {
-   "title": "Suggesting carnivore to friends",
-   "subreddit": "carnivorediet",
-   "score": 4,
-   "num_comments": 15,
-   "comment_to_score_ratio": 3.75,
-   "created": "2026-11-14T04:54:40.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvtogb/suggesting_carnivore_to_friends/",
-   "body_preview": "Anybody else have trouble suggesting a carnivore diet to their friends? A lot of my friends suffer from a lot of the same ailments that I was suffering from until I started carnivore. Anxiety, panic attacks, fatigue, and debilitating GI issues. \n\nI politely and optimistically sug"
-  },
-  {
-   "title": "Carnivore girl dinner! \ud83e\udd69\ud83d\udc8b",
-   "subreddit": "carnivorediet",
-   "score": 70,
-   "num_comments": 15,
-   "comment_to_score_ratio": 0.21,
-   "created": "2026-11-14T02:59:04.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvrims/carnivore_girl_dinner/",
-   "body_preview": "Cracker Barrel pizza mozzarella, 4 hard boiled pasture raised Mennonite eggs, 2 free from pork wieners and 2 of my homemade carnivore muffins all topped with sea salt\n\nAnd yes the hotdogs are boiled lol"
-  },
-  {
-   "title": "Carnivore Fixed My Joint Pain, but Now I'm Struggling With Heart Palpitations, anyone?",
-   "subreddit": "carnivorediet",
-   "score": 8,
-   "num_comments": 14,
-   "comment_to_score_ratio": 1.75,
-   "created": "2026-11-14T03:25:18.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvs138/carnivore_fixed_my_joint_pain_but_now_im/",
-   "body_preview": "I've been on the carnivore diet for about five months now, and honestly, everything has been going pretty well except for one major issue: **a high and sometimes irregular heart rate.**\n\nI originally started carnivore because of knee osteoarthritis and hip arthritis. The improvem"
-  },
-  {
-   "title": "Seeing so many carnivores breaks my damn heart",
-   "subreddit": "carnivorediet",
-   "score": 0,
-   "num_comments": 13,
-   "comment_to_score_ratio": 13.0,
-   "created": "2026-11-13T16:03:38.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvbqft/seeing_so_many_carnivores_breaks_my_damn_heart/",
-   "body_preview": "I was once a carnivore until I wasn\u2019t. \u2018Why did Craig quit carnivore\u2019 Because I had so many damn horrible symptoms I was left with no fucking choice. "
-  },
-  {
-   "title": "Not in ketosis..?",
-   "subreddit": "keto",
-   "score": 1,
-   "num_comments": 11,
-   "comment_to_score_ratio": 11.0,
-   "created": "2026-11-13T22:59:51.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvmi4n/not_in_ketosis/",
-   "body_preview": "Hey ya'll. I was keto about 4 years ago and loved it, I am now 8 months post partum and trying to get back on it. I just used the keto-mojo ketone monitor and it says my ketones are at 0.4, I am not in ketosis or even close. I started about two weeks ago with a 36 hour fast, and "
-  },
-  {
-   "title": "I need help staying on track",
-   "subreddit": "xxketo",
-   "score": 16,
-   "num_comments": 11,
-   "comment_to_score_ratio": 0.69,
-   "created": "2026-11-04T02:53:29.000Z",
-   "url": "https://www.reddit.com/r/xxketo/comments/1xnd1mh/i_need_help_staying_on_track/",
-   "body_preview": "I\u2019m 44F, 5\u20191\u201d 154 lbs. \n\nI\u2019m really struggling to stay on track and can\u2019t turn to GLP1s for other medical reasons. I\u2019ve successfully lost weight on keto so many times before in my life, but this round feels impossible when it comes to my willpower.\n\nI start the day just fine: sat"
-  },
-  {
-   "title": "My Carnivore Journey",
-   "subreddit": "carnivorediet",
-   "score": 18,
-   "num_comments": 10,
-   "comment_to_score_ratio": 0.56,
-   "created": "2026-11-13T19:52:15.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvhuks/my_carnivore_journey/",
-   "body_preview": "I am a stage 5 kidney failure patient. Been in Dialysis for 6 years now. I struggled with weight loss. I need to lose a lot of weight to get a transplant. I was reading about carnivore it seemed worth it to try i tried everything else. I did Carnivore for 4 months. The main thing"
+   "comment_to_score_ratio": 3.0,
+   "created": "2026-11-13T20:42:57.000Z",
+   "url": "https://www.reddit.com/r/carnivore/comments/1xvj53v/what_do_you_guys_meal_prep/",
+   "body_preview": "Hey guys, the other day I went to Publix and asked what meat they had in the deli section that had the least additives and they had deluxe boars head roast beef and the ingredients were just salt, pepper, garlic, but very minimal around 17$ a lb. \n\nSuper easy meal to get for work"
   },
   {
    "title": "Maintaining the diet when thru hiking the PCT",
    "subreddit": "carnivore",
-   "score": 0,
-   "num_comments": 7,
-   "comment_to_score_ratio": 7.0,
+   "score": 5,
+   "num_comments": 23,
+   "comment_to_score_ratio": 4.6,
    "created": "2026-11-13T14:19:25.000Z",
    "url": "https://www.reddit.com/r/carnivore/comments/1xv93ir/maintaining_the_diet_when_thru_hiking_the_pct/",
    "body_preview": "I'm planning on hiking the PCT in 2027, and I was just wondering if y'all had any advice regarding staying carnivore during the 5 months or so of hiking with minimal access to fresh meat.\n\nWould it be at all viable to do more of a gorge / fast way of eating, buying a ton of fresh"
   },
   {
-   "title": "I\u2019m 26, and after just five days of keto, I feel like I\u2019ve finally experienced what a clear mind is supposed to feel like.",
-   "subreddit": "keto",
-   "score": 34,
-   "num_comments": 6,
-   "comment_to_score_ratio": 0.18,
-   "created": "2026-11-14T05:42:16.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvujdk/im_26_and_after_just_five_days_of_keto_i_feel/",
-   "body_preview": "For a long time, I believed glucose was essential because I thought building muscle and maintaining strength required large amounts of it. I never really considered whether consuming large amounts of carbohydrates could have any negative effects on my brain. I simply assumed carb"
-  },
-  {
-   "title": "Ribeye, Lamb Chops, Sardines and Eggs: Once Again, Carnivore Bringing Everyone Together",
+   "title": "Pork Pancetta (belly) boiling on its own fat...",
    "subreddit": "carnivorediet",
-   "score": 64,
-   "num_comments": 5,
-   "comment_to_score_ratio": 0.08,
-   "created": "2026-11-13T22:19:54.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvlkj5/ribeye_lamb_chops_sardines_and_eggs_once_again/",
-   "body_preview": "Had some thin sliced ribeye that I wanted to make use of, so some ghee and salt before a quick seer on the cast iron, with lamb chops hit with duck fat spray before getting in the air fryer, sardines out of the can, and 6 pastured eggs cooked in beef fat and butter. All the anima"
+   "score": 147,
+   "num_comments": 22,
+   "comment_to_score_ratio": 0.15,
+   "created": "2026-11-25T13:33:57.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y57gpg/pork_pancetta_belly_boiling_on_its_own_fat/",
+   "body_preview": "The smell of it made my neighbor ask for some on our building whatsapp group\n\nI roasted in 200 \u00b0C oven for one hour than sliced and panfried it for crust\n\n  \nEdit: I stand corrected, folks, its frying, not boiling. thanks"
   },
   {
-   "title": "Monthly: Less than 7 weeks? Comment here instead of making a new post.",
+   "title": "Hot dogs and sausages? ois anyone thriving on the \"processed\" meats",
    "subreddit": "carnivore",
-   "score": 4,
-   "num_comments": 4,
-   "comment_to_score_ratio": 1.0,
-   "created": "2026-11-02T18:00:46.000Z",
-   "url": "https://www.reddit.com/r/carnivore/comments/1xm4f4g/monthly_less_than_7_weeks_comment_here_instead_of/",
-   "body_preview": "If  you have been carnivore for less than 7 weeks, post all your questions  and experience reports here.  It is almost certain that your experience  is a frequently asked or low-effort question.\n\nIt  is also true that the adaptation period for this way of eating is a lot  like go"
+   "score": 11,
+   "num_comments": 18,
+   "comment_to_score_ratio": 1.64,
+   "created": "2026-11-25T07:08:35.000Z",
+   "url": "https://www.reddit.com/r/carnivore/comments/1y50yuh/hot_dogs_and_sausages_ois_anyone_thriving_on_the/",
+   "body_preview": "So Dr Berry talks about how the processed meats aren't perfect but they still get the job done for a lot of people.  Im looking for anecdotal evidence of that.  I had a day of meat sticks, a couple Johnsonville Bedder Cheddars and a couple Boars head hotdogs and a boarshead bratw"
   },
   {
-   "title": "The crazy dreaming has commenced",
+   "title": "Gained 3kg in 10 weeks on carnivore.  Celebrated this evening with 4 beef flanken ribs, a bunch of venison chops and 6 pastured eggs",
+   "subreddit": "carnivorediet",
+   "score": 105,
+   "num_comments": 15,
+   "comment_to_score_ratio": 0.14,
+   "created": "2026-11-22T01:18:00.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y2csww/gained_3kg_in_10_weeks_on_carnivore_celebrated/",
+   "body_preview": "Started Sep at 80.6kg and weighed 83.6kg on Friday.  Body is primed for growth.  I regret that one of my yolks ruptured during the cook, but otherwise this was a fantastic meal.\n\nI also love how this was a \"simple meal\".  Was able to get everything cooked in 8 minutes.  And how t"
+  },
+  {
+   "title": "How to alter family recipe to be keto?",
+   "subreddit": "keto",
+   "score": 0,
+   "num_comments": 12,
+   "comment_to_score_ratio": 12.0,
+   "created": "2026-11-27T17:25:01.000Z",
+   "url": "https://www.reddit.com/r/keto/comments/1y6yual/how_to_alter_family_recipe_to_be_keto/",
+   "body_preview": "Hello! This is my first holiday season on keto. My family has a cherished recipe for what we call Holiday Muffins that my mom has made every Christmas since we were little. Any tips from more experienced keto bakers on how to alter the recipe to be more keto-friendly? I assume it"
+  },
+  {
+   "title": "Feeling different and more serious.",
+   "subreddit": "keto",
+   "score": 6,
+   "num_comments": 12,
+   "comment_to_score_ratio": 2.0,
+   "created": "2026-11-28T01:46:00.000Z",
+   "url": "https://www.reddit.com/r/keto/comments/1y79zss/feeling_different_and_more_serious/",
+   "body_preview": "M24. I\u2019m a very talkative, goofy, easygoing and friendly guy when I\u2019m outside of ketosis. Although I feel anxiety most of the time, I mask it quite well (adding this for context).\n\nEvery time I try to get into this diet, I just feel my behaviour change almost instantly, like some"
+  },
+  {
+   "title": "Dessert that has helped me",
+   "subreddit": "keto",
+   "score": 20,
+   "num_comments": 12,
+   "comment_to_score_ratio": 0.6,
+   "created": "2026-11-28T03:03:45.000Z",
+   "url": "https://www.reddit.com/r/keto/comments/1y7bgvc/dessert_that_has_helped_me/",
+   "body_preview": "I think I got the idea in this sub, but I have tweaked it a little. When I am craving ice cream I have a tablespoon of cool whip with just a tiny bit of hersheys special dark cocoa powder stirred in and a couple of crushed nuts . It is very low carb and is enough to stop the ice "
+  },
+  {
+   "title": "\"Chicken and Waffles\" Carnivore edition",
+   "subreddit": "carnivorediet",
+   "score": 52,
+   "num_comments": 10,
+   "comment_to_score_ratio": 0.19,
+   "created": "2026-11-24T00:22:12.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y3ywov/chicken_and_waffles_carnivore_edition/",
+   "body_preview": "We did a breakfast for dinner night and I took it for a full carnivore spin. Chaffles made with egg and cheddar, chicken thighs in an egg wash before pork panko and some duck fat spray, then a visit to the air fryer, plated with 6 eggs. I actually put some sour cream and butter o"
+  },
+  {
+   "title": "Close to goal weight",
+   "subreddit": "keto",
+   "score": 13,
+   "num_comments": 9,
+   "comment_to_score_ratio": 0.69,
+   "created": "2026-11-27T17:55:19.000Z",
+   "url": "https://www.reddit.com/r/keto/comments/1y6zkef/close_to_goal_weight/",
+   "body_preview": "Hi Everyone, 49 M sw 284 cw 198 been on diet since may 9th so about 6 mo. Im getting close to goal weight and not sure what to do during maintenance. Im torn on how strict I need to go. Just checking people's opinion. Obviously going back to the way I was eating will put all weig"
+  },
+  {
+   "title": "Update: Almost Two Months Progress",
+   "subreddit": "carnivorediet",
+   "score": 116,
+   "num_comments": 8,
+   "comment_to_score_ratio": 0.07,
+   "created": "2026-11-26T07:07:17.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y5uqsz/update_almost_two_months_progress/",
+   "body_preview": "a few weeks ago i shared a progress post here, but they were two different angles so it was a bit harder to see the difference and progress.\n\nthe first picture is October 8th.  \nthe second picture was taken a few minutes ago.\n\nkeep going guys. happy thanksgiving! \ud83d\ude01\ud83d\udc4d\ud83c\udffd "
+  },
+  {
+   "title": "Menstrual period acting strange?",
+   "subreddit": "xxketo",
+   "score": 4,
+   "num_comments": 7,
+   "comment_to_score_ratio": 1.75,
+   "created": "2026-11-21T16:06:27.000Z",
+   "url": "https://www.reddit.com/r/xxketo/comments/1y20j1t/menstrual_period_acting_strange/",
+   "body_preview": "Hello everyone I\u2019ve been on keto for about a month, and I\u2019ve noticed that I\u2019ve been spotting, and having all the other symptoms when I\u2019m on my period. Thing is.. I\u2019m only spotting and not fully bleeding, has anyone experienced this when they went on keto? "
+  },
+  {
+   "title": "Here's a feel good testament to the carnivore diet",
+   "subreddit": "carnivore",
+   "score": 49,
+   "num_comments": 7,
+   "comment_to_score_ratio": 0.14,
+   "created": "2026-11-16T02:32:26.000Z",
+   "url": "https://www.reddit.com/r/carnivore/comments/1xxdwub/heres_a_feel_good_testament_to_the_carnivore_diet/",
+   "body_preview": "Yesterday in Sydney Australia there was a fund raising event called the Bloody long walk. 35km walk from Malabar to the harbour bridge along the coast. It wasn't an easy walk by any stretch with steep descents, long drawn out hills and steps that came wave after wave near the end"
+  },
+  {
+   "title": "Angry Motivation",
+   "subreddit": "carnivore",
+   "score": 9,
+   "num_comments": 5,
+   "comment_to_score_ratio": 0.56,
+   "created": "2026-11-27T18:58:34.000Z",
+   "url": "https://www.reddit.com/r/carnivore/comments/1y713gy/angry_motivation/",
+   "body_preview": "I have two doctors, a Naturopath and a Westernized primary care one.  \n\nI started with the Naturopath and was open and honest about being Carnivore.  I could tell she was a bit skeptical but sent me for blood work.  It all came back perfect, and she seemed open-minded enough to b"
+  },
+  {
+   "title": "Keto and Endo",
+   "subreddit": "xxketo",
+   "score": 3,
+   "num_comments": 4,
+   "comment_to_score_ratio": 1.33,
+   "created": "2026-11-23T22:53:35.000Z",
+   "url": "https://www.reddit.com/r/xxketo/comments/1y3wvgu/keto_and_endo/",
+   "body_preview": "My wife is starting Keto has she thinks it might help her endometriosis and painful periods. I\u2019m just tryna give her some success stories for motivation as some days it can be understandably tough . Thanks all"
+  },
+  {
+   "title": "Mood changes on keto",
+   "subreddit": "xxketo",
+   "score": 9,
+   "num_comments": 4,
+   "comment_to_score_ratio": 0.44,
+   "created": "2026-11-24T19:37:06.000Z",
+   "url": "https://www.reddit.com/r/xxketo/comments/1y4mkfo/mood_changes_on_keto/",
+   "body_preview": "Just wanted to share because I have been so impressed with the mood effects I have noticed during my first month on keto.\n\nThe first two weeks of course I felt very moody and VERY sad as I adjusted. I was reassured that this was normal and dealt with it by eating ALOT to avoid lo"
+  },
+  {
+   "title": "Has anyone tried ketolibriyum? Meal delviery service keto",
    "subreddit": "keto",
    "score": 1,
    "num_comments": 3,
    "comment_to_score_ratio": 3.0,
-   "created": "2026-11-13T19:32:11.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvhc4l/the_crazy_dreaming_has_commenced/",
-   "body_preview": "I know it is working because I am having crazy dreams. Weird things happen but the common thread is I am worried about my diet. Did I eat something I  should not have? Did I eat too much? Did I kick myself out of ketosis? \n\nThe dreams happen every time. It goes away after a few d"
+   "created": "2026-11-28T00:52:37.000Z",
+   "url": "https://www.reddit.com/r/keto/comments/1y78yn1/has_anyone_tried_ketolibriyum_meal_delviery/",
+   "body_preview": "They are a meal delivery service who claim to give you fresh keto meals. I would want this only because if I am left to cook I have a much bigger chance to just eat carbs. But with this I never have to enter a kitchen or go shopping for the first few months till I'm fat adapted y"
   },
   {
-   "title": "Epic dinner",
-   "subreddit": "carnivorediet",
-   "score": 14,
+   "title": "Carnivore Cookies Anyone?",
+   "subreddit": "carnivore",
+   "score": 11,
    "num_comments": 3,
-   "comment_to_score_ratio": 0.21,
-   "created": "2026-11-14T05:15:25.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvu2fy/epic_dinner/",
-   "body_preview": "I made a carnivore style shepherd's pie with no potatoes in it.  I've not made it for awhile, and it hit the spot on a rainy night. \n\nHere's a link if anyone wants the recipe. https://youtu.be/95bx48od8xI?si=UX98y6RRhk0iMpfF"
+   "comment_to_score_ratio": 0.27,
+   "created": "2026-11-17T17:22:43.000Z",
+   "url": "https://www.reddit.com/r/carnivore/comments/1xyqej1/carnivore_cookies_anyone/",
+   "body_preview": "Here is what we snack on daily! 2 ingredients: butter and nonfat powdered milk.\n\nI use an 11\u201d round pan -   \n2 sticks of butter melted  \nAdd:  \n2 Cups nonfat powdered milk\n\nOn medium/ high heat quickly mix together in pan and spread out evenly over entire pan. Start flipping over"
   },
   {
-   "title": "Watching TV show Dinosaurs S2E3",
-   "subreddit": "carnivorediet",
-   "score": 5,
-   "num_comments": 2,
-   "comment_to_score_ratio": 0.4,
-   "created": "2026-11-13T18:38:58.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvfx61/watching_tv_show_dinosaurs_s2e3/",
-   "body_preview": "*\"Robbie refuses to join a Young Male Carnivores Association (YMCA) and considers becoming a herbivore. Earl is appalled and hauls Robbie off to hunt in the wilderness, to reinforce the carnivore ethic\"*\n\n  \nFirst half was funny as hell. Found out his son was playing with the \"gr"
-  },
-  {
-   "title": "Meat Inspiration",
-   "subreddit": "carnivorediet",
-   "score": 17,
-   "num_comments": 2,
-   "comment_to_score_ratio": 0.12,
-   "created": "2026-11-14T05:32:17.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvud5k/meat_inspiration/",
-   "body_preview": "I have been dealing with gut issues from undiagnosed inflammation (& complications) for most of my life. They got exponentially worse after the Covid mRNA vaccines. I tried literally every elimination diet with things getting worse after every 7th Day Adventist (Western Dietetics"
-  },
-  {
-   "title": "[2026-11-14] - /r/keto Beginners & Community Support Thread",
-   "subreddit": "keto",
+   "title": "Mary Ruth\u2019s Multi Liquid Carb Content- Vegetable Glycerin",
+   "subreddit": "xxketo",
    "score": 1,
-   "num_comments": 1,
+   "num_comments": 2,
+   "comment_to_score_ratio": 2.0,
+   "created": "2026-11-24T14:51:36.000Z",
+   "url": "https://www.reddit.com/r/xxketo/comments/1y4f7c7/mary_ruths_multi_liquid_carb_content_vegetable/",
+   "body_preview": "Hey!\n\nSo prior to restarting Keto, I had stocked up on Mary Ruth\u2019s liquid Multivitamin with Lustrivia for hair growth. I have like 4 bottles. The 2 tbsp. dose has 8g carbs. Aside from the vitamin content, here are the other ingredients:\n\nOther Ingredients: Purified Water, Vegetab"
+  },
+  {
+   "title": "HRT help",
+   "subreddit": "xxketo",
+   "score": 1,
+   "num_comments": 2,
+   "comment_to_score_ratio": 2.0,
+   "created": "2026-11-22T07:08:07.000Z",
+   "url": "https://www.reddit.com/r/xxketo/comments/1y2j5bq/hrt_help/",
+   "body_preview": "Hey,  \nAt 38, I\u2019ve been going through perimenopause for a couple of years now. I was put on low dose TRT due to my levels being incredibly low which has made a massive difference however I\u2019ve had an unintended consequence of an increase of my weight that I cannot shake.  \nI exerc"
+  },
+  {
+   "title": "[2026-11-28] - /r/keto Beginners & Community Support Thread",
+   "subreddit": "keto",
+   "score": 2,
+   "num_comments": 2,
    "comment_to_score_ratio": 1.0,
-   "created": "2026-11-14T07:00:04.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xvvvv8/20261114_rketo_beginners_community_support_thread/",
+   "created": "2026-11-28T07:00:10.000Z",
+   "url": "https://www.reddit.com/r/keto/comments/1y7fq3v/20261128_rketo_beginners_community_support_thread/",
    "body_preview": "Hello r/keto Community!\n\nPlease use this support thread to talk freely and support each other. \\*\\*We've switched up the format to a week so that there's more time for interaction on questions and answers.\\*\\*    \n\nThis is the place for you to tell us if you fell of the wagon or "
   },
   {
-   "title": "Keto friendly doctors in NYC",
-   "subreddit": "keto",
-   "score": 3,
-   "num_comments": 1,
-   "comment_to_score_ratio": 0.33,
-   "created": "2026-11-13T13:07:08.000Z",
-   "url": "https://www.reddit.com/r/keto/comments/1xv7es6/keto_friendly_doctors_in_nyc/",
-   "body_preview": "Hi all,  \nI was wondering if anyone knew of any keto friendly GPs in the New York City area (Manhattan or Brooklyn is fine). I\u2019ve done some googling of course and see a few but figured I\u2019d check if anyone else has good recommendations. \n\nThank you! "
-  },
-  {
-   "title": "I need advice from those who plan on being lifelong ketogenics.",
-   "subreddit": "xxketo",
-   "score": 4,
-   "num_comments": 1,
-   "comment_to_score_ratio": 0.25,
-   "created": "2026-11-02T06:28:39.000Z",
-   "url": "https://www.reddit.com/r/xxketo/comments/1xlpwxs/i_need_advice_from_those_who_plan_on_being/",
-   "body_preview": "I'm healthy, but I'd like to adopt a ketogenic lifestyle for the long term. Most of the foods I currently eat are already keto-friendly, although I still include some carbs in my diet. Does anyone have advice for someone looking to make keto a sustainable, lifelong way of eating?"
-  },
-  {
-   "title": "Starting carnivore diet for gastroparesis",
+   "title": "smoked a brisket for thanksgiving",
    "subreddit": "carnivorediet",
-   "score": 3,
-   "num_comments": 0,
-   "comment_to_score_ratio": 0.0,
-   "created": "2026-11-14T03:44:00.000Z",
-   "url": "https://www.reddit.com/r/carnivorediet/comments/1xvsdq8/starting_carnivore_diet_for_gastroparesis/",
-   "body_preview": "I was recently diagnosed with gastroparesis, which means my stomach empties much more slowly than normal. As a result, I struggle with constant bloating and nausea.  \nI weight train 6 times a week and lead a very active lifestyle, so getting enough nutrition to fuel my workouts a"
+   "score": 48,
+   "num_comments": 2,
+   "comment_to_score_ratio": 0.04,
+   "created": "2026-11-27T02:21:42.000Z",
+   "url": "https://www.reddit.com/r/carnivorediet/comments/1y6hvpi/smoked_a_brisket_for_thanksgiving/",
+   "body_preview": "My best work yet. Tender af, juicy, incredibly fatty. \n\nI did a 90 minute smoke, wrapped and baked to \\~193F internal the day before and and held in a warming oven at \\~150F. highly recommend bringing a brisket for big holiday dinners. inspo for the technique was this guy [https:"
   },
   {
-   "title": "If I\u2019m not working out every single day, I plateau.",
-   "subreddit": "xxketo",
+   "title": "face puffiness",
+   "subreddit": "keto",
    "score": 2,
    "num_comments": 0,
    "comment_to_score_ratio": 0.0,
-   "created": "2026-10-31T02:30:17.000Z",
-   "url": "https://www.reddit.com/r/xxketo/comments/1xjyo69/if_im_not_working_out_every_single_day_i_plateau/",
-   "body_preview": "Cross sharing this because it was suggested and I felt that it might fit well here!\n\nThanks in advance. "
+   "created": "2026-11-28T10:36:12.000Z",
+   "url": "https://www.reddit.com/r/keto/comments/1y7j4qu/face_puffiness/",
+   "body_preview": "i broke my keto (after four weeks so i\u2019m still proud) a day ago. Something i noticed which I hadn\u2019t thought of is how much of a difference my face had been looking. I woke up and had such terrible face puffiness (which i used to have every single morning into early afternoon). Th"
   }
  ]
 }
