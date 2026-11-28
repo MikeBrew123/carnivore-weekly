@@ -173,7 +173,8 @@
         "P3 (one link, no repeated benefits list)",
         "P4 (omega-3 gets one paragraph and a link)"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "pescatarian-vs-vegetarian"
     },
     {
       "order": 12,
@@ -188,7 +189,8 @@
         "P7 (shrimp gets a link, no cholesterol section)",
         "P2 (dinners, not a weekly plan)"
       ],
-      "status": "queued"
+      "status": "drafted",
+      "slug": "pescatarian-dinner-ideas"
     }
   ],
   "later": [
