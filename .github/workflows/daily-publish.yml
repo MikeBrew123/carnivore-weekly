@@ -426,6 +426,11 @@ jobs:
           # pushes the stale local main ref and reports "Everything up-to-date"
           # while the new commit never leaves the runner — which orphaned the
           # 2026-08-03 pointer and broke the next day's checkout. Push HEAD.
+          # ISSUE-110: a PR merged straight into the KD repo leaves the parent
+          # gitlink behind KD main, and the push is rejected non-fast-forward.
+          # Replay the publish commit onto the current KD main first.
+          git fetch origin main
+          git rebase origin/main
           git push origin HEAD:main
 
       # Pushes with the KD_DEPLOY_TOKEN PAT that actions/checkout persisted (not
